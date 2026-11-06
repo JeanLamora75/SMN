@@ -142,7 +142,7 @@ export function presenceFromSnapshot(value:unknown,version:number):SprintPresenc
    for(const rawAbsence of m.absences as unknown[]){
     const item=object(rawAbsence);
     if(!item||typeof item.date!=="string"||
-     !/^\\d{4}-\\d{2}-\\d{2}$/.test(item.date)||
+     !/^\d{4}-\d{2}-\d{2}$/.test(item.date)||
      (item.halfDays!==1&&item.halfDays!==2)||
      typeof item.category!=="string"||typeof item.reason!=="string"||
      typeof item.isPlanned!=="boolean")return {state:"unavailable",reason:"read-failed"};
