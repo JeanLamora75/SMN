@@ -55,6 +55,7 @@ test("SMN-402: styles ligne, barres et aire produisent des PNG distincts",()=>{
  const b=renderOfficeIndicatorChart(report,"c3",{last:3,type:"bar",tags:["SP_DONE"]},"fr");
  const c=renderOfficeIndicatorChart(report,"c3",{last:3,type:"area",tags:["SP_DONE"]},"fr");
  assert.notDeepEqual(a,b);
+ assert.notDeepEqual(a,c);
  assert.ok(c&&c.length>1000);
 });
 for(const [format,xml] of [["docx",docx],["pptx",pptx]] as const){
