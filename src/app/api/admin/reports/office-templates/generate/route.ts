@@ -10,6 +10,7 @@ import {renderOfficeIndicatorChart} from "@/server/reports/office-indicator-char
 import {discoverOfficeChartTags,insertOfficeTrendImages} from "../../../../../../../scripts/smn-402-office-chart-tags.mjs";
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
 import {readOfficeWordMembers,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
+import {discoverOfficeBusinessSources,readOfficeBusinessRows} from "@/server/reports/office-business-rows";
 import {inspectOfficeReport,saveOfficeReport,OfficeSaveConflict,OfficeSaveFailure} from "@/server/reports/office-storage";
 import {generateWordTables} from "../../../../../../../scripts/smn-400-word-tables.mjs";
 import {generatePowerPointTables} from "../../../../../../../scripts/smn-401-powerpoint-tables.mjs";
@@ -50,10 +51,12 @@ export async function POST(req:NextRequest){
   return jsonResult({error:"invalid-input"},400);
  let selected:Awaited<ReturnType<typeof readOfficeTemplateById>>;
  let chartCount=0;
+ let businessSources:ReturnType<typeof discoverOfficeBusinessSources>=[];
  try{
   selected=await readOfficeTemplateById(modelId);
   if(!selected)return jsonResult({error:"template-unavailable"},404);
   chartCount=discoverOfficeChartTags(selected.bytes,selected.template.format).length;
+  businessSources=discoverOfficeBusinessSources(selected.bytes);
  }catch{return jsonResult({error:"office-chart-invalid-tag"},422);}
  let payload:{values:ReturnType<typeof buildScalarValues>;
   rows:Record<string,Record<string,string|null>[]>;report:ReportData|null};
@@ -62,8 +65,8 @@ export async function POST(req:NextRequest){
    const team=await resolveAdminTeam(db,{accountId:actor.id,role:actor.role},teamId);
    if(team.mode!=="scrum"||!await assertTeamReportCycle(db,{accountId:actor.id,role:actor.role},teamId,cycleId))
     throw Error("forbidden-scope");
-   const cycle=await db.query<{name:string;status:string;start_at:string|null;end_at:string|null}>(
-    "SELECT s.name,s.status,s.start_at::text,s.end_at::text "+
+   const cycle=await db.query<{name:string;status:string;start_at:string|null;end_at:string|null;time_zone:string}>(
+    "SELECT s.name,s.status,s.start_at::text,s.end_at::text,s.time_zone "+
     "FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id "+
     "WHERE s.id=$1 AND s.team_id=$2 AND t.installation_id='singleton' "+
     "AND s.deleted_at IS NULL LIMIT 2",[cycleId,teamId]);
@@ -87,7 +90,11 @@ export async function POST(req:NextRequest){
    });
    const members=await readOfficeWordMembers(db,teamId,cycleId,locale);
    const report=chartCount>0?await readIndicatorReporting(db,teamId,"trends","scrum"):null;
-   return {values,rows:{MEMBERS:members,INDICATORS:officeWordIndicatorRows(indicators,locale)},report};
+   const business=await readOfficeBusinessRows(db,teamId,{
+    id:cycleId,startAt:new Date(sprint.start_at!).toISOString(),
+    endAt:new Date(sprint.end_at!).toISOString(),timeZone:sprint.time_zone
+   },locale,businessSources);
+   return {values,rows:{MEMBERS:members,INDICATORS:officeWordIndicatorRows(indicators,locale),...business},report};
   });
  }catch(error){
   if(error instanceof Error&&error.message==="too-many-indicators")
