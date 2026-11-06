@@ -20,7 +20,7 @@ export function parseOfficeChartTag(raw){
    if(!/^\d+$/.test(pair[2])||+pair[2]<1||+pair[2]>24)throw Error("office-chart-invalid-range");
    params.last=+pair[2];
   }else if(pair[1]==="TYPE"){
-   if(!["bar","line","area"].includes(pair[2]))throw Error("office-chart-invalid-style");
+   if(!["bar","line","area","pie","donut","gauge"].includes(pair[2]))throw Error("office-chart-invalid-style");
    params.type=pair[2];
   }else if(pair[1]==="TAGS"){
    const tags=pair[2].split(",");
