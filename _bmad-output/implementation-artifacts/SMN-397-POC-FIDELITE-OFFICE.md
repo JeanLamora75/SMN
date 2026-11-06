@@ -53,6 +53,13 @@ Les octets **décompressés** des autres parties étaient identiques dans l'insp
 
 ## Suite requise pour clore SMN-397
 
-Déposer un harness exécutable dans le dépôt, construire des fixtures Word/PPTX réalistes incluant tableaux et graphiques, qualifier P1–P6 de l'architecture, exécuter sur le Node 24/Windows 11 cible, identifier une bibliothèque ZIP/XML maintenue et compatible/licence, réaliser un examen visuel Microsoft Office, puis documenter les preuves et échecs.
+Le harness expérimental a été publié sur `main` dans [`scripts/smn-397-office-poc.mjs`](../../../scripts/smn-397-office-poc.mjs), avec ses [tests de contrat](../../../tests/smn-397-office-poc.test.mjs). Il reste à construire des fixtures Word/PPTX réalistes incluant tableaux et graphiques, qualifier P1–P6 de l'architecture, exécuter les tests sur Node 24/Windows 11, identifier une bibliothèque ZIP/XML maintenue et compatible/licence, réaliser un examen visuel Microsoft Office, puis documenter les preuves et échecs.
 
 **La Story reste En cours.**
+
+## Publication et CI GitHub
+
+- Script POC publié sur `main` : `scripts/smn-397-office-poc.mjs`, commit `18141fd70c255ba6dc4997e01df5b6739fbde48e`.
+- Test de contrat POC publié sur `main` : `tests/smn-397-office-poc.test.mjs`, commit `4c6e1c3ccee1f1ec630e3aa8a57a01ada78b5531`.
+- Les résultats 4/4 et l'ouverture des fichiers Office concernent le banc d'essai local isolé. **L'exécution CI du fichier de tests effectivement publié doit être vérifiée séparément** avant d'affirmer que sa validation est acquise.
+- CI au moment de la dernière vérification : des workflows GitHub Actions sont encore `in_progress` ; aucune conclusion globale n'est revendiquée.
