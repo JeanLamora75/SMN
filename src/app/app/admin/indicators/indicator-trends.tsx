@@ -26,7 +26,7 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
  const series=activeColumns.map((column,i)=>({column,values:trendNumbers(range,column.id),color:TREND_COLORS[i%TREND_COLORS.length]}));
  const nums=series[0]?.values??[];
  const actual=series.flatMap(item=>item.values).filter((v):v is number=>v!==null);
- const {min,max,span}=trendRange(series.map(item=>item.values));
+ const {min,span}=trendRange(series.map(item=>item.values));
  const x=(i:number)=>80+(i+.5)*800/Math.max(1,range.length);
  const y=(v:number)=>300-(v-min)/span*215;
  const format=(v:number|null)=>formatIndicatorValue(v,locale);
@@ -36,8 +36,7 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
  const total=nums.filter((v):v is number=>v!==null).reduce((a,b)=>a+b,0);
  const colors=[...TREND_COLORS];
  const multiple=activeColumns.length>1;
- const selectionIssue=validateTrendSelection(indicators,report?.columns??[]);
- const selectionError=(code:NonNullable<typeof selectionIssue>)=>({
+ const selectionError=(code:Exclude<ReturnType<typeof validateTrendSelection>,null>)=>({
   empty:locale==="fr"?"Sélectionnez au moins un indicateur.":"Select at least one indicator.",
   limit:locale==="fr"?"Maximum 6 indicateurs par graphique.":"Maximum 6 indicators per chart.",
   unknown:locale==="fr"?"Sélection d’indicateurs invalide.":"Invalid indicator selection.",
