@@ -1,6 +1,6 @@
 # SMN-400 — Tableaux Word dynamiques
 
-**État : En cours — implémentation sur `main`, recette CI dédiée et Windows à confirmer.**
+**État : En cours — implémentation sur `main`, recette CI Node 24 verte ; tests d'intégration PostgreSQL et inspection Microsoft Word/Windows encore à confirmer.**
 
 ## Convention du modèle
 
@@ -37,7 +37,7 @@ Le marqueur peut être fragmenté entre plusieurs runs Word ; les valeurs simple
 
 ## Statut des preuves
 
-La première recette couvre tableaux 0/1/N, deux sources de lignes indépendantes, conservation des parties ZIP hors cible, styles de ligne, XML échappé, coexistence avec tags simples et refus des structures non prises en charge. Les résultats de `pnpm exec tsx --test tests/smn-400-word-tables.test.mjs`, du contrôle TypeScript et d'ESLint sont vérifiables dans la [CI SMN-400](https://github.com/JeanLamora75/SMN/actions/workflows/smn-400-word-tables.yml).
+La première recette couvre tableaux 0/1/N, deux sources de lignes indépendantes, conservation des parties ZIP hors cible, styles de ligne, XML échappé, coexistence avec tags simples et refus des structures non prises en charge. **Résultat vérifié :** [exécution GitHub Actions 42299892085](https://github.com/JeanLamora75/SMN/actions/runs/42299892085) : **9 tests réussis sur 9**, `pnpm typecheck` et ESLint ciblé réussis sur Node.js 24 Linux. Les tests mettent en œuvre des packages Open XML synthétiques ; ils ne constituent pas une recette de rendu Microsoft Word.
 
 **Restent non prouvés avant clôture :** tests de l'API avec base PostgreSQL réellement chargée, recette Microsoft Word sous Windows 11, tableaux très volumineux/complexes, vérification visuelle des modèles métiers et durcissement du traitement Open XML. Le moteur Open XML utilise encore des expressions régulières et un lecteur ZIP expérimental : il ne faut pas présumer une fidélité universelle.
 
