@@ -10,6 +10,7 @@ import {renderOfficeIndicatorChart} from "@/server/reports/office-indicator-char
 import {discoverOfficeChartTags,insertOfficeTrendImages} from "../../../../../../../scripts/smn-402-office-chart-tags.mjs";
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
 import {readOfficeWordMembers,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
+import {inspectOfficeReport,saveOfficeReport,OfficeSaveConflict,OfficeSaveFailure} from "@/server/reports/office-storage";
 import {generateWordTables} from "../../../../../../../scripts/smn-400-word-tables.mjs";
 import {generatePowerPointTables} from "../../../../../../../scripts/smn-401-powerpoint-tables.mjs";
 import {buildScalarValues,formatScalarNumber,generateScalarOffice} from "../../../../../../../scripts/smn-399-office-scalars.mjs";
@@ -38,6 +39,9 @@ export async function POST(req:NextRequest){
  const input=await readJsonObject(req);
  if(!input)return jsonResult({error:"invalid-input"},400);
  const {modelId,teamId,cycleId,filename,language}=input;
+ const action=input.action??"download";
+ if(!["download","check","save"].includes(String(action)))return jsonResult({error:"invalid-input"},400);
+ if(action==="save"&&typeof input.expectedFingerprint!=="string")return jsonResult({error:"invalid-input"},400);
  if(typeof modelId!=="string"||!/^[0-9a-f]{32}$/.test(modelId)||
     typeof teamId!=="string"||typeof cycleId!=="string"||!cyclePattern.test(cycleId)||
     typeof filename!=="string"||filename.trim()!==filename||!safeName.test(filename)||
@@ -91,6 +95,10 @@ export async function POST(req:NextRequest){
   return jsonResult({error:"forbidden"},403);
  }
  try{
+  if(action==="check"){
+   try{return jsonResult(await inspectOfficeReport(filename,selected.template.format));}
+   catch{return jsonResult({error:"save-unavailable"},503);}
+  }
   const base=selected.template.format==="docx"?
    generateWordTables(selected.bytes,payload.rows).bytes:
    generatePowerPointTables(selected.bytes,payload.rows).bytes;
@@ -101,6 +109,16 @@ export async function POST(req:NextRequest){
    result.bytes;
   if(!isSupportedOfficePackage(withCharts,selected.template.format))
    return jsonResult({error:"generation-failed"},422);
+  if(action==="save"){
+   try{
+    const saved=await saveOfficeReport(withCharts,filename,selected.template.format,input.expectedFingerprint as string);
+    return jsonResult({saved:true,filename:saved.filename,directory:saved.directory});
+   }catch(error){
+    if(error instanceof OfficeSaveConflict)return jsonResult({error:"save-conflict"},409);
+    if(error instanceof OfficeSaveFailure)return jsonResult({error:"save-unavailable"},503);
+    return jsonResult({error:"save-unavailable"},503);
+   }
+  }
   const fullName=filename.replace(/\.(docx|pptx)$/i,"")+"."+selected.template.format;
   const mime=selected.template.format==="docx"?
    "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
