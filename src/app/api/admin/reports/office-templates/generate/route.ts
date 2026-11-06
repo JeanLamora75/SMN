@@ -6,7 +6,7 @@ import {resolveAdminTeam} from "@/server/teams/resolve";
 import {assertTeamReportCycle} from "@/server/reports/team-cycle";
 import {readReportIndicatorProjection} from "@/server/reports/dynamic-indicators";
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
-import {buildScalarValues,generateScalarOffice} from "../../../../../../scripts/smn-399-office-scalars.mjs";
+import {buildScalarValues,generateScalarOffice} from "../../../../../../../scripts/smn-399-office-scalars.mjs";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
