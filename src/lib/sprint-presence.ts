@@ -5,8 +5,13 @@ export type AgileRole="scrumMaster"|"productOwner"|"developer";
 export type PresenceMissingSource="no-assignments"|"ambiguous-assignment"|
  "assignment-version"|"work-calendar"|
  "exceptional-meeting-participants"|"exceptional-meeting-work-slots";
+export type PresenceAbsence=Readonly<{
+ date:string;halfDays:1|2;category:string;isPlanned:boolean;reason:string;
+}>;
 export type PresenceMember=Readonly<{
  memberId:string;displayName:string;presenceJh:number|null;
+ /** Optional for snapshots created before absence display support. */
+ absenceJh?:number|null;absences?:readonly PresenceAbsence[];
  /** Diagnostic for live estimates only; no individual details in collective views. */
  missingSources?:readonly PresenceMissingSource[];
  developmentJh:number|null;daysCount:number;unknownDays:number;
@@ -26,6 +31,7 @@ export type PresenceUnavailable=Readonly<{
 export type SprintPresence=PresenceData|PresenceUnavailable;
 type CapacityDay=Readonly<{
  status:"calculated"|"not-calculable";availableHalfDays:number|null;
+ date?:string;absenceItems?:readonly Omit<PresenceAbsence,"date">[];
  missing?:readonly PresenceMissingSource[];
 }>;
 type CapacityMember=Readonly<{
@@ -59,8 +65,18 @@ export function presenceFromCapacity(report:CapacityPresenceInput):PresenceData{
    typeof member.displayName!=="string")throw Error("invalid-member");
   ids.add(member.memberId);
   let presence=0,unknownDays=0;
+  let absenceKnown=true,absenceHalfDays=0;
+  const absences:PresenceAbsence[]=[];
   const missingSources=new Set<PresenceMissingSource>();
   for(const day of member.days){
+   if(day.absenceItems===undefined||typeof day.date!=="string"){
+    absenceKnown=false;
+   }else if(day.status==="calculated"){
+    for(const item of day.absenceItems){
+     absenceHalfDays+=item.halfDays;
+     absences.push({...item,date:day.date});
+    }
+   }
    if(day.status==="not-calculable")for(const missing of day.missing??[])missingSources.add(missing);
    if(day.status!=="calculated"||!Number.isInteger(day.availableHalfDays)||
     day.availableHalfDays===null||day.availableHalfDays<0||day.availableHalfDays>2){
@@ -72,7 +88,9 @@ export function presenceFromCapacity(report:CapacityPresenceInput):PresenceData{
   return {memberId:member.memberId,displayName:member.displayName,
    presenceJh:unknownDays===0?round(presence):null,
    developmentJh:knownDevelopment?member.totalJh:null,
-   daysCount:member.days.length,unknownDays,missingSources:[...missingSources].sort()};
+   daysCount:member.days.length,unknownDays,missingSources:[...missingSources].sort(),
+   ...(absenceKnown?{absenceJh:unknownDays===0?round(absenceHalfDays/2):null,absences}:{}),
+  };
  });
  const allKnown=members.every(m=>m.presenceJh!==null);
  const totalPresenceJh=allKnown?round(members.reduce((sum,m)=>sum+(m.presenceJh??0),0)):null;
@@ -113,11 +131,33 @@ export function presenceFromSnapshot(value:unknown,version:number):SprintPresenc
    (!Array.isArray(m.contributionPercents)||m.contributionPercents.some(p=>
     !Number.isInteger(p)||p<0||p>100)))
    return {state:"unavailable",reason:"read-failed"};
+  const hasAbsenceJh=Object.hasOwn(m,"absenceJh");
+  const hasAbsences=Object.hasOwn(m,"absences");
+  if(hasAbsenceJh!==hasAbsences)return {state:"unavailable",reason:"read-failed"};
+  if(hasAbsenceJh){
+   if(!validJh(m.absenceJh)||!Array.isArray(m.absences)||
+    (m.absenceJh===null&&Number(m.unknownDays)===0)||
+    (m.absenceJh!==null&&Number(m.unknownDays)>0))return {state:"unavailable",reason:"read-failed"};
+   let totalHalfDays=0;
+   for(const rawAbsence of m.absences as unknown[]){
+    const item=object(rawAbsence);
+    if(!item||typeof item.date!=="string"||
+     !/^\\d{4}-\\d{2}-\\d{2}$/.test(item.date)||
+     (item.halfDays!==1&&item.halfDays!==2)||
+     typeof item.category!=="string"||typeof item.reason!=="string"||
+     typeof item.isPlanned!=="boolean")return {state:"unavailable",reason:"read-failed"};
+    totalHalfDays+=Number(item.halfDays);
+   }
+   if(m.absenceJh!==null&&Math.abs(totalHalfDays/2-Number(m.absenceJh))>0.0001)
+    return {state:"unavailable",reason:"read-failed"};
+  }
   seen.add(m.memberId);
   members.push({memberId:m.memberId,displayName:m.displayName,
    presenceJh:m.presenceJh as number|null,
    developmentJh:m.developmentJh as number|null,
    daysCount:m.daysCount as number,unknownDays:m.unknownDays as number,
+   ...(hasAbsenceJh?{absenceJh:m.absenceJh as number|null,
+    absences:(m.absences as PresenceAbsence[]).map(x=>({...x}))}:{}),
    ...(m.professionalFunction===undefined?{}:{
     professionalFunction:m.professionalFunction as string|null}),
    ...(m.agileRoles===undefined?{}:{
