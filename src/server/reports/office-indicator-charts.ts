@@ -2,7 +2,7 @@ import type {ReportData} from "@/server/indicators/reporting";
 import {trendNumbers,validateTrendSelection} from "@/lib/indicators/trend-series";
 import {renderOfficeTrendPng} from "../../../scripts/smn-402-trend-png.mjs";
 
-type ChartOptions={last:number;type:"bar"|"line"|"area";tags:string[]|null};
+type ChartOptions={last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null};
 
 /** Reuses the same v33 trend projection, including frozen sprint closures. */
 export function renderOfficeIndicatorChart(report:ReportData,cycleId:string,
@@ -15,6 +15,7 @@ export function renderOfficeIndicatorChart(report:ReportData,cycleId:string,
   return column;
  }):report.columns.slice(0,1);
  if(columns.length===0)return null;
+ if(options.type==="gauge"&&columns.length!==1)throw Error("office-chart-gauge-one-series");
  const error=validateTrendSelection(columns.map(c=>c.id),report.columns);
  if(error!==null)throw Error("office-chart-"+error);
  const cycles=report.cycles.slice(Math.max(0,index-options.last+1),index+1);
