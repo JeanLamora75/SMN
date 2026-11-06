@@ -11,10 +11,10 @@ import ui from "./modal-ux.module.css";
 const categoryNames:Record<string,string>={indicator:"Indicateurs",registry:"Registres",cycle:"Cycles",calendar:"Calendrier",notes:"Notes",objective:"Objectifs",team:"Équipe",link:"Liens"};
 const columnNames:Record<string,string>={label:"Nom",kind:"Type",status:"Statut",date:"Date"};
 const viewNames:Partial<Record<SourceView,string>>={
- number:"Valeur numérique",card:"Carte KPI","card-watermark":"Carte KPI — Filigrane",gauge:"Jauge",tachometer:"Tachymètre","battery-horizontal":"Pile horizontale","battery-vertical":"Pile verticale","trend-arrow":"Tendance",line:"Courbe",bar:"Histogramme","bar-horizontal":"Histogramme horizontal",list:"Liste métier","list-watermark":"Liste — Filigrane",text:"Texte",
+ number:"Valeur numérique",card:"Carte KPI","card-watermark":"Carte KPI — Filigrane",gauge:"Jauge",tachometer:"Tachymètre","battery-horizontal":"Pile horizontale","battery-vertical":"Pile verticale","trend-arrow":"Tendance","graduated-ring":"Cercle gradué",line:"Courbe",bar:"Histogramme","bar-horizontal":"Histogramme horizontal",list:"Liste métier","list-watermark":"Liste — Filigrane",text:"Texte",
 };
 const viewLabel=(kind:SourceView,locale:string)=>!locale.toLowerCase().startsWith("fr")?
- ({"card-watermark":"KPI card — Watermark","list-watermark":"List — Watermark",tachometer:"Tachometer","battery-horizontal":"Horizontal battery","battery-vertical":"Vertical battery","trend-arrow":"Trend arrow","bar-horizontal":"Horizontal bar chart"} as Partial<Record<SourceView,string>>)[kind]??viewNames[kind]??kind:viewNames[kind]??kind;
+ ({"card-watermark":"KPI card — Watermark","list-watermark":"List — Watermark",tachometer:"Tachometer","battery-horizontal":"Horizontal battery","battery-vertical":"Vertical battery","trend-arrow":"Trend arrow","graduated-ring":"Graduated ring","bar-horizontal":"Horizontal bar chart"} as Partial<Record<SourceView,string>>)[kind]??viewNames[kind]??kind:viewNames[kind]??kind;
 export function DashboardSlotWizard({teamId,initialSlot,cycles,locale="fr",onClose,onConfirm,onClear}:{
  teamId:string;initialSlot?:DashboardSlot;cycles:readonly DashboardCycle[];locale?:string;onClose:()=>void;
  onConfirm:(source:string,view:SourceView,options:SlotOptions)=>void;onClear:()=>void;
@@ -100,7 +100,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,locale="fr",onClo
       <div className="col-12 col-lg-7">
        <h3 className={ui.sectionTitle}>Visualisations compatibles — {selected.name}</h3>
        <div className="row g-2">{views.map(item=><div key={item.kind} className="col-6 col-sm-4">
-        <button type="button" onClick={()=>{setView(item.kind);if(item.kind!=="tachometer"&&item.kind!=="battery-horizontal"&&item.kind!=="battery-vertical")setOptions(o=>{const next={...o};delete next.minimum;delete next.maximum;return next;});setOptionError("");}}
+        <button type="button" onClick={()=>{setView(item.kind);if(item.kind!=="tachometer"&&item.kind!=="battery-horizontal"&&item.kind!=="battery-vertical"&&item.kind!=="graduated-ring")setOptions(o=>{const next={...o};delete next.minimum;delete next.maximum;return next;});setOptionError("");}}
          className={`${ui.card} ${view===item.kind?ui.cardSelected:""} text-center`}
          aria-pressed={view===item.kind}>
          <span aria-hidden="true" className="d-block fs-3">{item.thumbnail}</span>
@@ -115,6 +115,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,locale="fr",onClo
          <div className="small fw-semibold text-body-secondary">{viewLabel(view,locale)} · {selected.name}</div>
          <div className="border rounded-3 p-3 bg-body-tertiary">
           {view==="number"||view==="card"||view==="card-watermark"?<><div className="placeholder-glow"><span className="placeholder col-8 rounded mb-3"/><span className="placeholder col-5 rounded" style={{height:28}}/></div></>:
+           view==="graduated-ring"?<svg viewBox="0 0 100 100" width="100%" height="90" aria-hidden="true"><circle cx="50" cy="50" r="34" fill="none" stroke="var(--smn-soft)" strokeWidth="15"/><circle cx="50" cy="50" r="34" fill="none" stroke="var(--smn-brand)" strokeWidth="15" strokeDasharray="106.8 213.6" transform="rotate(-90 50 50)"/>{Array.from({length:12},(_,i)=>{const a=-Math.PI/2+i*Math.PI/6;return <line key={i} x1={50+44*Math.cos(a)} y1={50+44*Math.sin(a)} x2={50+49*Math.cos(a)} y2={50+49*Math.sin(a)} stroke="var(--smn-muted)" strokeWidth="1.7"/>;})}</svg>:
            view==="trend-arrow"?<svg viewBox="0 0 170 90" width="100%" aria-hidden="true"><path d="M38 65 106 19 M77 20 H107 V50" fill="none" stroke="var(--smn-brand)" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/></svg>:
            view==="battery-vertical"?<svg viewBox="0 0 86 110" width="100%" height="90" aria-hidden="true"><rect x="28" y="14" width="34" height="91" rx="6" fill="none" stroke="currentColor" strokeWidth="2"/><rect x="39" y="9" width="12" height="5" rx="2" fill="currentColor"/>{[0,1,2,3,4,5].map(i=><rect key={i} x="32" y={19+i*14} width="26" height="11" rx="2" fill={i>=3?"var(--smn-brand)":"var(--smn-soft)"}/>)}</svg>:
            view==="battery-horizontal"?<svg viewBox="0 0 190 68" width="100%" aria-hidden="true"><rect x="6" y="14" width="168" height="39" rx="9" fill="none" stroke="currentColor" strokeWidth="3"/><rect x="174" y="27" width="8" height="13" rx="2" fill="currentColor"/>{[0,1,2,3,4,5].map(i=><rect key={i} x={12+i*26} y="20" width="21" height="27" rx="3" fill={i<3?"var(--smn-brand)":"var(--smn-soft)"}/>)}</svg>:
@@ -132,10 +133,10 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,locale="fr",onClo
        </section>
       </div>
       <div className="col-12">
-       <details open={view==="tachometer"||view==="battery-horizontal"||view==="battery-vertical"} className="border rounded-3 p-3 bg-body-tertiary">
+       <details open={view==="tachometer"||view==="battery-horizontal"||view==="battery-vertical"||view==="graduated-ring"} className="border rounded-3 p-3 bg-body-tertiary">
         <summary>Options avancées</summary>
         <div className="row g-3 mt-2">
-         {(view==="tachometer"||view==="battery-horizontal"||view==="battery-vertical")&&selected.category==="indicator"&&<>
+         {(view==="tachometer"||view==="battery-horizontal"||view==="battery-vertical"||view==="graduated-ring")&&selected.category==="indicator"&&<>
           <div className="col-12"><p className="small text-body-secondary mb-0">{locale.toLowerCase().startsWith("fr")?"Définissez les bornes de remplissage de cette visualisation. Elles ne modifient pas la mesure de l’indicateur.":"Define the display scale limits. They do not change the indicator value."}</p></div>
           {selected.unit==="%"&&<div className="col-12"><button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>{setOptions(o=>({...o,minimum:0,maximum:100}));setOptionError("");}}>{locale.toLowerCase().startsWith("fr")?"Échelle 0–100 %":"0–100% scale"}</button></div>}
           <div className="col-6"><label className="form-label" htmlFor={view+"-minimum"}>{locale.toLowerCase().startsWith("fr")?"Minimum de l’échelle":"Scale minimum"}</label>
