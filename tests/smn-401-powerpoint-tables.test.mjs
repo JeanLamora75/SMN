@@ -82,6 +82,6 @@ test("PPTX: resource limit prevents silent truncation",()=>{
 });
 test("PPTX: row without a marker remains untouched",()=>{
  const result=expandPowerPointTablesXml(slide,{MEMBERS:members,INDICATORS:[]});
- assert.match(result.xml,header);
+ assert.ok(result.xml.includes(header));
  assert.match(result.xml,/name="Fixed"/);
 });
