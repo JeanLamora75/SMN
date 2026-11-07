@@ -3922,6 +3922,11 @@
     "exportMarkdown": "Export references (Markdown)"
   },
   "indicators": {
+    "formulaValidationTitle": "An error was detected in the formula.",
+    "formulaUnknownFunction": "Unrecognized function:",
+    "formulaUnknownReference": "Unrecognized indicator or variable:",
+    "formulaSyntaxIssue": "Check the following expression:",
+    "formulaSuggestedCorrection": "Suggested expression:",
     "dashboard": {
       "complementary": "Additional indicators",
       "emptySlot": "No indicator configured",
