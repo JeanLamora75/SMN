@@ -24,3 +24,11 @@ Depuis Paramètres > Indicateurs > Catalogue, l'administrateur peut modifier le 
 Les modifications ont été publiées sur GitHub `main`. La suite de tests, le typecheck et la recette navigateur/PostgreSQL ne sont **pas attestés** dans cette intervention. Vérifier `pnpm exec tsx --test tests/smn-indicator-tag-rename.test.ts`, `pnpm typecheck`, et la mise à jour d'un indicateur réellement utilisé par un Dashboard Builder et par des formules dépendantes avant clôture de la recette.
 
 Aucune User Story Jira n'a été créée ni modifiée dans cette intervention.
+
+## Avenant — validation multilingue des formules (07/11/2026)
+
+La création d'un indicateur calculé refuse les expressions invalides avant écriture et retourne un diagnostic structuré, indépendant de la langue : `reason`, `expression`, et éventuellement `suggestion`. Le navigateur traduit le titre et l'explication à partir des catalogues FR/EN, et affiche en **gras** l'expression fautive. Aucun HTML provenant de l'API n'est injecté dans la page.
+
+Exemple : `ROLE_PLANNED_JH` est identifié comme fonction non reconnue, avec suggestion `ROLE_JH_PLANNED`. Les problèmes de syntaxe et de référence inconnue sont également présentés comme des erreurs de formule. L'API ne doit pas transformer ces erreurs fonctionnelles en indisponibilité générale (HTTP 503).
+
+Tests de contrat : `tests/smn-347-ui-contract.test.ts`. Tests d'exécution, typecheck et validation visuelle Windows à confirmer.
