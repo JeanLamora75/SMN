@@ -62,7 +62,7 @@ test("Tag center has a single heading and five independently collapsible section
  assert.match(page,/Documentation des tags — Word et PowerPoint/);
  assert.doesNotMatch(page,/<h2 id="smn-report-tags-title">\{t\("tags"\)\}<\/h2>/);
  assert.match(source,/<details className="border rounded-3 mb-3 smn-office-tag-section"/);
- assert.match(source,/defaultOpen=\{initiallyOpen\}/);
+ assert.match(source,/open=\{initiallyOpen\}/);
  assert.equal((source.match(/<TagSection title=/g)||[]).length,5);
  for(const title of ["Informations simples","Indicateurs","Tableaux de données métier","Graphiques de tendances","Règles de génération"]){
   assert.ok(source.includes(title),title);
