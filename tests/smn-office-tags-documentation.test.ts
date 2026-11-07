@@ -55,3 +55,30 @@ test("Documentation states current scope instead of promising multi-sprint table
  assert.match(source,/Microsoft Office/);
  assert.match(source,/N\/D/);
 });
+
+test("Tag center has a single heading and five independently collapsible sections",()=>{
+ const page=readFileSync("src/app/app/reports/page.tsx","utf8");
+ const source=readFileSync("src/app/app/reports/office-tags.tsx","utf8");
+ assert.match(page,/Documentation des tags — Word et PowerPoint/);
+ assert.doesNotMatch(page,/<h2 id="smn-report-tags-title">\{t\("tags"\)\}<\/h2>/);
+ assert.match(source,/<details className="border rounded-3 mb-3 smn-office-tag-section"/);
+ assert.match(source,/defaultOpen=\{initiallyOpen\}/);
+ assert.equal((source.match(/<TagSection title=/g)||[]).length,5);
+ for(const title of ["Informations simples","Indicateurs","Tableaux de données métier","Graphiques de tendances","Règles de génération"]){
+  assert.ok(source.includes(title),title);
+ }
+ assert.match(source,/officeScalarDefinitions\.filter\(item=>!item\.key\.startsWith\("INDICATOR_"\)\)/);
+ assert.match(source,/officeScalarDefinitions\.filter\(item=>item\.key\.startsWith\("INDICATOR_"\)\)/);
+});
+
+test("Tag documentation provides a copy action for scalars, rows, fields and charts",()=>{
+ const source=readFileSync("src/app/app/reports/office-tags.tsx","utf8");
+ const button=readFileSync("src/app/app/reports/copy-office-tag.tsx","utf8");
+ for(const fragment of ["value={mark(item.key)}","value={mark(\"ROW:\"+item.source)}","value={mark(field)}","value={item.example}","value={mark(\"CHART:TREND\")}"]){
+  assert.ok(source.includes(fragment),fragment);
+ }
+ assert.match(button,/navigator\.clipboard\.writeText\(value\)/);
+ assert.match(button,/aria-label=/);
+ assert.match(button,/Copié/);
+ assert.match(button,/Copie impossible/);
+});
