@@ -1,7 +1,7 @@
 import {readZip,writeZip} from "./smn-397-office-poc.mjs";
 import {replaceScalarXml} from "./smn-399-office-scalars.mjs";
 
-const SOURCES=new Set(["MEMBERS","INDICATORS","RISKS","OBSTACLES","NOTES","CEREMONIES","GOALS","ACTIONS","DECISIONS"]);
+const SOURCES=new Set(["MEMBERS","INDICATORS","RISKS","OBSTACLES","DEPENDENCIES","NOTES","CEREMONIES","GOALS","ACTIONS","DECISIONS"]);
 const TEXT=/<a:t(?:\s[^>]*)?>[^<]*<\/a:t>/g;
 const MARKER=/\{\{ROW:([A-Z][A-Z0-9_]*)\}\}/g;
 
@@ -103,8 +103,8 @@ export function expandPowerPointTablesXml(xml,datasets){
  return {xml:result,tableRows:expanded};
 }
 const EMPTY_TEXT={
- fr:{RISKS:"Aucun risque identifié",OBSTACLES:"Aucun obstacle identifié"},
- en:{RISKS:"No risks identified",OBSTACLES:"No obstacles identified"}
+ fr:{RISKS:"Aucun risque identifié",OBSTACLES:"Aucun obstacle identifié",DEPENDENCIES:"Aucune dépendance identifiée"},
+ en:{RISKS:"No risks identified",OBSTACLES:"No obstacles identified",DEPENDENCIES:"No dependencies identified"}
 };
 const PARAGRAPH=/<a:p(?:\s[^>]*)?>[\s\S]*?<\/a:p>/g;
 const SHAPE=/<p:sp(?:\s[^>]*)?>[\s\S]*?<\/p:sp>/g;
