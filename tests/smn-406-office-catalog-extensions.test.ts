@@ -166,3 +166,52 @@ test("Projection of eight business sources uses authorized sprint and canonical 
  assert.ok(seen.some(s=>s.params[0]===team));
  assert.ok(seen.filter(s=>s.sql.includes("FROM public.smn_dashboard_note")).every(s=>s.params[1]===cycle));
 });
+
+
+test("Dependencies in a closed sprint come from its snapshot, never from live-party details",async()=>{
+ const team="team-1",sprint="sprint-1";
+ const queries:string[]=[];
+ const snapshot={state:"captured",items:[{
+  id:"dep-1",type:"dependency",title:"Dépendance figée",status:"satisfied",
+  occurredOn:"2026-10-12"
+ }],facts:[]};
+ const db={query:async(sql:string)=>{
+  queries.push(sql);
+  if(sql.includes("SELECT s.status FROM"))return {rows:[{status:"closed"}]};
+  if(sql.includes("to_regclass('public.smn_sprint_closure_snapshot')"))return {rows:[{present:true}]};
+  if(sql.includes("FROM public.smn_sprint_closure_snapshot"))return {rows:[{version:1,snapshot:{qualitative:snapshot}}]};
+  throw Error("Unexpected live read: "+sql);
+ }} as unknown as Client;
+ const actual=await readOfficeBusinessRows(db,team,{id:sprint,startAt:"2026-10-10T00:00:00Z",endAt:"2026-10-17T00:00:00Z",timeZone:"UTC"},"fr",["DEPENDENCIES"]);
+ assert.equal(actual.DEPENDENCIES?.length,1);
+ assert.equal(actual.DEPENDENCIES?.[0].DEPENDENCY_TITLE,"Dépendance figée");
+ assert.equal(actual.DEPENDENCIES?.[0].DEPENDENCY_STATUS,"Satisfaite");
+ for(const field of ["DEPENDENCY_REQUESTER","DEPENDENCY_CONTRIBUTOR","DEPENDENCY_DUE_DATE","DEPENDENCY_AT_RISK","DEPENDENCY_OWNER"])
+  assert.equal(actual.DEPENDENCIES?.[0][field],null,field);
+ assert.ok(!queries.some(sql=>sql.includes("FROM public.smn_registry_item")));
+});
+
+test("PowerPoint text-box dependency list supports multiple records and FR/EN empty messages",()=>{
+ const text='<p:sld><p:sp><p:nvSpPr><p:cNvPr id="14" name="Deps"/></p:nvSpPr><p:txBody>'+
+  '<a:p><a:r><a:rPr b="1"/><a:t>{{ROW:DEPENDENCIES}}{{DEPENDENCY_TITLE}} - {{DEPENDENCY_STATUS}}</a:t></a:r></a:p>'+
+  '</p:txBody></p:sp></p:sld>';
+ const bytes=writeZip([
+  {name:"[Content_Types].xml",data:Buffer.from("<Types/>")},
+  {name:"ppt/presentation.xml",data:Buffer.from("<p:presentation/>")},
+  {name:"ppt/slides/slide1.xml",data:Buffer.from(text)}
+ ]);
+ const values={DEPENDENCIES:[{DEPENDENCY_TITLE:"API & droits",DEPENDENCY_STATUS:"Ouverte"},
+  {DEPENDENCY_TITLE:"Planning",DEPENDENCY_STATUS:"En cours"}]};
+ const produced=generatePowerPointTables(bytes,values,"fr").bytes;
+ const xml=readZip(produced).find(p=>p.name==="ppt/slides/slide1.xml")!.data.toString();
+ assert.match(xml,/API &amp; droits/);
+ assert.match(xml,/Planning/);
+ assert.equal((xml.match(/<a:rPr b="1"\/>/g)||[]).length,2);
+ assert.doesNotMatch(xml,/\{\{ROW:DEPENDENCIES\}\}/);
+ for(const [locale,text] of [["fr","Aucune dépendance identifiée"],["en","No dependencies identified"]] as const){
+  const empty=generatePowerPointTables(bytes,{DEPENDENCIES:[]},locale).bytes;
+  const body=readZip(empty).find(p=>p.name==="ppt/slides/slide1.xml")!.data.toString();
+  assert.match(body,new RegExp(text));
+  assert.doesNotMatch(body,/\{\{DEPENDENCY_/);
+ }
+});
