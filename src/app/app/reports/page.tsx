@@ -1,7 +1,8 @@
 import Link from "next/link";
-import TemplateLibrary from "./template-library";
+import OfficeTags from "./office-tags";
 import OfficeTemplateCatalog from "./office-template-catalog";
-import {listOfficeTemplates} from "@/server/reports/office-catalog";
+import {listOfficeTemplates,officeTemplatesDirectory} from "@/server/reports/office-catalog";
+import {officeReportsDirectory} from "@/server/reports/office-storage";
 import NewReportForm from "./new-report-form";
 import BootstrapIcon from "../bootstrap-icon";
 import {formatReportCenterDate} from "@/lib/report-center-date";
@@ -18,7 +19,7 @@ import "./report-center-cockpit.css";
 
 export const dynamic="force-dynamic";
 type Params={searchParams:Promise<Record<string,string|string[]|undefined>>};
-const tabs=["reports","templates","archives"] as const;
+const tabs=["reports","templates","tags","archives"] as const;
 
 export default async function ReportsCenter({searchParams}:Params){
  const account=await currentAccount();
@@ -51,6 +52,10 @@ export default async function ReportsCenter({searchParams}:Params){
  if(!data)return <main className="container-fluid px-3 px-lg-4 py-4"><h1>{t("heading")}</h1><p role="alert" className="alert alert-danger">{t("error")}</p><Link href="/app/reports">{t("retry")}</Link></main>;
  const scoped=data.scope==="team";
  const officeTemplates=tab==="templates"?await listOfficeTemplates().catch(()=>null):[];
+ const officeFolders=tab==="templates"?(()=>{
+  try{return {templates:officeTemplatesDirectory(),reports:officeReportsDirectory()};}
+  catch{return null;}
+ })():null;
  const docs=data.documents.filter(d=>(!sprint||d.sprintId===sprint)&&(!status||d.status===status)&&(!search||[d.title,d.sprintName,d.templateId].some(v=>v.toLocaleLowerCase().includes(search))));
  const archiveItems=data.archives.filter(a=>(!sprint||a.cycleId===sprint)&&(!search||a.cycleName.toLocaleLowerCase().includes(search)));
  const href=(next:string)=>{
@@ -73,12 +78,12 @@ export default async function ReportsCenter({searchParams}:Params){
    </div>
    <nav className="smn-report-tabs" aria-label={t("heading")}>
     {tabs.map(k=><Link key={k} href={href(k)} className={"smn-report-tab"+(tab===k?" is-active":"")} aria-current={tab===k?"page":undefined}>
-     <BootstrapIcon name={k==="reports"?"list-ul":k==="templates"?"grid-3x3-gap":"sticky-fill"}/>
+     <BootstrapIcon name={k==="reports"?"list-ul":k==="templates"?"grid-3x3-gap":k==="tags"?"tags":"sticky-fill"}/>
      {t(k)}{k==="reports"&&<span className="smn-report-tab-count">{data.documents.length}</span>}
     </Link>)}
    </nav>
   </header>
-  {tab!=="templates"&&<section className="smn-report-filters" aria-labelledby="smn-report-filters-title">
+  {tab!=="templates"&&tab!=="tags"&&<section className="smn-report-filters" aria-labelledby="smn-report-filters-title">
    <div className="smn-report-panel-heading">
     <h2 id="smn-report-filters-title"><BootstrapIcon name="sliders"/>{t("filtersHeading")}</h2>
     {count!==null&&<span className="smn-report-count">{count} {count===1?t("reportCountOne"):t("reportCountMany")}</span>}
@@ -116,8 +121,11 @@ export default async function ReportsCenter({searchParams}:Params){
   </section>}
   {tab==="templates"&&<section className="smn-report-results" aria-labelledby="smn-report-templates-title">
    <div className="smn-report-panel-heading"><h2 id="smn-report-templates-title">{t("templates")}</h2></div>
-   {data.templates.length===0?<p className="alert alert-info mb-0">{t("emptyModels")}</p>:<TemplateLibrary templates={data.templates} canManage={account.role==="admin"&&!scoped}/>}
-   <OfficeTemplateCatalog templates={officeTemplates??[]} unavailable={officeTemplates===null} cycles={sprintOptions} teamId={data.teamId} initialLanguage={locale==="en"?"en":"fr"}/>
+   <OfficeTemplateCatalog templates={officeTemplates??[]} unavailable={officeTemplates===null} cycles={sprintOptions} teamId={data.teamId} initialLanguage={locale==="en"?"en":"fr"} directories={officeFolders}/>
+  </section>}
+  {tab==="tags"&&<section className="smn-report-results" aria-labelledby="smn-report-tags-title">
+   <div className="smn-report-panel-heading"><h2 id="smn-report-tags-title">{t("tags")}</h2></div>
+   <OfficeTags locale={locale==="en"?"en":"fr"} expanded/>
   </section>}
   {tab==="archives"&&<section className="smn-report-results" aria-labelledby="smn-report-archives-title">
    <div className="smn-report-panel-heading"><h2 id="smn-report-archives-title">{t("archives")}</h2></div>
