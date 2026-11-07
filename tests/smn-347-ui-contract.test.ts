@@ -54,7 +54,7 @@ test("SMN : une erreur de formule renvoie la fonction fautive et une suggestion 
  );
  assert.doesNotThrow(()=>validateCatalogFormula('ROLE_JH("DEVELOPER") / ROLE_JH_PLANNED("DEVELOPER") * 100'));
  assert.throws(
-  ()=>validateCatalogFormula("UNDEFINED_METRIC + 1"),
+  ()=>validateCatalogFormula("ROLE_JH("),
   error=>error instanceof IndicatorCatalogError&&error.formulaError?.reason==="syntax"&&
    typeof error.formulaError.expression==="string"
  );
