@@ -4,6 +4,7 @@ import type {TeamActor} from "../teams/resolve";
 import {requireIndicatorTeam} from "./team-access";
 import {parseFormula,referencedTags} from "./formula";
 import {recalculateIndicatorResultsWithinTransaction} from "./recalculation";
+import {planIndicatorTagRename} from "./tag-rename";
 import {isCalendarSourceTag,buildDependencyGraph,type DependencyRow,type IndicatorDefinition} from "./dependencies";
 
 export const SCREENS=["dashboard","cycle_list","cycle_detail","trends","reports"] as const;
@@ -34,7 +35,7 @@ export async function listIndicatorCatalog(db:Client,actor:TeamActor,teamId?:str
 }
 export type CatalogCommand=
  |{action:"create";tag:string;name:string;indicatorType:"manual"|"computed";formula?:string;description?:string;unitName?:string;unitShort?:string;color?:string|null;icon?:string|null}
- |{action:"edit";indicatorId:string;name:string;description?:string;unitName?:string;unitShort?:string;color?:string|null;icon?:string|null}
+ |{action:"edit";indicatorId:string;tag?:string;name:string;description?:string;unitName?:string;unitShort?:string;color?:string|null;icon?:string|null}
  |{action:"archive";indicatorId:string}
  |{action:"recalculate";teamId:string}
  |{action:"selection";teamId:string;indicatorId:string;active:boolean}
@@ -98,6 +99,23 @@ export async function applyCatalogCommand(db:Client,actor:TeamActor,command:Cata
   }
   if(command.action==="edit"){
    guard(id(command.indicatorId),"invalid-input");meta(command);
+   guard(command.tag===undefined||tag(command.tag)&&command.tag.length<=80&&!isCalendarSourceTag(command.tag),"invalid-input");
+   if(command.tag!==undefined){
+    const target=await db.query<{id:string;tag:string}>("SELECT id,tag FROM public.smn_indicator_definition WHERE id=$1 AND archived_at IS NULL FOR UPDATE",[command.indicatorId]);
+    guard(target.rows.length===1,"not-found");
+    if(target.rows[0].tag!==command.tag){
+     const defs=await db.query<IndicatorDefinition>("SELECT id,tag,formula FROM public.smn_indicator_definition ORDER BY tag");
+     const edges=await db.query<DependencyRow>("SELECT indicator_id,source_type,source_indicator_id,source_calendar_tag FROM public.smn_indicator_dependency");
+     guard(!defs.rows.some(d=>d.id!==command.indicatorId&&d.tag===command.tag),"conflict");
+     // The dashboard, saved layouts, manual results, and preferences all reference immutable indicator IDs.
+     // Only textual formula references need rewriting. Keep formula revisions stable:
+     // this is a spelling change, not a mathematical change or a recalculation.
+     const changed=planIndicatorTagRename(defs.rows,edges.rows,command.indicatorId,command.tag);
+     await db.query("UPDATE public.smn_indicator_definition SET tag=$2,updated_at=now() WHERE id=$1",[command.indicatorId,command.tag]);
+     for(const entry of changed)
+      await db.query("UPDATE public.smn_indicator_definition SET formula=$2,updated_at=now() WHERE id=$1",[entry.id,entry.formula]);
+    }
+   }
    const r=await db.query("UPDATE public.smn_indicator_definition SET name=$2,description=$3,unit_name=$4,unit_short=$5,color=COALESCE($6,color),icon=COALESCE($7,icon),updated_at=now() WHERE id=$1 AND archived_at IS NULL RETURNING id",[command.indicatorId,command.name,command.description??"",command.unitName??"",command.unitShort??"",command.color??null,command.icon??null]);
    guard(r.rows.length===1,"not-found");
   }else if(command.action==="archive"){
@@ -126,5 +144,6 @@ export async function applyCatalogCommand(db:Client,actor:TeamActor,command:Cata
    }
   }else throw new IndicatorCatalogError("invalid-input");
   await bump(db);await db.query("COMMIT");return {ok:true};
- }catch(error){await db.query("ROLLBACK").catch(()=>undefined);if(error&&typeof error==="object"&&"code" in error&&error.code==="23505")throw new IndicatorCatalogError("conflict");throw error;}
+ }catch(error){await db.query("ROLLBACK").catch(()=>undefined);if(error&&typeof error==="object"&&"code" in error&&error.code==="23505")throw new IndicatorCatalogError("conflict");
+  if(error instanceof Error&&["indicator-tag-conflict","indicator-tag-rewrite-invalid"].includes(error.message))throw new IndicatorCatalogError("conflict");throw error;}
 }
