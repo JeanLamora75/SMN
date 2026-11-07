@@ -16,7 +16,7 @@ export function planIndicatorTagRename(
 ):ReadonlyArray<{id:string;formula:string}>{
  const selected=definitions.find(d=>d.id===indicatorId);
  if(!selected)throw Error("indicator-not-found");
- if(!/^[A-Z][A-Z0-9_]*$/.test(nextTag)||definitions.some(d=>d.id!==indicatorId&&d.tag===nextTag))
+ if(!/^[A-Z][A-Z0-9_]{0,79}$/.test(nextTag)||definitions.some(d=>d.id!==indicatorId&&d.tag===nextTag))
   throw Error("indicator-tag-conflict");
  const rewritten=definitions.map(d=>({
   ...d,tag:d.id===indicatorId?nextTag:d.tag,
@@ -29,9 +29,7 @@ export function planIndicatorTagRename(
   const old=definitions.find(x=>x.id===d.id)!;
   const oldRefs=referencedTags(parseFormula(old.formula!));
   const newRefs=referencedTags(parseFormula(d.formula!));
-  if(oldRefs.length!==newRefs.length||
-     oldRefs.some((tag,i)=>(tag===selected.tag?nextTag:tag)!==newRefs[i])&&
-     new Set(oldRefs.map(tag=>tag===selected.tag?nextTag:tag)).size!==new Set(newRefs).size)
+  if(JSON.stringify(oldRefs.map(tag=>tag===selected.tag?nextTag:tag).sort())!==JSON.stringify(newRefs))
    throw Error("indicator-tag-rewrite-invalid");
  }
  return changed.map(d=>({id:d.id,formula:d.formula!}));
