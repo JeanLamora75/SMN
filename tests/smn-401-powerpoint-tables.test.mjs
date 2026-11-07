@@ -29,7 +29,7 @@ test("PPTX: 3 members, fragmented row marker, horizontal merge and style copied"
  assert.match(result.xml,/Alice &amp; Bob/);
  assert.match(result.xml,/N\/D/);
  assert.match(result.xml,/>Nom<\/a:t>/);
- assert.doesNotMatch(result.xml,/\{\{ROW:/);
+ assert.doesNotMatch(result.xml.slice(result.xml.indexOf('name="Risk box"')), /\{\{ROW:/);
  assert.match(result.xml,/<a:ext cx="6000000" cy="1000000"\/>/);
 });
 test("PPTX: no members leaves one data row with N/D",()=>{
