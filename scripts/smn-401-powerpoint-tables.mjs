@@ -106,8 +106,8 @@ const EMPTY_TEXT={
  fr:{RISKS:"Aucun risque identifié",OBSTACLES:"Aucun obstacle identifié"},
  en:{RISKS:"No risks identified",OBSTACLES:"No obstacles identified"}
 };
-const PARAGRAPH=/<a:p(?:\\s[^>]*)?>[\\s\\S]*?<\\/a:p>/g;
-const SHAPE=/<p:sp(?:\\s[^>]*)?>[\\s\\S]*?<\\/p:sp>/g;
+const PARAGRAPH=/<a:p(?:\s[^>]*)?>[\s\S]*?<\/a:p>/g;
+const SHAPE=/<p:sp(?:\s[^>]*)?>[\s\S]*?<\/p:sp>/g;
 
 /** Repeat paragraphs only inside text shapes; all surrounding PowerPoint geometry remains untouched. */
 export function expandPowerPointTextBoxesXml(xml,datasets,language="fr"){
@@ -116,7 +116,7 @@ export function expandPowerPointTextBoxesXml(xml,datasets,language="fr"){
  if(!datasets||typeof datasets!=="object"||Array.isArray(datasets))throw Error("office-pptx-invalid-data");
  let expanded=0;
  const output=xml.replace(SHAPE,shape=>{
-  const bodyPattern=/<p:txBody(?:\\s[^>]*)?>[\\s\\S]*?<\\/p:txBody>/g;
+  const bodyPattern=/<p:txBody(?:\s[^>]*)?>[\s\S]*?<\/p:txBody>/g;
   return shape.replace(bodyPattern,body=>{
    const converted=body.replace(PARAGRAPH,paragraph=>{
     const marker=readMarker(paragraph);
