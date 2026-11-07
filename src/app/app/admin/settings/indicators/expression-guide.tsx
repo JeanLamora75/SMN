@@ -9,6 +9,7 @@ const catalog:Entry[]=[
  {name:"ROUND(VALEUR, N)",category:"Calcul",description:"Arrondit une valeur à N décimales (de 0 à 24).",example:"ROUND(25 / 3, 2)",available:true},
  {name:"Opérateurs",category:"Calcul",description:"Addition +, soustraction -, multiplication *, division /, puissance ^ et pourcentage %.",example:"(POINTS_FAITS / POINTS_PREVUS) * 100",available:true},
  {name:"SUM_LAST(TAG, X)",category:"Historique",description:"Somme sur les X derniers cycles, cycle sélectionné inclus.",example:"SUM_LAST(SP_TERMINES, 5)",available:true},
+ {name:"AVG_WEEK_LAST(TAG, X)",category:"Historique",description:"Somme des valeurs du tag divisée par la durée cumulée des X derniers cycles en semaines proratisées (jours calendaires / 7), cycle sélectionné inclus. Valeur absente ou durée invalide : indisponible.",example:"AVG_WEEK_LAST(SP_TERMINES, 3)",available:true},
  {name:"AVG_LAST(TAG, X)",category:"Historique",description:"Moyenne sur les X derniers cycles.",example:"AVG_LAST(SP_TERMINES, 5)",available:true},
  {name:"MIN_LAST(TAG, X)",category:"Historique",description:"Plus petite valeur sur les X derniers cycles.",example:"MIN_LAST(SP_TERMINES, 5)",available:true},
  {name:"MAX_LAST(TAG, X)",category:"Historique",description:"Plus grande valeur sur les X derniers cycles.",example:"MAX_LAST(SP_TERMINES, 5)",available:true},
