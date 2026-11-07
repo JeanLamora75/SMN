@@ -70,7 +70,7 @@ export const officeChartDefinitions:readonly ChartDefinition[]=[
 ];
 const mark=(key:string)=>"{{"+key+"}}";
 function TagSection({title,children,initiallyOpen=false}:{title:string;children:ReactNode;initiallyOpen?:boolean}){
- return <details className="border rounded-3 mb-3 smn-office-tag-section" defaultOpen={initiallyOpen}>
+ return <details className="border rounded-3 mb-3 smn-office-tag-section" open={initiallyOpen}>
   <summary className="fw-semibold p-3" style={{cursor:"pointer"}}>{title}</summary>
   <div className="px-3 pb-3">{children}</div>
  </details>;
