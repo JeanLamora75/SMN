@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readZip,writeZip} from "../scripts/smn-397-office-poc.mjs";
 import {generateScalarOffice} from "../scripts/smn-399-office-scalars.mjs";
-import {expandPowerPointTablesXml,generatePowerPointTables} from "../scripts/smn-401-powerpoint-tables.mjs";
+import {expandPowerPointTablesXml,expandPowerPointTextBoxesXml,generatePowerPointTables} from "../scripts/smn-401-powerpoint-tables.mjs";
 
 const header='<a:tr h="250000"><a:tc><a:txBody><a:p><a:r><a:t>Nom</a:t></a:r></a:p></a:txBody></a:tc></a:tr>';
 const model='<a:tr h="370000"><a:tc gridSpan="2"><a:txBody><a:p><a:r><a:rPr b="1"/><a:t>{{ROW:MEM</a:t></a:r><a:r><a:t>BERS}}{{MEMBER_NAME}}</a:t></a:r></a:p></a:txBody></a:tc><a:tc hMerge="1"/><a:tc><a:txBody><a:p><a:r><a:t>{{MEMBER_ROLE}}</a:t></a:r></a:p></a:txBody></a:tc></a:tr>';
@@ -84,4 +84,60 @@ test("PPTX: row without a marker remains untouched",()=>{
  const result=expandPowerPointTablesXml(slide,{MEMBERS:members,INDICATORS:[]});
  assert.ok(result.xml.includes(header));
  assert.match(result.xml,/name="Fixed"/);
+});
+
+
+const riskShape='<p:sp><p:nvSpPr><p:cNvPr id="21" name="Risk box"/></p:nvSpPr><p:spPr><a:xfrm><a:off x="430000" y="550000"/><a:ext cx="5200000" cy="1900000"/></a:xfrm></p:spPr><p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:pPr algn="l"/><a:r><a:rPr b="1"/><a:t>{{ROW:RI</a:t></a:r><a:r><a:t>SKS}}{{RISK_TITLE}} - {{RISK_STATUS}} - {{RISK_PRIORITY}}</a:t></a:r></a:p></p:txBody></p:sp>';
+const obstacleShape='<p:sp><p:nvSpPr><p:cNvPr id="22" name="Obstacle box"/></p:nvSpPr><p:spPr><a:solidFill><a:srgbClr val="EE1122"/></a:solidFill></p:spPr><p:txBody><a:p><a:r><a:t>{{ROW:OBSTACLES}}{{OBSTACLE_TITLE}} | {{OBSTACLE_STATUS}} | {{OBSTACLE_PRIORITY}} | {{OBSTACLE_DATE}}</a:t></a:r></a:p></p:txBody></p:sp>';
+const textSlide=slide.replace("</p:spTree>",riskShape+obstacleShape+"</p:spTree>");
+const rows={RISKS:[
+ {RISK_TITLE:"Retard & budget",RISK_STATUS:"Ouvert",RISK_PRIORITY:"Haute"},
+ {RISK_TITLE:"Délais externes",RISK_STATUS:"En cours",RISK_PRIORITY:"Moyenne"}],
+ OBSTACLES:[{OBSTACLE_TITLE:"Accès réseau",OBSTACLE_STATUS:"Actif",OBSTACLE_PRIORITY:"Critique",OBSTACLE_DATE:"7 nov. 2026"}]
+};
+
+test("PPTX text shapes: risks and obstacles repeat paragraphs while preserving shapes and styles",()=>{
+ const result=expandPowerPointTextBoxesXml(textSlide,rows,"fr");
+ assert.equal(result.textRows,2);
+ assert.match(result.xml,/Retard &amp; budget/);
+ assert.match(result.xml,/Délais externes/);
+ assert.match(result.xml,/Accès réseau/);
+ assert.equal((result.xml.match(/<a:pPr algn="l"\/>/g)||[]).length,2);
+ assert.equal((result.xml.match(/<a:rPr b="1"\/>/g)||[]).length,2);
+ assert.match(result.xml,/<a:off x="430000" y="550000"\/>/);
+ assert.match(result.xml,/<a:srgbClr val="EE1122"\/>/);
+ assert.doesNotMatch(result.xml,/\{\{ROW:/);
+ assert.doesNotMatch(result.xml,/\{\{RISK_|\{\{OBSTACLE_/);
+});
+test("PPTX text shapes: empty sources produce clean localized messages",()=>{
+ for(const [language,riskMessage,obstacleMessage] of [
+  ["fr","Aucun risque identifié","Aucun obstacle identifié"],
+  ["en","No risks identified","No obstacles identified"]
+ ]){
+  const result=expandPowerPointTextBoxesXml(textSlide,{RISKS:[],OBSTACLES:[]},language);
+  assert.match(result.xml,new RegExp(riskMessage));
+  assert.match(result.xml,new RegExp(obstacleMessage));
+  assert.doesNotMatch(result.xml,/\{\{ROW:|\{\{RISK_|\{\{OBSTACLE_/);
+  assert.doesNotMatch(result.xml,/\s-\s\s-\s/);
+ }
+});
+test("PPTX text shapes: tables and unrelated presentation ZIP parts remain unchanged",()=>{
+ const before=packageOf(textSlide);
+ const generated=generatePowerPointTables(before,{...rows,MEMBERS:members},"fr");
+ assert.deepEqual(generated.changes,[{part:"ppt/slides/slide1.xml",count:3}]);
+ const source=new Map(readZip(before).map(part=>[part.name,part.data]));
+ const result=new Map(readZip(generated.bytes).map(part=>[part.name,part.data]));
+ for(const name of source.keys())if(name!=="ppt/slides/slide1.xml")
+  assert.deepEqual(result.get(name),source.get(name));
+ assert.match(result.get("ppt/slides/slide1.xml").toString(),/Alice &amp; Bob/);
+ assert.match(result.get("ppt/slides/slide1.xml").toString(),/Retard &amp; budget/);
+});
+test("PPTX text shapes: invalid marker, unknown dataset and excessive records fail explicitly",()=>{
+ const repeated=riskShape.replace("{{RISK_STATUS}}","{{ROW:RISKS}}{{RISK_STATUS}}");
+ assert.throws(()=>expandPowerPointTextBoxesXml(repeated,rows),/invalid-row-marker/);
+ assert.throws(()=>expandPowerPointTextBoxesXml(riskShape,{}),/source-unavailable/);
+ const many=Array.from({length:10001},()=>rows.RISKS[0]);
+ assert.throws(()=>expandPowerPointTextBoxesXml(riskShape,{RISKS:many}),/resource-limit/);
+ const split=riskShape.replace("{{ROW:RI","{{ROW:RI</a:t></a:r></a:p><a:p><a:r><a:t>");
+ assert.throws(()=>expandPowerPointTextBoxesXml(split,rows),/unsupported-text-marker/);
 });
