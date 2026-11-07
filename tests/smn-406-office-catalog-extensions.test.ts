@@ -49,7 +49,7 @@ test("Eight business sources repeat in Word/PPTX, preserving other XML",()=>{
   const xml=after.get(name)!.toString();
   assert.equal((xml.match(format==="docx"?/<w:tr(?:\s|>)/g:/<a:tr(?:\s|>)/g)||[]).length,16);
   assert.equal((xml.match(/Premier &amp; Alpha/g)||[]).length,8);
-  assert.equal((xml.match(/Deuxième/g)||[]).length,7);
+  assert.equal((xml.match(/Deuxième/g)||[]).length,8);
   assert.match(xml,/N\/D/);
   assert.match(xml,/>0<\/(?:w:t|a:t)>/);
   assert.doesNotMatch(xml,/\{\{ROW:/);
@@ -62,7 +62,7 @@ test("No records for all sources yields N/D but keeps every table",()=>{
    generatePowerPointTables(packageOf(format),empty).bytes;
   const name=format==="docx"?"word/document.xml":"ppt/slides/slide1.xml";
   const xml=readZip(result).find(p=>p.name===name)!.data.toString();
-  assert.equal((xml.match(/N\/D/g)||[]).length,14);
+  assert.equal((xml.match(/N\/D/g)||[]).length,16);
  }
 });
 const indicatorReport={
