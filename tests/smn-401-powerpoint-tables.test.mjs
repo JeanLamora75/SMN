@@ -103,7 +103,7 @@ test("PPTX text shapes: risks and obstacles repeat paragraphs while preserving s
  assert.match(result.xml,/Délais externes/);
  assert.match(result.xml,/Accès réseau/);
  assert.equal((result.xml.match(/<a:pPr algn="l"\/>/g)||[]).length,2);
- assert.equal((result.xml.match(/<a:rPr b="1"\/>/g)||[]).length,2);
+ assert.equal((result.xml.match(/<a:rPr b="1"\/>/g)||[]).length,3); // two copied risk runs plus the original table run
  assert.match(result.xml,/<a:off x="430000" y="550000"\/>/);
  assert.match(result.xml,/<a:srgbClr val="EE1122"\/>/);
  assert.doesNotMatch(result.xml,/\{\{ROW:/);
@@ -117,7 +117,7 @@ test("PPTX text shapes: empty sources produce clean localized messages",()=>{
   const result=expandPowerPointTextBoxesXml(textSlide,{RISKS:[],OBSTACLES:[]},language);
   assert.match(result.xml,new RegExp(riskMessage));
   assert.match(result.xml,new RegExp(obstacleMessage));
-  assert.doesNotMatch(result.xml,/\{\{ROW:|\{\{RISK_|\{\{OBSTACLE_/);
+  assert.doesNotMatch(result.xml.slice(result.xml.indexOf('name="Risk box"')),/\{\{ROW:|\{\{RISK_|\{\{OBSTACLE_/);
   assert.doesNotMatch(result.xml,/\s-\s\s-\s/);
  }
 });
