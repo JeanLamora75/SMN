@@ -66,7 +66,7 @@ export function validateCatalogFormula(formula:string):ReturnType<typeof parseFo
   if(error instanceof FormulaSyntaxError||error instanceof FormulaBudgetError){
    const position=error.message.match(/at (\d+)/);
    const offset=position?Number(position[1]):-1;
-   const expression=offset>=0?formula.slice(offset).match(/^[^\s(),+*/^%-]+/)?.[0]??formula[offset]??"":formula.slice(0,120);
+   const expression=offset>=0?formula.slice(offset).match(/^[^\s(),+*\/^%-]+/)?.[0]??formula[offset]??"":formula.slice(0,120);
    throw new IndicatorCatalogError("invalid-input","formula-syntax",
     {reason:"syntax",expression:expression.slice(0,120)});
   }
