@@ -116,3 +116,31 @@ La page **Modèles** affiche les chemins serveur **résolus effectivement** (y c
 **Limites :** la fonction ne crée pas automatiquement le dossier de modèles. Le dossier des rapports est créé lors de l'opération de sauvegarde. Le contexte et les protections d'accès aux données des équipes et sprints demeurent inchangés.
 
 **Tests et contrôles :** `tests/smn-report-center-office-navigation.test.ts` et CI Windows/Linux `.github/workflows/office-context-scalars.yml` ; recette visuelle manuelle à confirmer sous Windows 11.
+
+## 8. Extension dépendances — SMN-406 (07/11/2026)
+
+Les dépendances, déjà présentes dans le registre canonique, sont exportables dans des tableaux Word/PowerPoint et dans les paragraphes de zones de texte PowerPoint. Aucun modèle existant n'est modifié ou migré.
+
+| Tag | Sens |
+|---|---|
+| `{{ROW:DEPENDENCIES}}` | Répéter les dépendances pertinentes du sprint |
+| `{{DEPENDENCY_TITLE}}` | Intitulé de la fiche |
+| `{{DEPENDENCY_STATUS}}` | Statut traduit |
+| `{{DEPENDENCY_DATE}}` | Date métier du registre |
+| `{{DEPENDENCY_REQUESTER}}` | Demandeur (équipe courante ou libellé externe) |
+| `{{DEPENDENCY_CONTRIBUTOR}}` | Contributeur (équipe courante ou libellé externe) |
+| `{{DEPENDENCY_DUE_DATE}}` | Échéance de la dépendance |
+| `{{DEPENDENCY_AT_RISK}}` | Vigilance « À risque », Oui/Non ou Yes/No |
+| `{{DEPENDENCY_OWNER}}` | Responsable de la fiche |
+
+Une fiche associée à plusieurs sprints n'est rendue qu'une fois par export de sprint. La sélection et l'appartenance sont déterminées par `readSprintRegisters` et `readEpic5SprintRegisterSource`, qui appliquent le périmètre équipe/sprint. Les autres champs métier sont lus dans les tables canoniques des dépendances, uniquement pour les sprints non clôturés et les fiches appartenant à l'équipe autorisée. Les tables de détails facultatives absentes produisent des champs `N/D`, non de fausses valeurs.
+
+**Historique :** les sprints clôturés utilisent leur snapshot qualitatif : intitulé, statut et date sont figés. Le snapshot ne contient pas encore les parties prenantes, le responsable, l'échéance ni la vigilance : ces champs deviennent `N/D` au lieu de prendre les données courantes. Une évolution de la capture historique serait nécessaire pour les figer dès la clôture.
+
+**Cas vide :** dans les tableaux Office, la ligne témoin `N/D` subsiste ; dans un paragraphe de zone de texte PowerPoint, « Aucune dépendance identifiée » / « No dependencies identified ». Le moteur garde les styles et les dimensions de la maquette et ne repositionne pas automatiquement les objets.
+
+**Tests :** `tests/smn-406-office-catalog-extensions.test.ts` et `tests/smn-401-powerpoint-tables.test.mjs`. La recette PowerPoint/Word Windows et PostgreSQL réel reste à confirmer.
+
+**Story :** https://lmn24.atlassian.net/browse/SMN-406
+
+**Correction documentaire :** depuis le changement des valeurs par défaut, les répertoires Office sont désormais `SMN/data/office/templates` et `SMN/data/office/reports`, créés au démarrage/installation, sauf surcharge par variables d'environnement absolues. Les anciennes indications de la section 7 concernant `%LOCALAPPDATA%` et l'absence de création automatique sont historiques et remplacées par cette règle.
