@@ -56,3 +56,19 @@ Les tests isolés ne remplacent pas une recette complète depuis les données r�
 La prise en charge des sources initiales `MEMBERS` et `INDICATORS` est conservée. Les sources supplémentaires `RISKS`, `OBSTACLES`, `NOTES`, `CEREMONIES`, `GOALS`, `ACTIONS`, `DECISIONS` ont été intégrées à ce même moteur, sans repositionner les objets du modèle.
 
 Les champs, règles métier et limites sont documentés dans le [catalogue Office enrichi](SMN-OFFICE-EXTENSION-CATALOGUE-TAGS.md). Les tests de l'extension sont conservés dans `tests/smn-406-office-catalog-extensions.test.ts` et le workflow `office-catalog-extensions.yml`. La recette visuelle Microsoft Office reste à faire.
+
+## Extension 07/11/2026 — Zones de texte PPTX (CA-5.6 à CA-5.9)
+
+Les modèles peuvent désormais contenir des listes métier directement dans un **paragraphe de zone de texte** PowerPoint, par exemple :
+- `{{ROW:RISKS}}{{RISK_TITLE}} — {{RISK_STATUS}} — {{RISK_PRIORITY}}`
+- `{{ROW:OBSTACLES}}{{OBSTACLE_TITLE}} — {{OBSTACLE_STATUS}} — {{OBSTACLE_PRIORITY}} — {{OBSTACLE_DATE}}`
+
+Le moteur traite le paragraphe porteur du marqueur, le répète pour les données du sprint et conserve le XML de chaque paragraphe (style des runs, paramètres de paragraphes et zone de texte), les formes, images, géométries, notes, médias, relations et thèmes. Le marqueur et les champs peuvent être fragmentés entre plusieurs `a:t` d'un même paragraphe. Chaque marqueur appartient à un seul paragraphe : **les marqueurs fragmentés sur plusieurs paragraphes et les marqueurs multiples par paragraphe sont refusés**.
+
+Une source vide `RISKS` devient « Aucun risque identifié » / « No risks identified » et une source vide `OBSTACLES` devient « Aucun obstacle identifié » / « No obstacles identified ». Les tableaux PowerPoint historiques continuent à utiliser N/D pour les jeux de données vides. Les textes et formes adjacents ne sont pas repositionnés ; aucune diapositive n'est ajoutée ; le débordement visuel reste possible et doit être vérifié par l'utilisateur.
+
+Les sources métier sont autorisées par la même lecture serveur contrôlée d'équipe/sprint ; aucune donnée synthétique n'est inventée. Les sources manquantes et constructions complexes sont rejetées au lieu de laisser silencieusement des tags `ROW` non remplacés.
+
+**Preuves attendues :** tests de non-régression XML/PPTX et du rendu des sources vides en FR/EN, préservation des autres parties du package ; `pnpm exec tsx --test tests/smn-401-powerpoint-tables.test.mjs`, `pnpm typecheck`, puis recette visuelle sous PowerPoint Windows.
+
+**Jira :** https://lmn24.atlassian.net/browse/SMN-401
