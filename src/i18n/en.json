@@ -3673,7 +3673,7 @@
     "officeGenerating": "Generating…",
     "officeGenerationError": "Unable to generate this Office document. Check its template and tags.",
     "officeRequiresTeam": "Select an authorized team and sprint to generate an Office report.",
-    "officeScalarOnly": "Office templates support the scalar tags, nine table sources and six chart types documented above. Generation currently uses one selected sprint.",
+    "officeScalarOnly": "Office templates support the scalar tags, ten table sources and six chart types documented above. Generation currently uses one selected sprint.",
     "officeSave": "Save in SMN",
     "officeSaveError": "Could not save the report. An existing file must not be replaced on failure.",
     "officeSaveConflict": "The file changed since confirmation. Review the destination and try again.",
