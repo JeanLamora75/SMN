@@ -32,6 +32,9 @@ for(const file of [
 
 await copyFile(process.execPath, path.join(target, "node.exe"));
 await copyFile("scripts/windows/launch-portable.mjs", path.join(target, "launch-portable.mjs"));
+await mkdir(path.join(target,"scripts"),{recursive:true});
+await copyFile("scripts/office-dirs.mjs",path.join(target,"scripts","office-dirs.mjs"));
+for(const name of ["templates","reports"])await mkdir(path.join(target,"data","office",name),{recursive:true});
 await copyFile("scripts/recover-admin.mjs", path.join(target, "recover-admin.mjs"));
 const recoverLaunch = `@echo off\r\ncd /d "%~dp0"\r\n"%~dp0node.exe" "%~dp0recover-admin.mjs"\r\nif errorlevel 1 pause\r\n`;
 await writeFile(path.join(target, "Recuperer admin SMN.cmd"), recoverLaunch, "utf8");
