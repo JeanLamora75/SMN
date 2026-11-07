@@ -2,10 +2,10 @@ import type {Client} from "pg";
 import {randomUUID} from "node:crypto";
 import type {TeamActor} from "../teams/resolve";
 import {requireIndicatorTeam} from "./team-access";
-import {parseFormula,referencedTags} from "./formula";
+import {parseFormula,referencedTags,FormulaSyntaxError,FormulaBudgetError,ROLE_CAPACITY_FUNCTIONS} from "./formula";
 import {recalculateIndicatorResultsWithinTransaction} from "./recalculation";
 import {planIndicatorTagRename} from "./tag-rename";
-import {isCalendarSourceTag,buildDependencyGraph,type DependencyRow,type IndicatorDefinition} from "./dependencies";
+import {isCalendarSourceTag,buildDependencyGraph,DependencyGraphError,type DependencyRow,type IndicatorDefinition} from "./dependencies";
 
 export const SCREENS=["dashboard","cycle_list","cycle_detail","trends","reports"] as const;
 export const STYLES=["number","card","gauge","line","bar"] as const;
@@ -48,8 +48,21 @@ function meta(x:{name:string;description?:string;unitName?:string;unitShort?:str
  guard(typeof x.unitShort==="undefined"||typeof x.unitShort==="string"&&x.unitShort.length<=20,"invalid-input");
  guard(colorOk(x.color),"invalid-input");guard(typeof x.icon==="undefined"||x.icon===null||typeof x.icon==="string"&&x.icon.length<=80,"invalid-input");
 }
+export function validateCatalogFormula(formula:string):ReturnType<typeof parseFormula>{
+ const roleCalls=[...formula.matchAll(/\\b(ROLE_[A-Z_]+)\\s*\\(/g)];
+ for(const match of roleCalls)if(!ROLE_CAPACITY_FUNCTIONS.has(match[1] as "ROLE_JH")){
+  const suggestion=match[1]==="ROLE_PLANNED_JH"?" Utilisez ROLE_JH_PLANNED.":"";
+  throw new IndicatorCatalogError("invalid-input","Fonction inconnue : "+match[1]+"."+suggestion);
+ }
+ try{return parseFormula(formula);}
+ catch(error){
+  if(error instanceof FormulaSyntaxError||error instanceof FormulaBudgetError)
+   throw new IndicatorCatalogError("invalid-input","Expression invalide : "+error.message);
+  throw error;
+ }
+}
 async function deriveDependencies(db:Client,formula:string,indicatorId:string,indicatorTag:string):Promise<DependencyRow[]>{
- const tags=[...new Set(referencedTags(parseFormula(formula)))].sort();
+ const tags=[...new Set(referencedTags(validateCatalogFormula(formula)))].sort();
  const definitions=await db.query<IndicatorDefinition>("SELECT id,tag,formula FROM public.smn_indicator_definition ORDER BY tag");
  const byTag=new Map(definitions.rows.map(d=>[d.tag,d.id]));
  const dependencies:DependencyRow[]=tags.map(t=>{
@@ -145,5 +158,7 @@ export async function applyCatalogCommand(db:Client,actor:TeamActor,command:Cata
   }else throw new IndicatorCatalogError("invalid-input");
   await bump(db);await db.query("COMMIT");return {ok:true};
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);if(error&&typeof error==="object"&&"code" in error&&error.code==="23505")throw new IndicatorCatalogError("conflict");
-  if(error instanceof Error&&["indicator-tag-conflict","indicator-tag-rewrite-invalid"].includes(error.message))throw new IndicatorCatalogError("conflict");throw error;}
+  if(error instanceof Error&&["indicator-tag-conflict","indicator-tag-rewrite-invalid"].includes(error.message))throw new IndicatorCatalogError("conflict");
+  if(error instanceof FormulaSyntaxError||error instanceof FormulaBudgetError||error instanceof DependencyGraphError)throw new IndicatorCatalogError("invalid-input","Expression ou dépendances invalides.");
+  throw error;}
 }
