@@ -114,6 +114,12 @@ test("Projection of eight business sources uses authorized sprint and canonical 
    items:true,links:false,audit:false,assess:false,automatic:false,
    goals:true,selection:false,invalidated:false
   }]};
+  if(sql.includes("r.id=ANY($2::text[])"))return {rows:[{
+   id:"2",owner:"SM",due_on:"2026-10-16",team_name:"Équipe A",
+   requester:{kind:"local",teamId:team},
+   contributor:{kind:"external",name:"Équipe fournisseur"},
+   at_risk:true
+  }]};
   if(sql.includes("FROM public.smn_registry_item r"))return {rows:[
    ...(["risk","obstacle","dependency","action","decision"] as const).map((type,i)=>({
     id:String(i),type,title:type+" example",status:"open",
@@ -123,12 +129,6 @@ test("Projection of eight business sources uses authorized sprint and canonical 
   ]};
   if(sql.includes("to_regclass('public.smn_dependency_parties') IS NOT NULL AS parties"))
    return {rows:[{parties:true,vigilance:true}]};
-  if(sql.includes("r.id=ANY($2::text[])"))return {rows:[{
-   id:"2",owner:"SM",due_on:"2026-10-16",team_name:"Équipe A",
-   requester:{kind:"local",teamId:team},
-   contributor:{kind:"external",name:"Équipe fournisseur"},
-   at_risk:true
-  }]};
   if(sql.includes("to_regclass($1)"))return {rows:[{present:true}]};
   if(sql.includes("to_regclass('public.smn_sprint_historical_goal_detail')"))
    return {rows:[{present:false}]};
