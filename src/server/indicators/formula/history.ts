@@ -1,8 +1,8 @@
 import {DecimalEngine,type Result} from "./index";
 
-export type HistoricalPoint=Readonly<{cycleId:string;label:string;value:string|null}>;
+export type HistoricalPoint=Readonly<{cycleId:string;label:string;value:string|null;durationDays?:number|null}>;
 export type HistoricalSeries=Readonly<{kind:"series";points:readonly HistoricalPoint[];requested:number;available:number}>;
-export type HistoricalFunction="SUM_LAST"|"LAST_VALUES"|"AVG_LAST"|"MIN_LAST"|"MAX_LAST"|"PREVIOUS"|"DELTA"|"DELTA_PCT";
+export type HistoricalFunction="AVG_WEEK_LAST"|"SUM_LAST"|"LAST_VALUES"|"AVG_LAST"|"MIN_LAST"|"MAX_LAST"|"PREVIOUS"|"DELTA"|"DELTA_PCT";
 export type HistoricalResult=Result|HistoricalSeries;
 
 /** Input is ordered from oldest to newest and ends at the selected cycle. */
@@ -24,6 +24,18 @@ export function calculateHistorical(name:HistoricalFunction,history:readonly His
   return {kind:"available",value:DecimalEngine.format(DecimalEngine.multiply(DecimalEngine.divide(difference,p),DecimalEngine.parse("100")))};
  }
  if(!points.length||points.some(p=>p.value===null))return unavailable("missing_source");
+ if(name==="AVG_WEEK_LAST"){
+  // Calendar-day weighting: total indicator values / (total calendar days / 7).
+  // Missing/invalid durations remain unavailable; zero is a valid indicator value.
+  if(points.some(p=>!Number.isSafeInteger(p.durationDays)||p.durationDays===null||p.durationDays===undefined||p.durationDays<=0))
+   return {kind:"unavailable",reason:"invalid_domain",detail:"historical-cycle-duration"};
+  const days=points.reduce((sum,p)=>sum+p.durationDays!,0);
+  if(!Number.isSafeInteger(days)||days<=0) return {kind:"unavailable",reason:"invalid_domain",detail:"historical-cycle-duration"};
+  const sum=points.reduce((total,p)=>DecimalEngine.add(total,DecimalEngine.parse(p.value!)),0n);
+  return {kind:"available",value:DecimalEngine.format(
+   DecimalEngine.divide(DecimalEngine.multiply(sum,DecimalEngine.parse("7")),DecimalEngine.parse(String(days)))
+  )};
+ }
  const values=points.map(p=>DecimalEngine.parse(p.value!));
  let answer:bigint;
  if(name==="SUM_LAST"||name==="AVG_LAST"){
