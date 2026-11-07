@@ -12,19 +12,37 @@ import {useTranslation} from "@/i18n/client";
 type D={id:string;tag:string;name:string;description:string;indicator_type:"manual"|"computed";formula:string|null;archived_at:string|null;unit_name:string;unit_short:string;color:string|null;icon:string|null};
 type P={indicator_id:string;screen_key:string;is_visible:boolean;display_order:number;display_style:string};
 type Data={definitions:D[];selections:{indicator_id:string;is_active:boolean}[];preferences:P[]};
+type FormulaProblem={reason:"unknown-function"|"unknown-reference"|"syntax";expression:string;suggestion?:string};
 const screens=["dashboard","cycle_list","cycle_detail","trends","reports"];
 export default function IndicatorCatalog({teams,isAdmin,scope="team",activeTeamId,cycleType="scrum",locale="fr"}:{teams:{id:string;name:string}[];isAdmin:boolean;scope?:"team"|"global";activeTeamId?:string;cycleType?:"scrum"|"kanban";locale?:"fr"|"en"}){
  const t=useTranslation(),[team,setTeam]=useState(activeTeamId??teams[0]?.id??""),[data,setData]=useState<Data|null>(null),[error,setError]=useState(""),[busy,setBusy]=useState(false),[search,setSearch]=useState(""),[filter,setFilter]=useState("all"),[edit,setEdit]=useState<D|null>(null),[create,setCreate]=useState(false);
  const [tag,setTag]=useState(""),[name,setName]=useState(""),[kind,setKind]=useState("manual"),[formula,setFormula]=useState(""),[description,setDescription]=useState("");
  const [unitName,setUnitName]=useState(""),[unitShort,setUnitShort]=useState(""),[color,setColor]=useState(""),[icon,setIcon]=useState("");
  const [recalculationMessage,setRecalculationMessage]=useState("");
+ const [formulaProblem,setFormulaProblem]=useState<FormulaProblem|null>(null);
  const load=useCallback(async()=>{try{const r=await fetch("/api/admin/indicators/catalog"+(team?"?teamId="+encodeURIComponent(team):""),{cache:"no-store"});const j=await r.json();if(!r.ok)throw Error(j.error);setData(j);setError("");}catch(e){setError(String(e));}},[team]);
  useEffect(()=>{void Promise.resolve().then(()=>load());},[load]);
  useEffect(()=>{if(scope!=="global"||!isAdmin)return;const onCreate=()=>editor();window.addEventListener("smn:indicator-create",onCreate);return ()=>window.removeEventListener("smn:indicator-create",onCreate);});
- async function send(command:Record<string,unknown>){setBusy(true);setError("");try{const r=await fetch("/api/admin/indicators/catalog",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(command)});const j=await r.json();if(!r.ok)throw Error(j.message??j.error);await load();return true;}catch(e){setError(String(e));return false;}finally{setBusy(false);}}
- const closeEditor=()=>{if(busy)return;setCreate(false);setEdit(null);setError("");};
+ async function send(command:Record<string,unknown>){
+  setBusy(true);setError("");setFormulaProblem(null);
+  try{
+   const r=await fetch("/api/admin/indicators/catalog",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(command)});
+   const j=await r.json() as {error?:string;formulaError?:FormulaProblem};
+   if(!r.ok){
+    if(j.error==="invalid-input"&&j.formulaError&&
+       ["unknown-function","unknown-reference","syntax"].includes(j.formulaError.reason)&&
+       typeof j.formulaError.expression==="string"){
+     setFormulaProblem(j.formulaError);return false;
+    }
+    throw Error(j.error??"service-unavailable");
+   }
+   await load();return true;
+  }catch(e){setError(e instanceof Error?e.message:"service-unavailable");return false;}
+  finally{setBusy(false);}
+ }
+ const closeEditor=()=>{if(busy)return;setCreate(false);setEdit(null);setError("");setFormulaProblem(null);};
  const modalFocus=useDashboardModalFocus(closeEditor,scope==="global"&&isAdmin&&(create||edit!==null));
- function editor(d?:D){setError("");setCreate(!d);setEdit(d??null);setTag(d?.tag??"");setName(d?.name??"");setKind(d?.indicator_type??"manual");setFormula(d?.formula??"");setDescription(d?.description??"");setUnitName(d?.unit_name??"");setUnitShort(d?.unit_short??"");setColor(d?.color??"");setIcon(d?.icon??"");}
+ function editor(d?:D){setError("");setFormulaProblem(null);setCreate(!d);setEdit(d??null);setTag(d?.tag??"");setName(d?.name??"");setKind(d?.indicator_type??"manual");setFormula(d?.formula??"");setDescription(d?.description??"");setUnitName(d?.unit_name??"");setUnitShort(d?.unit_short??"");setColor(d?.color??"");setIcon(d?.icon??"");}
  async function rebuildComputedResults(){
   if(!isAdmin||!team||busy)return;
   setBusy(true);setError("");setRecalculationMessage("");
@@ -90,6 +108,11 @@ export default function IndicatorCatalog({teams,isAdmin,scope="team",activeTeamI
      <button type="button" className={ui.close} onClick={closeEditor} disabled={busy} aria-label="Fermer">×</button>
     </header>
     <div className={ui.body}>
+     {formulaProblem&&<div role="alert" className="alert alert-danger">
+      <div className="fw-semibold">{t("indicators.formulaValidationTitle")}</div>
+      <div>{t(formulaProblem.reason==="unknown-function"?"indicators.formulaUnknownFunction":formulaProblem.reason==="unknown-reference"?"indicators.formulaUnknownReference":"indicators.formulaSyntaxIssue")}{" "}<strong><code className="text-reset">{formulaProblem.expression}</code></strong></div>
+      {formulaProblem.suggestion&&<div className="mt-1">{t("indicators.formulaSuggestedCorrection")}{" "}<strong><code className="text-reset">{formulaProblem.suggestion}</code></strong></div>}
+     </div>}
      {error&&<div role="alert" className="alert alert-danger">{t("indicators.error")}: {error}</div>}
      <form id="indicator-definition-form" className="row g-3" onSubmit={async e=>{e.preventDefault();if(!create&&edit&&tag!==edit.tag&&!window.confirm(locale==="en"?`Rename ${edit.tag} to ${tag}? Indicator formulas will be updated automatically; existing Office templates containing the old tag will not be rewritten.`:`Renommer ${edit.tag} en ${tag} ? Les formules des indicateurs seront mises à jour automatiquement. Les modèles Office contenant l’ancien tag ne seront pas modifiés.`))return;const ok=await send(create?{action:"create",tag,name,indicatorType:kind,description,unitName,unitShort,color:color||null,icon:icon||null,...(kind==="computed"?{formula}:{})}:{action:"edit",indicatorId:edit?.id,tag,name,description,unitName,unitShort,color:color||null,icon:icon||null});if(ok){setCreate(false);setEdit(null);}}}><label className="form-label d-block">{t("indicators.name")}<input data-initial-focus="true" className="form-control" value={name} maxLength={160} required onChange={e=>setName(e.target.value)}/></label>{!create&&<label className="form-label d-block">{t("indicators.tag")}<input className="form-control" value={tag} required maxLength={80} pattern="[A-Z][A-Z0-9_]*" onChange={e=>setTag(e.target.value.toUpperCase())}/><span className="form-text">{locale==="en"?"Linked formulas and dashboards retain their association with this indicator.":"Les formules liées et les tableaux de bord conservent leur association avec cet indicateur."}</span></label>}{create&&<><label className="form-label d-block">{t("indicators.tag")}<input className="form-control" value={tag} required pattern="[A-Z][A-Z0-9_]*" onChange={e=>setTag(e.target.value.toUpperCase())}/></label><label className="form-label d-block">{t("indicators.type")}<select className="form-select" value={kind} onChange={e=>setKind(e.target.value)}><option value="manual">{t("indicators.manual")}</option><option value="computed">{t("indicators.computed")}</option></select></label>{kind==="computed"&&<div><label className="form-label d-block">{t("indicators.formula")}<textarea className="form-control" required value={formula} onChange={e=>setFormula(e.target.value)}/></label><a className="btn btn-outline-secondary btn-sm mb-3" href="/app/admin/settings/indicators#guide-expressions" target="_blank" rel="noopener noreferrer">Consulter le guide des expressions</a></div>}</>}<label className="form-label d-block">{t("indicators.description")}<textarea className="form-control" value={description} onChange={e=>setDescription(e.target.value)}/></label><div className="row g-2">
  <label className="col-md-3 form-label">{t("indicators.unit")}<input className="form-control" value={unitName} maxLength={80} onChange={e=>setUnitName(e.target.value)}/></label>
