@@ -1,0 +1,38 @@
+name: SMN-408 — Localisation des membres Office
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "src/server/reports/office-word-rows.ts"
+      - "src/app/app/reports/office-tags.tsx"
+      - "tests/smn-408-office-member-location.test.ts"
+      - ".github/workflows/smn-408-member-office-location.yml"
+  pull_request:
+    branches: ["main"]
+permissions:
+  contents: read
+jobs:
+  member-office-location:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Tests membre et exports Office
+        run: pnpm exec tsx --test tests/smn-408-office-member-location.test.ts tests/smn-406-office-catalog-extensions.test.ts tests/smn-400-word-tables.test.mjs tests/smn-401-powerpoint-tables.test.mjs
+      - name: TypeScript
+        run: pnpm typecheck
+      - name: ESLint ciblé
+        run: pnpm exec eslint src/server/reports/office-word-rows.ts src/app/app/reports/office-tags.tsx tests/smn-408-office-member-location.test.ts
