@@ -3595,6 +3595,9 @@
     "loadMore": "Load more events"
   },
   "reportsCenter": {
+    "officeOpenDirectory": "Open in File Explorer",
+    "officeExplorerError": "Unable to open this folder in File Explorer. Check that the directory exists and SMN is running on Windows.",
+    "officeExplorerUnsupported": "Opening File Explorer is only available on the Windows computer running SMN.",
     "heroIntro": "Create, customize and find your team's reports.",
     "filtersHeading": "Filters and search",
     "listHeading": "Report list",
