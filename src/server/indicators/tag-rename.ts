@@ -1,5 +1,5 @@
 import {parseFormula,referencedTags} from "./formula";
-import {buildDependencyGraph,type DependencyRow,type IndicatorDefinition} from "./dependencies";
+import {buildDependencyGraph,isCalendarSourceTag,type DependencyRow,type IndicatorDefinition} from "./dependencies";
 
 /** Renaming is a change of identifier spelling, not of the underlying indicator identity.
  * Preserve whitespace, role arguments and all pre-existing values and snapshots.
@@ -16,7 +16,7 @@ export function planIndicatorTagRename(
 ):ReadonlyArray<{id:string;formula:string}>{
  const selected=definitions.find(d=>d.id===indicatorId);
  if(!selected)throw Error("indicator-not-found");
- if(!/^[A-Z][A-Z0-9_]{0,79}$/.test(nextTag)||definitions.some(d=>d.id!==indicatorId&&d.tag===nextTag))
+ if(!/^[A-Z][A-Z0-9_]{0,79}$/.test(nextTag)||isCalendarSourceTag(nextTag)||definitions.some(d=>d.id!==indicatorId&&d.tag===nextTag))
   throw Error("indicator-tag-conflict");
  const rewritten=definitions.map(d=>({
   ...d,tag:d.id===indicatorId?nextTag:d.tag,
