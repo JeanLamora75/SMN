@@ -60,3 +60,14 @@ Pour l'option **PostgreSQL existant**, SMN enregistre l'utilisateur et le port d
 Pour ce pilote purement local, le compte administrateur peut commencer avec **admin / admin** ; le flag `must_change_password` reste activé. Avant une éventuelle exposition réseau, une connexion et un changement obligatoire du mot de passe seront nécessaires (SMN-14). Les routes métier restent fermées anonymement.
 
 Si une ancienne tentative portable a créé un dossier PostgreSQL sans configuration valide, **SMN ne le supprimera pas automatiquement**. Choisissez l'option PostgreSQL existant lorsque vous disposez déjà d'une installation PostgreSQL 18 accessible.
+
+## Dossiers Office Word et PowerPoint
+
+Les dossiers sont créés automatiquement lors du démarrage de SMN et inclus dans le paquet Windows :
+
+- `SMN/data/office/templates` : modèles `.docx` et `.pptx` à déposer manuellement.
+- `SMN/data/office/reports` : rapports Word et PowerPoint enregistrés par SMN.
+
+Les variables `SMN_OFFICE_TEMPLATES_DIR` et `SMN_OFFICE_REPORTS_DIR` sont **facultatives** : en leur absence, les chemins ci-dessus sont utilisés. Si elles sont définies, leur valeur doit être un chemin absolu. Les dossiers existants et leurs fichiers sont conservés ; les anciens fichiers sous `%LOCALAPPDATA%/ScrumMasterNotebook/office-templates` et `office-reports` ne sont pas déplacés automatiquement. Les copier manuellement si nécessaire après sauvegarde.
+
+Ces dossiers sont ignorés par Git, car ils peuvent contenir des rapports privés. Les fichiers placés dans le dossier de l’application ne survivent pas nécessairement à son remplacement intégral lors d’une réinstallation : conserver une copie de sauvegarde.
