@@ -124,7 +124,7 @@ export default async function ReportsCenter({searchParams}:Params){
    <OfficeTemplateCatalog templates={officeTemplates??[]} unavailable={officeTemplates===null} cycles={sprintOptions} teamId={data.teamId} initialLanguage={locale==="en"?"en":"fr"} directories={officeFolders}/>
   </section>}
   {tab==="tags"&&<section className="smn-report-results" aria-labelledby="smn-report-tags-title">
-   <div className="smn-report-panel-heading"><h2 id="smn-report-tags-title">{t("tags")}</h2></div>
+   <div className="smn-report-panel-heading"><h2 id="smn-report-tags-title">{locale==="en"?"Tag documentation — Word and PowerPoint":"Documentation des tags — Word et PowerPoint"}</h2></div>
    <OfficeTags locale={locale==="en"?"en":"fr"} expanded/>
   </section>}
   {tab==="archives"&&<section className="smn-report-results" aria-labelledby="smn-report-archives-title">
