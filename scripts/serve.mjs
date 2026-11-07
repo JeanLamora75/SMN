@@ -3,6 +3,7 @@
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { resolveSmnPort } from "./port-config.mjs";
+import {ensureOfficeDirectories} from "./office-dirs.mjs";
 
 const mode = process.argv[2];
 if (!["dev", "start"].includes(mode) || process.argv.length !== 3) {
@@ -16,6 +17,9 @@ if (!["dev", "start"].includes(mode) || process.argv.length !== 3) {
     console.error(error instanceof Error ? error.message : "Configuration de port invalide.");
     process.exit(1);
   }
+
+  try { ensureOfficeDirectories(); }
+  catch(error) { console.error("Répertoires Office indisponibles :",error.message); process.exit(1); }
 
   // Ne pas annoncer « prêt » avant la véritable disponibilité de Next.
   console.log(`SMN : démarrage demandé sur http://127.0.0.1:${port} (Next confirmera la disponibilité)`);
