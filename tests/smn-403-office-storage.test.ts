@@ -75,7 +75,7 @@ test("SMN-403: report folder configuration is absolute and separate from models"
  assert.throws(()=>officeReportsDirectory({...process.env,SMN_OFFICE_REPORTS_DIR:"../escape"}),OfficeSaveFailure);
  const root=path.join(tmpdir(),"smn-storage");
  assert.equal(officeReportsDirectory({...process.env,SMN_OFFICE_REPORTS_DIR:root}),root);
- assert.ok(officeReportsDirectory({...process.env,LOCALAPPDATA:root}).endsWith(path.join("ScrumMasterNotebook","office-reports")));
+ assert.equal(officeReportsDirectory({...process.env,SMN_OFFICE_REPORTS_DIR:"",LOCALAPPDATA:root}),path.join(process.cwd(),"data","office","reports"));
 });
 test("SMN-403: invalid report folder or oversized output fails without a file",()=>temporary(async dir=>{
  const notFolder=path.join(dir,"file");
