@@ -15,8 +15,7 @@ export function officeReportsDirectory(env:NodeJS.ProcessEnv=process.env):string
   if(!path.isAbsolute(custom))throw new OfficeSaveFailure();
   return path.resolve(custom);
  }
- const base=env.LOCALAPPDATA?.trim()||path.join(process.cwd(),".smn-local");
- return path.join(base,"ScrumMasterNotebook","office-reports");
+ return path.join(process.cwd(),"data","office","reports");
 }
 export function safeOfficeReportName(name:string,format:Format):string{
  if(typeof name!=="string"||name!==name.trim()||!SAFE_BASE.test(name)||
