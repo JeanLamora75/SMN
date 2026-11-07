@@ -102,3 +102,17 @@ L'identité du produit vient de `resolveAdminTeam` : elle est liée à l'équipe
 **Cas d'utilisation :** une page de couverture PowerPoint peut contenir `{{PRODUCT_NAME}}`, `{{SPRINT_NAME}}`, `{{SPRINT_START}}`, `{{SPRINT_END}}` et `{{TODAY}}` ; une page d'introduction peut afficher `{{PRODUCT_VISION}}`, `{{PRODUCT_GOAL}}` et `{{SPRINT_GOAL}}`.
 
 **Tests :** `tests/smn-office-context-scalars.test.ts` et workflow Windows/Linux `office-context-scalars.yml`. Ces vérifications restent distinctes de la recette visuelle Microsoft Office et de la recette PostgreSQL réelle.
+
+## 7. Centre Rapports : organisation des onglets et chemins Office (7 novembre 2026)
+
+**Demande UX :** le menu du Centre Rapports est ordonné **Rapports / Modèles / Tags / Archives**. L'onglet **Modèles** est désormais réservé aux fichiers Office `.docx` et `.pptx` ; les anciens modèles internes (« Standard », modèles personnalisés de rapports historiques) ne sont plus affichés dans ce catalogue, **sans aucune suppression de leurs données ni modification du moteur de rapports historiques**. La documentation complète des tags a été déplacée dans le nouvel onglet **Tags**, en affichage développé par défaut ; elle a été retirée du catalogue des modèles Office.
+
+**Répertoires serveur (Windows 11, valeurs par défaut) :**
+- Modèles : `%LOCALAPPDATA%\ScrumMasterNotebook\office-templates` via `officeTemplatesDirectory()` ou configuration `SMN_OFFICE_TEMPLATES_DIR`.
+- Rapports enregistrés : `%LOCALAPPDATA%\ScrumMasterNotebook\office-reports` via `officeReportsDirectory()` ou configuration `SMN_OFFICE_REPORTS_DIR`.
+
+La page **Modèles** affiche les chemins serveur **résolus effectivement** (y compris quand des variables d'environnement redéfinissent les dossiers), sans en déduire un chemin du navigateur client. Les chemins sont visibles même si le catalogue des modèles est vide. **Actualiser** permet de redécouvrir les fichiers Office déposés dans le dossier ; le bouton **Enregistrer** utilise le dossier de destination. **Télécharger** enregistre selon le fonctionnement du navigateur, pas automatiquement dans `office-reports`.
+
+**Limites :** la fonction ne crée pas automatiquement le dossier de modèles. Le dossier des rapports est créé lors de l'opération de sauvegarde. Le contexte et les protections d'accès aux données des équipes et sprints demeurent inchangés.
+
+**Tests et contrôles :** `tests/smn-report-center-office-navigation.test.ts` et CI Windows/Linux `.github/workflows/office-context-scalars.yml` ; recette visuelle manuelle à confirmer sous Windows 11.
