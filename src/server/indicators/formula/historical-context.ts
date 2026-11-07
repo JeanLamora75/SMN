@@ -59,7 +59,7 @@ export async function loadHistoricalResolver(db:Client,scope:HistoryScope,byTag:
   * Parse the ISO calendar dates in UTC to avoid DST or host-timezone drift.
   */
  const durationDays=(cycle:Cycle):number|null=>{
-  const valid=/^\\d{4}-\\d{2}-\\d{2}$/;
+  const valid=/^\d{4}-\d{2}-\d{2}$/;
   if(!valid.test(cycle.start_date)||!valid.test(cycle.end_date))return null;
   const start=Date.parse(cycle.start_date+"T00:00:00Z");
   const end=Date.parse(cycle.end_date+"T00:00:00Z");
