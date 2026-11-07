@@ -27,9 +27,26 @@ export default function OfficeTemplateCatalog({
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
  const [saved,setSaved]=useState("");
+ const [directoryError,setDirectoryError]=useState("");
+ const [openingDirectory,setOpeningDirectory]=useState<"templates"|"reports"|null>(null);
  const [confirmOverwrite,setConfirmOverwrite]=useState<{fingerprint:string;filename:string;directory:string}|null>(null);
  const current=templates.find(model=>model.id===selected);
  const sprintName=cycles.find(item=>item[0]===cycle)?.[1]??"";
+ async function openDirectory(kind:"templates"|"reports"){
+  if(openingDirectory)return;
+  setOpeningDirectory(kind);setDirectoryError("");
+  try{
+   const response=await fetch("/api/admin/reports/office-templates/open-directory",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({kind})
+   });
+   if(!response.ok){
+    const result=await response.json() as {error?:string};
+    setDirectoryError(tr(result.error==="unsupported-platform"?"officeExplorerUnsupported":"officeExplorerError"));
+   }
+  }catch{setDirectoryError(tr("officeExplorerError"));}
+  finally{setOpeningDirectory(null);}
+ }
  function suggestName(model:OfficeTemplate|undefined,sprint:string){
   setFilename(model&&sprint?(model.name+" - "+sprint).slice(0,120):"");
  }
@@ -95,15 +112,36 @@ export default function OfficeTemplateCatalog({
    <div className="row g-2 mb-3">
     <div className="col-12 col-lg-6"><div className="border rounded-3 p-3 h-100">
      <div className="fw-semibold small mb-2">{tr("officeTemplateDirectory")}</div>
-     <code className="d-block text-break user-select-all">{directories?.templates??tr("officeDirectoryUnavailable")}</code>
+     <div className="d-flex align-items-center gap-2">
+      <button type="button" className="btn btn-sm btn-outline-secondary flex-shrink-0 d-inline-flex align-items-center justify-content-center"
+       disabled={!directories?.templates||openingDirectory!==null}
+       title={tr("officeOpenDirectory")} aria-label={tr("officeOpenDirectory")+" — "+tr("officeTemplateDirectory")}
+       onClick={()=>void openDirectory("templates")}>
+       <svg aria-hidden="true" width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M.54 3.87A1.5 1.5 0 0 1 2.03 2.5h3.14c.4 0 .78.16 1.06.44l.61.61h6.63a1.5 1.5 0 0 1 1.5 1.5v7.45a1.5 1.5 0 0 1-1.5 1.5H2.03a1.5 1.5 0 0 1-1.5-1.5V3.87Zm1.49-.37a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 .5.5h11.44a.5.5 0 0 0 .5-.5V5.05a.5.5 0 0 0-.5-.5H6.43l-.91-.9a.5.5 0 0 0-.35-.15H2.03Z"/>
+       </svg>
+      </button>
+      <code className="d-block text-break user-select-all">{directories?.templates??tr("officeDirectoryUnavailable")}</code>
+     </div>
      <div className="text-secondary small mt-2">{tr("officeTemplateDirectoryHint")}</div>
     </div></div>
     <div className="col-12 col-lg-6"><div className="border rounded-3 p-3 h-100">
      <div className="fw-semibold small mb-2">{tr("officeReportsDirectory")}</div>
-     <code className="d-block text-break user-select-all">{directories?.reports??tr("officeDirectoryUnavailable")}</code>
+     <div className="d-flex align-items-center gap-2">
+      <button type="button" className="btn btn-sm btn-outline-secondary flex-shrink-0 d-inline-flex align-items-center justify-content-center"
+       disabled={!directories?.reports||openingDirectory!==null}
+       title={tr("officeOpenDirectory")} aria-label={tr("officeOpenDirectory")+" — "+tr("officeReportsDirectory")}
+       onClick={()=>void openDirectory("reports")}>
+       <svg aria-hidden="true" width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M.54 3.87A1.5 1.5 0 0 1 2.03 2.5h3.14c.4 0 .78.16 1.06.44l.61.61h6.63a1.5 1.5 0 0 1 1.5 1.5v7.45a1.5 1.5 0 0 1-1.5 1.5H2.03a1.5 1.5 0 0 1-1.5-1.5V3.87Zm1.49-.37a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 .5.5h11.44a.5.5 0 0 0 .5-.5V5.05a.5.5 0 0 0-.5-.5H6.43l-.91-.9a.5.5 0 0 0-.35-.15H2.03Z"/>
+       </svg>
+      </button>
+      <code className="d-block text-break user-select-all">{directories?.reports??tr("officeDirectoryUnavailable")}</code>
+     </div>
      <div className="text-secondary small mt-2">{tr("officeReportsDirectoryHint")}</div>
     </div></div>
    </div>
+   {directoryError&&<p role="alert" className="alert alert-warning py-2">{directoryError}</p>}
    {unavailable?<p role="alert" className="alert alert-warning">{tr("officeUnavailable")}</p>:
     templates.length===0?<p className="alert alert-info mb-0">{tr("officeEmpty")}</p>:
     <>
