@@ -102,16 +102,65 @@ export function expandPowerPointTablesXml(xml,datasets){
  }
  return {xml:result,tableRows:expanded};
 }
-export function generatePowerPointTables(packageBytes,datasets){
+const EMPTY_TEXT={
+ fr:{RISKS:"Aucun risque identifié",OBSTACLES:"Aucun obstacle identifié"},
+ en:{RISKS:"No risks identified",OBSTACLES:"No obstacles identified"}
+};
+const PARAGRAPH=/<a:p(?:\\s[^>]*)?>[\\s\\S]*?<\\/a:p>/g;
+const SHAPE=/<p:sp(?:\\s[^>]*)?>[\\s\\S]*?<\\/p:sp>/g;
+
+/** Repeat paragraphs only inside text shapes; all surrounding PowerPoint geometry remains untouched. */
+export function expandPowerPointTextBoxesXml(xml,datasets,language="fr"){
+ if(typeof xml!=="string"||/<!DOCTYPE|<!ENTITY/i.test(xml))throw Error("office-pptx-invalid-xml");
+ if(!["fr","en"].includes(language))throw Error("office-pptx-invalid-language");
+ if(!datasets||typeof datasets!=="object"||Array.isArray(datasets))throw Error("office-pptx-invalid-data");
+ let expanded=0;
+ const output=xml.replace(SHAPE,shape=>{
+  const bodyPattern=/<p:txBody(?:\\s[^>]*)?>[\\s\\S]*?<\\/p:txBody>/g;
+  return shape.replace(bodyPattern,body=>{
+   const converted=body.replace(PARAGRAPH,paragraph=>{
+    const marker=readMarker(paragraph);
+    if(!marker)return paragraph;
+    const records=datasets[marker.source];
+    if(!Array.isArray(records))throw Error("office-pptx-source-unavailable");
+    if(records.length>10000)throw Error("office-pptx-resource-limit");
+    expanded++;
+    const clean=removeMarker(paragraph,marker);
+    if(!records.length){
+     const fields=[...nodesOf(clean).map(n=>n.text).join("").matchAll(/\\{\\{([A-Z][A-Z0-9_]*)\\}\\}/g)]
+      .map(m=>m[1]);
+     const message=EMPTY_TEXT[language][marker.source]??"N/D";
+     if(!fields.length){
+      const nodes=nodesOf(clean);
+      if(!nodes.length)throw Error("office-pptx-empty-text-shape");
+      const edits=nodes.map(n=>n.text);
+      edits[0]+=message;
+      return editRow(clean,nodes,edits);
+     }
+     return replaceScalarXml(clean,Object.fromEntries(fields.map((field,index)=>[field,index===0?message:""]))).xml;
+    }
+    return records.map(record=>replaceScalarXml(clean,record).xml).join("");
+   });
+   // A marker split across paragraphs or placed outside supported runs must not be ignored.
+   if(nodesOf(converted).map(n=>n.text).join("").includes("{{ROW:"))
+    throw Error("office-pptx-unsupported-text-marker");
+   return converted;
+  });
+ });
+ return {xml:output,textRows:expanded};
+}
+
+export function generatePowerPointTables(packageBytes,datasets,language="fr"){
  const parts=readZip(packageBytes),changes=[];
  if(!parts.some(part=>part.name==="ppt/presentation.xml"))
   throw Error("office-pptx-presentation-missing");
  const updated=parts.map(part=>{
   if(!/^ppt\/slides\/slide\d+\.xml$/.test(part.name))return part;
   const result=expandPowerPointTablesXml(part.data.toString("utf8"),datasets);
-  if(!result.tableRows)return part;
-  changes.push({part:part.name,count:result.tableRows});
-  return {...part,data:Buffer.from(result.xml,"utf8")};
+  const text=expandPowerPointTextBoxesXml(result.xml,datasets,language);
+  if(!result.tableRows&&!text.textRows)return part;
+  changes.push({part:part.name,count:result.tableRows+text.textRows});
+  return {...part,data:Buffer.from(text.xml,"utf8")};
  });
  return {bytes:writeZip(updated),changes};
 }
