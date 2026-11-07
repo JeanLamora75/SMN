@@ -127,17 +127,12 @@ export function expandPowerPointTextBoxesXml(xml,datasets,language="fr"){
     expanded++;
     const clean=removeMarker(paragraph,marker);
     if(!records.length){
-     const fields=[...nodesOf(clean).map(n=>n.text).join("").matchAll(/\\{\\{([A-Z][A-Z0-9_]*)\\}\\}/g)]
-      .map(m=>m[1]);
      const message=EMPTY_TEXT[language][marker.source]??"N/D";
-     if(!fields.length){
-      const nodes=nodesOf(clean);
-      if(!nodes.length)throw Error("office-pptx-empty-text-shape");
-      const edits=nodes.map(n=>n.text);
-      edits[0]+=message;
-      return editRow(clean,nodes,edits);
-     }
-     return replaceScalarXml(clean,Object.fromEntries(fields.map((field,index)=>[field,index===0?message:""]))).xml;
+     const nodes=nodesOf(clean);
+     if(!nodes.length)throw Error("office-pptx-empty-text-shape");
+     // Keep the paragraph properties and first run style, but remove placeholders,
+     // separators and stale example text when there are no business records.
+     return editRow(clean,nodes,nodes.map((_node,index)=>index===0?message:""));
     }
     return records.map(record=>replaceScalarXml(clean,record).xml).join("");
    });
