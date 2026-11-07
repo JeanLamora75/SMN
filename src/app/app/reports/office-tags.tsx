@@ -129,6 +129,12 @@ export default function OfficeTags({locale="fr",expanded=false}:{locale?:Locale;
    {" · "}<code>{mark("RISK_PRIORITY")}</code><CopyOfficeTag value={mark("RISK_PRIORITY")} fr={fr}/>
   </p>
 
+  <p className="small mb-2">
+   {fr?"Dans PowerPoint, les marqueurs ROW peuvent également être placés dans un paragraphe d'une zone de texte : SMN répète ce paragraphe pour chaque entrée en conservant les styles. Les tags de champs doivent appartenir au même paragraphe.":"In PowerPoint, ROW markers can also be placed in a text-box paragraph: SMN repeats that paragraph for each entry while keeping the formatting. Field tags must be in the same paragraph."}
+  </p>
+  <p className="small text-secondary">
+   {fr?"Exemple : {{ROW:RISKS}}{{RISK_TITLE}} — {{RISK_STATUS}}. Si aucun risque ou obstacle n'est présent, le bloc affiche « Aucun risque identifié » ou « Aucun obstacle identifié ». Les modèles peuvent déborder visuellement et ne sont pas redimensionnés automatiquement.":"Example: {{ROW:RISKS}}{{RISK_TITLE}} — {{RISK_STATUS}}. Empty lists display “No risks identified” or “No obstacles identified”. Text-box overflow remains possible; layouts are not automatically resized."}
+  </p>
   </TagSection>
   <TagSection title={fr?"4. Graphiques de tendances en image PNG":"4. Trend charts as PNG images"}>
   <p className="small">
