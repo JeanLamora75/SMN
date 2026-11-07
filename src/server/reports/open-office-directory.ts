@@ -19,7 +19,8 @@ export async function openOfficeDirectory(kind:OfficeDirectoryKind):Promise<void
  const entry=await lstat(directory);
  if(!entry.isDirectory()||entry.isSymbolicLink())throw Error("office-directory-unavailable");
  const canonical=await realpath(directory);
- if(canonical!==directory)throw Error("office-directory-unavailable");
+ if(path.win32.normalize(canonical).toLowerCase()!==path.win32.normalize(directory).toLowerCase())
+  throw Error("office-directory-unavailable");
  await new Promise<void>((resolve,reject)=>{
   const child=spawn("explorer.exe",[directory],{shell:false,windowsHide:true,detached:true,stdio:"ignore"});
   child.once("error",reject);
