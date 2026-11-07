@@ -4,7 +4,7 @@ import type {HistoricalFunction,HistoricalResolver,Result,SourceValue} from "./i
 
 export type HistoricalContextResolver=HistoricalResolver & {series:(tag:string,count:number)=>HistoricalSeries};
 export type HistoryScope=Readonly<{teamId:string;cycleType:"scrum"|"kanban";cycleId:string}>;
-type Cycle={id:string;name:string;status:string};
+type Cycle={id:string;name:string;status:string;start_date:string;end_date:string};
 type Stored={cycle_id:string;indicator_id:string;value:string|null};
 type Snapshot={sprint_id:string;snapshot:unknown};
 
@@ -13,7 +13,10 @@ export async function loadHistoricalResolver(db:Client,scope:HistoryScope,byTag:
  const scrum=scope.cycleType==="scrum";
  const table=scrum?"smn_sprint":"smn_kanban_period";
  const date= scrum?"start_at":"start_on";
- const cycles=await db.query<Cycle>(`SELECT id,name,status FROM public.${table}
+ const endDate=scrum?"end_at":"end_on";
+ const cycles=await db.query<Cycle>(`SELECT id,name,status,
+  ${date}::date::text AS start_date,${endDate}::date::text AS end_date
+  FROM public.${table}
  WHERE team_id=$1 AND deleted_at IS NULL ORDER BY ${date},id LIMIT 1001`,[scope.teamId]);
  if(cycles.rows.length>1000)throw Error("historical-cycle-budget");
  const index=cycles.rows.findIndex(c=>c.id===scope.cycleId);
@@ -52,10 +55,22 @@ export async function loadHistoricalResolver(db:Client,scope:HistoryScope,byTag:
    for(const id of closed)if(!first.has(id))values.set(id,new Map());
   }
  }
+ /** Calendar boundaries follow the app's cycle interval: start included, end excluded.
+  * Parse the ISO calendar dates in UTC to avoid DST or host-timezone drift.
+  */
+ const durationDays=(cycle:Cycle):number|null=>{
+  const valid=/^\\d{4}-\\d{2}-\\d{2}$/;
+  if(!valid.test(cycle.start_date)||!valid.test(cycle.end_date))return null;
+  const start=Date.parse(cycle.start_date+"T00:00:00Z");
+  const end=Date.parse(cycle.end_date+"T00:00:00Z");
+  if(!Number.isFinite(start)||!Number.isFinite(end))return null;
+  const days=(end-start)/86400000;
+  return Number.isSafeInteger(days)&&days>0?days:null;
+ };
  const series=(tag:string,count:number):HistoricalSeries=>{
   const indicatorId=byTag.get(tag);
   if(!indicatorId)throw Error("historical-tag-unknown");
-  const points:HistoricalPoint[]=selected.map(c=>({cycleId:c.id,label:c.name,value:values.get(c.id)?.get(indicatorId)??null}));
+  const points:HistoricalPoint[]=selected.map(c=>({cycleId:c.id,label:c.name,value:values.get(c.id)?.get(indicatorId)??null,durationDays:durationDays(c)}));
   const result=calculateHistorical("LAST_VALUES",points,count);
   if(result.kind!=="series")throw Error("historical-series-unavailable");
   return result;
