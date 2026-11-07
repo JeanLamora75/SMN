@@ -3673,7 +3673,7 @@
     "officeGenerating": "Génération en cours…",
     "officeGenerationError": "Impossible de générer ce document Office. Vérifiez le modèle et les tags.",
     "officeRequiresTeam": "Sélectionnez une équipe et un sprint autorisés pour générer un rapport Office.",
-    "officeScalarOnly": "Les modèles Office acceptent les valeurs simples, les neuf familles de tableaux et les six types de graphiques documentés ci-dessus. La génération porte actuellement sur un sprint sélectionné.",
+    "officeScalarOnly": "Les modèles Office acceptent les valeurs simples, les dix familles de tableaux et les six types de graphiques documentés ci-dessus. La génération porte actuellement sur un sprint sélectionné.",
     "officeSave": "Enregistrer dans SMN",
     "officeSaveError": "L'enregistrement du rapport a échoué. Aucun fichier existant ne doit être remplacé.",
     "officeSaveConflict": "Le fichier a changé depuis votre confirmation. Vérifiez la destination et recommencez.",
