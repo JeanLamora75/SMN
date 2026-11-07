@@ -111,7 +111,7 @@ export async function POST(req:NextRequest){
   }
   const base=selected.template.format==="docx"?
    generateWordTables(selected.bytes,payload.rows).bytes:
-   generatePowerPointTables(selected.bytes,payload.rows).bytes;
+   generatePowerPointTables(selected.bytes,payload.rows,language as Locale).bytes;
   const result=generateScalarOffice(base,selected.template.format,payload.values);
   const withCharts=chartCount>0&&payload.report?
    insertOfficeTrendImages(result.bytes,selected.template.format,(_index:number,options:{last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null})=>
