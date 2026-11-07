@@ -3595,6 +3595,9 @@
     "loadMore": "Charger les événements suivants"
   },
   "reportsCenter": {
+    "officeOpenDirectory": "Ouvrir dans l’Explorateur de fichiers",
+    "officeExplorerError": "Impossible d’ouvrir ce dossier dans l’Explorateur de fichiers. Vérifiez que le répertoire existe et que SMN fonctionne sous Windows.",
+    "officeExplorerUnsupported": "L’ouverture directe de l’Explorateur est disponible uniquement sur le poste Windows qui exécute SMN.",
     "heroIntro": "Créez, personnalisez et retrouvez les rapports de votre équipe.",
     "filtersHeading": "Filtres et recherche",
     "listHeading": "Liste des rapports",
