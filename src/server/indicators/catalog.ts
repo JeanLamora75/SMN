@@ -2,7 +2,7 @@ import type {Client} from "pg";
 import {randomUUID} from "node:crypto";
 import type {TeamActor} from "../teams/resolve";
 import {requireIndicatorTeam} from "./team-access";
-import {parseFormula,referencedTags,FormulaSyntaxError,FormulaBudgetError,ROLE_CAPACITY_FUNCTIONS} from "./formula";
+import {parseFormula,referencedTags,FormulaSyntaxError,FormulaBudgetError,ROLE_CAPACITY_FUNCTIONS,HISTORICAL_FUNCTIONS} from "./formula";
 import {recalculateIndicatorResultsWithinTransaction} from "./recalculation";
 import {planIndicatorTagRename} from "./tag-rename";
 import {isCalendarSourceTag,buildDependencyGraph,DependencyGraphError,type DependencyRow,type IndicatorDefinition} from "./dependencies";
@@ -14,7 +14,7 @@ type Definition={id:string;tag:string;name:string;description:string;unit_name:s
 type Selection={team_id:string;indicator_id:string;is_active:boolean};
 type Preference={team_id:string;indicator_id:string;screen_key:ScreenKey;is_visible:boolean;display_order:number;display_style:typeof STYLES[number]};
 export class IndicatorCatalogError extends Error{
- constructor(public readonly code:"invalid-input"|"forbidden"|"not-found"|"conflict"|"archived"|"schema-not-ready",message=code){super(message);this.name="IndicatorCatalogError";}
+ constructor(public readonly code:"invalid-input"|"forbidden"|"not-found"|"conflict"|"archived"|"schema-not-ready",message=code,public readonly formulaError?:{reason:"unknown-function"|"unknown-reference"|"syntax";expression:string;suggestion?:string}){super(message);this.name="IndicatorCatalogError";}
 }
 const id=(v:unknown):v is string=>typeof v==="string"&&/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/.test(v);
 const tag=(v:unknown):v is string=>typeof v==="string"&&/^[A-Z][A-Z0-9_]*$/.test(v);
@@ -48,16 +48,28 @@ function meta(x:{name:string;description?:string;unitName?:string;unitShort?:str
  guard(typeof x.unitShort==="undefined"||typeof x.unitShort==="string"&&x.unitShort.length<=20,"invalid-input");
  guard(colorOk(x.color),"invalid-input");guard(typeof x.icon==="undefined"||x.icon===null||typeof x.icon==="string"&&x.icon.length<=80,"invalid-input");
 }
+/** Safe, language-independent diagnostics; clients own all translated text. */
 export function validateCatalogFormula(formula:string):ReturnType<typeof parseFormula>{
- const roleCalls=[...formula.matchAll(/\\b(ROLE_[A-Z_]+)\\s*\\(/g)];
- for(const match of roleCalls)if(!ROLE_CAPACITY_FUNCTIONS.has(match[1] as "ROLE_JH")){
-  const suggestion=match[1]==="ROLE_PLANNED_JH"?" Utilisez ROLE_JH_PLANNED.":"";
-  throw new IndicatorCatalogError("invalid-input","Fonction inconnue : "+match[1]+"."+suggestion);
+ const supported=new Set(["MIN","MAX","ROUND",...ROLE_CAPACITY_FUNCTIONS,...HISTORICAL_FUNCTIONS]);
+ // Recognize function calls without interpreting quoted Agile role arguments as identifiers.
+ const calls=[...formula.matchAll(/\\b([A-Z][A-Z0-9_]*)\\s*\\(/g)];
+ for(const match of calls){
+  const name=match[1];
+  if(!supported.has(name)&&name.startsWith("ROLE_")){
+   const suggestion=name==="ROLE_PLANNED_JH"?"ROLE_JH_PLANNED":undefined;
+   throw new IndicatorCatalogError("invalid-input","formula-unknown-function",
+    {reason:"unknown-function",expression:name,...(suggestion?{suggestion}:{})});
+  }
  }
  try{return parseFormula(formula);}
  catch(error){
-  if(error instanceof FormulaSyntaxError||error instanceof FormulaBudgetError)
-   throw new IndicatorCatalogError("invalid-input","Expression invalide : "+error.message);
+  if(error instanceof FormulaSyntaxError||error instanceof FormulaBudgetError){
+   const position=error.message.match(/at (\\d+)/);
+   const offset=position?Number(position[1]):-1;
+   const expression=offset>=0?formula.slice(offset).match(/^[^\\s(),+*/^%\\-]+/)?.[0]??formula[offset]??"":formula.slice(0,120);
+   throw new IndicatorCatalogError("invalid-input","formula-syntax",
+    {reason:"syntax",expression:expression.slice(0,120)});
+  }
   throw error;
  }
 }
@@ -67,7 +79,7 @@ async function deriveDependencies(db:Client,formula:string,indicatorId:string,in
  const byTag=new Map(definitions.rows.map(d=>[d.tag,d.id]));
  const dependencies:DependencyRow[]=tags.map(t=>{
   const source=byTag.get(t);if(source)return {indicator_id:indicatorId,source_type:"indicator",source_indicator_id:source,source_calendar_tag:null};
-  guard(isCalendarSourceTag(t),"invalid-input");
+  if(!isCalendarSourceTag(t))throw new IndicatorCatalogError("invalid-input","formula-unknown-reference",{reason:"unknown-reference",expression:t});
   return {indicator_id:indicatorId,source_type:"calendar",source_indicator_id:null,source_calendar_tag:t};
  });
  const old=await db.query<DependencyRow>("SELECT indicator_id,source_type,source_indicator_id,source_calendar_tag FROM public.smn_indicator_dependency");
