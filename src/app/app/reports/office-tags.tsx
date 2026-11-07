@@ -1,3 +1,4 @@
+import type {ReactNode} from "react";
 import CopyOfficeTag from "./copy-office-tag";
 type Locale="fr"|"en";
 type RowDefinition={
@@ -68,7 +69,7 @@ export const officeChartDefinitions:readonly ChartDefinition[]=[
   noteEn:"Exactly one value between 0 and 100"}
 ];
 const mark=(key:string)=>"{{"+key+"}}";
-function TagSection({title,children,initiallyOpen=false}:{title:string;children:React.ReactNode;initiallyOpen?:boolean}){
+function TagSection({title,children,initiallyOpen=false}:{title:string;children:ReactNode;initiallyOpen?:boolean}){
  return <details className="border rounded-3 mb-3 smn-office-tag-section" defaultOpen={initiallyOpen}>
   <summary className="fw-semibold p-3" style={{cursor:"pointer"}}>{title}</summary>
   <div className="px-3 pb-3">{children}</div>
