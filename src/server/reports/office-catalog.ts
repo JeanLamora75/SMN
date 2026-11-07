@@ -26,8 +26,7 @@ export function officeTemplatesDirectory(env:NodeJS.ProcessEnv=process.env):stri
   if(!path.isAbsolute(configured))throw Error("office-template-directory-not-absolute");
   return path.resolve(configured);
  }
- const base=env.LOCALAPPDATA?.trim()||path.join(process.cwd(),".smn-local");
- return path.join(base,"ScrumMasterNotebook","office-templates");
+ return path.join(process.cwd(),"data","office","templates");
 }
 
 /** Inspect the ZIP directory without extracting or trusting an extension alone. */
