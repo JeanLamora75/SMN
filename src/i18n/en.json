@@ -3678,7 +3678,13 @@
     "officeOverwriteTitle": "Replace existing report?",
     "officeOverwriteHint": "A report with this name already exists in the displayed folder. Explicitly confirm its replacement.",
     "officeOverwriteConfirm": "Replace file",
-    "officeCancel": "Cancel"
+    "officeCancel": "Cancel",
+    "tags": "Tags",
+    "officeTemplateDirectory": "Office template directory",
+    "officeReportsDirectory": "Office report output directory",
+    "officeDirectoryUnavailable": "Directory unavailable: check server configuration.",
+    "officeTemplateDirectoryHint": "Place .docx and .pptx files here, then click Refresh.",
+    "officeReportsDirectoryHint": "Reports saved using Save are stored here. Download uses your browser."
   },
   "reportsStudio": {
     "modes": "Studio modes",
