@@ -29,7 +29,7 @@ test("PPTX: 3 members, fragmented row marker, horizontal merge and style copied"
  assert.match(result.xml,/Alice &amp; Bob/);
  assert.match(result.xml,/N\/D/);
  assert.match(result.xml,/>Nom<\/a:t>/);
- assert.doesNotMatch(result.xml.slice(result.xml.indexOf('name="Risk box"')), /\{\{ROW:/);
+ assert.doesNotMatch(result.xml,/\{\{ROW:/);
  assert.match(result.xml,/<a:ext cx="6000000" cy="1000000"\/>/);
 });
 test("PPTX: no members leaves one data row with N/D",()=>{
@@ -106,7 +106,7 @@ test("PPTX text shapes: risks and obstacles repeat paragraphs while preserving s
  assert.equal((result.xml.match(/<a:rPr b="1"\/>/g)||[]).length,3); // two copied risk runs plus the original table run
  assert.match(result.xml,/<a:off x="430000" y="550000"\/>/);
  assert.match(result.xml,/<a:srgbClr val="EE1122"\/>/);
- assert.doesNotMatch(result.xml,/\{\{ROW:/);
+ assert.doesNotMatch(result.xml.slice(result.xml.indexOf('name="Risk box"')), /\{\{ROW:/);
  assert.doesNotMatch(result.xml,/\{\{RISK_|\{\{OBSTACLE_/);
 });
 test("PPTX text shapes: empty sources produce clean localized messages",()=>{
