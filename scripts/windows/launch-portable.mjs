@@ -4,10 +4,12 @@ import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {ensureOfficeDirectories} from "./scripts/office-dirs.mjs";
 
 if (process.platform !== "win32") throw new Error("Windows x64 requis");
 const root = path.dirname(fileURLToPath(import.meta.url));
 const server = path.join(root, "server.js");
+ensureOfficeDirectories(root);
 const url = "http://127.0.0.1:3003";
 if (!existsSync(server)) throw new Error("SMN incomplet : server.js absent.");
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
