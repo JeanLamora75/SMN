@@ -78,7 +78,7 @@ export default async function ReportsCenter({searchParams}:Params){
    </div>
    <nav className="smn-report-tabs" aria-label={t("heading")}>
     {tabs.map(k=><Link key={k} href={href(k)} className={"smn-report-tab"+(tab===k?" is-active":"")} aria-current={tab===k?"page":undefined}>
-     <BootstrapIcon name={k==="reports"?"list-ul":k==="templates"?"grid-3x3-gap":k==="tags"?"tags":"sticky-fill"}/>
+     <BootstrapIcon name={k==="reports"?"list-ul":k==="templates"?"grid-3x3-gap":k==="tags"?"tag":"sticky-fill"}/>
      {t(k)}{k==="reports"&&<span className="smn-report-tab-count">{data.documents.length}</span>}
     </Link>)}
    </nav>
