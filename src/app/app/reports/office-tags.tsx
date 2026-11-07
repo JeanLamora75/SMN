@@ -67,9 +67,9 @@ export const officeChartDefinitions:readonly ChartDefinition[]=[
   noteEn:"Exactly one value between 0 and 100"}
 ];
 const mark=(key:string)=>"{{"+key+"}}";
-export default function OfficeTags({locale="fr"}:{locale?:Locale}){
+export default function OfficeTags({locale="fr",expanded=false}:{locale?:Locale;expanded?:boolean}){
  const fr=locale==="fr";
- return <details className="border rounded-3 p-3 my-3" id="smn-office-tags">
+ return <details className="border rounded-3 p-3 my-3" id="smn-office-tags" open={expanded}>
   <summary className="fw-semibold">
    {fr?"Documentation des tags — Word et PowerPoint":"Tag documentation — Word and PowerPoint"}
   </summary>
