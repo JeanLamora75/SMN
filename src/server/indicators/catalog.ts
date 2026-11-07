@@ -52,7 +52,7 @@ function meta(x:{name:string;description?:string;unitName?:string;unitShort?:str
 export function validateCatalogFormula(formula:string):ReturnType<typeof parseFormula>{
  const supported=new Set(["MIN","MAX","ROUND",...ROLE_CAPACITY_FUNCTIONS,...HISTORICAL_FUNCTIONS]);
  // Recognize function calls without interpreting quoted Agile role arguments as identifiers.
- const calls=[...formula.matchAll(/\\b([A-Z][A-Z0-9_]*)\\s*\\(/g)];
+ const calls=[...formula.matchAll(/\b([A-Z][A-Z0-9_]*)\s*\(/g)];
  for(const match of calls){
   const name=match[1];
   if(!supported.has(name)&&name.startsWith("ROLE_")){
@@ -64,9 +64,9 @@ export function validateCatalogFormula(formula:string):ReturnType<typeof parseFo
  try{return parseFormula(formula);}
  catch(error){
   if(error instanceof FormulaSyntaxError||error instanceof FormulaBudgetError){
-   const position=error.message.match(/at (\\d+)/);
+   const position=error.message.match(/at (\d+)/);
    const offset=position?Number(position[1]):-1;
-   const expression=offset>=0?formula.slice(offset).match(/^[^\\s(),+*/^%\\-]+/)?.[0]??formula[offset]??"":formula.slice(0,120);
+   const expression=offset>=0?formula.slice(offset).match(/^[^\s(),+*/^%-]+/)?.[0]??formula[offset]??"":formula.slice(0,120);
    throw new IndicatorCatalogError("invalid-input","formula-syntax",
     {reason:"syntax",expression:expression.slice(0,120)});
   }
