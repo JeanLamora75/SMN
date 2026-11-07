@@ -71,3 +71,12 @@ Les dossiers sont créés automatiquement lors du démarrage de SMN et inclus da
 Les variables `SMN_OFFICE_TEMPLATES_DIR` et `SMN_OFFICE_REPORTS_DIR` sont **facultatives** : en leur absence, les chemins ci-dessus sont utilisés. Si elles sont définies, leur valeur doit être un chemin absolu. Les dossiers existants et leurs fichiers sont conservés ; les anciens fichiers sous `%LOCALAPPDATA%/ScrumMasterNotebook/office-templates` et `office-reports` ne sont pas déplacés automatiquement. Les copier manuellement si nécessaire après sauvegarde.
 
 Ces dossiers sont ignorés par Git, car ils peuvent contenir des rapports privés. Les fichiers placés dans le dossier de l’application ne survivent pas nécessairement à son remplacement intégral lors d’une réinstallation : conserver une copie de sauvegarde.
+
+
+### Ouvrir les dossiers Office depuis le Centre Rapports
+
+Dans **Centre Rapports → Modèles**, un petit bouton représentant un dossier est affiché à gauche de chacun des deux chemins (modèles Office et rapports Office). Sur l'ordinateur Windows qui exécute SMN, le clic ouvre le répertoire concerné dans l'Explorateur de fichiers. Il fonctionne aussi avec les chemins absolus configurés par `SMN_OFFICE_TEMPLATES_DIR` et `SMN_OFFICE_REPORTS_DIR`.
+
+Pour des raisons de sécurité, l'application ne transmet jamais un chemin fourni par le navigateur : elle envoie seulement le choix `templates` ou `reports` à une route authentifiée, limitée à l'origine locale, qui utilise le chemin serveur déjà configuré. Les dossiers absents, les dossiers symboliques et les environnements non Windows sont refusés avec un message traduit FR/EN. La fonctionnalité n'ouvre pas l'Explorateur du poste du navigateur si celui-ci se trouve sur une autre machine que le serveur SMN.
+
+Validation à réaliser sur Windows : `pnpm exec tsx --test tests/smn-office-explorer-directory.test.ts`, `pnpm typecheck`, puis clic sur chacune des icônes depuis le navigateur local.
