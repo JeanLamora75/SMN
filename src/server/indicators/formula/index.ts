@@ -11,8 +11,8 @@ export type Expression=
  |Readonly<{kind:"call";name:"MIN"|"MAX"|"ROUND";args:readonly Expression[]}>
  |Readonly<{kind:"historical";name:HistoricalFunction;tag:string;count:number}>
  |Readonly<{kind:"role";name:RoleCapacityFunction;role:AgileRole}>;
-export type HistoricalFunction="SUM_LAST"|"LAST_VALUES"|"AVG_LAST"|"MIN_LAST"|"MAX_LAST"|"PREVIOUS"|"DELTA"|"DELTA_PCT";
-export const HISTORICAL_FUNCTIONS=new Set<HistoricalFunction>(["SUM_LAST","LAST_VALUES","AVG_LAST","MIN_LAST","MAX_LAST","PREVIOUS","DELTA","DELTA_PCT"]);
+export type HistoricalFunction="AVG_WEEK_LAST"|"SUM_LAST"|"LAST_VALUES"|"AVG_LAST"|"MIN_LAST"|"MAX_LAST"|"PREVIOUS"|"DELTA"|"DELTA_PCT";
+export const HISTORICAL_FUNCTIONS=new Set<HistoricalFunction>(["AVG_WEEK_LAST","SUM_LAST","LAST_VALUES","AVG_LAST","MIN_LAST","MAX_LAST","PREVIOUS","DELTA","DELTA_PCT"]);
 export type HistoricalResolver=(name:HistoricalFunction,tag:string,count:number,current?:SourceValue)=>Result;
 export type RoleCapacityFunction="ROLE_JH"|"ROLE_JH_PLANNED"|"ROLE_MAX_JH";
 export type AgileRole="DEVELOPER"|"SCRUM_MASTER"|"PRODUCT_OWNER";
