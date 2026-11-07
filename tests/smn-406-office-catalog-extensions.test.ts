@@ -9,10 +9,10 @@ import {renderOfficeIndicatorChart} from "../src/server/reports/office-indicator
 import {readOfficeBusinessRows,discoverOfficeBusinessSources,officeBusinessSources} from "../src/server/reports/office-business-rows";
 import type {Client} from "pg";
 
-const sources=["RISKS","OBSTACLES","NOTES","CEREMONIES","GOALS","ACTIONS","DECISIONS"] as const;
+const sources=["RISKS","OBSTACLES","DEPENDENCIES","NOTES","CEREMONIES","GOALS","ACTIONS","DECISIONS"] as const;
 const fields=[
  ["RISK_TITLE","RISK_STATUS"],["OBSTACLE_TITLE","OBSTACLE_STATUS"],
- ["NOTE_TEXT","NOTE_STATUS"],["CEREMONY_TITLE","CEREMONY_STATUS"],
+ ["DEPENDENCY_TITLE","DEPENDENCY_STATUS"],["NOTE_TEXT","NOTE_STATUS"],["CEREMONY_TITLE","CEREMONY_STATUS"],
  ["GOAL_TITLE","GOAL_EVALUATION"],["ACTION_TITLE","ACTION_STATUS"],
  ["DECISION_TITLE","DECISION_DATE"]
 ];
@@ -29,12 +29,12 @@ function packageOf(format:"docx"|"pptx"){
   {name:"docProps/core.xml",data:Buffer.from("<core>IMMUTABLE</core>")}
  ]);
 }
-test("Seven business sources are discovered from Word and PowerPoint without a layout registry",()=>{
+test("Eight business sources are discovered from Word and PowerPoint without a layout registry",()=>{
  for(const format of ["docx","pptx"] as const){
   assert.deepEqual(discoverOfficeBusinessSources(packageOf(format)),[...officeBusinessSources]);
  }
 });
-test("Seven business sources repeat in Word/PPTX, preserving other XML",()=>{
+test("Eight business sources repeat in Word/PPTX, preserving other XML",()=>{
  const data=Object.fromEntries(sources.map((name,i)=>[name,[
   {[fields[i][0]]:"Premier & Alpha",[fields[i][1]]:"0"},
   {[fields[i][0]]:"Deuxième",[fields[i][1]]:null}
@@ -47,8 +47,8 @@ test("Seven business sources repeat in Word/PPTX, preserving other XML",()=>{
   assert.deepEqual(after.get("docProps/core.xml"),before.get("docProps/core.xml"));
   const name=format==="docx"?"word/document.xml":"ppt/slides/slide1.xml";
   const xml=after.get(name)!.toString();
-  assert.equal((xml.match(format==="docx"?/<w:tr(?:\s|>)/g:/<a:tr(?:\s|>)/g)||[]).length,14);
-  assert.equal((xml.match(/Premier &amp; Alpha/g)||[]).length,7);
+  assert.equal((xml.match(format==="docx"?/<w:tr(?:\s|>)/g:/<a:tr(?:\s|>)/g)||[]).length,16);
+  assert.equal((xml.match(/Premier &amp; Alpha/g)||[]).length,8);
   assert.equal((xml.match(/Deuxième/g)||[]).length,7);
   assert.match(xml,/N\/D/);
   assert.match(xml,/>0<\/(?:w:t|a:t)>/);
@@ -104,7 +104,7 @@ test("Invalid percentage, mixed units and negative shares fail without a fake ch
  ],type:"gauge"}),/one-series/);
  assert.equal(renderOfficeTrendPng({cycles,series:[{name:"x",values:[0]}],type:"pie"}),null);
 });
-test("Projection of seven business sources uses authorized sprint and canonical projections",async()=>{
+test("Projection of eight business sources uses authorized sprint and canonical projections",async()=>{
  const team="t1",cycle="c1";
  const seen:Array<{sql:string;params:unknown[]}>=[];
  const db={query:async(sql:string,params:unknown[]=[])=>{
@@ -115,12 +115,20 @@ test("Projection of seven business sources uses authorized sprint and canonical 
    goals:true,selection:false,invalidated:false
   }]};
   if(sql.includes("FROM public.smn_registry_item r"))return {rows:[
-   ...(["risk","obstacle","action","decision"] as const).map((type,i)=>({
+   ...(["risk","obstacle","dependency","action","decision"] as const).map((type,i)=>({
     id:String(i),type,title:type+" example",status:"open",
     date:"2026-10-12T10:00:00Z",openedAt:"2026-10-12T10:00:00Z",
     closedAt:null,sprintIds:[],priority:null
    }))
   ]};
+  if(sql.includes("to_regclass('public.smn_dependency_parties') IS NOT NULL AS parties"))
+   return {rows:[{parties:true,vigilance:true}]};
+  if(sql.includes("r.id=ANY($2::text[])"))return {rows:[{
+   id:"2",owner:"SM",due_on:"2026-10-16",team_name:"Équipe A",
+   requester:{kind:"local",teamId:team},
+   contributor:{kind:"external",name:"Équipe fournisseur"},
+   at_risk:true
+  }]};
   if(sql.includes("to_regclass($1)"))return {rows:[{present:true}]};
   if(sql.includes("to_regclass('public.smn_sprint_historical_goal_detail')"))
    return {rows:[{present:false}]};
@@ -148,6 +156,10 @@ test("Projection of seven business sources uses authorized sprint and canonical 
  const result=await readOfficeBusinessRows(db,team,{id:cycle,startAt:"2026-10-10T00:00:00Z",endAt:"2026-10-17T00:00:00Z",timeZone:"UTC"},"fr",sources);
  for(const key of sources)assert.equal(result[key]?.length,1,key);
  assert.equal(result.RISKS?.[0].RISK_TITLE,"risk example");
+ assert.equal(result.DEPENDENCIES?.[0].DEPENDENCY_TITLE,"dependency example");
+ assert.equal(result.DEPENDENCIES?.[0].DEPENDENCY_REQUESTER,"Équipe A");
+ assert.equal(result.DEPENDENCIES?.[0].DEPENDENCY_CONTRIBUTOR,"Équipe fournisseur");
+ assert.equal(result.DEPENDENCIES?.[0].DEPENDENCY_AT_RISK,"Oui");
  assert.equal(result.CEREMONIES?.[0].CEREMONY_STATUS,"Tenue");
  assert.equal(result.GOALS?.[0].GOAL_EVALUATION,"Atteint");
  assert.equal(result.NOTES?.[0].NOTE_TEXT,"Note privée d'équipe");
