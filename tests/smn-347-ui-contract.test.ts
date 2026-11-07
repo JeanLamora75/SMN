@@ -42,3 +42,16 @@ test("SMN-347 : les catalogues FR et EN sont complets et de même forme",()=>{
   assert.equal(typeof (e.screen as Record<string,unknown>)[key],"string");
  }
 });
+
+test("SMN : les fonctions de rôles inconnues produisent une erreur métier lisible",async()=>{
+ const {validateCatalogFormula,IndicatorCatalogError}=await import("../src/server/indicators/catalog");
+ assert.throws(
+  ()=>validateCatalogFormula('ROLE_JH("DEVELOPER") / ROLE_PLANNED_JH("DEVELOPER") * 100'),
+  error=>error instanceof IndicatorCatalogError&&error.code==="invalid-input"&&/ROLE_JH_PLANNED/.test(error.message)
+ );
+ assert.doesNotThrow(()=>validateCatalogFormula('ROLE_JH("DEVELOPER") / ROLE_JH_PLANNED("DEVELOPER") * 100'));
+ const route=read("src/app/api/admin/indicators/catalog/route.ts");
+ const client=read("src/app/app/admin/indicators/catalog-client.tsx");
+ assert.match(route,/message:e.message/);
+ assert.match(client,/j.message\?\?j.error/);
+});
