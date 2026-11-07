@@ -14,7 +14,7 @@ type Definition={id:string;tag:string;name:string;description:string;unit_name:s
 type Selection={team_id:string;indicator_id:string;is_active:boolean};
 type Preference={team_id:string;indicator_id:string;screen_key:ScreenKey;is_visible:boolean;display_order:number;display_style:typeof STYLES[number]};
 export class IndicatorCatalogError extends Error{
- constructor(public readonly code:"invalid-input"|"forbidden"|"not-found"|"conflict"|"archived"|"schema-not-ready",message=code,public readonly formulaError?:{reason:"unknown-function"|"unknown-reference"|"syntax";expression:string;suggestion?:string}){super(message);this.name="IndicatorCatalogError";}
+ constructor(public readonly code:"invalid-input"|"forbidden"|"not-found"|"conflict"|"archived"|"schema-not-ready",message:string=code,public readonly formulaError?:{reason:"unknown-function"|"unknown-reference"|"syntax";expression:string;suggestion?:string}){super(message);this.name="IndicatorCatalogError";}
 }
 const id=(v:unknown):v is string=>typeof v==="string"&&/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/.test(v);
 const tag=(v:unknown):v is string=>typeof v==="string"&&/^[A-Z][A-Z0-9_]*$/.test(v);
