@@ -5,8 +5,18 @@ import {formatScalarNumber} from "../../../scripts/smn-399-office-scalars.mjs";
 export type OfficeWordRows=Record<string,string|null>[];
 type Locale="fr"|"en";
 type MemberRow={
- name:string;role:string|null;start_on:string;end_on:string|null
+ name:string;role:string|null;start_on:string;end_on:string|null;
+ city:string|null;country_iso2:string|null
 };
+export function officeCountryFlag(country:string|null):string|null{
+ if(!country||! /^[A-Z]{2}$/.test(country))return null;
+ return [...country].map(letter=>String.fromCodePoint(0x1f1e6+letter.charCodeAt(0)-65)).join("");
+}
+export function officeCountryName(country:string|null,locale:Locale):string|null{
+ if(!country||! /^[A-Z]{2}$/.test(country))return null;
+ const label=new Intl.DisplayNames([locale==="fr"?"fr-FR":"en-GB"],{type:"region",fallback:"none"}).of(country);
+ return label??null;
+}
 function dateLabel(value:string|null,locale:Locale):string|null{
  if(!value)return null;
  const date=new Date(value.slice(0,10)+"T12:00:00Z");
@@ -21,11 +31,18 @@ export async function readOfficeWordMembers(db:Client,teamId:string,cycleId:stri
  const members=await db.query<MemberRow>(`
   SELECT DISTINCT ON (m.id) m.display_name AS name,
    m.professional_function AS role,
-   a.start_on::text AS start_on,a.end_on::text AS end_on
+   a.start_on::text AS start_on,a.end_on::text AS end_on,
+   loc.city,loc.country_iso2
   FROM public.smn_member_assignment a
   JOIN public.smn_member m ON m.id=a.member_id
   JOIN public.smn_team t ON t.id=a.team_id AND t.installation_id=m.installation_id
   JOIN public.smn_sprint s ON s.id=$2 AND s.team_id=t.id AND s.deleted_at IS NULL
+  LEFT JOIN LATERAL (
+   SELECT ml.city,ml.country_iso2 FROM public.smn_member_location ml
+   WHERE ml.member_id=m.id AND ml.effective_from <
+      (s.end_at AT TIME ZONE s.time_zone)::date
+   ORDER BY ml.effective_from DESC,ml.revision DESC LIMIT 1
+  ) loc ON true
   WHERE a.team_id=$1 AND t.installation_id='singleton'
     AND a.start_on <= (s.end_at AT TIME ZONE s.time_zone)::date
     AND (a.end_on IS NULL OR a.end_on >= (s.start_at AT TIME ZONE s.time_zone)::date)
@@ -36,7 +53,10 @@ export async function readOfficeWordMembers(db:Client,teamId:string,cycleId:stri
   MEMBER_NAME:member.name,
   MEMBER_ROLE:member.role,
   MEMBER_START:dateLabel(member.start_on,locale),
-  MEMBER_END:dateLabel(member.end_on,locale)
+  MEMBER_END:dateLabel(member.end_on,locale),
+  MEMBER_CITY:member.city,
+  MEMBER_COUNTRY:officeCountryName(member.country_iso2,locale),
+  MEMBER_FLAG:officeCountryFlag(member.country_iso2)
  }));
 }
 export function officeWordIndicatorRows(indicators:readonly ReportIndicatorValue[],locale:Locale):OfficeWordRows{
