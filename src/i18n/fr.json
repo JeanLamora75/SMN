@@ -3678,7 +3678,13 @@
     "officeOverwriteTitle": "Remplacer le rapport existant ?",
     "officeOverwriteHint": "Un rapport portant ce nom existe déjà dans le dossier indiqué. Confirmez explicitement son remplacement.",
     "officeOverwriteConfirm": "Remplacer le fichier",
-    "officeCancel": "Annuler"
+    "officeCancel": "Annuler",
+    "tags": "Tags",
+    "officeTemplateDirectory": "Répertoire des modèles Office",
+    "officeReportsDirectory": "Répertoire de dépôt des rapports Office",
+    "officeDirectoryUnavailable": "Répertoire indisponible : vérifier la configuration du serveur.",
+    "officeTemplateDirectoryHint": "Déposez ici les fichiers .docx et .pptx, puis cliquez sur Actualiser.",
+    "officeReportsDirectoryHint": "Les rapports générés via Enregistrer sont déposés ici. Le bouton Télécharger utilise le navigateur."
   },
   "reportsStudio": {
     "modes": "Modes du Studio",
