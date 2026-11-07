@@ -3,7 +3,6 @@ import {useState} from "react";
 import {useRouter} from "next/navigation";
 import {useTranslation} from "@/i18n/client";
 import type {OfficeTemplate} from "@/server/reports/office-catalog";
-import OfficeTags from "./office-tags";
 
 type Language="fr"|"en";
 type Props={
@@ -12,10 +11,11 @@ type Props={
  teamId?:string|null;
  initialLanguage?:"fr"|"en";
  unavailable?:boolean;
+ directories?:{templates:string;reports:string}|null;
 };
 
 export default function OfficeTemplateCatalog({
- templates,cycles=[],teamId=null,initialLanguage="fr",unavailable=false
+ templates,cycles=[],teamId=null,initialLanguage="fr",unavailable=false,directories=null
 }:Props){
  const t=useTranslation();
  const tr=(name:string)=>t(("reportsCenter."+name) as Parameters<typeof t>[0]);
@@ -92,7 +92,18 @@ export default function OfficeTemplateCatalog({
      onClick={()=>{setSelected("");setError("");router.refresh();}}>{tr("officeRefresh")}</button>
    </div>
    <p className="text-secondary small">{tr("officeTemplatesHint")}</p>
-   <OfficeTags locale={language}/>
+   <div className="row g-2 mb-3">
+    <div className="col-12 col-lg-6"><div className="border rounded-3 p-3 h-100">
+     <div className="fw-semibold small mb-2">{tr("officeTemplateDirectory")}</div>
+     <code className="d-block text-break user-select-all">{directories?.templates??tr("officeDirectoryUnavailable")}</code>
+     <div className="text-secondary small mt-2">{tr("officeTemplateDirectoryHint")}</div>
+    </div></div>
+    <div className="col-12 col-lg-6"><div className="border rounded-3 p-3 h-100">
+     <div className="fw-semibold small mb-2">{tr("officeReportsDirectory")}</div>
+     <code className="d-block text-break user-select-all">{directories?.reports??tr("officeDirectoryUnavailable")}</code>
+     <div className="text-secondary small mt-2">{tr("officeReportsDirectoryHint")}</div>
+    </div></div>
+   </div>
    {unavailable?<p role="alert" className="alert alert-warning">{tr("officeUnavailable")}</p>:
     templates.length===0?<p className="alert alert-info mb-0">{tr("officeEmpty")}</p>:
     <>
