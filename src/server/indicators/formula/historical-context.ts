@@ -70,7 +70,7 @@ export async function loadHistoricalResolver(db:Client,scope:HistoryScope,byTag:
  const series=(tag:string,count:number):HistoricalSeries=>{
   const indicatorId=byTag.get(tag);
   if(!indicatorId)throw Error("historical-tag-unknown");
-  const points:HistoricalPoint[]=selected.map(c=>({cycleId:c.id,label:c.name,value:values.get(c.id)?.get(indicatorId)??null,durationDays:durationDays(c)}));
+  const points:HistoricalPoint[]=selected.map(c=>({cycleId:c.id,label:c.name,value:values.get(c.id)?.get(indicatorId)??null}));
   const result=calculateHistorical("LAST_VALUES",points,count);
   if(result.kind!=="series")throw Error("historical-series-unavailable");
   return result;
@@ -81,7 +81,12 @@ export async function loadHistoricalResolver(db:Client,scope:HistoryScope,byTag:
   const points=[...series(tag,selected.length||1).points];
   if(selected.at(-1)?.status!=="closed"&&typeof current==="string"&&points.length)
    points[points.length-1]={...points[points.length-1],value:current};
-  const result=calculateHistorical(name,points,count);
+  // Keep LAST_VALUES' public series shape unchanged (no duration metadata).
+  // Only the new weekly aggregation requires the calendar-day durations.
+  const weighted=name==="AVG_WEEK_LAST"?points.map((point,i)=>({
+   ...point,durationDays:durationDays(selected[i])
+  })):points;
+  const result=calculateHistorical(name,weighted,count);
   if(result.kind==="series")return {kind:"unavailable",reason:"invalid_domain",detail:"series-result-requires-visualization"};
   return result;
  };
