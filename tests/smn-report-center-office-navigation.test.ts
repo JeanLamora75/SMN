@@ -7,7 +7,7 @@ import {officeReportsDirectory} from "../src/server/reports/office-storage";
 
 const read=(name:string)=>readFileSync(name,"utf8");
 test("Office folders use two distinct, accurate local paths",()=>{
- const env={LOCALAPPDATA:"C:\\Users\\Test\\AppData\\Local"} as NodeJS.ProcessEnv;
+ const env={LOCALAPPDATA:"C:\\Users\\Test\\AppData\\Local"} as unknown as NodeJS.ProcessEnv;
  const models=officeTemplatesDirectory(env),reports=officeReportsDirectory(env);
  assert.ok(models.endsWith(path.join("ScrumMasterNotebook","office-templates")));
  assert.ok(reports.endsWith(path.join("ScrumMasterNotebook","office-reports")));
@@ -15,7 +15,7 @@ test("Office folders use two distinct, accurate local paths",()=>{
 });
 test("Config overrides both directories, and UI uses the same server resolvers",()=>{
  const env={SMN_OFFICE_TEMPLATES_DIR:path.resolve("/tmp/smn-templates"),
-  SMN_OFFICE_REPORTS_DIR:path.resolve("/tmp/smn-reports")} as NodeJS.ProcessEnv;
+  SMN_OFFICE_REPORTS_DIR:path.resolve("/tmp/smn-reports")} as unknown as NodeJS.ProcessEnv;
  assert.equal(officeTemplatesDirectory(env),path.resolve("/tmp/smn-templates"));
  assert.equal(officeReportsDirectory(env),path.resolve("/tmp/smn-reports"));
  const page=read("src/app/app/reports/page.tsx");
