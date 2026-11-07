@@ -65,6 +65,7 @@ test("SMN-398: only absolute configured folders are accepted",()=>{
  const absolute=path.join(tmpdir(),"smn-office-models");
  assert.equal(officeTemplatesDirectory({...process.env,SMN_OFFICE_TEMPLATES_DIR:absolute}),absolute);
  assert.throws(()=>officeTemplatesDirectory({...process.env,SMN_OFFICE_TEMPLATES_DIR:"../../outside"}),/not-absolute/);
+ assert.equal(officeTemplatesDirectory({...process.env,SMN_OFFICE_TEMPLATES_DIR:""}),path.join(process.cwd(),"data","office","templates"));
 });
 test("SMN-398: malformed, oversized or unsupported Office ZIP packages are rejected",()=>{
  assert.equal(isSupportedOfficePackage(makePackage("docx"),"docx"),true);
