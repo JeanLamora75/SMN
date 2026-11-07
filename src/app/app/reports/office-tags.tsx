@@ -1,3 +1,4 @@
+import CopyOfficeTag from "./copy-office-tag";
 type Locale="fr"|"en";
 type RowDefinition={
  source:string;fr:string;en:string;fields:readonly string[];
@@ -67,32 +68,41 @@ export const officeChartDefinitions:readonly ChartDefinition[]=[
   noteEn:"Exactly one value between 0 and 100"}
 ];
 const mark=(key:string)=>"{{"+key+"}}";
+function TagSection({title,children,initiallyOpen=false}:{title:string;children:React.ReactNode;initiallyOpen?:boolean}){
+ return <details className="border rounded-3 mb-3 smn-office-tag-section" defaultOpen={initiallyOpen}>
+  <summary className="fw-semibold p-3" style={{cursor:"pointer"}}>{title}</summary>
+  <div className="px-3 pb-3">{children}</div>
+ </details>;
+}
 export default function OfficeTags({locale="fr",expanded=false}:{locale?:Locale;expanded?:boolean}){
  const fr=locale==="fr";
- return <details className="border rounded-3 p-3 my-3" id="smn-office-tags" open={expanded}>
-  <summary className="fw-semibold">
-   {fr?"Documentation des tags — Word et PowerPoint":"Tag documentation — Word and PowerPoint"}
-  </summary>
+ const simple=officeScalarDefinitions.filter(item=>!item.key.startsWith("INDICATOR_"));
+ const indicators=officeScalarDefinitions.filter(item=>item.key.startsWith("INDICATOR_"));
+ const scalarTable=(definitions:readonly ScalarDefinition[])=><div className="table-responsive">
+  <table className="table table-sm table-striped align-middle">
+   <thead><tr><th scope="col">Tag</th><th scope="col">{fr?"Information":"Meaning"}</th></tr></thead>
+   <tbody>{definitions.map(item=><tr key={item.key}>
+    <td><div className="d-flex flex-wrap align-items-center gap-2"><code>{mark(item.key)}</code><CopyOfficeTag value={mark(item.key)} fr={fr}/></div></td>
+    <td>{fr?item.fr:item.en}{(fr?item.noteFr:item.noteEn)&&
+     <div className="small text-secondary">{fr?item.noteFr:item.noteEn}</div>}</td>
+   </tr>)}</tbody>
+  </table>
+ </div>;
+ return <div id="smn-office-tags">
   <p className="text-secondary small mt-3">
    {fr?"Ces tags sont utilisables dans les modèles DOCX et PPTX pour l'équipe et le sprint sélectionnés. La génération conserve les éléments fixes du modèle pour les structures Office prises en charge.":
     "Use these tags in DOCX and PPTX templates for the selected team and sprint. Generation preserves fixed template content for supported Office structures."}
   </p>
-  <h4 className="h6 mt-3">{fr?"1. Informations simples et indicateurs":"1. Scalar values and indicators"}</h4>
-  <p className="small">
-   {fr?"Insérer directement un tag dans un paragraphe Word ou dans une zone de texte PowerPoint. Plusieurs tags peuvent se trouver dans le même paragraphe.":
-    "Place a tag directly inside a Word paragraph or PowerPoint text box. Multiple scalar tags can share a paragraph."}
-  </p>
-  <div className="table-responsive">
-   <table className="table table-sm table-striped align-middle">
-    <thead><tr><th scope="col">Tag</th><th scope="col">{fr?"Information":"Meaning"}</th></tr></thead>
-    <tbody>{officeScalarDefinitions.map(item=><tr key={item.key}>
-     <td><code>{mark(item.key)}</code></td>
-     <td>{fr?item.fr:item.en}{(fr?item.noteFr:item.noteEn)&&
-      <div className="small text-secondary">{fr?item.noteFr:item.noteEn}</div>}</td>
-    </tr>)}</tbody>
-   </table>
-  </div>
-  <h4 className="h6 mt-3">{fr?"2. Tableaux de données métier":"2. Business data tables"}</h4>
+
+  <TagSection title={fr?"1. Informations simples":"1. Scalar values"} initiallyOpen={expanded}>
+   <p className="small">{fr?"Insérer directement un tag dans un paragraphe Word ou une zone de texte PowerPoint. Plusieurs tags peuvent partager un paragraphe.":"Insert tags directly into Word paragraphs or PowerPoint text boxes. Multiple tags may share a paragraph."}</p>
+   {scalarTable(simple)}
+  </TagSection>
+  <TagSection title={fr?"2. Indicateurs":"2. Indicators"}>
+   <p className="small">{fr?"Remplacez <TAG> par le tag réel de l'indicateur dans le catalogue SMN.":"Replace <TAG> with the actual indicator tag from the SMN catalog."}</p>
+   {scalarTable(indicators)}
+  </TagSection>
+  <TagSection title={fr?"3. Tableaux de données métier":"3. Business data tables"}>
   <p className="small">
    {fr?"Dans le modèle, créer un tableau puis placer un marqueur {{ROW:SOURCE}} dans sa ligne d'exemple. Ajouter les champs voulus dans les cellules de cette même ligne. SMN reproduit la ligne pour chaque élément du sprint, en conservant sa mise en forme compatible.":
     "Create a table in the template and place a {{ROW:SOURCE}} marker in its sample row. Add the desired fields in the cells of that row. SMN repeats the row for each item in the sprint, retaining supported formatting."}
@@ -104,32 +114,34 @@ export default function OfficeTags({locale="fr",expanded=false}:{locale?:Locale;
      <th scope="col">{fr?"Tags de colonnes":"Column tags"}</th></tr></thead>
     <tbody>{officeRowDefinitions.map(item=><tr key={item.source}>
      <th scope="row">{fr?item.fr:item.en}</th>
-     <td><code>{mark("ROW:"+item.source)}</code></td>
+     <td><div className="d-flex align-items-center flex-wrap gap-2"><code>{mark("ROW:"+item.source)}</code><CopyOfficeTag value={mark("ROW:"+item.source)} fr={fr}/></div></td>
      <td>{item.fields.map((field,index)=><span key={field}>
-      {index>0?", ":""}<code>{mark(field)}</code>
+      {index>0?", ":""}<span className="d-inline-flex align-items-center gap-1 me-2"><code>{mark(field)}</code><CopyOfficeTag value={mark(field)} fr={fr}/></span>
      </span>)}</td>
     </tr>)}</tbody>
    </table>
   </div>
   <p className="small">
    {fr?"Exemple de ligne de tableau pour les risques :":"Example of a risk table row:"}
-   {" "}<code>{mark("ROW:RISKS")+mark("RISK_TITLE")}</code>
-   {" · "}<code>{mark("RISK_STATUS")}</code>
-   {" · "}<code>{mark("RISK_PRIORITY")}</code>
+   {" "}<code>{mark("ROW:RISKS")+mark("RISK_TITLE")}</code><CopyOfficeTag value={mark("ROW:RISKS")+mark("RISK_TITLE")} fr={fr}/>
+   {" · "}<code>{mark("RISK_STATUS")}</code><CopyOfficeTag value={mark("RISK_STATUS")} fr={fr}/>
+   {" · "}<code>{mark("RISK_PRIORITY")}</code><CopyOfficeTag value={mark("RISK_PRIORITY")} fr={fr}/>
   </p>
-  <h4 className="h6 mt-3">{fr?"3. Graphiques de tendances en image PNG":"3. Trend charts as PNG images"}</h4>
+
+  </TagSection>
+  <TagSection title={fr?"4. Graphiques de tendances en image PNG":"4. Trend charts as PNG images"}>
   <p className="small">
    {fr?"Le tag graphique doit être seul dans son paragraphe Word ou sa zone de texte PowerPoint. Aucun graphique préconfiguré n'est nécessaire. La légende utilise les indicateurs du catalogue SMN.":
     "The chart tag must be alone in its Word paragraph or PowerPoint text box. No preconfigured chart is required. The legend uses SMN catalog indicators."}
   </p>
-  <p className="small">{fr?"Sans paramètres :":"Without parameters:"} <code>{mark("CHART:TREND")}</code>.
+  <p className="small">{fr?"Sans paramètres :":"Without parameters:"} <code>{mark("CHART:TREND")}</code> <CopyOfficeTag value={mark("CHART:TREND")} fr={fr}/>.
    {" "}{fr?"Par défaut : barres, six derniers sprints et premier indicateur disponible.":"Default: bars, six recent sprints and the first available indicator."}</p>
   <div className="table-responsive">
    <table className="table table-sm align-middle">
     <thead><tr><th scope="col">{fr?"Type":"Type"}</th><th scope="col">{fr?"Exemple à adapter":"Example to customize"}</th><th scope="col">{fr?"Règle":"Rule"}</th></tr></thead>
     <tbody>{officeChartDefinitions.map(item=><tr key={item.type}>
      <th scope="row">{fr?item.fr:item.en}</th>
-     <td><code className="text-break">{item.example}</code></td>
+     <td><div className="d-flex flex-wrap align-items-center gap-2"><code className="text-break">{item.example}</code><CopyOfficeTag value={item.example} fr={fr}/></div></td>
      <td>{fr?item.noteFr:item.noteEn}</td>
     </tr>)}</tbody>
    </table>
@@ -138,7 +150,9 @@ export default function OfficeTags({locale="fr",expanded=false}:{locale?:Locale;
    {fr?"Paramètres facultatifs : TYPE (bar, line, area, pie, donut, gauge), LAST (1 à 24 sprints), TAGS (1 à 6 indicateurs disponibles, de même unité). Remplacez les exemples SP_DONE, SP_INIT et RATE_PERCENT par les tags de votre catalogue. La jauge exige une seule série en pourcentage.":
     "Optional parameters: TYPE (bar, line, area, pie, donut, gauge), LAST (1 to 24 sprints), TAGS (1 to 6 available indicators sharing the same unit). Replace sample tags SP_DONE, SP_INIT and RATE_PERCENT with tags from your own catalog. Gauges require exactly one percentage series."}
   </p>
-  <h4 className="h6 mt-3">{fr?"4. Règles de génération et limites":"4. Generation rules and limits"}</h4>
+
+  </TagSection>
+  <TagSection title={fr?"5. Règles de génération et limites":"5. Generation rules and limits"}>
   <ul className="small mb-0">
    <li>{fr?"Donnée reconnue absente : N/D ; zéro reste 0. Les tags inconnus restent inchangés.":"A missing recognized value becomes N/D; zero remains 0. Unknown tags stay unchanged."}</li>
    <li>{fr?"SPRINT_GOAL rassemble les intitulés de tous les objectifs ; ROW:GOALS restitue une ligne par objectif, avec son évaluation.":"SPRINT_GOAL joins all goal titles; ROW:GOALS creates one row per goal, including its evaluation."}</li>
@@ -147,6 +161,7 @@ export default function OfficeTags({locale="fr",expanded=false}:{locale?:Locale;
    <li>{fr?"Les données de tableaux portent sur un sprint sélectionné ; il n'existe pas encore de consolidation automatique de plusieurs sprints pour ces listes.":"Table rows cover one selected sprint; automatic multi-sprint consolidation for these lists is not yet supported."}</li>
    <li>{fr?"Les fusions verticales, tableaux imbriqués et certains modèles Open XML complexes ne sont pas pris en charge. Les recettes visuelles Microsoft Office restent nécessaires.":"Vertical merges, nested tables and some complex Open XML templates are unsupported. Microsoft Office visual validation is still required."}</li>
   </ul>
- </details>;
 
+  </TagSection>
+ </div>;
 }
