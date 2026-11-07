@@ -1,0 +1,42 @@
+name: SMN-407 — Moyenne hebdomadaire proratisée
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "src/server/indicators/formula/index.ts"
+      - "src/server/indicators/formula/history.ts"
+      - "src/server/indicators/formula/historical-context.ts"
+      - "src/server/indicators/recalculation.ts"
+      - "src/app/app/admin/settings/indicators/expression-guide.tsx"
+      - "tests/smn-407-avg-week-last.test.ts"
+      - "tests/smn-376-formula-integration.test.ts"
+      - ".github/workflows/smn-407-avg-week-last.yml"
+  pull_request:
+    branches: ["main"]
+permissions:
+  contents: read
+jobs:
+  avg-week-last:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Moteur historique et moyenne par semaine
+        run: pnpm exec tsx --test tests/smn-407-avg-week-last.test.ts tests/smn-376-formula-integration.test.ts tests/smn-341-formula-engine.test.ts tests/smn-378-expression-guide.test.ts
+      - name: TypeScript
+        run: pnpm typecheck
+      - name: ESLint ciblé
+        run: pnpm exec eslint src/server/indicators/formula/index.ts src/server/indicators/formula/history.ts src/server/indicators/formula/historical-context.ts src/server/indicators/recalculation.ts src/app/app/admin/settings/indicators/expression-guide.tsx tests/smn-407-avg-week-last.test.ts
