@@ -43,15 +43,37 @@ test("SMN-347 : les catalogues FR et EN sont complets et de même forme",()=>{
  }
 });
 
-test("SMN : les fonctions de rôles inconnues produisent une erreur métier lisible",async()=>{
+test("SMN : une erreur de formule renvoie la fonction fautive et une suggestion sans langue codée en dur",async()=>{
  const {validateCatalogFormula,IndicatorCatalogError}=await import("../src/server/indicators/catalog");
  assert.throws(
   ()=>validateCatalogFormula('ROLE_JH("DEVELOPER") / ROLE_PLANNED_JH("DEVELOPER") * 100'),
-  error=>error instanceof IndicatorCatalogError&&error.code==="invalid-input"&&/ROLE_JH_PLANNED/.test(error.message)
+  error=>error instanceof IndicatorCatalogError&&error.code==="invalid-input"&&
+   error.formulaError?.reason==="unknown-function"&&
+   error.formulaError.expression==="ROLE_PLANNED_JH"&&
+   error.formulaError.suggestion==="ROLE_JH_PLANNED"
  );
  assert.doesNotThrow(()=>validateCatalogFormula('ROLE_JH("DEVELOPER") / ROLE_JH_PLANNED("DEVELOPER") * 100'));
+ assert.throws(
+  ()=>validateCatalogFormula("UNDEFINED_METRIC + 1"),
+  error=>error instanceof IndicatorCatalogError&&error.formulaError?.reason==="syntax"&&
+   typeof error.formulaError.expression==="string"
+ );
  const route=read("src/app/api/admin/indicators/catalog/route.ts");
  const client=read("src/app/app/admin/indicators/catalog-client.tsx");
- assert.match(route,/message:e.message/);
- assert.match(client,/j.message\?\?j.error/);
+ assert.match(route,/formulaError:e.formulaError/);
+ assert.match(client,/formulaProblem\.expression/);
+ assert.match(client,/<strong><code className="text-reset">\{formulaProblem\.expression\}<\/code><\/strong>/);
+ assert.doesNotMatch(client,/dangerouslySetInnerHTML/);
+});
+
+test("SMN : le diagnostic de formule est traduit en français et anglais",()=>{
+ for(const key of ["formulaValidationTitle","formulaUnknownFunction","formulaUnknownReference","formulaSyntaxIssue","formulaSuggestedCorrection"]){
+  assert.equal(typeof fr.indicators[key],"string",key+" FR");
+  assert.equal(typeof en.indicators[key],"string",key+" EN");
+  assert.notEqual(fr.indicators[key],en.indicators[key]);
+  assert.ok(String(fr.indicators[key]).trim().length>0);
+ }
+ const client=read("src/app/app/admin/indicators/catalog-client.tsx");
+ assert.match(client,/t\("indicators\.formulaValidationTitle"\)/);
+ assert.match(client,/t\("indicators\.formulaSuggestedCorrection"\)/);
 });
