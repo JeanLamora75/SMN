@@ -31,7 +31,7 @@ export async function POST(req:NextRequest){
  try{
   return jsonResult(await withAuthDb(db=>applyCatalogCommand(db,{accountId:actor.id,role:actor.role},raw as CatalogCommand)),200);
  }catch(e){
-  if(e instanceof IndicatorCatalogError)return jsonResult({error:e.code,...(e.code==="invalid-input"?{message:e.message}:{})},e.code==="forbidden"?403:e.code==="not-found"?404:e.code==="invalid-input"?400:409);
+  if(e instanceof IndicatorCatalogError)return jsonResult({error:e.code,...(e.formulaError?{formulaError:e.formulaError}:{})},e.code==="forbidden"?403:e.code==="not-found"?404:e.code==="invalid-input"?400:409);
   console.error("indicator-catalog-write-failed");return jsonResult({error:"service-unavailable"},503);
  }
 }
