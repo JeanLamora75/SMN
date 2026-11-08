@@ -66,8 +66,8 @@ test("styled grouped, horizontal and stacked bars handle negative values without
    const scene=composeAdaptiveChart({target:target(1600,900),cycles,series,type:"bar",locale:"en",style});
    assert.ok(scene&&scene.svg.includes("viewBox"));
    assert.equal(scene.meta.points,11);
-   if(mode==="stacked")assert.equal(scene.meta.stacked,true);
-   if(orientation==="horizontal")assert.equal(scene.meta.horizontal,true);
+   if(mode==="stacked")assert.ok("stacked" in scene.meta&&scene.meta.stacked===true);
+   if(orientation==="horizontal")assert.ok("horizontal" in scene.meta&&scene.meta.horizontal===true);
   }
  }
  assert.equal(JSON.stringify(series),reference);
@@ -112,7 +112,7 @@ test("styled Word/PPTX adapters insert PNG and preserve untouched OPC parts",()=
   const before=readZip(source);
   const original=before.find(p=>p.name==="docProps/core.xml")!.data.toString("hex");
   const result=format==="docx"?
-   insertOfficeTrendImages(source,"docx",(_index,options)=>{
+   insertOfficeTrendImages(source,"docx",(_index:number,options:{last:number;type:ChartType;tags:string[]|null;style?:string})=>{
     const selected=resolve(options);
     return renderAdaptiveChartPng({
      target:target(960,560),type:options.type,locale:"fr",cycles,
@@ -120,7 +120,7 @@ test("styled Word/PPTX adapters insert PNG and preserve untouched OPC parts",()=
      style:selected.config
     });
    }):
-   insertAdaptivePowerPointCharts(source,targetDetails=>{
+   insertAdaptivePowerPointCharts(source,(targetDetails:{widthEmu:number;heightEmu:number;options:{last:number;type:ChartType;tags:string[]|null;style?:string}})=>{
     const selected=resolve(targetDetails.options);
     return renderAdaptiveChartPng({
      target:targetDetails,type:targetDetails.options.type,locale:"fr",cycles,
