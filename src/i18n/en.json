@@ -3597,6 +3597,12 @@
   "reportsCenter": {
     "officeChartTargetInvalid": "A chart placeholder in the PowerPoint template is unsupported (ambiguous tag, grouped shape, rotation or missing dimensions). Use one tag in an ungrouped, unrotated text box.",
     "officeChartRenderFailed": "The chart cannot be rendered legibly in this PowerPoint placeholder. Enlarge the text box or review the indicator selection.",
+    "officeChartCauseShape": "The chart shape uses an unsupported PowerPoint structure.",
+    "officeChartCauseRelationships": "The slide's Open XML relationships are incompatible.",
+    "officeChartCausePng": "The generated image is invalid.",
+    "officeChartCauseRatio": "The chart image aspect ratio does not match the target.",
+    "officeChartCauseDuplicate": "Two shapes share the same ID on this slide.",
+    "officeChartSlide": "slide",
     "officeChartInsertionFailed": "The PowerPoint chart could not be inserted. Check the template shapes and relationships; no incomplete report was saved.",
     "officeChartIndicatorUnavailable": "The chart could not be generated: indicator unavailable in this team's trends:",
     "officeChartIndicatorHint": "Check the exact tag in Settings → Indicators → Catalog, and ensure it is active and visible in Trends.",
