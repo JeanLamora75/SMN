@@ -3,6 +3,8 @@
 **Date :** 8 novembre 2026 · **BMAD :** Amelia (implémentation), Sally (UX à vérifier), TEA (recette à vérifier), Winston (architecture à vérifier).  
 **Story :** [SMN-422](https://lmn24.atlassian.net/browse/SMN-422) · **État actuel : En cours, non validé en recette réelle.**
 
+**Attention : la recette Windows/Office n'a pas été exécutée dans cette session. Elle reste non exécutée jusqu'à présentation des preuves réelles.**
+
 ## 1. Livré et vérifiable
 
 - Documentation interactive **Rapports → Tags** enrichie dans **FR/EN** : six types, références au catalogue global M1, à l'éditeur M2, au sélecteur d'export M3, syntaxe facultative `STYLE=identifiant`, exemples copiables, ordre de priorité et limites.
