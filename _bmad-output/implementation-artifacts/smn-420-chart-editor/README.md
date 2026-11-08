@@ -26,9 +26,9 @@
 | Traductions | `src/i18n/fr.json`, `src/i18n/en.json` |
 | Tests | `tests/smn-420-style-editor.test.ts` |
 
-L'aperçu est un `POST` autorisé côté serveur (`collective/read`, contrôle d'origine de SMN), accepte un corps JSON borné à **12 000 octets**, un seul type parmi les six et uniquement une configuration validée par le contrat SMN-416. Le serveur utilise toujours le moteur partagé SMN-418 et un jeu de **six cycles fictifs / deux séries fictives** (une série pour la jauge), avec sortie PNG **960 × 560** limitée à 2 Mo. Aucun accès SQL, indicateur réel, cache partagé ou écriture d'archive. Les valeurs graphiques d'exemple sont statiques et non produites à partir des données utilisateur.
+L'aperçu est un `POST` autorisé côté serveur (`collective/read`, contrôle d'origine de SMN), accepte un corps JSON borné à **12 000 octets**, un seul type parmi les six et uniquement une configuration validée par le contrat SMN-416. Le serveur utilise toujours le moteur partagé SMN-418 et un jeu de **six cycles fictifs / deux séries fictives** (une série pour la jauge), avec sortie PNG **960 × 560** limitée à 2 Mo. Aucun accès SQL, indicateur réel, cache partagé ou écriture d'archive. Les valeurs graphiques d'exemple sont statiques et non produites à partir des données utilisateur. Les libellés fictifs et le format des nombres respectent le paramètre de langue `fr` ou `en` envoyé au serveur ; l'API refuse toute autre langue.
 
-L'éditeur crée un `Blob` local à partir de la réponse PNG et révoque l'ancienne URL d'image après une actualisation réussie ou au démontage. L'échec de l'aperçu n'efface pas le brouillon. Les erreurs serveur sont présentées en conservant les valeurs saisies.
+L'éditeur crée un `Blob` local à partir de la réponse PNG et révoque l'ancienne URL d'image après une actualisation réussie, un rechargement de la fiche ou au démontage. L'échec de l'aperçu n'efface pas le brouillon. Les erreurs serveur sont présentées en conservant les valeurs saisies.
 
 **Sauvegarde :** `POST /api/admin/reports/chart-styles` action `update` avec la révision originale, `name`, `description` et `config`. L'API SMN-416 vérifie les droits admin, les champs et les limites, ainsi que le verrouillage optimiste. Une réponse `conflict` n'écrase pas les choix en cours : l'utilisateur doit confirmer le rechargement.
 
