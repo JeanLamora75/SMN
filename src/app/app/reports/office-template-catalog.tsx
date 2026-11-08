@@ -58,6 +58,9 @@ export default function OfficeTemplateCatalog({
    setMissingChartTag(result.tag);
    setError(tr("officeChartIndicatorUnavailable"));return;
   }
+  if(result?.error==="office-member-flag-failed"){
+   setError(tr("officeMemberFlagFailed"));return;
+  }
   if(result?.error==="office-chart-invalid-target"){
    setError(tr("officeChartTargetInvalid"));return;
   }
