@@ -1,0 +1,44 @@
+name: SMN-413 — Insertion PowerPoint adaptative
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/smn-413-adaptive-pptx.mjs"
+      - "tests/smn-413-adaptive-pptx.test.mjs"
+      - "src/server/reports/office-indicator-charts.ts"
+      - "src/app/api/admin/reports/office-templates/generate/route.ts"
+      - "scripts/smn-412-adaptive-chart.mjs"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/smn-413-adaptive-pptx.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pptx:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - name: Dépendances natives de production, verrouillées
+        run: pnpm install --frozen-lockfile
+      - name: Tests géométrie, rendu, insertion et intégrité du PPTX
+        run: node --test tests/smn-411-chart-targets.test.mjs tests/smn-412-adaptive-chart.test.mjs tests/smn-413-adaptive-pptx.test.mjs
+      - name: Non-régression des graphiques Word/PowerPoint précédents
+        run: pnpm exec tsx --test tests/smn-402-office-trends.test.ts
+      - name: TypeScript
+        run: pnpm typecheck
+      - name: ESLint
+        run: pnpm exec eslint scripts/smn-413-adaptive-pptx.mjs tests/smn-413-adaptive-pptx.test.mjs scripts/smn-412-adaptive-chart.mjs src/server/reports/office-indicator-charts.ts src/app/api/admin/reports/office-templates/generate/route.ts
