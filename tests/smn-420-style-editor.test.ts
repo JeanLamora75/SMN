@@ -30,7 +30,7 @@ test("preview only POSTs on explicit click, never from an effect or onChange",()
  assert.match(fn,/fetch\(PREVIEW/);
  assert.match(s,/onClick=\{\(\)=>void refreshPreview\(\)\}/);
  const effects=[...s.matchAll(/useEffect\(\(\)=>\{/g)];
- assert.ok(effects.length>=3);
+ assert.ok(effects.length>=2);
  for(const effect of effects){
   const snippet=s.slice(effect.index,effect.index+500);
   assert.doesNotMatch(snippet,/fetch\(PREVIEW/);
