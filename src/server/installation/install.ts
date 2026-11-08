@@ -1,6 +1,7 @@
 /** Native v33 installer: self-contained canonical schema, isolated and atomic. */
 import {randomUUID,createHash,timingSafeEqual} from "node:crypto";
 import {readFileSync} from "node:fs";
+import {resolve} from "node:path";
 import {Client} from "pg";
 import {parseConnectionSettings} from "../db/config";
 import {probePostgres} from "../db/probe";
@@ -53,7 +54,7 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
    [randomUUID(),createHash("sha256").update(sql).digest("hex"),NATIVE_BASELINE_NAME]);
   await client.query("INSERT INTO public.smn_general_settings(installation_id,palette) VALUES ('singleton','red-purple')");
   // Initialize the additive chart catalog atomically for fresh native v33 installs.
-  const chartStyleSql=readFileSync(new URL("../../../prisma/migrations/20261108_smn416_chart_styles/migration.sql",import.meta.url),"utf8");
+  const chartStyleSql=readFileSync(resolve(process.cwd(),"prisma","migrations","20261108_smn416_chart_styles","migration.sql"),"utf8");
   await client.query(chartStyleSql);
   await client.query("COMMIT");transaction=false;
   // L'installation est acceptée uniquement après diagnostic physique v33.
