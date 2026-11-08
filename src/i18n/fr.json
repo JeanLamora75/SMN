@@ -4119,7 +4119,12 @@
         "gauge": "Jauges"
       },
       "sectionTitle": "Rapports",
-      "sectionDescription": "Gérer les styles graphiques de tous les exports Word et PowerPoint."
+      "sectionDescription": "Gérer les styles graphiques de tous les exports Word et PowerPoint.",
+      "previewLabel": "Aperçu réel du moteur de graphiques Office",
+      "previewAlt": "Aperçu du style {name}",
+      "previewLoading": "Génération de l’aperçu…",
+      "previewError": "Aperçu indisponible",
+      "previewCaption": "Barres · données fictives · rendu Office"
     },
     "editor": {
       "breadcrumb": "Paramètres / Rapports / Graphiques / Style",
