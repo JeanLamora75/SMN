@@ -1,14 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {renderToStaticMarkup} from "react-dom/server";
-import {createElement} from "react";
 import {
  filterGalleryStyles,usedAsDefault,canDeleteGalleryStyle,generateGalleryStyleId,validGalleryCatalog,
  type GalleryCatalog
 } from "../src/lib/chart-style-gallery";
 import {CHART_TYPES,PREDEFINED_CHART_STYLES,parseChartStyleCommand} from "../src/server/reports/chart-style-contract";
-import {StylePreview} from "../src/app/app/admin/settings/reports/charts/style-gallery";
 
 const config=()=>structuredClone(PREDEFINED_CHART_STYLES[0].config);
 const styles=[
@@ -57,14 +54,17 @@ test("create and rename retain style config and optimistic revision validation",
  assert.throws(()=>parseChartStyleCommand({action:"delete",id:"corporate",revision:0}));
  assert.throws(()=>parseChartStyleCommand({action:"create",id:"legacy",name:"Historique",description:"",config:initial.config}));
 });
-test("gallery preview uses actual configured colors and escapes user-entered style names",()=>{
- const item={...catalog().styles[3],name:'<script>not allowed</script>'};
- item.config.common.palette[0]="#aabbcc";
- const html=renderToStaticMarkup(createElement(StylePreview,{style:item}));
- assert.match(html,/viewBox="0 0 320 140"/);
- assert.match(html,/#aabbcc/);
- assert.doesNotMatch(html,/<script>/);
- assert.match(html,/&lt;script&gt;/);
+test("gallery requests actual PNG from the shared Office renderer with style config",()=>{
+ const gallery=readFileSync("src/app/app/admin/settings/reports/charts/style-gallery.tsx","utf8");
+ const endpoint=readFileSync("src/app/api/admin/reports/chart-styles/preview/route.ts","utf8");
+ assert.match(gallery,/fetch\("\/api\/admin\/reports\/chart-styles\/preview"/);
+ assert.match(gallery,/JSON\.stringify\(\{type:"bar",config:style\.config,locale\}\)/);
+ assert.match(gallery,/blob\.type!=="image\/png"/);
+ assert.match(gallery,/URL\.revokeObjectURL/);
+ assert.doesNotMatch(gallery,/const grid=\[28,16,37,24,48,33\]/);
+ assert.match(endpoint,/renderAdaptiveChartPng\(/);
+ assert.match(endpoint,/style:raw\.config/);
+ assert.match(gallery,/previewCaption/);
 });
 test("settings navigation, protected route and admin-only mutation API remain wired",()=>{
  const page=readFileSync("src/app/app/admin/settings/reports/charts/page.tsx","utf8");
