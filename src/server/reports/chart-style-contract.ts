@@ -50,7 +50,7 @@ const plain=(v:unknown):v is Record<string,unknown>=>v!==null&&typeof v==="objec
 function fields(v:unknown,names:string[]):v is Record<string,unknown>{
  return plain(v)&&Object.keys(v).every(k=>names.includes(k))&&names.every(k=>Object.hasOwn(v,k));
 }
-const integer=(n:unknown,min:number,max:number)=>Number.isInteger(n)&&(n as number)>=min&&(n as number)<=max;
+const integer=(n:unknown,min:number,max:number):n is number=>Number.isInteger(n)&&(n as number)>=min&&(n as number)<=max;
 const color=(n:unknown)=>typeof n==="string"&&/^#[0-9a-fA-F]{6}$/.test(n);
 const boolean=(n:unknown)=>typeof n==="boolean";
 const str=(n:unknown,max:number)=>typeof n==="string"&&n.length<=max&& !/[<>\u0000-\u001f]/.test(n);
