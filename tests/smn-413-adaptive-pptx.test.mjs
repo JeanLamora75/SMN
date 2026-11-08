@@ -106,3 +106,34 @@ test("old and new chart detector support unchanged CHART:TREND grammar",()=>{
  assert.deepEqual(discoverPowerPointChartTargets(input)[0].options,
   {last:6,type:"bar",tags:["SP_DONE"]});
 });
+
+
+test("PowerPoint non-self-closing cNvPr with child elements is preserved as chart picture",()=>{
+ const source=presentation([shape(3,"{{CHART:TREND|TYPE=line}}")]);
+ const parts=readZip(source).map(p=>{
+  if(p.name!=="ppt/slides/slide1.xml")return p;
+  const xml=p.data.toString("utf8").replace(
+   '<p:cNvPr id="3" name="Chart"/>',
+   '<p:cNvPr id="3" name="Chart"><a:hlinkClick r:id="rIdExternal"/></p:cNvPr>');
+  return {...p,data:Buffer.from(xml)};
+ });
+ const input=writeZip(parts);
+ const result=insertAdaptivePowerPointCharts(input,raster);
+ assert.equal(result.changes.length,1);
+ const updated=readZip(result.bytes).find(p=>p.name==="ppt/slides/slide1.xml").data.toString("utf8");
+ assert.match(updated,/<p:pic>/);
+ assert.match(updated,/<p:cNvPr id="3"/);
+ assert.equal(discoverPowerPointChartTargets(result.bytes).length,0);
+});
+
+test("PowerPoint self-closing empty Relationships can receive a new image rId",()=>{
+ const source=presentation([shape(3,"{{CHART:TREND|TYPE=line}}")]);
+ const parts=readZip(source).map(p=>p.name==="ppt/slides/_rels/slide1.xml.rels"?
+  {...p,data:Buffer.from('<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>')}:p);
+ const result=insertAdaptivePowerPointCharts(writeZip(parts),raster);
+ assert.equal(result.changes.length,1);
+ assert.equal(result.changes[0].relationship,"rId1");
+ const xml=readZip(result.bytes).find(p=>p.name==="ppt/slides/_rels/slide1.xml.rels").data.toString();
+ assert.match(xml,/<Relationship Id="rId1"/);
+ assert.match(xml,/<\/Relationships>/);
+});
