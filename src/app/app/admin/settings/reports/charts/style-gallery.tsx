@@ -15,7 +15,7 @@ const types:readonly ChartType[]=CHART_TYPES;
 function textError(error:unknown):string{
  return error instanceof Error?error.message:"service-unavailable";
 }
-function StylePreview({style}:{style:Style}){
+export function StylePreview({style}:{style:Style}){
  const colors=style.config.common.palette;
  const grid=[28,16,37,24,48,33];
  return <svg className="smn-chart-preview" viewBox="0 0 320 140" role="img"
@@ -74,6 +74,27 @@ export default function ChartStyleGallery({isAdmin}:{isAdmin:boolean}){
   })();
   return()=>{active=false};
  },[]);
+ // Modal keyboard guard: Escape cancels; Tab remains within the active dialog.
+ useEffect(()=>{
+  if(!modal&&!pendingDefault)return;
+  const box=document.querySelector<HTMLElement>(".smn-chart-dialog");
+  if(!box)return;
+  const initial=box.querySelector<HTMLElement>("[autofocus],input,button:not([disabled])");
+  initial?.focus();
+  const onKey=(event:KeyboardEvent)=>{
+   if(event.key==="Escape"&&!busy){event.preventDefault();setModal(null);setPendingDefault(null);return;}
+   if(event.key!=="Tab")return;
+   const controls=Array.from(box.querySelectorAll<HTMLElement>(
+    'button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select:not([disabled]),a[href]'
+   ));
+   if(!controls.length){event.preventDefault();return;}
+   const first=controls[0],last=controls[controls.length-1],current=document.activeElement;
+   if(event.shiftKey&&current===first){event.preventDefault();last.focus();}
+   else if(!event.shiftKey&&current===last){event.preventDefault();first.focus();}
+  };
+  document.addEventListener("keydown",onKey);
+  return()=>document.removeEventListener("keydown",onKey);
+ },[modal,pendingDefault,busy]);
  const shown=useMemo(()=>catalog?filterGalleryStyles(catalog,{query,origin,type:typeFilter}):[],
   [catalog,query,origin,typeFilter]);
  const defaults=useMemo(()=>catalog?.styles.filter(s=>s.source==="builtin")??[],[catalog]);
