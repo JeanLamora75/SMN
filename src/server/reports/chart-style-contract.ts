@@ -82,7 +82,7 @@ export function validChartStyleConfig(raw:unknown):raw is ChartStyleConfig{
   !integer(g.min,0,99)||!integer(g.max,1,100)||g.max<=g.min||
   !Array.isArray(g.thresholds)||g.thresholds.length>5||
   !g.thresholds.every((n:unknown)=>integer(n,g.min as number,g.max as number))||
-  g.thresholds.some((n:number,i:number)=>i>0&&n<=g.thresholds[i-1]))return false;
+  (g.thresholds as number[]).some((n,i)=>i>0&&n<=(g.thresholds as number[])[i-1]))return false;
  return true;
 }
 export const validChartStyleId=(id:unknown):id is string=>typeof id==="string"&&/^[a-z][a-z0-9-]{2,63}$/.test(id);
