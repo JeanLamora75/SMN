@@ -19,7 +19,7 @@ test("office member flag is generated from ISO country without using an external
  assert.equal(officeCountryName("DE","en"),"Germany");
 });
 
-test("member rows include city, localized country and flag at sprint-effective location",async()=>{
+test("member rows use current database location independently of sprint date",async()=>{
  const queries:Array<{sql:string;params:unknown[]|undefined}>=[];
  const data=[
   {name:"Alice",role:"Developer",start_on:"2026-01-01",end_on:null,city:"Paris",country_iso2:"FR"},
@@ -37,7 +37,8 @@ test("member rows include city, localized country and flag at sprint-effective l
  assert.equal(result[2].MEMBER_FLAG,null);
  assert.equal(result[2].MEMBER_COUNTRY,null);
  assert.ok(queries[0].sql.includes("smn_member_location"));
- assert.match(queries[0].sql,/ml.effective_from\s*</);
+ assert.match(queries[0].sql,/ml.effective_from<=CURRENT_DATE/);
+ assert.doesNotMatch(queries[0].sql,/CASE WHEN ml.effective_from/);
  assert.match(queries[0].sql,/ORDER BY ml.effective_from DESC,ml.revision DESC LIMIT 1/);
  assert.match(queries[0].sql,/s.team_id=t.id/);
  assert.deepEqual(queries[0].params,["team1","sprint1"]);
