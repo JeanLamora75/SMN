@@ -85,4 +85,4 @@ Les tests apportent une preuve technique réelle de l'intégration et du rendu n
 
 **Garantie et limite :** les nouveaux tests prouvent ces cas Open XML synthétiques ; ils ne remplacent pas l'ouverture du véritable PPTX utilisateur. Réessayer après récupération de `main`. Si un autre motif est remonté, poursuivre sur le code précis et le numéro de diapositive sans dégrader silencieusement vers une image basse définition.
 
-**CI correctif :** https://github.com/JeanLamora75/SMN/actions/runs/42478902966 (résultat à consigner après vérification).
+**CI correctif vérifiée :** https://github.com/JeanLamora75/SMN/actions/runs/42478902966 — **Windows 39/39 et Linux 39/39 tests réussis** (27 tests de géométrie/rendu/insertion incluant deux nouveaux cas Open XML, 12 tests de non-régression), TypeScript, ESLint, builds Next.js standalone et smoke tests natifs Resvg validés sur les deux OS. **Il reste à vérifier la résolution sur le vrai modèle utilisateur.**
