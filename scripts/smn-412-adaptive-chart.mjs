@@ -67,7 +67,16 @@ function geometry(target){
  if(w<500||h<370)throw new OfficeChartLayoutError("office-chart-frame-too-small",{width:w,height:h});
  return pixels;
 }
-/** Optional validated declarative style; undefined preserves the original scene byte-for-byte. */
+/**
+ * Optional validated declarative style; absent preserves the original SVG.
+ * @param {{
+ *   target: {widthEmu:number,heightEmu:number},
+ *   cycles: Array<{name:string}>,
+ *   series: Array<{name?:string,tag?:string,unit?:string,values:Array<number|null>}>,
+ *   type?: string,locale?: "fr"|"en",
+ *   style?: import("../src/server/reports/chart-style-contract").ChartStyleConfig | null
+ * }} args
+ */
 export function composeAdaptiveChart({target,cycles,series,type="line",locale="fr",style=null}){
  const common=style?.common??null,options=style?.types?.[type]??null;
  const palette=common?.palette??COLORS;
