@@ -3,6 +3,14 @@ import {trendNumbers,validateTrendSelection} from "@/lib/indicators/trend-series
 import {renderOfficeTrendPng} from "../../../scripts/smn-402-trend-png.mjs";
 
 type ChartOptions={last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null};
+/** A chart tag must match an indicator enabled and visible in the team's Trends screen. */
+export class OfficeChartIndicatorUnavailableError extends Error{
+ constructor(public readonly tag:string){
+  super("office-chart-indicator-unavailable");
+  this.name="OfficeChartIndicatorUnavailableError";
+ }
+}
+
 
 /** Reuses the same v33 trend projection, including frozen sprint closures. */
 export function renderOfficeIndicatorChart(report:ReportData,cycleId:string,
@@ -11,7 +19,7 @@ export function renderOfficeIndicatorChart(report:ReportData,cycleId:string,
  if(index<0)throw Error("office-chart-cycle-not-found");
  const columns=options.tags?options.tags.map(tag=>{
   const column=report.columns.find(c=>c.tag.toUpperCase()===tag.toUpperCase());
-  if(!column)throw Error("office-chart-indicator-unavailable");
+  if(!column)throw new OfficeChartIndicatorUnavailableError(tag);
   return column;
  }):report.columns.slice(0,1);
  if(columns.length===0)return null;
