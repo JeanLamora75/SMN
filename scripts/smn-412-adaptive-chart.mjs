@@ -198,7 +198,7 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
     if(segment.length)segments.push(segment);
     for(const points of segments){
      if(type==="area"&&points.length>1)
-      svgParts.push('<polygon points="'+[[points[0][0],baseline],...points,[points.at(-1)[0],baseline]].map(p=>p.map(num).join(",")).join(" ")+'" fill="'+color+'" fill-opacity="'+(options?.opacity??.18")+'"/>');
+      svgParts.push('<polygon points="'+[[points[0][0],baseline],...points,[points.at(-1)[0],baseline]].map(p=>p.map(num).join(",")).join(" ")+'" fill="'+color+'" fill-opacity="'+(options?.opacity??.18)+'"/>');
      if(points.length>1)svgParts.push('<polyline fill="none" stroke="'+color+'" stroke-width="'+(options?.strokeWidth??Math.max(3,font*.085))+'" stroke-linejoin="round" points="'+points.map(p=>p.map(num).join(",")).join(" ")+'"/>');
      if(showLabels)points.forEach((p,pi)=>{
       const value=series[si].values.filter(v=>v!==null)[pi];
