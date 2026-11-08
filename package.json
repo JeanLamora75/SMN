@@ -104,6 +104,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
     "@prisma/client": "7.0.0",
+    "@resvg/resvg-js": "2.6.2",
     "better-auth": "1.4.5",
     "bootstrap": "5.3.8",
     "bootstrap-icons": "1.13.2",
