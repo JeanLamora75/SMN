@@ -2,6 +2,7 @@ import type {ReportData} from "@/server/indicators/reporting";
 import {trendNumbers,validateTrendSelection} from "@/lib/indicators/trend-series";
 import {renderOfficeTrendPng} from "../../../scripts/smn-402-trend-png.mjs";
 import {renderAdaptiveChartPng} from "../../../scripts/smn-412-adaptive-chart.mjs";
+import type {ResolvedOfficeChartStyle} from "./office-chart-style-resolver";
 
 type ChartOptions={last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null;style?:string};
 /** A chart tag must match an indicator enabled and visible in the team's Trends screen. */
@@ -49,4 +50,30 @@ export function renderOfficeIndicatorAdaptiveChart(report:ReportData,cycleId:str
  const selected=selectOfficeIndicatorSeries(report,cycleId,options);
  if(!selected)return null;
  return renderAdaptiveChartPng({...selected,target,type:options.type,locale});
+}
+
+/**
+ * SMN-418: both DOCX and PPTX call the identical SVG/resvg renderer when a
+ * resolved catalog style is available. Preserve the prior engines for a
+ * legacy-only installation with no migrated chart-style tables.
+ */
+export function renderOfficeIndicatorSharedChart(report:ReportData,cycleId:string,
+ options:ChartOptions,locale:"fr"|"en",format:"docx"|"pptx",
+ selected:ResolvedOfficeChartStyle,
+ target?:{widthEmu:number;heightEmu:number}):Buffer|null{
+ if(selected.source==="legacy"){
+  if(format==="docx")return renderOfficeIndicatorChart(report,cycleId,options,locale);
+  if(!target)throw Error("office-chart-invalid-geometry");
+  return renderOfficeIndicatorAdaptiveChart(report,cycleId,options,locale,target);
+ }
+ const series=selectOfficeIndicatorSeries(report,cycleId,options);
+ if(!series)return null;
+ // 960 x 560 PNG: same image dimensions as historic Word engine.
+ const imageTarget=format==="docx"?
+  {widthEmu:960*3048,heightEmu:560*3048}:
+  target;
+ if(!imageTarget)throw Error("office-chart-invalid-geometry");
+ return renderAdaptiveChartPng({
+  ...series,target:imageTarget,type:options.type,locale,style:selected.config
+ });
 }
