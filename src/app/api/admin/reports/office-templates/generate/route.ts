@@ -78,14 +78,14 @@ export async function POST(req:NextRequest){
     "WHERE s.id=$1 AND s.team_id=$2 AND t.installation_id='singleton' "+
     "AND s.deleted_at IS NULL LIMIT 2",[cycleId,teamId]);
    if(cycle.rows.length!==1)throw Error("forbidden-scope");
-   const selected=await db.query<{id:string}>(
+   const indicatorSelection=await db.query<{id:string}>(
     "SELECT d.id FROM public.smn_indicator_definition d "+
     "JOIN public.smn_indicator_team_selection s ON s.indicator_id=d.id "+
     "WHERE s.team_id=$1 AND s.is_active=true AND d.archived_at IS NULL "+
     "ORDER BY d.tag,d.id LIMIT 51",[teamId]);
-   if(selected.rows.length>50)throw Error("too-many-indicators");
-   const indicators=selected.rows.length?await readReportIndicatorProjection(
-     db,teamId,"scrum",cycleId,selected.rows.map(row=>row.id)):[];
+   if(indicatorSelection.rows.length>50)throw Error("too-many-indicators");
+   const indicators=indicatorSelection.rows.length?await readReportIndicatorProjection(
+     db,teamId,"scrum",cycleId,indicatorSelection.rows.map(row=>row.id)):[];
    const sprint=cycle.rows[0],locale=language as Locale;
    const extra=await readOfficeContextScalars(db,teamId,cycleId,team.product,locale,sprint.time_zone);
    const values=buildScalarValues({
