@@ -53,9 +53,10 @@ export async function readOfficeMemberGroups(db:Client,teamId:string,cycleId:str
   JOIN public.smn_sprint s ON s.id=$2 AND s.team_id=t.id AND s.deleted_at IS NULL
   LEFT JOIN LATERAL (
    SELECT ml.city,ml.country_iso2 FROM public.smn_member_location ml
-   WHERE ml.member_id=m.id AND ml.effective_from <
-      (s.end_at AT TIME ZONE s.time_zone)::date
-   ORDER BY ml.effective_from DESC,ml.revision DESC LIMIT 1
+   WHERE ml.member_id=m.id
+   ORDER BY
+     CASE WHEN ml.effective_from < (s.end_at AT TIME ZONE s.time_zone)::date THEN 0 ELSE 1 END,
+     ml.effective_from DESC,ml.revision DESC LIMIT 1
   ) loc ON true
   WHERE a.team_id=$1 AND t.installation_id='singleton'
     AND a.start_on < (s.end_at AT TIME ZONE s.time_zone)::date
@@ -78,7 +79,8 @@ export async function readOfficeMemberGroups(db:Client,teamId:string,cycleId:str
   MEMBER_END:dateLabel(member.end_on,locale),
   MEMBER_CITY:member.city,
   MEMBER_COUNTRY:officeCountryName(member.country_iso2,locale),
-  MEMBER_FLAG:officeCountryFlag(member.country_iso2)
+  MEMBER_FLAG:member.country_iso2&&/^[A-Z]{2}$/.test(member.country_iso2)?
+   "SMN_FLAG_"+member.country_iso2: null
  });
  const group=splitOfficeMembersByAssignment(members.rows,lastDay);
  const order=(a:MemberRow,b:MemberRow)=>a.name.localeCompare(b.name,locale);
