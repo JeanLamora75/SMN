@@ -1,9 +1,10 @@
 import test from "node:test";
+import {readFileSync} from "node:fs";
 import assert from "node:assert/strict";
 import {writeZip,readZip} from "../scripts/smn-397-office-poc.mjs";
 import {parseOfficeChartTag,discoverOfficeChartTags,insertOfficeTrendImages} from "../scripts/smn-402-office-chart-tags.mjs";
 import {renderOfficeTrendPng} from "../scripts/smn-402-trend-png.mjs";
-import {renderOfficeIndicatorChart} from "../src/server/reports/office-indicator-charts";
+import {renderOfficeIndicatorChart,OfficeChartIndicatorUnavailableError} from "../src/server/reports/office-indicator-charts";
 
 const columns=[
  {id:"a",tag:"SP_DONE",name:"Story Points",unit:"SP",style:"line",order:0},
@@ -44,7 +45,9 @@ test("SMN-402: projection v33 multiseries 3 cycles, zéros et absences",()=>{
 });
 test("SMN-402: mêmes unités obligatoires et sélection d'indicateurs valide",()=>{
  assert.throws(()=>renderOfficeIndicatorChart(report,"c3",{last:6,type:"line",tags:["SP_DONE","CAPACITY"]},"fr"),/mixed-unit/);
- assert.throws(()=>renderOfficeIndicatorChart(report,"c3",{last:6,type:"line",tags:["UNKNOWN"]},"fr"),/unavailable/);
+ assert.throws(()=>renderOfficeIndicatorChart(report,"c3",{last:6,type:"line",tags:["SP_MISSING"]},"fr"),error=>
+  error instanceof OfficeChartIndicatorUnavailableError&&error.tag==="SP_MISSING"
+ );
 });
 test("SMN-402: aucune valeur exploitable produit N/D, jamais un zéro fictif",()=>{
  const missing={columns:[columns[0]],cycles:cycles.map(c=>({...c,values:{a:null}}))};
@@ -98,4 +101,20 @@ test("SMN-402: plusieurs graphiques Word possèdent des IDs de dessin distincts"
  const ids=[...doc.matchAll(/<wp:docPr[^>]*id="(\d+)"/g)].map(m=>m[1]);
  assert.equal(ids.length,2);
  assert.equal(new Set(ids).size,2);
+});
+
+test("SMN-402: invalid chart indicator is reported with safe localized tag UI",()=>{
+ const api=readFileSync("src/app/api/admin/reports/office-templates/generate/route.ts","utf8");
+ const client=readFileSync("src/app/app/reports/office-template-catalog.tsx","utf8");
+ const docs=readFileSync("src/app/app/reports/office-tags.tsx","utf8");
+ assert.match(api,/error:"office-chart-indicator-unavailable",tag:error.tag/);
+ assert.match(client,/result\.error==="office-chart-indicator-unavailable"/);
+ assert.match(client,/<strong><code className="text-danger">\{missingChartTag\}<\/code><\/strong>/);
+ assert.doesNotMatch(client,/dangerouslySetInnerHTML/);
+ assert.match(docs,/SP_DONE, SP_INIT et RATE_PERCENT ne sont que des exemples/);
+ for(const locale of ["fr","en"]){
+  const labels=JSON.parse(readFileSync("src/i18n/"+locale+".json","utf8")).reportsCenter;
+  assert.ok(labels.officeChartIndicatorUnavailable);
+  assert.ok(labels.officeChartIndicatorHint);
+ }
 });
