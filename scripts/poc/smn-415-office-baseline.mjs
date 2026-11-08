@@ -71,7 +71,13 @@ export function benchmarkCase(c,repeats=3){
  const expected=c.format==="docx"?{width:960,height:560}:
   RATIOS.find(x=>x.id===c.ratio);
  if(meta.width!==expected.width||meta.height!==expected.height)throw Error("baseline-size-mismatch: "+c.id);
+ const fixture=JSON.stringify({cycles:c.args.cycles,series:c.args.series,type:c.type,locale:c.locale});
+ const values=c.args.series.flatMap(x=>x.values);
  return {image:png,result:{id:c.id,format:c.format,type:c.type,locale:c.locale,ratio:c.ratio,
+  fixtureSha256:sha(Buffer.from(fixture)),
+  valueProfile:{missing:values.filter(x=>x===null).length,zero:values.filter(x=>x===0).length,
+   negative:values.filter(x=>x!==null&&x<0).length},
+  longLabelCount:c.args.cycles.filter(x=>x.name.length>20).length,
   count:c.count,cycles:c.args.cycles.length,series:c.args.series.length,...meta,
   durationMs:{samples:durations,median:median(durations)},
   rssObservedMaxBytes:Math.max(...rssSamples),
@@ -169,11 +175,18 @@ export function runBaseline({output,repeats=3,smoke=false}){
   }
  }
  const manifest={
+  expectedRendererDifferences:[
+   "DOCX historical renderer produces fixed 960x560 PNG; PPTX SVG renderer adapts to physical chart target at 300 dpi.",
+   "Legacy Word raster uses built-in 5x7 bitmap glyphs and ASCII normalization; SVG PPTX uses resvg and retains accented labels.",
+   "Legacy Word adds an internal title; adaptive PowerPoint does not repeat an internal report title.",
+   "Axis placement, legend position, font size and line thickness intentionally differ between current Word and PowerPoint.",
+   "Cross-format PNG digests and screenshots are NOT expected to match pixel-for-pixel; compare semantics and target-specific readability."
+  ],
   purpose:"Baseline before a shared Office chart SVG renderer; no production files modified.",
   proofLevel:"Generated locally only; manual Microsoft Office validation is pending.",
   timestamp:new Date().toISOString(),
   environment:{platform:process.platform,arch:process.arch,node:process.version,
-   versions:process.versions,cpus:(awaitCpuCount()),note:"RSS is sampled before/after each run; it is not a true process peak."},
+   versions:process.versions,cpus:(logicalCpuCount()),note:"RSS is sampled before/after each run; it is not a true process peak."},
   configuration:{repeats,smoke,images:results.length,stressCases:stressResults.length,packages:packages.length},
   renderer:{docx:"legacy 960x560 pixel renderer",pptx:"SVG with resvg 300 DPI"},
   cases:results,stress:stressResults,packages,
@@ -199,7 +212,7 @@ export function runBaseline({output,repeats=3,smoke=false}){
  return manifest;
 }
 // Avoid Node-only external utility dependencies; this is an observable logical CPU count.
-function awaitCpuCount(){return typeof navigator!=="undefined"&&navigator.hardwareConcurrency?navigator.hardwareConcurrency:null;}
+function logicalCpuCount(){return typeof navigator!=="undefined"&&navigator.hardwareConcurrency?navigator.hardwareConcurrency:null;}
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  try{
   const args=parseCli(process.argv.slice(2));
