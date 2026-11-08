@@ -219,7 +219,7 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
    };
    active.forEach(s=>{const end=sum+s.value/total;svgParts.push(segment(sum,end,s.color));sum=end;});
    if(type==="donut"){
-    svgParts.push('<circle cx="'+num(centerX)+'" cy="'+num(centerY)+'" r="'+num((options?radius*options.innerRadiusPercent/100:radius*.58))+'" fill="'+(common?.background??"#ffffff")+'"/>');
+    svgParts.push('<circle cx="'+num(centerX)+'" cy="'+num(centerY)+'" r="'+num((options?radius*options.innerRadiusPercent/100:radius*.58))+'" fill="'+(common?.background??"#fff")+'"/>');
     if(options?.showCenterValue)svgParts.push(txt(number(total),centerX,centerY+font*.3,font*1.2,{weight:600}));
    }
    if(common?.labels.visible&&type==="pie")active.forEach((item,i)=>{
