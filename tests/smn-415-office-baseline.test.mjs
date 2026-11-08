@@ -76,13 +76,17 @@ test("smoke runner records machine manifest, image digests, synthetic fixtures a
  const root=mkdtempSync(join(tmpdir(),"smn-415-baseline-"));
  try{
   const report=runBaseline({output:root,repeats:1,smoke:true});
-  assert.equal(report.configuration.images,2);
+  // Smoke covers Word plus all three PPTX aspect ratios for the selected FR line style.
+  assert.equal(report.configuration.images,4);
   assert.equal(report.configuration.stressCases,2);
   assert.equal(report.configuration.packages,2);
   assert.equal(report.proofLevel.includes("manual Microsoft Office validation is pending"),true);
   assert.ok(existsSync(join(root,"RECETTE-MANUELLE.md")));
   const saved=JSON.parse(readFileSync(join(root,"baseline.json"),"utf8"));
-  assert.equal(saved.cases.length,2);
+  assert.equal(saved.cases.length,4);
+  assert.deepEqual(new Set(saved.cases.map(c=>c.format)),new Set(["docx","pptx"]));
+  assert.deepEqual(new Set(saved.cases.filter(c=>c.format==="pptx").map(c=>c.ratio)),
+   new Set(["horizontal","carre","vertical"]));
   assert.ok(saved.cases.every(c=>/^[0-9a-f]{64}$/.test(c.sha256)));
   assert.ok(saved.cases.every(c=>c.durationMs.samples.length===1));
   for(const entry of saved.cases){
