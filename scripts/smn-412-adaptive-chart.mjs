@@ -1,7 +1,8 @@
 // Pure, target-aware SVG layout with an isolated PNG rasterizer.
 // The PPTX packaging adapter remains owned by the next integration.
 import {emuToPixels} from "./smn-411-chart-targets.mjs";
-import {inspectPng,rasterizeWithResvg} from "./poc/smn-410-rasterizer-poc.mjs";
+import {Resvg} from "@resvg/resvg-js";
+import {inspectPng} from "./poc/smn-410-rasterizer-poc.mjs";
 
 export const CHART_STYLES=Object.freeze(["bar","line","area","pie","donut","gauge"]);
 export const COLORS=Object.freeze(["#1b508d","#b45638","#159895","#7955a7","#bc8c21","#426da4"]);
@@ -187,7 +188,7 @@ export function renderAdaptiveChartPng(args,root=process.cwd()){
  const scene=composeAdaptiveChart(args);
  if(scene===null)return null;
  let png;
- try{png=rasterizeWithResvg(scene.svg,root);}catch(e){
+ try{png=Buffer.from(new Resvg(scene.svg,{fitTo:{mode:"original"}}).render().asPng());}catch(e){
   throw new OfficeChartLayoutError("office-chart-rasterizer-unavailable",{reason:e.message});
  }
  const meta=inspectPng(png);
