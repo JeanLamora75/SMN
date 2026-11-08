@@ -52,6 +52,8 @@ function withBullet(paragraph,id,part,country){
  const clean=paragraph.replace(FLAG,"");
  if(!/<a:t(?:\s[^>]*)?>/.test(clean))error("office-member-flag-invalid-paragraph",part,country);
  const bullet='<a:buSzPct val="100000"/><a:buBlip><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="'+id+'"/></a:buBlip>';
+ const selfClosing=/<a:pPr\b[^>]*\/>/.exec(clean);
+ if(selfClosing)return clean.replace(selfClosing[0],selfClosing[0].slice(0,-2)+">"+bullet+"</a:pPr>");
  const hasProps=/<a:pPr\b[^>]*>/.test(clean);
  if(!hasProps){
   return clean.replace(/<a:p\b([^>]*)>/,(_m,attrs)=>"<a:p"+attrs+"><a:pPr marL=\"160000\" indent=\"-160000\">"+bullet+"</a:pPr>");
