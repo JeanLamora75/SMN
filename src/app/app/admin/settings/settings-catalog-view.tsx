@@ -34,6 +34,22 @@ export default function SettingsCatalogView({groups,showCompanies=false}:{groups
      onClick={()=>choose("list")}><span aria-hidden="true">☷</span></button>
    </div>
   </div>
+  {showCompanies&&<section className="mb-4" aria-labelledby="settings-report-graphics-title">
+   <h2 className="h5 mb-3" id="settings-report-graphics-title">{t("chartStyles.gallery.sectionTitle")}</h2>
+   <div className={view==="cards"?"row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3":"d-grid gap-2"}>
+    <div className={view==="cards"?"col":""}>
+     <Link href="/app/admin/settings/reports/charts"
+      className="smn-panel rounded-4 p-3 h-100 d-flex gap-3 align-items-start text-body text-decoration-none smn-settings-entry-link">
+      <span className="fs-4 flex-shrink-0" aria-hidden="true">▥</span>
+      <span className={"d-flex flex-wrap align-items-start gap-2 flex-grow-1"+(view==="cards"?" flex-column":"")}>
+       <strong>{t("chartStyles.gallery.heading")}</strong>
+       <span className="d-block small text-secondary">{t("chartStyles.gallery.sectionDescription")}</span>
+      </span>
+      {view==="list"&&<span aria-hidden="true" className="ms-auto">›</span>}
+     </Link>
+    </div>
+   </div>
+  </section>}
   {showCompanies&&<section className="mb-4" aria-labelledby="settings-indicators-title">
    <h2 className="h5 mb-3" id="settings-indicators-title">{t("indicators.title")}</h2>
    <div className={view==="cards"?"row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3":"d-grid gap-2"}>
