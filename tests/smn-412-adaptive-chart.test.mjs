@@ -104,7 +104,9 @@ test("renderer does not modify legacy production export path or core chart seman
  const fs=await import("node:fs");
  const production=fs.readFileSync("src/server/reports/office-indicator-charts.ts","utf8");
  assert.match(production,/renderOfficeTrendPng/);
- assert.doesNotMatch(production,/renderAdaptiveChartPng/);
+ assert.match(production,/export function renderOfficeIndicatorChart/);
+ assert.match(production,/return renderOfficeTrendPng/);
+ assert.match(production,/export function renderOfficeIndicatorAdaptiveChart/);
  const source=fs.readFileSync("scripts/smn-412-adaptive-chart.mjs","utf8");
  assert.match(source,/emuToPixels/);
  assert.match(source,/rasterizeWithResvg/);
