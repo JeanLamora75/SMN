@@ -4,10 +4,10 @@
  * Run with: pnpm exec tsx scripts/poc/smn-418-compare-baseline.ts --before <SMN-415-dir> --out <dir>
  */
 import {createHash} from "node:crypto";
-import {existsSync,mkdirSync,readFileSync,writeFileSync} from "node:fs";
+import {mkdirSync,readFileSync,writeFileSync} from "node:fs";
 import {resolve,join} from "node:path";
 import {performance} from "node:perf_hooks";
-import {baselineCases,stressCases,inspectBaselinePng} from "./smn-415-office-baseline.mjs";
+import {baselineCases,inspectBaselinePng} from "./smn-415-office-baseline.mjs";
 import {renderAdaptiveChartPng} from "../smn-412-adaptive-chart.mjs";
 import {PREDEFINED_CHART_STYLES} from "../../src/server/reports/chart-style-contract";
 
@@ -51,7 +51,7 @@ export function compareBaseline(input:Input){
   const previous=before.get(c.id);
   if(!previous)throw Error("Baseline case missing: "+c.id);
   const target=c.format==="docx"?{widthEmu:960*3048,heightEmu:560*3048}:c.args.target;
-  const parameters={...c.args,target,type:c.type,locale:c.locale,style};
+  const parameters={...c.args,target,type:c.type,locale:c.locale};
   const durations:number[]=[];
   let image:Buffer|null=null,maximumRss=0;
   for(let i=0;i<input.repeats;i++){
