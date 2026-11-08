@@ -22,6 +22,9 @@ export function parseOfficeChartTag(raw){
   }else if(pair[1]==="TYPE"){
    if(!["bar","line","area","pie","donut","gauge"].includes(pair[2]))throw Error("office-chart-invalid-style");
    params.type=pair[2];
+  }else if(pair[1]==="STYLE"){
+   if(!/^[a-z][a-z0-9-]{2,63}$/.test(pair[2]))throw Error("office-chart-invalid-style-id");
+   params.style=pair[2];
   }else if(pair[1]==="TAGS"){
    const tags=pair[2].split(",");
    if(tags.length<1||tags.length>6||new Set(tags).size!==tags.length||tags.some(s=>!/^[A-Za-z][A-Za-z0-9_]*$/.test(s)))
