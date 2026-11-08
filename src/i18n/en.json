@@ -4060,6 +4060,10 @@
     "protectedStyle": "A built-in style cannot be changed or deleted.",
     "defaultStyle": "This style is a default. Choose another default before deleting it.",
     "schemaNotReady": "Chart style storage has not been installed.",
-    "serviceUnavailable": "Chart style service is unavailable."
+    "serviceUnavailable": "Chart style service is unavailable.",
+    "invalidStyleId": "Invalid chart style identifier.",
+    "invalidChartType": "Unknown chart type.",
+    "styleNotFound": "The requested chart style does not exist or has been deleted.",
+    "styleCorrupt": "The chart style configuration is inconsistent."
   }
 }
