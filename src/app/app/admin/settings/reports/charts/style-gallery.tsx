@@ -74,9 +74,10 @@ export default function ChartStyleGallery({isAdmin}:{isAdmin:boolean}){
   })();
   return()=>{active=false};
  },[]);
+ const dialogOpen=modal!==null||pendingDefault!==null;
  // Modal keyboard guard: Escape cancels; Tab remains within the active dialog.
  useEffect(()=>{
-  if(!modal&&!pendingDefault)return;
+  if(!dialogOpen)return;
   const box=document.querySelector<HTMLElement>(".smn-chart-dialog");
   if(!box)return;
   const initial=box.querySelector<HTMLElement>("[autofocus],input,button:not([disabled])");
@@ -94,7 +95,7 @@ export default function ChartStyleGallery({isAdmin}:{isAdmin:boolean}){
   };
   document.addEventListener("keydown",onKey);
   return()=>document.removeEventListener("keydown",onKey);
- },[modal,pendingDefault,busy]);
+ },[dialogOpen,busy]);
  const shown=useMemo(()=>catalog?filterGalleryStyles(catalog,{query,origin,type:typeFilter}):[],
   [catalog,query,origin,typeFilter]);
  const defaults=useMemo(()=>catalog?.styles.filter(s=>s.source==="builtin")??[],[catalog]);
