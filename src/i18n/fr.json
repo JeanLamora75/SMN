@@ -4109,7 +4109,9 @@
         "pie": "Secteurs",
         "donut": "Anneaux",
         "gauge": "Jauges"
-      }
+      },
+      "sectionTitle": "Rapports",
+      "sectionDescription": "Gérer les styles graphiques de tous les exports Word et PowerPoint."
     }
   }
 }
