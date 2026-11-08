@@ -8,8 +8,10 @@ type ScalarDefinition={key:string;fr:string;en:string;noteFr?:string;noteEn?:str
 type ChartDefinition={type:string;fr:string;en:string;example:string;noteFr:string;noteEn:string};
 
 export const officeRowDefinitions:readonly RowDefinition[]=[
- {source:"MEMBERS",fr:"Membres de l'équipe",en:"Team members",
-  fields:["MEMBER_NAME","MEMBER_ROLE","MEMBER_START","MEMBER_END","MEMBER_CITY","MEMBER_COUNTRY","MEMBER_FLAG"]},
+ {source:"MEMBERS_ACTIVE",fr:"Membres actifs",en:"Active team members",
+  fields:["MEMBER_NAME","MEMBER_ROLE","MEMBER_FUNCTION","MEMBER_START","MEMBER_END","MEMBER_CITY","MEMBER_COUNTRY","MEMBER_FLAG"]},
+ {source:"MEMBERS_INACTIVE",fr:"Membres inactifs",en:"Inactive team members",
+  fields:["MEMBER_NAME","MEMBER_ROLE","MEMBER_FUNCTION","MEMBER_START","MEMBER_END","MEMBER_CITY","MEMBER_COUNTRY","MEMBER_FLAG"]},
  {source:"INDICATORS",fr:"Indicateurs dynamiques",en:"Dynamic indicators",
   fields:["INDICATOR_NAME","INDICATOR_TAG","INDICATOR_VALUE","INDICATOR_UNIT"]},
  {source:"RISKS",fr:"Risques",en:"Risks",
@@ -138,7 +140,7 @@ export default function OfficeTags({locale="fr",expanded=false}:{locale?:Locale;
    {fr?"Exemple : {{ROW:RISKS}}{{RISK_TITLE}} — {{RISK_STATUS}}. Si aucune donnée n'est présente, le bloc affiche notamment « Aucun risque identifié », « Aucun obstacle identifié » ou « Aucune dépendance identifiée ». Les modèles peuvent déborder visuellement et ne sont pas redimensionnés automatiquement.":"Example: {{ROW:RISKS}}{{RISK_TITLE}} — {{RISK_STATUS}}. Empty lists display “No risks identified”, “No obstacles identified” or “No dependencies identified”. Text-box overflow remains possible; layouts are not automatically resized."}
   </p>
   <p className="small text-secondary">
-   {fr?"Pour les membres, MEMBER_CITY et MEMBER_COUNTRY utilisent la localisation effective au sprint. MEMBER_FLAG affiche un drapeau Unicode : selon les polices de Word/PowerPoint, il peut apparaître en couleur ou sous forme de lettres régionales. Ce n'est pas une image PNG intégrée.":"For members, MEMBER_CITY and MEMBER_COUNTRY use the location effective during the sprint. MEMBER_FLAG displays a Unicode flag; depending on Word/PowerPoint fonts, it may appear in color or as regional letters. It is not an embedded PNG image."}
+   {fr?"Pour les membres, MEMBER_FUNCTION représente la fonction professionnelle et les listes actifs/inactifs sont établies au dernier jour du sprint sélectionné. MEMBER_CITY et MEMBER_COUNTRY utilisent la localisation effective au sprint. MEMBER_FLAG affiche un drapeau Unicode : selon les polices de Word/PowerPoint, il peut apparaître en couleur ou sous forme de lettres régionales. Ce n'est pas une image PNG intégrée.":"For members, MEMBER_FUNCTION is the professional function, and active/inactive groups use the selected sprint’s last day. MEMBER_CITY and MEMBER_COUNTRY use the location effective during the sprint. MEMBER_FLAG displays a Unicode flag; depending on Word/PowerPoint fonts, it may appear in color or as regional letters. It is not an embedded PNG image."}
   </p>
   </TagSection>
   <TagSection title={fr?"4. Graphiques de tendances en image PNG":"4. Trend charts as PNG images"}>
