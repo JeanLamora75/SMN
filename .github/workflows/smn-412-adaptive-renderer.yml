@@ -1,0 +1,38 @@
+name: SMN-412 — Rendu graphique adaptatif
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/smn-412-adaptive-chart.mjs"
+      - "tests/smn-412-adaptive-chart.test.mjs"
+      - ".github/workflows/smn-412-adaptive-renderer.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  adaptive-renderer:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Isoler le rasteriseur (POC)
+        run: npm install --prefix .smn-410-poc --no-save --package-lock=false --ignore-scripts @resvg/resvg-js@2.6.2
+      - name: Tests géométrie et six types de graphiques
+        run: node --test tests/smn-411-chart-targets.test.mjs tests/smn-412-adaptive-chart.test.mjs
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck SMN
+        run: pnpm typecheck
+      - name: ESLint ciblé
+        run: pnpm exec eslint scripts/smn-412-adaptive-chart.mjs tests/smn-412-adaptive-chart.test.mjs
