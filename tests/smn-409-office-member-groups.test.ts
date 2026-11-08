@@ -41,7 +41,10 @@ test("Office projection includes both active and inactive members, plus professi
  assert.ok(queries.some(q=>q.includes("DISTINCT ON (m.id)")));
  assert.ok(queries.some(q=>q.includes("a.start_on <")));
  assert.ok(queries.some(q=>q.includes("s.team_id=t.id")));
- assert.ok(queries.some(q=>q.includes("ml.effective_from <")));
+ assert.ok(queries.some(q=>q.includes("ml.effective_from<=CURRENT_DATE")));
+ assert.ok(queries.some(q=>q.includes("a.start_on < (s.end_at")));
+ assert.ok(queries.some(q=>q.includes("a.end_on")));
+ assert.ok(!queries.some(q=>q.includes("CASE WHEN ml.effective_from")));
 });
 
 test("Word and PowerPoint render both lists independently, including function",()=>{
