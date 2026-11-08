@@ -161,16 +161,48 @@ export default function OfficeTags({locale="fr",expanded=false}:{locale?:Locale;
    </table>
   </div>
   <p className="small">
-   {fr?"PowerPoint : le graphique est généré au format et aux dimensions de sa zone de texte, avec une image PNG haute définition. Utilisez une zone non groupée, non pivotée, assez grande pour les textes et laissez le tag seul dans la zone. Les objets voisins ne sont pas modifiés. Word conserve le rendu historique.":
-    "PowerPoint: the chart is generated at the target text box's dimensions and aspect ratio as a high-resolution PNG. Use an ungrouped, unrotated box large enough for legible labels and keep the tag alone in the box. Nearby objects are preserved. Word retains its previous rendering."}
+   {fr?"PowerPoint : le graphique est généré au format et aux dimensions de sa zone de texte, avec une image PNG haute définition. Utilisez une zone non groupée, non pivotée, assez grande pour les textes et laissez le tag seul dans la zone. Les objets voisins ne sont pas modifiés. Word et PowerPoint utilisent le même moteur SVG/PNG lorsqu’un style est disponible ; STYLE=legacy demande explicitement le moteur historique.":
+    "PowerPoint: the chart is generated at the target text box's dimensions and aspect ratio as a high-resolution PNG. Use an ungrouped, unrotated box large enough for legible labels and keep the tag alone in the box. Nearby objects are preserved. Word and PowerPoint use the same SVG/PNG renderer when a style is available; STYLE=legacy explicitly requests the historical renderer."}
   </p>
+  <div className="border rounded-3 p-3 my-3">
+   <h4 className="h6 mb-2">{fr?"Styles graphiques Office":"Office chart styles"}</h4>
+   <p className="small mb-2">{fr?
+    "Trois styles prédéfinis : Cockpit Agile, Corporate et Minimal. Dans Paramètres → Rapports → Styles graphiques Office, la galerie M1 permet de consulter, filtrer, dupliquer et gérer les styles personnalisés ; la fiche M2 propose des réglages pliables et un aperçu sur demande. Les styles prédéfinis sont protégés.":
+    "Three built-in styles: Cockpit Agile, Corporate and Minimal. In Settings → Reports → Office chart styles, the M1 gallery lets you browse, filter, duplicate and manage custom styles; the M2 editor has collapsible settings and an on-demand preview. Built-in styles are protected."}</p>
+   <p className="small mb-2">{fr?
+    "Dans Rapports → Modèles (M3), le sélecteur facultatif « Style graphique du rapport » vaut initialement « Styles par défaut ». Il n'ajoute pas d'étape, ne modifie pas les styles globaux et ne change pas le modèle Office. Il s'applique uniquement à l'export en cours.":
+    "In Reports → Templates (M3), the optional “Report chart style” selector starts at “Default styles”. It adds no mandatory step, changes no global defaults or Office templates, and applies only to the current export."}</p>
+   <p className="small fw-semibold mb-1">{fr?"Priorité de résolution :":"Resolution precedence:"}</p>
+   <ol className="small mb-2">
+    <li>{fr?"STYLE explicite dans le tag du graphique":"Explicit STYLE in the chart tag"}</li>
+    <li>{fr?"Style choisi facultativement pour ce rapport (M3)":"Optional style chosen for this export (M3)"}</li>
+    <li>{fr?"Style global par défaut du type de graphique":"Global default for this chart type"}</li>
+    <li>{fr?"Moteur historique uniquement si le catalogue n'est pas installé ou si STYLE=legacy est indiqué":"Legacy renderer only when the catalog is not installed or STYLE=legacy is specified"}</li>
+   </ol>
+   <p className="small mb-1">{fr?"Exemples de tags à copier :":"Copyable tag examples:"}</p>
+   <div className="d-grid gap-2 mb-2">
+    {[
+     "{{CHART:TREND|TYPE=line|TAGS=SP_DONE|LAST=6|STYLE=corporate}}",
+     "{{CHART:TREND|TYPE=bar|TAGS=SP_DONE|LAST=6|STYLE=minimal}}",
+     "{{CHART:TREND|TYPE=bar|STYLE=legacy}}"
+    ].map(example=><div className="d-flex flex-wrap gap-2 align-items-center" key={example}>
+     <code className="text-break">{example}</code><CopyOfficeTag value={example} fr={fr}/>
+    </div>)}
+   </div>
+   <p className="small mb-1">{fr?
+    "STYLE accepte l'identifiant technique exact (minuscules, chiffres et traits d'union) d'un style du catalogue. « corporate » et « minimal » sont des exemples intégrés ; un nom affiché n'est pas nécessairement un identifiant. Un style explicitement introuvable ou invalide provoque une erreur : aucun document incorrect n'est généré.":
+    "STYLE accepts the exact technical ID (lowercase letters, digits and hyphens) of a catalog style. “corporate” and “minimal” are built-in examples; a displayed name is not necessarily its ID. An unknown or invalid explicit style fails generation rather than producing an incorrect document."}</p>
+   <p className="small text-secondary mb-0">{fr?
+    "Options communes de M2 : palette, fond, couleur du texte, police, taille, titre/sous-titre, légende, étiquettes, décimales et espacement. Options par famille : orientation/empilement/espacement/arrondis des barres ; épaisseur/marqueurs/lissage des courbes ; opacité/empilement des aires ; séparation/pourcentages des secteurs ; rayon intérieur/valeur centrale des anneaux ; épaisseur/bornes/seuils des jauges. Les graphiques exportés sont des PNG, non des graphiques natifs éditables dans Office.":
+    "M2 common options: palette, background, text color, font, size, title/subtitle, legend, labels, decimals and spacing. Per-type options: bars orientation/stacking/gap/radius; lines width/markers/smoothing; areas opacity/stacking; pie separation/percentages; donut inner radius/center value; gauges thickness/bounds/thresholds. Exports are PNG images, not native editable Office charts."}</p>
+  </div>
   <p className="small fw-semibold">
    {fr?"Attention : SP_DONE, SP_INIT et RATE_PERCENT ne sont que des exemples. Le tag doit exister, être actif pour l'équipe et visible dans ses Tendances ; sinon la génération échoue avec le tag concerné.":
     "Important: SP_DONE, SP_INIT and RATE_PERCENT are examples only. The indicator tag must exist, be active for the team and visible in Trends; otherwise generation reports the missing tag."}
   </p>
   <p className="small text-secondary">
-   {fr?"Paramètres facultatifs : TYPE (bar, line, area, pie, donut, gauge), LAST (1 à 24 sprints), TAGS (1 à 6 indicateurs disponibles, de même unité). Remplacez les exemples SP_DONE, SP_INIT et RATE_PERCENT par les tags de votre catalogue. La jauge exige une seule série en pourcentage.":
-    "Optional parameters: TYPE (bar, line, area, pie, donut, gauge), LAST (1 to 24 sprints), TAGS (1 to 6 available indicators sharing the same unit). Replace sample tags SP_DONE, SP_INIT and RATE_PERCENT with tags from your own catalog. Gauges require exactly one percentage series."}
+   {fr?"Paramètres facultatifs : TYPE (bar, line, area, pie, donut, gauge), LAST (1 à 24 sprints), TAGS (1 à 6 indicateurs disponibles, de même unité), STYLE (identifiant de style graphique, prioritaire sur le choix du rapport). Remplacez les exemples SP_DONE, SP_INIT et RATE_PERCENT par les tags de votre catalogue. La jauge exige une seule série en pourcentage.":
+    "Optional parameters: TYPE (bar, line, area, pie, donut, gauge), LAST (1 to 24 sprints), TAGS (1 to 6 available indicators sharing the same unit), STYLE (chart style ID; overrides the report choice). Replace sample tags SP_DONE, SP_INIT and RATE_PERCENT with tags from your own catalog. Gauges require exactly one percentage series."}
   </p>
 
   </TagSection>
