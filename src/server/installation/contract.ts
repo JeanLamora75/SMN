@@ -11,6 +11,9 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_indicator_dashboard_slot:r",
   "public.smn_dashboard_layout:r",
   "public.smn_dashboard_team_grant:r",
+  // SMN-416: additive global chart configuration tables, no per-team ownership.
+  "public.smn_chart_style:r",
+  "public.smn_chart_style_default:r",
   "public.smn_team_context:r", "public.smn_team_context_audit:r",
   "public.smn_general_settings:r", "public.smn_general_settings_audit:r",
   "public.smn_configuration_task:r", "public.smn_account_audit:r",
