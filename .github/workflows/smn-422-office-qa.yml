@@ -1,0 +1,48 @@
+name: SMN-422 — Recette catalogue graphique Office
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/app/app/reports/office-tags.tsx"
+      - "src/app/app/reports/office-template-catalog.tsx"
+      - "src/app/app/admin/settings/reports/charts/**"
+      - "src/server/reports/chart-style-contract.ts"
+      - "src/server/reports/office-chart-style-resolver.ts"
+      - "tests/smn-422-office-catalog-qa.test.ts"
+      - "tests/smn-421-office-report-style.test.ts"
+      - "tests/smn-420-style-editor.test.ts"
+      - "tests/smn-419-gallery.test.tsx"
+      - "tests/smn-418-unified-office-charts.test.ts"
+      - "tests/smn-415-office-baseline.test.mjs"
+      - "package.json"
+      - ".github/workflows/smn-422-office-qa.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  catalog-qa:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Tests des lots SMN-415 à SMN-422
+        run: pnpm test:smn-422
+      - name: Vérification TypeScript
+        run: pnpm typecheck
+      - name: ESLint
+        run: pnpm exec eslint src/app/app/reports/office-tags.tsx tests/smn-422-office-catalog-qa.test.ts
+      - name: Langues FR/EN
+        run: pnpm i18n:check
