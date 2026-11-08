@@ -128,3 +128,10 @@ Les propriétés et leurs bornes détaillées seront contractualisées lors du d
 - `docs/UX-REFERENTIEL-BMAD.md` : contraintes visuelles Cockpit Agile.
 
 **Statut des validations :** revue statique du code effectuée ; aucun script `uv`, test applicatif, benchmark ou pipeline GitHub exécuté.
+
+## Avenant de cohérence — décisions UX validées M1/M2/M3
+- **UX-01 :** galerie de cartes pour le catalogue, fiche d'éditeur séparée.
+- **UX-02 :** éditeur à sections pliables et aperçu permanent, actualisé à la demande.
+- **UX-03 :** ajout d'un **style de rapport facultatif** à la requête d'export. Le résolveur suit exactement : `STYLE` du tag > style du rapport > défaut par type > compatibilité. Un style explicitement invalide est une erreur, sans repli.
+- Le style de rapport est éphémère, validé côté serveur et ne modifie pas la configuration enregistrée.
+- Le contrat d'entrée de la route de génération reçoit un champ optionnel ; la documentation antérieure affirmant qu'aucune extension d'entrée n'était nécessaire est remplacée par cet avenant.
