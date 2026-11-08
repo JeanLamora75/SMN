@@ -61,13 +61,14 @@ test("one and six compatible series, 1 and 24 cycles, long labels, negative valu
  assert.ok(scene.meta.rotated);
  assert.equal(scene.meta.labels.length,24);
  assert.ok(scene.svg.includes('rotate(-45'));
- assert.ok(scene.meta.labels.some(x=>x.endsWith("…")));
+ assert.ok(scene.meta.labels.some(x=>/^S\d+$/.test(x)));
 });
 
 test("labels are escaped safely and numeric formatting is localized",()=>{
- const s=[{name:'Qualité & "fiabilité" <b>',values:[0,1.23,null,4,6,9]}];
+ const s=[{name:'Équipe & "<b>"',values:[0,1.23,null,4,6,9]},
+  {name:"Deuxième série",values:[1,2,3,4,5,6]}];
  const scene=composeAdaptiveChart(fixture(1600,900,"bar",s));
- assert.match(scene.svg,/Qualité &amp; &quot;fiabilité&quot; &lt;b&gt;/);
+ assert.match(scene.svg,/Équipe &amp; &quot;&lt;b&gt;&quot;/);
  assert.match(scene.svg,/>2,25</);
  assert.ok(!scene.svg.includes("<b>"));
 });
@@ -79,6 +80,7 @@ test("unsupported styles, invalid cycle lengths, mismatched series and nonfinite
  isError(()=>composeAdaptiveChart(fixture(1600,900,"line",[{values:[1,2,3,4,5,Infinity]}])),"office-chart-invalid-values");
  isError(()=>composeAdaptiveChart(fixture(1600,900,"line",series,Array.from({length:25},(_,i)=>({name:"S"+i})))),"office-chart-invalid-series");
  isError(()=>composeAdaptiveChart(fixture(1600,900,"gauge",series)),"office-chart-gauge-one-series");
+ isError(()=>composeAdaptiveChart(fixture(1600,900,"line",[{unit:"SP",values:[1,2,3,4,5,6]},{unit:"JH",values:[2,3,4,5,6,7]}])),"office-chart-incompatible-unit");
  isError(()=>composeAdaptiveChart(fixture(1600,900,"gauge",[{values:[1,2,3,4,5,101]}])),"office-chart-gauge-range");
  isError(()=>composeAdaptiveChart(fixture(1600,900,"pie",[{values:[1,2,3,4,5,-1]}])),"office-chart-negative-share");
 });
@@ -86,6 +88,8 @@ test("unsupported styles, invalid cycle lengths, mismatched series and nonfinite
 test("missing-only series produces no image and data with real zero remains expressible",()=>{
  assert.equal(composeAdaptiveChart(fixture(1600,900,"line",[{values:[null,null,null,null,null,null]}])),null);
  assert.equal(renderAdaptiveChartPng(fixture(1600,900,"line",[{values:[null,null,null,null,null,null]}])),null);
+ const gauge=composeAdaptiveChart(fixture(1600,900,"gauge",[{values:[null,0,null,0,null,0]}]));
+ assert.ok(gauge&&gauge.svg.includes(">0 %</text>"));
  const zero=composeAdaptiveChart(fixture(1600,900,"bar",[{values:[null,0,null,0,null,0]}]));
  assert.ok(zero&&zero.meta.points===3);
 });
