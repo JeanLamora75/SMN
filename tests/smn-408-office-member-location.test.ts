@@ -26,7 +26,7 @@ test("member rows include city, localized country and flag at sprint-effective l
   {name:"Bob",role:"Developer",start_on:"2026-01-02",end_on:null,city:"Berlin",country_iso2:"DE"},
   {name:"Charlie",role:null,start_on:"2026-01-03",end_on:null,city:null,country_iso2:null}
  ];
- const db={query:async(sql:string,params?:unknown[])=>{queries.push({sql,params});return {rows:data};}} as unknown as Client;
+ const db={query:async(sql:string,params?:unknown[])=>{queries.push({sql,params});return sql.includes("AS last_day")?{rows:[{last_day:"2026-01-10"}]}:{rows:data};}} as unknown as Client;
  const result=await readOfficeWordMembers(db,"team1","sprint1","fr");
  assert.equal(result.length,3);
  assert.equal(result[0].MEMBER_CITY,"Paris");
