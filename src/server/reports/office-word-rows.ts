@@ -25,9 +25,23 @@ function dateLabel(value:string|null,locale:Locale):string|null{
   timeZone:"UTC",dateStyle:"medium"
  }).format(date);
 }
-/** Only assignments overlapping the requested authorized sprint can appear. */
-export async function readOfficeWordMembers(db:Client,teamId:string,cycleId:string,
- locale:Locale):Promise<OfficeWordRows>{
+/** Date intervals of member assignments are inclusive, unlike sprint end_at. */
+export function splitOfficeMembersByAssignment<T extends {start_on:string;end_on:string|null}>(
+ members:readonly T[],sprintLastDay:string
+):{active:T[];inactive:T[]}{
+ return {
+  active:members.filter(m=>m.start_on<=sprintLastDay&&
+   (m.end_on===null||m.end_on>=sprintLastDay)),
+  inactive:members.filter(m=>m.start_on<=sprintLastDay&&
+   m.end_on!==null&&m.end_on<sprintLastDay)
+ };
+}
+export type OfficeMemberGroups={active:OfficeWordRows;inactive:OfficeWordRows};
+/** Read the latest team assignment per member as of the selected sprint's last day.
+ * Former team members are included in the inactive list, even if they left before its start.
+ */
+export async function readOfficeMemberGroups(db:Client,teamId:string,cycleId:string,
+ locale:Locale):Promise<OfficeMemberGroups>{
  const members=await db.query<MemberRow>(`
   SELECT DISTINCT ON (m.id) m.display_name AS name,
    m.professional_function AS role,
@@ -44,20 +58,40 @@ export async function readOfficeWordMembers(db:Client,teamId:string,cycleId:stri
    ORDER BY ml.effective_from DESC,ml.revision DESC LIMIT 1
   ) loc ON true
   WHERE a.team_id=$1 AND t.installation_id='singleton'
-    AND a.start_on <= (s.end_at AT TIME ZONE s.time_zone)::date
-    AND (a.end_on IS NULL OR a.end_on >= (s.start_at AT TIME ZONE s.time_zone)::date)
+    AND a.start_on < (s.end_at AT TIME ZONE s.time_zone)::date
   ORDER BY m.id,a.start_on DESC,a.id DESC
   LIMIT 10001`,[teamId,cycleId]);
  if(members.rows.length>10000)throw Error("office-table-resource-limit");
- return members.rows.sort((a,b)=>a.name.localeCompare(b.name,locale)).map(member=>({
+ const until=await db.query<{last_day:string}>(`
+  SELECT ((s.end_at AT TIME ZONE s.time_zone)::date-1)::text AS last_day
+  FROM public.smn_sprint s
+  JOIN public.smn_team t ON t.id=s.team_id
+  WHERE s.id=$2 AND s.team_id=$1 AND s.deleted_at IS NULL
+    AND t.installation_id='singleton' LIMIT 1`,[teamId,cycleId]);
+ const lastDay=until.rows[0]?.last_day;
+ if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(lastDay??""))throw Error("office-members-invalid-cycle");
+ const projected=(member:MemberRow)=>({
   MEMBER_NAME:member.name,
   MEMBER_ROLE:member.role,
+  MEMBER_FUNCTION:member.role,
   MEMBER_START:dateLabel(member.start_on,locale),
   MEMBER_END:dateLabel(member.end_on,locale),
   MEMBER_CITY:member.city,
   MEMBER_COUNTRY:officeCountryName(member.country_iso2,locale),
   MEMBER_FLAG:officeCountryFlag(member.country_iso2)
- }));
+ });
+ const group=splitOfficeMembersByAssignment(members.rows,lastDay);
+ const order=(a:MemberRow,b:MemberRow)=>a.name.localeCompare(b.name,locale);
+ return {
+  active:group.active.sort(order).map(projected),
+  inactive:group.inactive.sort(order).map(projected)
+ };
+}
+/** Legacy reader retained for existing integrations; templates should select a specific group. */
+export async function readOfficeWordMembers(db:Client,teamId:string,cycleId:string,
+ locale:Locale):Promise<OfficeWordRows>{
+ const groups=await readOfficeMemberGroups(db,teamId,cycleId,locale);
+ return [...groups.active,...groups.inactive];
 }
 export function officeWordIndicatorRows(indicators:readonly ReportIndicatorValue[],locale:Locale):OfficeWordRows{
  return indicators.map(indicator=>({
