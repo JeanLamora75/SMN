@@ -3603,6 +3603,7 @@
     "officeChartCauseRatio": "The chart image aspect ratio does not match the target.",
     "officeChartCauseDuplicate": "Two shapes share the same ID on this slide.",
     "officeChartSlide": "slide",
+    "officeMemberFlagFailed": "The member's flag cannot be embedded in PowerPoint. Check that the corresponding PNG exists in public/flags and that MEMBER_FLAG appears at the beginning of the row.",
     "officeChartInsertionFailed": "The PowerPoint chart could not be inserted. Check the template shapes and relationships; no incomplete report was saved.",
     "officeChartIndicatorUnavailable": "The chart could not be generated: indicator unavailable in this team's trends:",
     "officeChartIndicatorHint": "Check the exact tag in Settings → Indicators → Catalog, and ensure it is active and visible in Trends.",
