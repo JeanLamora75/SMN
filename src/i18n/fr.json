@@ -3595,6 +3595,8 @@
     "loadMore": "Charger les événements suivants"
   },
   "reportsCenter": {
+    "officeChartIndicatorUnavailable": "Le graphique ne peut pas être généré : indicateur introuvable dans les tendances de cette équipe :",
+    "officeChartIndicatorHint": "Vérifiez le tag exact dans Paramètres → Indicateurs → Catalogue, son activation et sa visibilité pour les tendances.",
     "officeOpenDirectory": "Ouvrir dans l’Explorateur de fichiers",
     "officeExplorerError": "Impossible d’ouvrir ce dossier dans l’Explorateur de fichiers. Vérifiez que le répertoire existe et que SMN fonctionne sous Windows.",
     "officeExplorerUnsupported": "L’ouverture directe de l’Explorateur est disponible uniquement sur le poste Windows qui exécute SMN.",
