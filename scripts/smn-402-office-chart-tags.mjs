@@ -6,9 +6,14 @@ const TAG=/^\{\{CHART:TREND(?:\|([^{}]*))?\}\}$/;
 const CHART_START=/\{\{CHART:/;
 function decode(text){return text.replace(/&(amp|lt|gt|quot|apos);/g,(_,x)=>({amp:"&",lt:"<",gt:">",quot:'"',apos:"'"}[x]));}
 function escape(text){return text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+/**
+ * @param {string} raw
+ * @returns {{last:number,type:string,tags:string[]|null,style?:string}}
+ */
 export function parseOfficeChartTag(raw){
  const m=TAG.exec(raw);
  if(!m)throw Error("office-chart-invalid-tag");
+ /** @type {{last:number,type:string,tags:string[]|null,style?:string}} */
  const params={last:6,type:"bar",tags:null};
  if(!m[1])return params;
  const used=new Set();
