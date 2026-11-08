@@ -45,6 +45,8 @@ test("sélection d'affectation contextualisée, deux sections et dates en liste"
  assert.match(ui,/t\("teamUX\.startDate"\)/);
  assert.match(ui,/t\("teamUX\.endDate"\)/);
  assert.match(ui,/t\("teamUX\.workedDays"\)/);
+ assert.match(ui,/t\("teamUX\.city"\)/);
+ assert.match(ui,/member\.city\?\.trim\(\)\|\|"—"/);
  assert.match(ui,/format\(member\.workedDays\)/);
  assert.match(ui,/t\("teamUX\.inactiveAssignmentStatus"\)/);
  assert.match(ui,/t\("teamUX\.nonArchivedMembers"\)/);
@@ -57,7 +59,7 @@ test("traductions FR et EN synchronisées",()=>{
  const fr=JSON.parse(read("src/i18n/fr.json")).teamUX;
  const en=JSON.parse(read("src/i18n/en.json")).teamUX;
  for(const key of ["activeAssignmentHeading","inactiveAssignmentHeading","startDate","endDate",
-  "inactiveAssignmentStatus","nonArchivedMembers","workedDays"]){
+  "inactiveAssignmentStatus","nonArchivedMembers","workedDays","city"]){
   assert.ok(fr[key]);assert.ok(en[key]);
  }
 });
@@ -72,4 +74,14 @@ test("vue Liste : jours travaillés proviennent du calcul groupé de l'équipe",
  const ui=read("src/app/app/admin/members/team-overview.tsx");
  assert.match(ui,/typeof member\.workedDays==="number"/);
  assert.match(ui,/maximumFractionDigits:1/);
+});
+
+test("ville du membre : localisation courante exposée dans la liste",()=>{
+ const source=read("src/server/members/quick-create.ts");
+ assert.match(source,/SELECT ml\.country_iso2,ml\.city FROM public\.smn_member_location ml/);
+ assert.match(source,/loc\.country_iso2,loc\.city/);
+ assert.match(source,/city:row\.city\?\?null/);
+ const ui=read("src/app/app/admin/members/team-overview.tsx");
+ assert.ok(ui.indexOf('t("teamCockpit.functionLabel")}</th>')<ui.indexOf('t("teamUX.city")}</th>'));
+ assert.ok(ui.indexOf('t("teamUX.city")}</th>')<ui.indexOf('t("teamUX.startDate")}</th>'));
 });
