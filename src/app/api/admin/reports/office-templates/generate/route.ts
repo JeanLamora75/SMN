@@ -13,8 +13,7 @@ import {discoverOfficeChartTags,insertOfficeTrendImages} from "../../../../../..
 import {insertAdaptivePowerPointCharts,OfficePowerPointInsertionError} from "../../../../../../../scripts/smn-413-adaptive-pptx.mjs";
 import {OfficeChartTargetError} from "../../../../../../../scripts/smn-411-chart-targets.mjs";
 import {OfficeChartLayoutError} from "../../../../../../../scripts/smn-412-adaptive-chart.mjs";
-import {loadOfficeStyleSnapshot,createOfficeChartStyleResolver,OfficeChartStyleResolutionError,
- type OfficeStyleSnapshot} from "@/server/reports/office-chart-style-resolver";
+import {loadOfficeStyleSnapshot,createOfficeChartStyleResolver,OfficeChartStyleResolutionError} from "@/server/reports/office-chart-style-resolver";
 import {ChartStyleError} from "@/server/reports/chart-style-contract";
 import {embedMemberFlagPictures,OfficeMemberFlagError} from "../../../../../../../scripts/smn-415-office-flag-images.mjs";
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
