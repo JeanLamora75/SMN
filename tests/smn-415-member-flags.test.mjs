@@ -80,3 +80,13 @@ test("flag appears only as first paragraph element; midline flags are rejected",
  const bad=makeZip(paragraph("Name SMN_FLAG_IN"));
  assert.throws(()=>embedMemberFlagPictures(bad,()=>PNG),e=>e.code==="office-member-flag-not-first");
 });
+
+test("self-closing PowerPoint paragraph properties become one valid picture-bullet paragraph",()=>{
+ const original='<a:p><a:pPr marL="0" algn="l"/><a:r><a:t>SMN_FLAG_IN  Member Name</a:t></a:r></a:p>';
+ const pkg=makeZip(original);
+ const out=embedMemberFlagPictures(pkg,()=>PNG);
+ const xml=byName(out.bytes).get("ppt/slides/slide1.xml").toString();
+ assert.ok(xml.includes('<a:pPr marL="0" algn="l"><a:buSzPct'));
+ assert.equal((xml.match(/<a:pPr\b/g)||[]).length,1);
+ assert.equal((xml.match(/<a:buBlip>/g)||[]).length,1);
+});
