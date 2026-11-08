@@ -1,36 +1,19 @@
 "use client";
 import {useCallback,useEffect,useMemo,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
-import {CHART_TYPES,type ChartType,type ChartStyleConfig} from "@/server/reports/chart-style-contract";
+import {CHART_TYPES,type ChartType} from "@/server/reports/chart-style-contract";
+import {filterGalleryStyles,usedAsDefault,canDeleteGalleryStyle,
+ generateGalleryStyleId,validGalleryCatalog,type GalleryStyle,type GalleryCatalog} from "@/lib/chart-style-gallery";
 
-type Style={id:string;name:string;description:string;source:"builtin"|"custom";revision:number;config:ChartStyleConfig};
-type Choice={styleId:string;revision:number};
-type Catalog={styles:Style[];defaults:Record<ChartType,Choice>};
+type Style=GalleryStyle;
+type Catalog=GalleryCatalog;
 type SourceFilter="all"|"builtin"|"custom";
 type ModalState={mode:"create"|"duplicate"|"rename";source:Style;name:string;description:string};
 type ErrorPayload={error?:string};
 const API="/api/admin/reports/chart-styles";
 const types:readonly ChartType[]=CHART_TYPES;
-const names:Record<ChartType,"bar"|"line"|"area"|"pie"|"donut"|"gauge">={
- bar:"bar",line:"line",area:"area",pie:"pie",donut:"donut",gauge:"gauge"
-};
-function newId(name:string):string{
- const slug=name.normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-  .toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40);
- const leading=/^[a-z]/.test(slug)?slug:"style";
- return (leading+"-"+crypto.randomUUID().slice(0,8)).slice(0,64);
-}
 function textError(error:unknown):string{
  return error instanceof Error?error.message:"service-unavailable";
-}
-async function callApi(body?:unknown):Promise<Catalog>{
- const response=await fetch(API,{
-  method:body?"POST":"GET",cache:"no-store",
-  ...(body?{headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}:{})
- });
- const data=await response.json().catch(()=>({})) as ErrorPayload;
- if(!response.ok)throw Error(data.error??"service-unavailable");
- return data as Catalog;
 }
 function StylePreview({style}:{style:Style}){
  const colors=style.config.common.palette;
@@ -48,12 +31,6 @@ function StylePreview({style}:{style:Style}){
    <text x="40" y="132">S1</text><text x="122" y="132">S3</text><text x="205" y="132">S5</text>
   </g>
  </svg>;
-}
-function isCatalog(value:unknown):value is Catalog{
- if(!value||typeof value!=="object")return false;
- const x=value as Partial<Catalog>;
- return Array.isArray(x.styles)&&x.defaults!==null&&typeof x.defaults==="object"&&
-  types.every(t=>x.defaults?.[t]?.styleId&&Number.isInteger(x.defaults[t].revision));
 }
 export default function ChartStyleGallery({isAdmin}:{isAdmin:boolean}){
  const t=useTranslation();
@@ -80,7 +57,7 @@ export default function ChartStyleGallery({isAdmin}:{isAdmin:boolean}){
   const response=await fetch(API,{cache:"no-store"});
   const value=await response.json().catch(()=>({})) as ErrorPayload;
   if(!response.ok)throw Error(value.error??"service-unavailable");
-  if(!isCatalog(value))throw Error("service-unavailable");
+  if(!validGalleryCatalog(value))throw Error("service-unavailable");
   setCatalog(value);
  },[]);
  useEffect(()=>{
@@ -90,19 +67,15 @@ export default function ChartStyleGallery({isAdmin}:{isAdmin:boolean}){
     const response=await fetch(API,{cache:"no-store"});
     const value=await response.json().catch(()=>({})) as ErrorPayload;
     if(!response.ok)throw Error(value.error??"service-unavailable");
-    if(!isCatalog(value))throw Error("service-unavailable");
+    if(!validGalleryCatalog(value))throw Error("service-unavailable");
     if(active)setCatalog(value);
    }catch(cause){if(active)setError(textError(cause))}
    finally{if(active)setLoading(false)}
   })();
   return()=>{active=false};
  },[]);
- const shown=useMemo(()=>catalog?.styles.filter(s=>{
-  if(origin!=="all"&&s.source!==origin)return false;
-  if(typeFilter!=="all"&&!types.some(type=>type===typeFilter&&catalog.defaults[type].styleId===s.id))return false;
-  const normalized=query.trim().toLocaleLowerCase();
-  return !normalized||[s.name,s.description,s.id].some(v=>v.toLocaleLowerCase().includes(normalized));
- })??[],[catalog,origin,typeFilter,query]);
+ const shown=useMemo(()=>catalog?filterGalleryStyles(catalog,{query,origin,type:typeFilter}):[],
+  [catalog,query,origin,typeFilter]);
  const defaults=useMemo(()=>catalog?.styles.filter(s=>s.source==="builtin")??[],[catalog]);
  async function perform(command:unknown,notice:string){
   if(busy)return;
@@ -133,14 +106,14 @@ export default function ChartStyleGallery({isAdmin}:{isAdmin:boolean}){
    await perform({action:"update",id:modal.source.id,name,description,
     revision:modal.source.revision,config:modal.source.config},t("chartStyles.gallery.saved"));
   }else{
-   await perform({action:"create",id:newId(name),name,description,
+   await perform({action:"create",id:generateGalleryStyleId(name,crypto.randomUUID()),name,description,
     config:structuredClone(modal.source.config)},t("chartStyles.gallery.saved"));
   }
  }
  async function remove(style:Style){
   if(busy||!isAdmin)return;
   if(style.source==="builtin")return setError("protected-style");
-  if(types.some(type=>catalog?.defaults[type].styleId===style.id))return setError("default-style");
+  if(catalog&&!canDeleteGalleryStyle(catalog,style))return setError("default-style");
   if(!window.confirm(t("chartStyles.gallery.confirmDelete").replace("{name}",style.name)))return;
   await perform({action:"delete",id:style.id,revision:style.revision},t("chartStyles.gallery.deleted"));
  }
@@ -189,7 +162,7 @@ export default function ChartStyleGallery({isAdmin}:{isAdmin:boolean}){
     </div>
     {shown.length?<div className="smn-chart-card-grid">
      {shown.map(style=>{
-      const assigned=types.filter(type=>catalog.defaults[type].styleId===style.id);
+      const assigned=usedAsDefault(catalog,style.id);
       return <article className="smn-chart-style-card smn-panel" key={style.id}>
        <div className="smn-chart-style-preview"><StylePreview style={style}/></div>
        <div className="smn-chart-style-card-body">
