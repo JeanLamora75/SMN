@@ -88,6 +88,7 @@ export function expandPowerPointTablesXml(xml,datasets){
    count++;
    const clean=removeMarker(row,marker);
    const render=record=>replaceScalarXml(clean,record).xml;
+   if(records.length===0&&marker.source.startsWith("LINKS_"))return "";
    if(records.length===0){
     const fields=[...nodesOf(clean).map(n=>n.text).join("").matchAll(/\{\{([A-Z][A-Z0-9_]*)\}\}/g)]
      .map(m=>m[1]);
@@ -126,6 +127,7 @@ export function expandPowerPointTextBoxesXml(xml,datasets,language="fr"){
     if(records.length>10000)throw Error("office-pptx-resource-limit");
     expanded++;
     const clean=removeMarker(paragraph,marker);
+    if(!records.length&&marker.source.startsWith("LINKS_"))return "";
     if(!records.length){
      const message=EMPTY_TEXT[language][marker.source]??"N/D";
      const nodes=nodesOf(clean);
