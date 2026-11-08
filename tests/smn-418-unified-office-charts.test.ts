@@ -72,6 +72,40 @@ test("styled grouped, horizontal and stacked bars handle negative values without
  }
  assert.equal(JSON.stringify(series),reference);
 });
+test("custom advanced layouts render controlled SVG for six types",()=>{
+ const style=structuredClone(PREDEFINED_CHART_STYLES[0].config) as ChartStyleConfig;
+ style.common.title="Rapport & synthèse";
+ style.common.labels.visible=true;
+ style.common.legend.position="right";
+ style.types.line.smooth=true;
+ style.types.area.stacked=true;
+ style.types.pie.separation=4;
+ style.types.donut.innerRadiusPercent=65;
+ style.types.donut.showCenterValue=true;
+ style.types.gauge.thresholds=[40,70];
+ const series=[{name:"A",unit:"%",values:[1,4,0,3,5,6]},
+  {name:"B",unit:"%",values:[2,1,3,null,4,5]}];
+ for(const type of CHART_STYLES){
+  const graph=composeAdaptiveChart({
+   type,target:target(1600,900),cycles,
+   series:type==="gauge"?series.slice(0,1):series,locale:"fr",style
+  });
+  assert.ok(graph);
+  assert.ok(graph.svg.includes("Rapport &amp; synthèse"));
+  assert.ok(!graph.svg.includes("<script"));
+  if(type==="line")assert.match(graph.svg,/<path d="M .* C /);
+  if(type==="area")assert.equal(graph.meta.range[1],11);
+  if(type==="pie")assert.match(graph.svg,/stroke-width="4"/);
+  if(type==="donut")assert.match(graph.svg,/r="[0-9.]+" fill="#ffffff"/);
+  if(type==="gauge")assert.match(graph.svg,/>0<\/text>/);
+ }
+ const gauge=structuredClone(style);
+ gauge.types.gauge.min=20;gauge.types.gauge.max=80;
+ const bad={type:"gauge",target:target(1600,900),cycles,series:series.slice(0,1),
+  locale:"fr",style:gauge};
+ assert.throws(()=>composeAdaptiveChart(bad),/office-chart-gauge-range/);
+});
+
 test("styled Word/PPTX adapters insert PNG and preserve untouched OPC parts",()=>{
  for(const format of ["docx","pptx"] as const){
   const source=syntheticOfficeTemplate(format,3,"horizontal");
