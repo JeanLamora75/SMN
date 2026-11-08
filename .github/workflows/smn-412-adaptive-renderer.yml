@@ -5,6 +5,7 @@ on:
     paths:
       - "scripts/smn-412-adaptive-chart.mjs"
       - "tests/smn-412-adaptive-chart.test.mjs"
+      - "scripts/poc/smn-412-render-samples.mjs"
       - ".github/workflows/smn-412-adaptive-renderer.yml"
   workflow_dispatch:
 permissions:
@@ -27,6 +28,13 @@ jobs:
         run: npm install --prefix .smn-410-poc --no-save --package-lock=false --ignore-scripts @resvg/resvg-js@2.6.2
       - name: Tests géométrie et six types de graphiques
         run: node --test tests/smn-411-chart-targets.test.mjs tests/smn-412-adaptive-chart.test.mjs
+      - name: Générer les échantillons pour validation visuelle
+        run: node scripts/poc/smn-412-render-samples.mjs smn-412-evidence
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smn-412-reference-${{ matrix.os }}
+          path: smn-412-evidence/
+          if-no-files-found: error
       - uses: pnpm/action-setup@v4
         with:
           version: "12.10.0"
