@@ -219,7 +219,7 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
    };
    active.forEach(s=>{const end=sum+s.value/total;svgParts.push(segment(sum,end,s.color));sum=end;});
    if(type==="donut"){
-    svgParts.push('<circle cx="'+num(centerX)+'" cy="'+num(centerY)+'" r="'+num(radius*((options?.innerRadiusPercent??58)/100))+'" fill="'+(common?.background??"#ffffff")+'"/>');
+    svgParts.push('<circle cx="'+num(centerX)+'" cy="'+num(centerY)+'" r="'+num((options?radius*options.innerRadiusPercent/100:radius*.58))+'" fill="'+(common?.background??"#ffffff")+'"/>');
     if(options?.showCenterValue)svgParts.push(txt(number(total),centerX,centerY+font*.3,font*1.2,{weight:600}));
    }
    if(common?.labels.visible&&type==="pie")active.forEach((item,i)=>{
@@ -279,7 +279,7 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
     if(segment.length)segments.push(segment);
     for(const points of segments){
      if(type==="area"&&points.length>1)
-      svgParts.push('<polygon points="'+[[points[0][0],baseline],...points,[points.at(-1)[0],baseline]].map(p=>p.map(num).join(",")).join(" ")+'" fill="'+color+'" fill-opacity="'+(options?.opacity??.18)+'"/>');
+      svgParts.push('<polygon points="'+[[points[0][0],baseline],...points,[points.at(-1)[0],baseline]].map(p=>p.map(num).join(",")).join(" ")+'" fill="'+color+'" fill-opacity="'+(options?options.opacity:".18")+'"/>');
      if(points.length>1){
       const stroke=options?.strokeWidth??Math.max(3,font*.085);
       if(type==="line"&&options?.smooth){
