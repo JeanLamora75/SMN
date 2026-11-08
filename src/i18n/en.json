@@ -2061,6 +2061,7 @@
     "openMember": "Open {name}'s profile",
     "activeAssignmentHeading": "Active team members",
     "inactiveAssignmentHeading": "Inactive team members",
+    "city": "City",
     "startDate": "Start date",
     "endDate": "End date",
     "inactiveAssignmentStatus": "Inactive",
