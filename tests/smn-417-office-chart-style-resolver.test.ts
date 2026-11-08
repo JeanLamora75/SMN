@@ -4,7 +4,7 @@ import type {Client} from "pg";
 import {writeZip,readZip} from "../scripts/smn-397-office-poc.mjs";
 import {parseOfficeChartTag,discoverOfficeChartTags} from "../scripts/smn-402-office-chart-tags.mjs";
 import {discoverPowerPointChartTargets} from "../scripts/smn-411-chart-targets.mjs";
-import {PREDEFINED_CHART_STYLES,CHART_TYPES} from "../src/server/reports/chart-style-contract";
+import {PREDEFINED_CHART_STYLES,CHART_TYPES,type ChartStyleConfig} from "../src/server/reports/chart-style-contract";
 import {
  createOfficeStyleSnapshot,createOfficeChartStyleResolver,legacyOfficeStyleSnapshot,
  loadOfficeStyleSnapshot,OfficeChartStyleResolutionError
@@ -14,7 +14,7 @@ const builtin=PREDEFINED_CHART_STYLES.map(s=>({
  id:s.id,revision:0,source:"builtin" as const,config:structuredClone(s.config)
 }));
 const custom={id:"my-company",revision:7,source:"custom" as const,
- config:structuredClone(PREDEFINED_CHART_STYLES[1].config)};
+ config:structuredClone(PREDEFINED_CHART_STYLES[1].config) as ChartStyleConfig};
 function snapshot(){
  return createOfficeStyleSnapshot({styles:[...builtin,custom],
   defaults:Object.fromEntries(CHART_TYPES.map(t=>[t,{styleId:"cockpit-agile",revision:3}]))});
@@ -126,7 +126,7 @@ test("DOCX and PPTX discoverers carry STYLE through without mutating input",()=>
 
 test("load a consistent read-only catalog once, then resolve many charts without SQL",async()=>{
  const calls:string[]=[];
- const config=structuredClone(PREDEFINED_CHART_STYLES[0].config);
+ const config=structuredClone(PREDEFINED_CHART_STYLES[0].config) as ChartStyleConfig;
  const fake={
   query:async(sql:string)=>{
    calls.push(sql);
