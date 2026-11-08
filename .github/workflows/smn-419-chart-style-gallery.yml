@@ -1,0 +1,45 @@
+name: SMN-419 — Galerie des styles Office
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/app/app/admin/settings/reports/charts/**"
+      - "src/app/app/admin/settings/settings-catalog-view.tsx"
+      - "src/lib/chart-style-gallery.ts"
+      - "src/i18n/fr.json"
+      - "src/i18n/en.json"
+      - "src/app/api/admin/reports/chart-styles/route.ts"
+      - "tests/smn-419-gallery.test.tsx"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/smn-419-chart-style-gallery.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  gallery:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Tests M1 et sécurité catalogue
+        run: pnpm test:smn-419
+      - name: Contrôle TypeScript
+        run: pnpm typecheck
+      - name: Analyse statique
+        run: pnpm exec eslint src/app/app/admin/settings/reports/charts src/lib/chart-style-gallery.ts tests/smn-419-gallery.test.tsx src/app/app/admin/settings/settings-catalog-view.tsx
+      - name: Traductions FR/EN
+        run: pnpm i18n:check
