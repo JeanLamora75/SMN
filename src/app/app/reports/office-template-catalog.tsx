@@ -52,7 +52,7 @@ export default function OfficeTemplateCatalog({
   setFilename(model&&sprint?(model.name+" - "+sprint).slice(0,120):"");
  }
  async function reportGenerationFailure(response:Response,fallback:string){
-  const result=await response.json().catch(()=>null) as {error?:string;tag?:string}|null;
+  const result=await response.json().catch(()=>null) as {error?:string;tag?:string;reason?:string;slide?:number;shapeId?:string}|null;
   if(result?.error==="office-chart-indicator-unavailable"&&
     typeof result.tag==="string"&&/^[A-Za-z][A-Za-z0-9_]{0,79}$/.test(result.tag)){
    setMissingChartTag(result.tag);
@@ -65,7 +65,18 @@ export default function OfficeTemplateCatalog({
    setError(tr("officeChartRenderFailed"));return;
   }
   if(result?.error==="office-chart-insertion-failed"){
-   setError(tr("officeChartInsertionFailed"));return;
+   const reasons:Record<string,string>={
+    "office-chart-invalid-shape":"officeChartCauseShape",
+    "office-chart-invalid-relationships":"officeChartCauseRelationships",
+    "office-chart-invalid-png":"officeChartCausePng",
+    "office-chart-ratio-mismatch":"officeChartCauseRatio",
+    "office-chart-duplicate-shape-id":"officeChartCauseDuplicate"
+   };
+   const reason=result.reason&&reasons[result.reason]?tr(reasons[result.reason]):
+    result.reason&&/^office-chart-[a-z-]{1,60}$/.test(result.reason)?result.reason:"";
+   const slide=typeof result.slide==="number"&&Number.isInteger(result.slide)&&result.slide>0?
+    " · "+tr("officeChartSlide")+" "+result.slide:"";
+   setError(tr("officeChartInsertionFailed")+(reason?" "+reason:"")+slide);return;
   }
   setError(fallback);
  }
