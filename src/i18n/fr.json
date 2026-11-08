@@ -3595,6 +3595,9 @@
     "loadMore": "Charger les événements suivants"
   },
   "reportsCenter": {
+    "officeChartTargetInvalid": "Une zone graphique du modèle PowerPoint est incompatible (tag ambigu, forme groupée, rotation ou dimensions manquantes). Placez le tag seul dans une zone de texte non groupée et sans rotation.",
+    "officeChartRenderFailed": "Le graphique ne peut pas être rendu lisiblement dans cette zone PowerPoint. Agrandissez l'emplacement ou vérifiez la sélection des indicateurs.",
+    "officeChartInsertionFailed": "L'insertion du graphique PowerPoint a échoué. Vérifiez les formes et relations du modèle ; aucun rapport incomplet n'a été enregistré.",
     "officeChartIndicatorUnavailable": "Le graphique ne peut pas être généré : indicateur introuvable dans les tendances de cette équipe :",
     "officeChartIndicatorHint": "Vérifiez le tag exact dans Paramètres → Indicateurs → Catalogue, son activation et sa visibilité pour les tendances.",
     "officeOpenDirectory": "Ouvrir dans l’Explorateur de fichiers",
