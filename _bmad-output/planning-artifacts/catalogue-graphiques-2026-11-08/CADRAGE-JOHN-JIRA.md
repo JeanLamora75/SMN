@@ -1,7 +1,7 @@
 # John / BMAD — Catalogue graphique Office : cadrage consolidé et transmission Jira
 
 **Date :** 8 novembre 2026  
-**Statut :** Cadrage fonctionnel et UX validés ; architecture cible documentée ; **aucune nouvelle User Story Jira ni aucun développement autorisés à ce stade**.  
+**Statut :** Cadrage fonctionnel et UX validés ; architecture cible documentée ; **création des huit User Stories Jira explicitement autorisée le 8 novembre 2026 et réalisée ; aucun développement commencé**.  
 **Contexte :** SMN v33 · Rapports Office Word (DOCX) / PowerPoint (PPTX) · Epic historique [SMN-6](https://lmn24.atlassian.net/browse/SMN-6).  
 **Responsable métier :** John (PM BMAD) ; architecture : Winston ; UX : Sally ; exécution future : Amelia / TEA.
 
@@ -69,28 +69,38 @@ L'édition des styles requiert le rôle administrateur ; l'utilisation respecte 
 
 **Ne pas modifier rétroactivement les critères des SMN-402 / SMN-410 à 414.** Le catalogue de styles constitue une évolution indépendante qui s'appuie sur leurs interfaces existantes. L'Epic SMN-6 est une référence de rattachement documentaire, pas une décision de créer immédiatement de nouvelles Stories dedans.
 
-## 6. Découpage de travail à proposer ultérieurement (non créé dans Jira)
-| Lot | Périmètre | Dépendances principales |
+## 6. Découpage des huit User Stories créées dans Jira
+| Lot / Jira | Périmètre | Dépendances principales |
 |---|---|---|
-| CG-L01 | Baseline de rendu et performances, tests existants | SMN-402 / SMN-410 à 414 |
-| CG-L02 | Modèle de configuration globale versionné + validation + droits | Baseline, PostgreSQL |
-| CG-L03 | Résolveur de style : tags, choix de rapport, défauts, compatibilité | CG-L02 |
-| CG-L04 | Moteur SVG commun DOCX/PPTX + adaptateurs | CG-L01 et CG-L03 |
-| CG-L05 | Catalogue visuel M1 et gestion des styles | CG-L02 |
-| CG-L06 | Éditeur M2 et aperçu à la demande | CG-L04/CG-L05 |
-| CG-L07 | Sélecteur M3 avant export + intégration API | CG-L03/CG-L04 |
-| CG-L08 | Documentation FR/EN, non-régression Word/PPTX, recettes et benchmark | Tous les lots concernés |
+| [CG-L01 / SMN-415](https://lmn24.atlassian.net/browse/SMN-415) | Baseline de rendu et performances, tests existants | SMN-402 / SMN-410 à 414 |
+| [CG-L02 / SMN-416](https://lmn24.atlassian.net/browse/SMN-416) | Modèle de configuration globale versionné + validation + droits | Baseline, PostgreSQL |
+| [CG-L03 / SMN-417](https://lmn24.atlassian.net/browse/SMN-417) | Résolveur de style : tags, choix de rapport, défauts, compatibilité | CG-L02 |
+| [CG-L04 / SMN-418](https://lmn24.atlassian.net/browse/SMN-418) | Moteur SVG commun DOCX/PPTX + adaptateurs | CG-L01 et CG-L03 |
+| [CG-L05 / SMN-419](https://lmn24.atlassian.net/browse/SMN-419) | Catalogue visuel M1 et gestion des styles | CG-L02 |
+| [CG-L06 / SMN-420](https://lmn24.atlassian.net/browse/SMN-420) | Éditeur M2 et aperçu à la demande | CG-L04/CG-L05 |
+| [CG-L07 / SMN-421](https://lmn24.atlassian.net/browse/SMN-421) | Sélecteur M3 avant export + intégration API | CG-L03/CG-L04 |
+| [CG-L08 / SMN-422](https://lmn24.atlassian.net/browse/SMN-422) | Documentation FR/EN, non-régression Word/PPTX, recettes et benchmark | Tous les lots concernés |
 
-Ce tableau **n'est pas** un ensemble de User Stories Jira approuvées. John préparera, si demandé, de petites Stories indépendantes avec critères d'acceptation, dépendances et impacts techniques, puis obtiendra la validation de l'utilisateur avant création.
+Les huit Stories ont été créées sur demande explicite de l'utilisateur, avec parent Jira SMN-6. Elles contiennent chacune besoin utilisateur, critères d'acceptation AC-01 et suivants, dépendances, impacts techniques, vérifications attendues et sources BMAD. Les dépendances sont textuelles dans les descriptions ; aucun lien Jira « bloque » n'a été créé. Prévoir une révision de granularité avant d'implémenter les lots les plus volumineux, notamment le moteur commun SMN-418.
 
 ## 7. Portes de validation et état des preuves
 - [x] Cadrage fonctionnel approuvé.
 - [x] UX M1/M2/M3 approuvée.
 - [x] Architecture cible documentée avec avenant M3.
 - [x] Traçabilité documentaire sur GitHub.
-- [ ] Découpage Epic / User Stories approuvé.
-- [ ] Autorisation explicite de création Jira des futures Stories.
+- [x] Découpage des huit lots explicitement demandé et Stories créées dans Jira, sous SMN-6.
+- [x] Autorisation explicite de création des huit Stories donnée le 8 novembre 2026.
 - [ ] Développement et tests automatisés.
 - [ ] Comparaison visuelle Office réelle et benchmark de performance.
 
-**Travaux autorisés à ce stade : documentation BMAD et Jira uniquement.**
+**Travaux effectués à ce stade : documentation BMAD et huit Stories Jira ; aucune implémentation ni validation applicative.**
+
+## 8. Transmission à Amelia — exécution future
+
+**Ordre conseillé :** SMN-415 → SMN-416 → SMN-417 → SMN-418 ; SMN-419 peut progresser après SMN-416 en parallèle de SMN-418 ; SMN-420 après 418/419 ; SMN-421 après 417/418/419 ; SMN-422 en recette finale.
+
+**Definition of Ready :** vérifier la baseline locale, les contrats de modules, les migrations, la compatibilité Office et le périmètre de chaque Story. En cas de Story trop volumineuse, proposer un découpage technique avant le codage sans altérer son besoin.
+
+**Definition of Done :** critères d'acceptation prouvés, code revu, tests automatiques pertinents réellement exécutés, typecheck/lint selon contexte, FR/EN, sécurité et non-régression Word/PPTX, documentation et recette Windows quand applicable. Ne jamais annoncer une Story terminée sur une simple publication de code.
+
+**Création Jira :** 8 Stories `SMN-415` à `SMN-422`, parent `SMN-6`. Les anciens tickets `SMN-402` et `SMN-410`–`SMN-414` n'ont pas été modifiés.
