@@ -1,0 +1,53 @@
+name: SMN-418 — Moteur SVG commun Word et PowerPoint
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/smn-412-adaptive-chart.mjs"
+      - "scripts/smn-402-office-chart-tags.mjs"
+      - "scripts/smn-413-adaptive-pptx.mjs"
+      - "src/server/reports/office-indicator-charts.ts"
+      - "src/server/reports/office-chart-style-resolver.ts"
+      - "src/server/reports/chart-style-contract.ts"
+      - "src/app/api/admin/reports/office-templates/generate/route.ts"
+      - "tests/smn-418-unified-office-charts.test.ts"
+      - "tests/smn-413-office-route.test.mjs"
+      - "tests/smn-412-adaptive-chart.test.mjs"
+      - "tests/smn-413-adaptive-pptx.test.mjs"
+      - "tests/smn-414-qa.test.mjs"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/smn-418-unified-office.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unified-office-charts:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Shared SVG/PNG and historical Office regression tests
+        run: pnpm test:smn-418
+      - name: Adapted route contract and previous Office baseline
+        run: node --test tests/smn-413-office-route.test.mjs tests/smn-415-office-baseline.test.mjs
+      - name: TypeScript
+        run: pnpm typecheck
+      - name: Static analysis
+        run: pnpm exec eslint scripts/smn-412-adaptive-chart.mjs src/server/reports/office-indicator-charts.ts src/server/reports/office-chart-style-resolver.ts src/app/api/admin/reports/office-templates/generate/route.ts tests/smn-418-unified-office-charts.test.ts
+      - name: Language dictionaries
+        run: pnpm i18n:check
