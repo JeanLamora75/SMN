@@ -5,6 +5,7 @@ on:
     paths:
       - "scripts/smn-413-adaptive-pptx.mjs"
       - "tests/smn-413-adaptive-pptx.test.mjs"
+      - "tests/smn-413-office-route.test.mjs"
       - "src/server/reports/office-indicator-charts.ts"
       - "src/app/api/admin/reports/office-templates/generate/route.ts"
       - "scripts/smn-412-adaptive-chart.mjs"
@@ -35,7 +36,7 @@ jobs:
       - name: Dépendances natives de production, verrouillées
         run: pnpm install --frozen-lockfile
       - name: Tests géométrie, rendu, insertion et intégrité du PPTX
-        run: node --test tests/smn-411-chart-targets.test.mjs tests/smn-412-adaptive-chart.test.mjs tests/smn-413-adaptive-pptx.test.mjs
+        run: node --test tests/smn-411-chart-targets.test.mjs tests/smn-412-adaptive-chart.test.mjs tests/smn-413-adaptive-pptx.test.mjs tests/smn-413-office-route.test.mjs
       - name: Non-régression des graphiques Word/PowerPoint précédents
         run: pnpm exec tsx --test tests/smn-402-office-trends.test.ts
       - name: TypeScript
