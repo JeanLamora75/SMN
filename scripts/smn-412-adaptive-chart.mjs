@@ -20,7 +20,7 @@ const rect=(x,y,w,h,fill,extra="")=>
 function shortName(name,max){
  const value=String(name??"").trim();
  if(value.length<=max)return value;
- const sprint=/(?:sprint|iteration|itération)\s*[-#:]?\s*(\d+(?:[.-]\d+)?)/i.exec(value);
+ const sprint=/(?:sprint|iteration|itération)[^\d]{0,60}(\d+(?:[.-]\d+)?)/i.exec(value);
  if(sprint)return "S"+sprint[1];
  return max>4?value.slice(0,max-1)+"…":value.slice(0,max);
 }
@@ -39,6 +39,8 @@ export function validateChartSeries(cycles,series,type){
    s.values.some(v=>v!==null&&(!Number.isFinite(v)||Math.abs(v)>1e10)))
    throw new OfficeChartLayoutError("office-chart-invalid-values");
  }
+ const units=new Set(series.map(s=>s.unit).filter(Boolean));
+ if(units.size>1)throw new OfficeChartLayoutError("office-chart-incompatible-unit");
  if(["pie","donut","gauge"].includes(type)){
   const shares=series.map(s=>s.values.at(-1));
   if(shares.some(n=>n!==null&&n<0))
@@ -83,7 +85,7 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
   const values=series.map(s=>s.values.at(-1));
   const active=series.map((s,i)=>({name:s.name??s.tag??"Série "+(i+1),value:values[i],color:COLORS[i]})).filter(s=>s.value!==null);
   const total=active.reduce((sum,s)=>sum+s.value,0);
-  if(total===0)return null;
+  if(total===0&&(type!=="gauge"||active.length===0))return null;
   const centerX=xLeft+plotWidth*(legendNeeded?.42:.5),centerY=yTop+plotHeight*.53;
   const radius=Math.min(plotHeight*.46,plotWidth*(legendNeeded?.31:.43));
   if(radius<85)throw new OfficeChartLayoutError("office-chart-frame-too-small");
