@@ -48,6 +48,8 @@ pnpm i18n:check
 
 Suite `tests/smn-423-office-links.test.ts` : tri / séparation / exclusion d'autres équipes, compteurs, zéro ligne, échappement XML, validation URLs, insertion de relations externes dans DOCX et PPTX synthétiques, préservation des autres parties ZIP.
 
+**Preuve CI :** https://github.com/JeanLamora75/SMN/actions/runs/42513280649 — succès Windows et Linux : tests, TypeScript, ESLint et i18n. Cette exécution ne vaut pas ouverture réelle dans Microsoft Office.
+
 **Recette manuelle non exécutée** : ouvrir les deux formats dans Microsoft Word et PowerPoint sur Windows 11, cliquer réellement sur `LINK_LABEL`, vérifier les liens transverses et d'équipe sur des pages/diapositives différentes, la présence de tous les liens accessibles, le zéro lien, les deux langues et l'absence de liens interéquipes. Ne pas déclarer la Story terminée avant cette recette.
 
 ### Limites et protections
