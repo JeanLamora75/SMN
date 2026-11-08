@@ -23,7 +23,7 @@ function verifyPng(png,target){
 function replaceShape(shape,mediaRid,target){
  const transform=shape.match(/<a:xfrm\b[^>]*>[\s\S]*?<\/a:xfrm>/)?.[0];
  if(!transform)reject("office-chart-invalid-geometry",target);
- const source=shape.match(/<p:cNvPr\b[^>]*\/>/)?.[0];
+ const source=shape.match(/<p:cNvPr\b[^>]*>/)?.[0];
  if(!source||attr(source,"id")!==target.shapeId)reject("office-chart-invalid-shape",target);
  return '<p:pic>'+
   '<p:nvPicPr><p:cNvPr id="'+xmlEsc(target.shapeId)+'" name="SMN chart '+xmlEsc(target.shapeId)+'"/>'+
@@ -37,14 +37,17 @@ function nextRelation(map,slide,media,target){
  const name=slide.replace(/^(.*)\/([^/]+)$/,"$1/_rels/$2.rels");
  const previous=map.get(name);
  const xml=previous?.data.toString("utf8")??'<Relationships xmlns="'+RELS_NS+'"></Relationships>';
- if(!/<(?:\w+:)?Relationships\b/.test(xml)||!/<\/(?:\w+:)?Relationships>/.test(xml))
+ if(!/<(?:\w+:)?Relationships\b/.test(xml))
   reject("office-chart-invalid-relationships",target);
  const used=new Set([...xml.matchAll(/<Relationship\b[^>]*\bId=["']([^"']+)["']/g)].map(m=>m[1]));
  let n=1;
  while(used.has("rId"+n))n++;
  const rid="rId"+n;
  const element='<Relationship Id="'+rid+'" Type="'+IMAGE_REL+'" Target="../media/'+media.split("/").at(-1)+'"/>';
- const revised=xml.replace(/<\/(?:\w+:)?Relationships>/,element+"$&");
+ const revised=/<\/(?:\w+:)?Relationships>/.test(xml)?
+  xml.replace(/<\/(?:\w+:)?Relationships>/,element+"const revised=xml.replace(/<\/(?:\w+:)?Relationships>/,element+"$&");"):
+  xml.replace(/(<(?:\w+:)?Relationships\b[^>]*?)\s*\/>/,"$1>"+element+"</Relationships>");
+ if(revised===xml)reject("office-chart-invalid-relationships",target);
  map.set(name,{name,method:previous?.method??8,data:Buffer.from(revised)});
  return rid;
 }
@@ -91,7 +94,7 @@ export function insertAdaptivePowerPointCharts(pkg,render){
   if(!original)throw new OfficePowerPointInsertionError("office-chart-slide-missing");
   const xml=original.data.toString("utf8");
   const updated=xml.replace(/<p:sp\b[^>]*>[\s\S]*?<\/p:sp>/g,shape=>{
-   const id=attr(shape.match(/<p:cNvPr\b[^>]*\/>/)?.[0]??"","id");
+   const id=attr(shape.match(/<p:cNvPr\b[^>]*>/)?.[0]??"","id");
    const target=items.find(t=>t.shapeId===id);
    if(!target)return shape;
    if(seen.has(target.shapeId))reject("office-chart-duplicate-shape-id",target);
