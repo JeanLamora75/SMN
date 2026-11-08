@@ -75,7 +75,8 @@ jobs:
           if (-not (Test-Path ".next/standalone/server.js")) { throw "Serveur standalone introuvable" }
           $isolated = Join-Path $env:RUNNER_TEMP "smn413-standalone"
           New-Item -ItemType Directory -Path $isolated -Force | Out-Null
-          Copy-Item -Path ".next/standalone/*" -Destination $isolated -Recurse -Force
+          node -e 'require("node:fs").cpSync(".next/standalone",require("node:path").join(process.env.RUNNER_TEMP,"smn413-standalone"),{recursive:true,force:true,dereference:true})'
+          if ($LASTEXITCODE -ne 0) { throw "Copie standalone avec déréférencement impossible" }
           Push-Location $isolated
           try {
             node -e 'const {Resvg}=require("@resvg/resvg-js"); const image=new Resvg("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"400\" height=\"240\"></svg>").render().asPng(); if(image.readUInt32BE(16)!==400||image.readUInt32BE(20)!==240)process.exit(2); console.log("resvg-windows-standalone-smoke-ok");'
