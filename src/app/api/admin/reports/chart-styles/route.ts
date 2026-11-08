@@ -7,7 +7,8 @@ import {readChartStyles,applyChartStyleCommand} from "@/server/reports/chart-sty
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
-const scope={type:"settings",exists:true,inScope:true} as const;
+const readScope={type:"collective",exists:true,inScope:true} as const;
+const writeScope={type:"settings",exists:true,inScope:true} as const;
 function failure(e:unknown){
  if(e instanceof ChartStyleError){
   const status=e.code==="forbidden"?403:e.code==="not-found"?404:
@@ -18,13 +19,13 @@ function failure(e:unknown){
  return jsonResult({error:"service-unavailable"},503);
 }
 export async function GET(req:NextRequest){
- const actor=await authorizeApi(req,"read",scope);
+ const actor=await authorizeApi(req,"read",readScope);
  if(!actor)return jsonResult({error:"forbidden"},403);
  try{return jsonResult(await withAuthDb(db=>readChartStyles(db,{id:actor.id,role:actor.role})),200);}
  catch(e){return failure(e);}
 }
 export async function POST(req:NextRequest){
- const actor=await authorizeApi(req,"write",scope);
+ const actor=await authorizeApi(req,"write",writeScope);
  if(!actor)return jsonResult({error:"forbidden"},403);
  const raw=await readJsonObject(req,16000);
  if(!raw)return jsonResult({error:"invalid-input"},400);
