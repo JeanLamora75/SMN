@@ -8,6 +8,7 @@
 
 - **Catalogue prédéfini** : `cockpit-agile`, `corporate`, `minimal`, six types `bar/line/area/pie/donut/gauge`. Configuration complète versionnée `schemaVersion:1`, fond, couleurs, typographie, légende, étiquettes et options spécifiques à chaque type.
 - **Stockage global PG** : `smn_chart_style` en JSONB et `smn_chart_style_default`, avec un défaut pour chacun des six types, révisions optimistes, identifiants stables, unicité des noms, contrôle des types SQL et FK vers l'installation. La version d'installation reste 33.
+- **Installation neuve** : la transaction `installExpress` applique la migration additive à partir du répertoire du projet après le schéma natif v33 et avant le COMMIT. Les six défauts existent dès la première installation si celle-ci aboutit ; ce comportement reste à confirmer par test d'installation réel.
 - **Migrations explicites** : `prisma/migrations/20261108_smn416_chart_styles/migration.sql` et `scripts/apply-smn-416-chart-styles.ts`. La migration est additive et idempotente ; aucune donnée de l'ancien moteur d'indicateurs n'est mise à jour.
 - **Service** : `src/server/reports/chart-style-store.ts`, lecture et commandes create/update/delete/set-default, protection des modèles prédéfinis, verrou de transaction par installation et refus de suppression d'un style encore utilisé comme défaut.
 - **API** : `GET /api/admin/reports/chart-styles`, `POST /api/admin/reports/chart-styles`, authentification admin selon le type `settings` de la politique SMN, contrôle de session/origine, corps JSON borné, codes métier 400/403/404/409/503.
@@ -70,7 +71,7 @@ Les futurs modules SMN-417/418 utiliseront ce service de lecture ; **les exports
 
 ## Limites et portes de validation
 
-1. Le catalogue n'est disponible que **lorsque la migration a été appliquée**. Son intégration automatique au mécanisme d'installation native v33 reste à vérifier avant de considérer AC-01 « au premier démarrage » entièrement couvert ; aucun patch destructif du baseline v33 n'a été réalisé.
+1. Pour les installations neuves, `installExpress` crée les tables et six défauts dans la transaction de mise en place v33. Pour les installations déjà existantes, la migration `--apply` reste explicite après sauvegarde vérifiée. Ces deux parcours doivent être exécutés et validés avant de déclarer AC-01/02 satisfaits.
 2. Les tests unitaires et PG, l'analyse TypeScript, ESLint, i18n et la CI **ne sont pas attestés** par cette publication. Sans exécution, la Story ne doit pas être déclarée terminée.
 3. PostgreSQL ne connaît pas les presets codés en TypeScript : le contrôle de présence d'un style est effectué transactionnellement dans le service.
 4. Un audit d'état est fourni par `revision`, `updated_at`, `updated_by` ; il n'existe pas encore de journal immuable des changements de styles. Ce point n'est pas un critère d'acceptation explicite de SMN-416.
@@ -81,7 +82,7 @@ Les futurs modules SMN-417/418 utiliseront ce service de lecture ; **les exports
 
 | Critère | État |
 | --- | --- |
-| AC-01 Prédéfinis au premier démarrage | Catalogue TS publié ; migration et initialisation automatique à valider |
+| AC-01 Prédéfinis au premier démarrage | Catalogue TS et initialisation native ajoutés ; test d'installation à exécuter |
 | AC-02 PG JSONB v33 et défauts | SQL + migration explicite publiés ; tests PG à exécuter |
 | AC-03 API/service, droits, unicité | Implémentation publiée ; validation runtime à réaliser |
 | AC-04 Validation et conflits, FR/EN | Contrats + codes et clés i18n publiés ; tests à exécuter |
