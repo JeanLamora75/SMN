@@ -14,6 +14,16 @@ await mkdir(target, { recursive: true });
 // pnpm/Next produisent des liens symboliques vers .next/standalone ; un paquet
 // autonome doit copier leurs cibles, sinon Node cherchera les fichiers source.
 await cp(".next/standalone", target, { recursive: true, force: true, dereference: true });
+ // Next standalone can omit optional native platform packages selected by the
+ // resvg loader. The portable runtime must include both packages explicitly.
+ for(const name of ["resvg-js","resvg-js-win32-x64-msvc"]){
+   const source=path.join("node_modules","@resvg",name);
+   if(!existsSync(source))throw new Error("Module natif graphique manquant : "+name);
+   const destination=path.join(target,"node_modules","@resvg",name);
+   await mkdir(path.dirname(destination),{recursive:true});
+   await cp(source,destination,{recursive:true,force:true,dereference:true});
+ }
+
 await mkdir(path.join(target, ".next", "static"), { recursive: true });
 await cp(".next/static", path.join(target, ".next", "static"), { recursive: true, force: true });
 if (existsSync("public")) await cp("public", path.join(target, "public"), { recursive: true, force: true });
