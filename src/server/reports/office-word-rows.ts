@@ -37,8 +37,9 @@ export function splitOfficeMembersByAssignment<T extends {start_on:string;end_on
  };
 }
 export type OfficeMemberGroups={active:OfficeWordRows;inactive:OfficeWordRows};
-/** Read the latest team assignment per member as of the selected sprint's last day.
- * Former team members are included in the inactive list, even if they left before its start.
+/** Determine team membership at the sprint's last day, but always show the
+ * member's current location (the same effective record as the Team screen).
+ * Former team members are included in the inactive list.
  */
 export async function readOfficeMemberGroups(db:Client,teamId:string,cycleId:string,
  locale:Locale,format:"docx"|"pptx"="docx"):Promise<OfficeMemberGroups>{
@@ -53,10 +54,8 @@ export async function readOfficeMemberGroups(db:Client,teamId:string,cycleId:str
   JOIN public.smn_sprint s ON s.id=$2 AND s.team_id=t.id AND s.deleted_at IS NULL
   LEFT JOIN LATERAL (
    SELECT ml.city,ml.country_iso2 FROM public.smn_member_location ml
-   WHERE ml.member_id=m.id
-   ORDER BY
-     CASE WHEN ml.effective_from < (s.end_at AT TIME ZONE s.time_zone)::date THEN 0 ELSE 1 END,
-     ml.effective_from DESC,ml.revision DESC LIMIT 1
+   WHERE ml.member_id=m.id AND ml.effective_from<=CURRENT_DATE
+   ORDER BY ml.effective_from DESC,ml.revision DESC LIMIT 1
   ) loc ON true
   WHERE a.team_id=$1 AND t.installation_id='singleton'
     AND a.start_on < (s.end_at AT TIME ZONE s.time_zone)::date
