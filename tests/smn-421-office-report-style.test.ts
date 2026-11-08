@@ -90,7 +90,7 @@ test("server rejects invalid override before file operations and checks rights",
  assert.match(route,/validChartStyleId\(reportStyleId\)/);
  assert.ok(route.indexOf("validChartStyleId(reportStyleId)")<route.indexOf("readOfficeTemplateById(modelId)"));
  assert.match(route,/office-chart-invalid-style-id/);
- assert.match(route,/office-chart-style-not-found/);
+ assert.match(route,/OfficeChartStyleResolutionError/);
 });
 test("FR/EN strings are complete and selection is optional",()=>{
  const fr=JSON.parse(readFileSync("src/i18n/fr.json","utf8"));
