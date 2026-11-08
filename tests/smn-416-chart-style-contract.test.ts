@@ -12,6 +12,7 @@ test("global catalog defines three named presets and exactly six types",()=>{
  assert.deepEqual(PREDEFINED_CHART_STYLES.map(s=>s.id),["cockpit-agile","corporate","minimal"]);
  assert.equal(DEFAULT_STYLE_ID,"cockpit-agile");
  assert.ok(PREDEFINED_CHART_STYLES.every(s=>validChartStyleConfig(s.config)));
+ assert.ok(PREDEFINED_CHART_STYLES.every(s=>Object.isFrozen(s)&&Object.isFrozen(s.config)&&Object.isFrozen(s.config.common.palette)));
  assert.equal(new Set(PREDEFINED_CHART_STYLES.map(s=>s.id)).size,3);
 });
 test("strict schema rejects injection, unknown keys, extreme numbers and malformed colors",()=>{
