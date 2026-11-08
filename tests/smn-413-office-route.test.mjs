@@ -6,9 +6,9 @@ const selector=readFileSync("src/server/reports/office-indicator-charts.ts","utf
 const client=readFileSync("src/app/app/reports/office-template-catalog.tsx","utf8");
 test("PPTX and Word share styled renderer while retaining adapters and historic fallback",()=>{
  assert.match(route,/selected\.template\.format==="pptx"\?\s*insertAdaptivePowerPointCharts/);
- assert.match(route,/renderOfficeIndicatorAdaptiveChart\(payload\.report!/);
- assert.match(route,/insertOfficeTrendImages\(result\.bytes,selected\.template\.format/);
- assert.match(route,/renderOfficeIndicatorChart\(payload\.report!/);
+ assert.match(route,/renderOfficeIndicatorSharedChart\(payload\.report!/);
+ assert.match(route,/insertOfficeTrendImages\(withFlags,selected\.template\.format/);
+ assert.match(route,/"docx",resolveChartStyle\(options\)/);
  assert.match(selector,/return renderOfficeTrendPng\(/);
  assert.match(selector,/return renderAdaptiveChartPng\(/);
  assert.match(selector,/read(?:OfficeIndicator|ReportIndicator)?Projection|validateTrendSelection/);
