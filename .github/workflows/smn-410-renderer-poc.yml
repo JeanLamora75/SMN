@@ -1,0 +1,37 @@
+name: SMN-410 — POC rendu PNG haute definition
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/poc/smn-410-rasterizer-poc.mjs"
+      - "tests/smn-410-rasterizer-poc.test.mjs"
+      - ".github/workflows/smn-410-renderer-poc.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  renderer-poc:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Installer uniquement la dépendance isolée du POC
+        run: npm install --prefix .smn-410-poc --no-save --package-lock=false --ignore-scripts @resvg/resvg-js@2.6.2
+      - name: Tests isolés (aucune modification du moteur Office)
+        run: node --test tests/smn-410-rasterizer-poc.test.mjs
+      - name: Produire les images de référence et les mesures
+        run: node scripts/poc/smn-410-rasterizer-poc.mjs --evidence smn-410-evidence
+      - name: Publier les preuves Windows et Linux
+        uses: actions/upload-artifact@v4
+        with:
+          name: smn-410-poc-${{ matrix.os }}
+          path: smn-410-evidence/
+          if-no-files-found: error
