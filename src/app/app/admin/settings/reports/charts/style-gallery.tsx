@@ -1,5 +1,6 @@
 "use client";
 import {useCallback,useEffect,useMemo,useState,type FormEvent} from "react";
+import Link from "next/link";
 import {useTranslation} from "@/i18n/client";
 import {CHART_TYPES,type ChartType} from "@/server/reports/chart-style-contract";
 import {filterGalleryStyles,usedAsDefault,canDeleteGalleryStyle,
@@ -204,6 +205,7 @@ export default function ChartStyleGallery({isAdmin}:{isAdmin:boolean}){
           <span className="text-secondary small">{t("chartStyles.gallery.notDefault")}</span>}
         </div>
         <div className="smn-chart-actions">
+         <Link href={"/app/admin/settings/reports/charts/"+style.id} className="btn btn-sm btn-primary">{t("chartStyles.editor.open")}</Link>
          {isAdmin&&<button type="button" className="btn btn-sm btn-outline-primary" disabled={busy}
            onClick={()=>start("duplicate",style)}>{t("chartStyles.gallery.duplicate")}</button>}
          {isAdmin&&style.source==="custom"&&<>
