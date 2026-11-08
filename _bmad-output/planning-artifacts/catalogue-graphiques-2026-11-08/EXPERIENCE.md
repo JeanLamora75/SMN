@@ -1,6 +1,6 @@
 # EXPERIENCE — Catalogue graphique Office
 
-**Statut : proposition UX à valider** · **2026-11-08** · **Sally (BMAD UX)**  
+**Statut : M1/M2/M3 validées le 8 novembre 2026** · **2026-11-08** · **Sally (BMAD UX)**  
 Référence visuelle : [DESIGN.md](./DESIGN.md). Les tokens `{colors.brand}`, `{colors.background}`, `{colors.text}`, `{rounded.panels}` en héritent.
 
 ## Foundation
@@ -72,3 +72,27 @@ Desktop 2 colonnes ; tablette 1 colonne avec aperçu sous formulaire ; mobile co
 - Tous les états sont accessibles au clavier et en FR/EN.
 
 **À valider avant implémentation :** écran M1/M2/M3, hiérarchie, choix des champs visibles par défaut, copie du tag, stratégie d'avertissement pour la suppression.
+
+## Décisions de validation UX — 8 novembre 2026
+| Référence | Écran | Choix validé | Contrat d'interaction |
+|---|---|---|---|
+| UX-01 | M1 Catalogue | **Option A — Galerie** | Galerie de cartes avec aperçu du style, nom, origine, états par défaut et ouverture de fiche dédiée. Recherche et filtres possibles sans éditeur adjacent. |
+| UX-02 | M2 Éditeur | **Option C — Sections pliables** | Options communes et spécifiques en accordéons à gauche, aperçu permanent à droite ; mise à jour du rendu exclusivement par « Actualiser l'aperçu ». Sauvegarde et annulation explicites. |
+| UX-03 | M3 Export | **Option B — Sélecteur facultatif** | Champ « Style graphique du rapport » avant génération, par défaut « Styles par défaut ». Choisir un style l'applique à tous les graphiques *sans STYLE explicite*. Le champ n'est pas obligatoire. |
+
+### Priorité normative des styles
+1. `STYLE` explicitement renseigné dans le tag du graphique.
+2. Style facultativement choisi dans l'écran de génération pour le rapport entier.
+3. Style global par défaut du type de graphique.
+4. Style de compatibilité si aucune configuration n'existe.
+
+Un identifiant de style explicitement référencé mais inexistant est une **erreur visible**, sans substitution silencieuse. Le choix facultatif à l'export ne modifie ni le catalogue global ni le modèle Office.
+
+### Recette ajoutée
+- Le catalogue s'ouvre en **galerie de cartes** ; aucune liste latérale n'est imposée à l'accueil.
+- L'éditeur ouvert depuis une carte affiche des **sections pliables** et garde l'aperçu visible.
+- Dans l'écran d'export, le sélecteur de style est **facultatif**, et la valeur initiale ne surcharge pas les styles par défaut.
+- L'option choisie pour l'export ne prévaut pas sur `STYLE` inscrit dans le tag et ne persiste pas dans la configuration.
+- Les options restent utilisables en FR/EN, clavier et lecteur d'écran.
+
+**Statut :** validation UX obtenue ; aucune création de User Stories Jira ni implémentation autorisée. Les détails techniques seront déclinés ultérieurement.
