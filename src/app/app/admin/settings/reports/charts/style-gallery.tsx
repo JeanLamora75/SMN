@@ -75,13 +75,19 @@ export default function ChartStyleGallery({isAdmin}:{isAdmin:boolean}){
   return()=>{active=false};
  },[]);
  const dialogOpen=modal!==null||pendingDefault!==null;
+ // Restore focus to the launching button after a dialog is dismissed.
+ useEffect(()=>{
+  if(!dialogOpen)return;
+  const previous=document.activeElement instanceof HTMLElement?document.activeElement:null;
+  const dialog=document.querySelector<HTMLElement>(".smn-chart-dialog");
+  dialog?.querySelector<HTMLElement>("[autofocus],input,button:not([disabled])")?.focus();
+  return()=>previous?.focus();
+ },[dialogOpen]);
  // Modal keyboard guard: Escape cancels; Tab remains within the active dialog.
  useEffect(()=>{
   if(!dialogOpen)return;
   const box=document.querySelector<HTMLElement>(".smn-chart-dialog");
   if(!box)return;
-  const initial=box.querySelector<HTMLElement>("[autofocus],input,button:not([disabled])");
-  initial?.focus();
   const onKey=(event:KeyboardEvent)=>{
    if(event.key==="Escape"&&!busy){event.preventDefault();setModal(null);setPendingDefault(null);return;}
    if(event.key!=="Tab")return;
