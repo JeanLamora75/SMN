@@ -12,7 +12,6 @@ const FLAG=/SMN_FLAG_([A-Z]{2})/g;
 const PNG=Buffer.from([137,80,78,71,13,10,26,10]);
 const IMAGE_REL="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image";
 const REL_NS="http://schemas.openxmlformats.org/package/2006/relationships";
-const XML_TEXT=/<a:t(?:\s[^>]*)?>([\s\S]*?)<\/a:t>/g;
 const validImage=buf=>Buffer.isBuffer(buf)&&buf.length>24&&buf.length<1024*1024&&buf.subarray(0,8).equals(PNG);
 export class OfficeMemberFlagError extends Error {
  constructor(code,part=null,country=null){
@@ -87,7 +86,7 @@ export function embedMemberFlagPictures(pkg,loadFlag){
    if(flags.length!==1)error("office-member-flag-multiple-in-paragraph",original.name);
    const country=flags[0][1];
    const prefix=paragraph.slice(0,flags[0].index);
-   const preceding=[...prefix.matchAll(XML_TEXT)].map(x=>x[1]).join("");
+   const preceding=prefix.replace(/<[^>]*>/g,"");
    // Text preceding the flag in the same paragraph must be empty/whitespace.
    if(preceding.trim())error("office-member-flag-not-first",original.name,country);
    let id=byCountry.get(country);
