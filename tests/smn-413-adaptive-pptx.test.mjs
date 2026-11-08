@@ -96,7 +96,7 @@ test("invalid geometry, groups and rendering exceptions abort without modifying 
 test("reject PNG ratio mismatch and over-sized raster instead of embedding corrupted media",()=>{
  const input=presentation([shape(3,"{{CHART:TREND}}")]);
  const png=raster(discoverPowerPointChartTargets(input)[0]);
- const invalid=Buffer.from(png);invalid.writeUInt32BE(900,20);
+ const invalid=Buffer.from(png);invalid.writeUInt32BE(400,20);
  error(()=>insertAdaptivePowerPointCharts(input,()=>invalid),"office-chart-ratio-mismatch");
  error(()=>insertAdaptivePowerPointCharts(input,()=>Buffer.alloc(8*1024*1024+1)),"office-chart-invalid-png");
 });
