@@ -46,6 +46,8 @@ Chaque ligne doit recevoir un identifiant de preuve (capture, journal ou documen
 
 ### Scénarios documentaires
 
+Les validations doivent être réalisées dans **Microsoft Word** et **Microsoft PowerPoint** sur Windows 11, pas seulement avec des tests de structure OOXML.
+
 - **DOCX réels :** 1/3/6 graphiques, Word Windows 11, titres accentués, zones de tableaux, en-têtes, images/drapeaux, logos, alignements, pages multiples ; vérifier l'ouverture sans réparation de document et la qualité à 100 %.
 - **PPTX réels :** 1/3/6 graphiques dans des diapositives réelles ; ratios **horizontal, carré, vertical** ; graphique non tronqué, bonne typographie FR/EN, aucune collision ou modification de formes voisines ; vérifier mode diaporama et, si disponible, export PDF par PowerPoint.
 - **Types :** `bar, line, area, pie, donut, gauge` ; styles Cockpit Agile, Corporate, Minimal et un personnalisé. Vérifier unités, labels, légendes, états N/D, zéros, valeurs négatives autorisées, longueurs des noms de sprints.
