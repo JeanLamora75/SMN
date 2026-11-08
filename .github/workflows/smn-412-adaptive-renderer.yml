@@ -24,8 +24,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-      - name: Isoler le rasteriseur (POC)
-        run: npm install --prefix .smn-410-poc --no-save --package-lock=false --ignore-scripts @resvg/resvg-js@2.6.2
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - name: Installer les dépendances verrouillées à la racine
+        run: pnpm install --frozen-lockfile
       - name: Tests géométrie et six types de graphiques
         run: node --test tests/smn-411-chart-targets.test.mjs tests/smn-412-adaptive-chart.test.mjs
       - name: Générer les échantillons pour validation visuelle
@@ -35,11 +39,6 @@ jobs:
           name: smn-412-reference-${{ matrix.os }}
           path: smn-412-evidence/
           if-no-files-found: error
-      - uses: pnpm/action-setup@v4
-        with:
-          version: "12.10.0"
-          run_install: false
-      - run: pnpm install --frozen-lockfile
       - name: Typecheck SMN
         run: pnpm typecheck
       - name: ESLint ciblé
