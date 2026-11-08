@@ -3,7 +3,7 @@
 **Statut :** proposition technique structurée par Winston, à faire valider avant développement.
 **Date :** 2026-11-08  
 **Portée :** extension de l'architecture Office existante, particulièrement AD-03, AD-05, AD-07, AD-08 et AD-10 ; pas de remise en cause de ces décisions.  
-**Contrat UX :** [Option B — Sally](../..//ux-designs/ux-office-graphiques-adaptatifs-2026-11-08/CONTRAT-UX-OPTION-B.md).  
+**Contrat UX :** [Option B — Sally](../../ux-designs/ux-office-graphiques-adaptatifs-2026-11-08/CONTRAT-UX-OPTION-B.md).  
 **Story existante :** [SMN-402](https://lmn24.atlassian.net/browse/SMN-402).  
 **Paradigme :** *pipeline de rendu déterministe et transformations Open XML minimales* dans le monolithe SMN.
 
