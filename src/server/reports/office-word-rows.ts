@@ -41,7 +41,7 @@ export type OfficeMemberGroups={active:OfficeWordRows;inactive:OfficeWordRows};
  * Former team members are included in the inactive list, even if they left before its start.
  */
 export async function readOfficeMemberGroups(db:Client,teamId:string,cycleId:string,
- locale:Locale):Promise<OfficeMemberGroups>{
+ locale:Locale,format:"docx"|"pptx"="docx"):Promise<OfficeMemberGroups>{
  const members=await db.query<MemberRow>(`
   SELECT DISTINCT ON (m.id) m.display_name AS name,
    m.professional_function AS role,
@@ -79,8 +79,8 @@ export async function readOfficeMemberGroups(db:Client,teamId:string,cycleId:str
   MEMBER_END:dateLabel(member.end_on,locale),
   MEMBER_CITY:member.city,
   MEMBER_COUNTRY:officeCountryName(member.country_iso2,locale),
-  MEMBER_FLAG:member.country_iso2&&/^[A-Z]{2}$/.test(member.country_iso2)?
-   "SMN_FLAG_"+member.country_iso2: null
+  MEMBER_FLAG:format==="pptx"&&member.country_iso2&&/^[A-Z]{2}$/.test(member.country_iso2)?
+   "SMN_FLAG_"+member.country_iso2:officeCountryFlag(member.country_iso2)
  });
  const group=splitOfficeMembersByAssignment(members.rows,lastDay);
  const order=(a:MemberRow,b:MemberRow)=>a.name.localeCompare(b.name,locale);
