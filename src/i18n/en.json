@@ -4050,5 +4050,16 @@
     "publish": "Publish",
     "preview": "Preview",
     "navTitle": "Indicator"
+  },
+  "chartStyles": {
+    "title": "Chart styles",
+    "invalidInput": "Invalid chart style configuration.",
+    "forbidden": "You are not allowed to manage chart styles.",
+    "notFound": "Chart style not found.",
+    "conflict": "The style has changed. Reload the latest version.",
+    "protectedStyle": "A built-in style cannot be changed or deleted.",
+    "defaultStyle": "This style is a default. Choose another default before deleting it.",
+    "schemaNotReady": "Chart style storage has not been installed.",
+    "serviceUnavailable": "Chart style service is unavailable."
   }
 }
