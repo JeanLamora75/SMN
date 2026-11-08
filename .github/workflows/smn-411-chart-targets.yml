@@ -1,0 +1,38 @@
+name: SMN-411 — Cibles graphiques PowerPoint
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/smn-411-chart-targets.mjs"
+      - "tests/smn-411-chart-targets.test.mjs"
+      - ".github/workflows/smn-411-chart-targets.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  targets:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Extraction et geometrie read-only
+        run: node --test tests/smn-411-chart-targets.test.mjs
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Non-regression moteur Office SMN-402
+        run: pnpm exec tsx --test tests/smn-402-office-trends.test.ts
+      - name: Typecheck global
+        run: pnpm typecheck
+      - name: ESLint
+        run: pnpm exec eslint scripts/smn-411-chart-targets.mjs tests/smn-411-chart-targets.test.mjs
