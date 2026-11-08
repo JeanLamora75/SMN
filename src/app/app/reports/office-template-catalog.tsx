@@ -1,5 +1,5 @@
 "use client";
-import {useState} from "react";
+import {useEffect,useState} from "react";
 import {useRouter} from "next/navigation";
 import {useTranslation} from "@/i18n/client";
 import type {OfficeTemplate} from "@/server/reports/office-catalog";
@@ -24,6 +24,30 @@ export default function OfficeTemplateCatalog({
  const [cycle,setCycle]=useState(cycles[0]?.[0]??"");
  const [filename,setFilename]=useState("");
  const [language,setLanguage]=useState<Language>(initialLanguage);
+ // Transient export option: it is never saved as a team, model or global setting.
+ const [reportStyleId,setReportStyleId]=useState("");
+ const [styles,setStyles]=useState<Array<{id:string;name:string}>>([]);
+ const [styleLoadError,setStyleLoadError]=useState("");
+ const [styleLoading,setStyleLoading]=useState(true);
+ useEffect(()=>{
+  let active=true;
+  void (async()=>{
+   try{
+    const response=await fetch("/api/admin/reports/chart-styles",{cache:"no-store"});
+    const data=await response.json().catch(()=>({})) as {
+     styles?:Array<{id:string;name:string}>;error?:string
+    };
+    if(!response.ok)throw Error(data.error??"service-unavailable");
+    if(!Array.isArray(data.styles))throw Error("service-unavailable");
+    if(active)setStyles(data.styles.filter(item=>typeof item.id==="string"&&typeof item.name==="string"));
+   }catch(error){
+    if(active)setStyleLoadError(error instanceof Error?error.message:"service-unavailable");
+   }finally{if(active)setStyleLoading(false)}
+  })();
+  return()=>{active=false};
+ },[]);
+ const styleOverride=()=>reportStyleId?{reportStyleId}:{};
+
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
  const [missingChartTag,setMissingChartTag]=useState<string|null>(null);
@@ -58,6 +82,19 @@ export default function OfficeTemplateCatalog({
    setMissingChartTag(result.tag);
    setError(tr("officeChartIndicatorUnavailable"));return;
   }
+  if(result?.error==="office-chart-style-not-found"){
+   setError(tr("officeReportStyleMissing"));return;
+  }
+  if(result?.error==="office-chart-invalid-style-id"||result?.error==="office-chart-invalid-style"||
+     result?.error==="office-chart-style-corrupt"||result?.error==="invalid-input"){
+   setError(tr("officeReportStyleInvalid"));return;
+  }
+  if(result?.error==="schema-not-ready"){
+   setError(tr("officeReportStyleUnavailable"));return;
+  }
+  if(result?.error==="forbidden"){
+   setError(tr("officeReportStyleForbidden"));return;
+  }
   if(result?.error==="office-member-flag-failed"){
    setError(tr("officeMemberFlagFailed"));return;
   }
@@ -89,9 +126,9 @@ export default function OfficeTemplateCatalog({
   try{
    const response=await fetch("/api/admin/reports/office-templates/generate",{
     method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,action:"check"})
+    body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,...styleOverride(),action:"check"})
    });
-   if(!response.ok)throw Error("office-check-failed");
+   if(!response.ok){await reportGenerationFailure(response,tr("officeSaveError"));return;}
    const info=await response.json() as {exists:boolean;fingerprint:string;filename:string;directory:string};
    if(info.exists){setConfirmOverwrite(info);return;}
    await saveAfterCheck(info.fingerprint);
@@ -102,7 +139,7 @@ export default function OfficeTemplateCatalog({
   if(!current||!teamId||!cycle||!filename.trim())return;
   const response=await fetch("/api/admin/reports/office-templates/generate",{
    method:"POST",headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,action:"save",expectedFingerprint:fingerprint})
+   body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,...styleOverride(),action:"save",expectedFingerprint:fingerprint})
   });
   if(!response.ok){
    setConfirmOverwrite(null);
@@ -120,7 +157,7 @@ export default function OfficeTemplateCatalog({
    const response=await fetch("/api/admin/reports/office-templates/generate",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,action:"download"})
+    body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,...styleOverride(),action:"download"})
    });
    if(!response.ok){
     await reportGenerationFailure(response,tr("officeGenerationError"));
@@ -216,6 +253,16 @@ export default function OfficeTemplateCatalog({
           <option value="fr">Français</option><option value="en">English</option>
          </select>
         </label>
+        <label className="form-label" htmlFor="smn-office-report-style">{tr("officeReportStyleLabel")}
+         <select id="smn-office-report-style" className="form-select" value={reportStyleId}
+          disabled={busy||styleLoading}
+          onChange={event=>{setReportStyleId(event.target.value);setConfirmOverwrite(null);setError("");}}>
+          <option value="">{tr("officeReportStyleDefaults")}</option>
+          {styles.map(style=><option key={style.id} value={style.id}>{style.name}</option>)}
+         </select>
+        </label>
+        <p className="text-secondary small mb-0">{tr("officeReportStyleHint")}</p>
+        {styleLoadError&&<p className="text-warning small mb-0" role="alert">{tr("officeReportStyleLoadError")}</p>}
         <p className="text-secondary small mb-0">{tr("officeScalarOnly")}</p>
         <div className="d-flex flex-wrap gap-2">
          <button className="btn btn-outline-primary" type="button" disabled={busy||!filename.trim()}
