@@ -75,8 +75,8 @@ jobs:
           if (-not (Test-Path ".next/standalone/server.js")) { throw "Serveur standalone introuvable" }
           $isolated = Join-Path $env:RUNNER_TEMP "smn413-standalone"
           New-Item -ItemType Directory -Path $isolated -Force | Out-Null
-          node -e 'require("node:fs").cpSync(".next/standalone",require("node:path").join(process.env.RUNNER_TEMP,"smn413-standalone"),{recursive:true,force:true,dereference:true})'
-          if ($LASTEXITCODE -ne 0) { throw "Copie standalone avec déréférencement impossible" }
+          node -e 'const fs=require("node:fs"),path=require("node:path"); for(const name of ["resvg-js","resvg-js-win32-x64-msvc"]){const src=path.join(".next","standalone","node_modules","@resvg",name);if(!fs.existsSync(src))throw Error("Module Resvg absent du standalone: "+name);const dst=path.join(process.env.RUNNER_TEMP,"smn413-standalone","node_modules","@resvg",name);fs.mkdirSync(path.dirname(dst),{recursive:true});fs.cpSync(fs.realpathSync(src),dst,{recursive:true,force:true,dereference:true});console.log("copied-resvg-module",name);}'
+          if ($LASTEXITCODE -ne 0) { throw "Module Resvg introuvable dans le standalone" }
           Push-Location $isolated
           try {
             node -e 'const {Resvg}=require("@resvg/resvg-js"); const image=new Resvg("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"400\" height=\"240\"></svg>").render().asPng(); if(image.readUInt32BE(16)!==400||image.readUInt32BE(20)!==240)process.exit(2); console.log("resvg-windows-standalone-smoke-ok");'
