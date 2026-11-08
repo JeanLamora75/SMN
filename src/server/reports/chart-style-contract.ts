@@ -40,6 +40,15 @@ export const PREDEFINED_CHART_STYLES=Object.freeze([
  {id:"corporate",name:"Corporate",description:"Présentation managériale",config:base(["#17345f","#3979bd","#86aecf","#cbdbe9","#7299be","#31496c"])},
  {id:"minimal",name:"Minimal",description:"Rapports sobres et imprimables",config:base(["#292929","#555555","#888888","#bbbbbb","#444444","#999999"])}
 ] as const);
+// Presets are immutable at every level; editing starts from a structured clone.
+function freezeDeep<T>(value:T):T{
+ if(value!==null&&typeof value==="object"){
+  for(const child of Object.values(value))freezeDeep(child);
+  Object.freeze(value);
+ }
+ return value;
+}
+for(const preset of PREDEFINED_CHART_STYLES)freezeDeep(preset);
 export const DEFAULT_STYLE_ID="cockpit-agile";
 export class ChartStyleError extends Error{
  constructor(public readonly code:"invalid-input"|"forbidden"|"not-found"|"conflict"|"protected-style"|"default-style"|"schema-not-ready"){
