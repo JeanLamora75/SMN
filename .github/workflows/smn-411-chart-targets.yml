@@ -5,6 +5,7 @@ on:
     paths:
       - "scripts/smn-411-chart-targets.mjs"
       - "tests/smn-411-chart-targets.test.mjs"
+      - "tests/smn-402-office-trends.test.ts"
       - ".github/workflows/smn-411-chart-targets.yml"
   workflow_dispatch:
 permissions:
