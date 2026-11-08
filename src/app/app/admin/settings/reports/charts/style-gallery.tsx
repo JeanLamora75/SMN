@@ -30,7 +30,7 @@ export function StylePreview({style}:{style:Style}){
   let active=true;
   let objectUrl:string|null=null;
   const controller=new AbortController();
-  setImage(null);setStatus("loading");
+
   void (async()=>{
    try{
     const response=await fetch("/api/admin/reports/chart-styles/preview",{
@@ -225,7 +225,7 @@ export default function ChartStyleGallery({isAdmin}:{isAdmin:boolean}){
      {shown.map(style=>{
       const assigned=usedAsDefault(catalog,style.id);
       return <article className="smn-chart-style-card smn-panel" key={style.id}>
-       <div className="smn-chart-style-preview"><StylePreview style={style}/></div>
+       <div className="smn-chart-style-preview"><StylePreview key={style.id+":"+style.revision} style={style}/></div>
        <div className="smn-chart-style-card-body">
         <div className="d-flex align-items-start justify-content-between gap-2">
          <div><h3 className="h5 mb-1">{style.name}</h3><p className="text-secondary small mb-1">{style.description}</p></div>
