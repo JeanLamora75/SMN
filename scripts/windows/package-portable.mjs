@@ -3,6 +3,7 @@
 import { cp, copyFile, mkdir, writeFile, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
+import {createRequire} from "node:module";
 import { acquirePgArchive, PG_ARCHIVE } from "./postgres-archive.mjs";
 
 if (process.platform !== "win32" || process.env.GITHUB_ACTIONS !== "true") {
@@ -16,9 +17,12 @@ await mkdir(target, { recursive: true });
 await cp(".next/standalone", target, { recursive: true, force: true, dereference: true });
  // Next standalone can omit optional native platform packages selected by the
  // resvg loader. The portable runtime must include both packages explicitly.
+ const nodeRequire=createRequire(import.meta.url);
+ const resvgEntry=nodeRequire.resolve("@resvg/resvg-js");
  for(const name of ["resvg-js","resvg-js-win32-x64-msvc"]){
-   const source=path.join("node_modules","@resvg",name);
-   if(!existsSync(source))throw new Error("Module natif graphique manquant : "+name);
+   const entry=name==="resvg-js"?resvgEntry:
+     nodeRequire.resolve("@resvg/resvg-js-win32-x64-msvc",{paths:[path.dirname(resvgEntry)]});
+   const source=path.dirname(entry);
    const destination=path.join(target,"node_modules","@resvg",name);
    await mkdir(path.dirname(destination),{recursive:true});
    await cp(source,destination,{recursive:true,force:true,dereference:true});
