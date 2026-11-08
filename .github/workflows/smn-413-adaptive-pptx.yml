@@ -63,5 +63,23 @@ jobs:
           if(png.readUInt32BE(16)!==400||png.readUInt32BE(20)!==240)process.exit(2);
           console.log("resvg-standalone-smoke-ok");
           NODE
+      - name: Build Next.js standalone (Windows)
+        if: matrix.os == 'windows-latest'
+        env:
+          SMN_BUILD_STANDALONE: "1"
+        run: pnpm build
+      - name: Exécuter Resvg hors du projet (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          if (-not (Test-Path ".next/standalone/server.js")) { throw "Serveur standalone introuvable" }
+          $isolated = Join-Path $env:RUNNER_TEMP "smn413-standalone"
+          New-Item -ItemType Directory -Path $isolated -Force | Out-Null
+          Copy-Item -Path ".next/standalone/*" -Destination $isolated -Recurse -Force
+          Push-Location $isolated
+          try {
+            node -e 'const {Resvg}=require("@resvg/resvg-js"); const image=new Resvg("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"400\" height=\"240\"></svg>").render().asPng(); if(image.readUInt32BE(16)!==400||image.readUInt32BE(20)!==240)process.exit(2); console.log("resvg-windows-standalone-smoke-ok");'
+            if ($LASTEXITCODE -ne 0) { throw "Resvg introuvable dans le runtime autonome Windows" }
+          } finally { Pop-Location }
       - name: ESLint
         run: pnpm exec eslint scripts/smn-413-adaptive-pptx.mjs tests/smn-413-adaptive-pptx.test.mjs scripts/smn-412-adaptive-chart.mjs src/server/reports/office-indicator-charts.ts src/app/api/admin/reports/office-templates/generate/route.ts
