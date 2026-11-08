@@ -26,6 +26,7 @@ export default function OfficeTemplateCatalog({
  const [language,setLanguage]=useState<Language>(initialLanguage);
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
+ const [missingChartTag,setMissingChartTag]=useState<string|null>(null);
  const [saved,setSaved]=useState("");
  const [directoryError,setDirectoryError]=useState("");
  const [openingDirectory,setOpeningDirectory]=useState<"templates"|"reports"|null>(null);
@@ -50,9 +51,18 @@ export default function OfficeTemplateCatalog({
  function suggestName(model:OfficeTemplate|undefined,sprint:string){
   setFilename(model&&sprint?(model.name+" - "+sprint).slice(0,120):"");
  }
+ async function reportGenerationFailure(response:Response,fallback:string){
+  const result=await response.json().catch(()=>null) as {error?:string;tag?:string}|null;
+  if(result?.error==="office-chart-indicator-unavailable"&&
+    typeof result.tag==="string"&&/^[A-Za-z][A-Za-z0-9_]{0,79}$/.test(result.tag)){
+   setMissingChartTag(result.tag);
+   setError(tr("officeChartIndicatorUnavailable"));return;
+  }
+  setError(fallback);
+ }
  async function checkThenSave(){
   if(!current||!teamId||!cycle||!filename.trim()||busy)return;
-  setBusy(true);setError("");setSaved("");
+  setBusy(true);setError("");setMissingChartTag(null);setSaved("");
   try{
    const response=await fetch("/api/admin/reports/office-templates/generate",{
     method:"POST",headers:{"Content-Type":"application/json"},
@@ -73,7 +83,8 @@ export default function OfficeTemplateCatalog({
   });
   if(!response.ok){
    setConfirmOverwrite(null);
-   setError(response.status===409?tr("officeSaveConflict"):tr("officeSaveError"));
+   if(response.status===409)setError(tr("officeSaveConflict"));
+   else await reportGenerationFailure(response,tr("officeSaveError"));
    return;
   }
   const savedInfo=await response.json() as {filename:string;directory:string};
@@ -88,7 +99,10 @@ export default function OfficeTemplateCatalog({
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,action:"download"})
    });
-   if(!response.ok)throw Error("office-generation-unavailable");
+   if(!response.ok){
+    await reportGenerationFailure(response,tr("officeGenerationError"));
+    return;
+   }
    const blob=await response.blob();
    const url=URL.createObjectURL(blob);
    const link=document.createElement("a");
@@ -188,7 +202,10 @@ export default function OfficeTemplateCatalog({
         </div>
        </>}
      </div>}
-     {error&&<p role="alert" className="text-danger mt-2 mb-0">{error}</p>}
+     {error&&<p role="alert" className="text-danger mt-2 mb-0">{error}{missingChartTag&&<>
+      {" "}<strong><code className="text-danger">{missingChartTag}</code></strong>
+      <span className="d-block small">{tr("officeChartIndicatorHint")}</span>
+     </>}</p>}
      {saved&&<p role="status" className="alert alert-success mt-2 mb-0">{tr("officeSaved")}: {saved}</p>}
      {confirmOverwrite&&<div className="modal d-block" tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="office-confirm-title" style={{backgroundColor:"rgba(0,0,0,.55)"}}>
       <div className="modal-dialog modal-dialog-centered"><div className="modal-content">
