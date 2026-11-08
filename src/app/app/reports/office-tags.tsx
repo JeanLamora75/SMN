@@ -160,6 +160,10 @@ export default function OfficeTags({locale="fr",expanded=false}:{locale?:Locale;
     </tr>)}</tbody>
    </table>
   </div>
+  <p className="small">
+   {fr?"PowerPoint : le graphique est généré au format et aux dimensions de sa zone de texte, avec une image PNG haute définition. Utilisez une zone non groupée, non pivotée, assez grande pour les textes et laissez le tag seul dans la zone. Les objets voisins ne sont pas modifiés. Word conserve le rendu historique.":
+    "PowerPoint: the chart is generated at the target text box's dimensions and aspect ratio as a high-resolution PNG. Use an ungrouped, unrotated box large enough for legible labels and keep the tag alone in the box. Nearby objects are preserved. Word retains its previous rendering."}
+  </p>
   <p className="small fw-semibold">
    {fr?"Attention : SP_DONE, SP_INIT et RATE_PERCENT ne sont que des exemples. Le tag doit exister, être actif pour l'équipe et visible dans ses Tendances ; sinon la génération échoue avec le tag concerné.":
     "Important: SP_DONE, SP_INIT and RATE_PERCENT are examples only. The indicator tag must exist, be active for the team and visible in Trends; otherwise generation reports the missing tag."}
