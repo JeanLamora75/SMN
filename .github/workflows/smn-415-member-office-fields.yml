@@ -6,6 +6,7 @@ on:
       - "src/server/reports/office-word-rows.ts"
       - "scripts/smn-415-office-flag-images.mjs"
       - "tests/smn-415-member-flags.test.mjs"
+      - "tests/smn-415-member-location.test.ts"
       - "src/app/api/admin/reports/office-templates/generate/route.ts"
       - "src/app/app/reports/office-template-catalog.tsx"
       - "src/app/app/reports/office-tags.tsx"
@@ -36,6 +37,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Tests tableaux Office, tags et drapeaux
         run: node --test tests/smn-415-member-flags.test.mjs tests/smn-413-adaptive-pptx.test.mjs
+      - name: Tests de projection de ville et fonction
+        run: pnpm exec tsx --test tests/smn-415-member-location.test.ts
       - name: Tests non-régression Office
         run: pnpm exec tsx --test tests/smn-402-office-trends.test.ts
       - name: TypeScript
