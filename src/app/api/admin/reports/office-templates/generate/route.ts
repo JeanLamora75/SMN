@@ -19,6 +19,8 @@ import {embedMemberFlagPictures,OfficeMemberFlagError} from "../../../../../../.
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
 import {readOfficeMemberGroups,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
 import {discoverOfficeBusinessSources,readOfficeBusinessRows} from "@/server/reports/office-business-rows";
+import {readOfficeLinkRows} from "@/server/reports/office-link-rows";
+import {activateOfficeLinkLabels} from "../../../../../../../scripts/smn-423-office-link-hyperlinks.mjs";
 import {readOfficeContextScalars} from "@/server/reports/office-context-scalars";
 import {inspectOfficeReport,saveOfficeReport,OfficeSaveConflict,OfficeSaveFailure} from "@/server/reports/office-storage";
 import {generateWordTables} from "../../../../../../../scripts/smn-400-word-tables.mjs";
@@ -75,7 +77,8 @@ export async function POST(req:NextRequest){
  }catch{return jsonResult({error:"office-chart-invalid-tag"},422);}
  let styleSnapshot:Awaited<ReturnType<typeof loadOfficeStyleSnapshot>>|null=null;
  let payload:{values:ReturnType<typeof buildScalarValues>;
-  rows:Record<string,Record<string,string|null>[]>;report:ReportData|null};
+  rows:Record<string,Record<string,string|null>[]>;report:ReportData|null;
+  links:Awaited<ReturnType<typeof readOfficeLinkRows>>};
  try{
   payload=await withAuthDb(async db=>{
    const team=await resolveAdminTeam(db,{accountId:actor.id,role:actor.role},teamId);
@@ -97,7 +100,9 @@ export async function POST(req:NextRequest){
      db,teamId,"scrum",cycleId,indicatorSelection.rows.map(row=>row.id)):[];
    const sprint=cycle.rows[0],locale=language as Locale;
    const extra=await readOfficeContextScalars(db,teamId,cycleId,team.product,locale,sprint.time_zone);
+   const links=await readOfficeLinkRows(db,{id:actor.id,role:actor.role},teamId,locale);
    const values=buildScalarValues({
+    ...links.counts,
     ...extra,
     TEAM_NAME:team.team,
     SPRINT_NAME:sprint.name,
@@ -112,7 +117,7 @@ export async function POST(req:NextRequest){
     id:cycleId,startAt:new Date(sprint.start_at!).toISOString(),
     endAt:new Date(sprint.end_at!).toISOString(),timeZone:sprint.time_zone
    },locale,businessSources);
-   return {values,rows:{MEMBERS:[...members.active,...members.inactive],MEMBERS_ACTIVE:members.active,MEMBERS_INACTIVE:members.inactive,INDICATORS:officeWordIndicatorRows(indicators,locale),...business},report};
+   return {values,rows:{MEMBERS:[...members.active,...members.inactive],MEMBERS_ACTIVE:members.active,MEMBERS_INACTIVE:members.inactive,INDICATORS:officeWordIndicatorRows(indicators,locale),...business,...links.rows},report,links};
   });
  }catch(error){
   if(error instanceof Error&&error.message==="too-many-indicators")
@@ -145,7 +150,8 @@ export async function POST(req:NextRequest){
   const base=selected.template.format==="docx"?
    generateWordTables(selected.bytes,payload.rows).bytes:
    generatePowerPointTables(selected.bytes,payload.rows,language as Locale).bytes;
-  const result=generateScalarOffice(base,selected.template.format,payload.values);
+  const linked=activateOfficeLinkLabels(base,selected.template.format,payload.links.labels);
+  const result=generateScalarOffice(linked.bytes,selected.template.format,payload.values);
   const withFlags=selected.template.format==="pptx"?
    embedMemberFlagPictures(result.bytes,(country:string)=>{
     try{return readFileSync(join(process.cwd(),"public","flags",country.toLowerCase()+".png"));}
