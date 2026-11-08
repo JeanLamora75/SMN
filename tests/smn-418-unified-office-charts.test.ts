@@ -141,13 +141,13 @@ test("styled Word/PPTX adapters insert PNG and preserve untouched OPC parts",()=
 });
 test("legacy no-catalog path and report-archive source remain available",()=>{
  const route=readFileSync("src/app/api/admin/reports/office-templates/generate/route.ts","utf8");
- const module=readFileSync("src/server/reports/office-indicator-charts.ts","utf8");
+ const chartModuleSource=readFileSync("src/server/reports/office-indicator-charts.ts","utf8");
  assert.match(route,/loadOfficeStyleSnapshot/);
  assert.match(route,/resolveChartStyle\(target\.options\)/);
  assert.match(route,/resolveChartStyle\(options\)/);
  assert.match(route,/isSupportedOfficePackage/);
- assert.match(module,/renderOfficeIndicatorChart\(report,cycleId,options,locale\)/);
- assert.match(module,/renderOfficeIndicatorAdaptiveChart\(report,cycleId,options,locale,target\)/);
+ assert.match(chartModuleSource,/renderOfficeIndicatorChart\(report,cycleId,options,locale\)/);
+ assert.match(chartModuleSource,/renderOfficeIndicatorAdaptiveChart\(report,cycleId,options,locale,target\)/);
 });
 
 test("SMN-418 benchmark compares matching 415 fixtures without changing archived source",()=>{
