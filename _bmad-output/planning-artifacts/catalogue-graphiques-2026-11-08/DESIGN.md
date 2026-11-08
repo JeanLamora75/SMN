@@ -1,6 +1,6 @@
 ---
 title: "SMN — Catalogue graphique Office — DESIGN"
-status: "proposed"
+status: "validated"
 date: "2026-11-08"
 colors:
   brand: "var(--smn-brand)"
@@ -53,3 +53,9 @@ Radius cohérents avec Cockpit Agile ; boutons et champs respectent les cibles t
 - Faire : une action visible par intention, sauvegarde explicite, indication des changements non enregistrés.
 - Éviter : boutons décoratifs sans action, génération à chaque saisie, surcharges de paramètres inapplicables, données fictives présentées comme données réelles.
 - Les maquettes HTML associées servent de support de discussion ; **DESIGN et EXPERIENCE prévalent** sur les détails illustratifs.
+
+## Décisions UX validées — 8 novembre 2026
+- **UX-01 / M1 — Option A** : page catalogue en galerie de cartes, chacune avec aperçu, nom, origine, indication des types pour lesquels elle est par défaut, actions autorisées. L'édition se fait après ouverture de la carte ; pas de catalogue en liste latérale.
+- **UX-02 / M2 — Option C** : fiche d'édition dédiée avec sections pliables à gauche et aperçu permanent à droite. Sur écrans étroits, les deux zones s'empilent ; « Actualiser l'aperçu » reste manuel et explicite.
+- **UX-03 / M3 — Option B** : dans l'écran de génération des rapports Office, sélecteur facultatif de style commun au rapport, initialisé à « Styles par défaut ». Il ne remplace jamais un `STYLE` explicite dans un tag.
+- Ces décisions priment sur les illustrations antérieures de `MAQUETTES.html`. Les trois maquettes sont validées fonctionnellement ; l'application n'est pas implémentée.
