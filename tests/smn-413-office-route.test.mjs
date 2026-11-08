@@ -4,7 +4,7 @@ import {readFileSync} from "node:fs";
 const route=readFileSync("src/app/api/admin/reports/office-templates/generate/route.ts","utf8");
 const selector=readFileSync("src/server/reports/office-indicator-charts.ts","utf8");
 const client=readFileSync("src/app/app/reports/office-template-catalog.tsx","utf8");
-test("PPTX uses adaptive target renderer and Word retains unchanged legacy insertion",()=>{
+test("PPTX and Word share styled renderer while retaining adapters and historic fallback",()=>{
  assert.match(route,/selected\.template\.format==="pptx"\?\s*insertAdaptivePowerPointCharts/);
  assert.match(route,/renderOfficeIndicatorAdaptiveChart\(payload\.report!/);
  assert.match(route,/insertOfficeTrendImages\(result\.bytes,selected\.template\.format/);
