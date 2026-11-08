@@ -45,8 +45,9 @@ function nextRelation(map,slide,media,target){
  const rid="rId"+n;
  const element='<Relationship Id="'+rid+'" Type="'+IMAGE_REL+'" Target="../media/'+media.split("/").at(-1)+'"/>';
  const revised=/<\/(?:\w+:)?Relationships>/.test(xml)?
-  xml.replace(/<\/(?:\w+:)?Relationships>/,element+"const revised=xml.replace(/<\/(?:\w+:)?Relationships>/,element+"$&");"):
-  xml.replace(/(<(?:\w+:)?Relationships\b[^>]*?)\s*\/>/,"$1>"+element+"</Relationships>");
+  xml.replace(/<\/(?:\w+:)?Relationships>/,match=>element+match):
+  xml.replace(/<((?:\w+:)?)Relationships\b([^>]*)\/>/,
+   (_match,prefix,attrs)=>"<"+prefix+"Relationships"+attrs+">"+element+"</"+prefix+"Relationships>");
  if(revised===xml)reject("office-chart-invalid-relationships",target);
  map.set(name,{name,method:previous?.method??8,data:Buffer.from(revised)});
  return rid;
