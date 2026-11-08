@@ -47,7 +47,7 @@ export function createOfficeStyleSnapshot(raw:{
 }):OfficeStyleSnapshot{
  const seen=new Set<string>(),styles:OfficeStyleRecord[]=[];
  for(const record of raw.styles){
-  if(!validChartStyleId(record.id)||seen.has(record.id)||
+  if(!validChartStyleId(record.id)||record.id==="legacy"||seen.has(record.id)||
    !Number.isSafeInteger(record.revision)||record.revision<0||
    !["builtin","custom"].includes(record.source)||
    !validChartStyleConfig(record.config))
@@ -97,7 +97,7 @@ export function createOfficeChartStyleResolver(
  if(reportStyleId!==undefined&&reportStyleId!==null&&!validChartStyleId(reportStyleId))
   throw new OfficeChartStyleResolutionError("office-chart-invalid-style-id",String(reportStyleId));
  const available=new Map<string,OfficeStyleRecord>(snapshot?.styles.map(s=>[s.id,s] as const)??[]);
- if(reportStyleId!==undefined&&reportStyleId!==null&&!available.has(reportStyleId))
+ if(reportStyleId!==undefined&&reportStyleId!==null&&reportStyleId!=="legacy"&&!available.has(reportStyleId))
   throw new OfficeChartStyleResolutionError("office-chart-style-not-found",reportStyleId);
  return (request:OfficeChartRequest)=>{
   if(!validChartType(request.type))
@@ -109,6 +109,8 @@ export function createOfficeChartStyleResolver(
   const id=byTag?request.style:byReport?reportStyleId:snapshot?.defaults[request.type]?.styleId;
   if(id===undefined||id===null)
    return freezeDeep({type:request.type,id:null,source:"legacy" as const,revision:null,config:null});
+  // Reserved compatibility profile reproduces the historical Word/PPTX renderer.
+  if(id==="legacy")return freezeDeep({type:request.type,id:"legacy",source:"legacy" as const,revision:null,config:null});
   const selected=available.get(id);
   if(!selected)
    throw new OfficeChartStyleResolutionError("office-chart-style-not-found",id);
