@@ -98,6 +98,7 @@ export function expandWordTablesXml(xml,datasets){
    count++;
    const clean=removeRowMarker(row,source);
    const render=(record)=>replaceScalarXml(clean,record).xml;
+   if(!records.length&&(source==="LINKS_TRANSVERSE"||source==="LINKS_TEAM"))return "";
    if(!records.length){
     const fieldTags=[...rowNodes(clean).map(x=>x.text).join("").matchAll(/\{\{([A-Z][A-Z0-9_]*)\}\}/g)]
      .map(x=>x[1]);
