@@ -90,3 +90,16 @@ test("self-closing PowerPoint paragraph properties become one valid picture-bull
  assert.equal((xml.match(/<a:pPr\b/g)||[]).length,1);
  assert.equal((xml.match(/<a:buBlip>/g)||[]).length,1);
 });
+
+test("actual assets under public/flags for India and France embed as PNG images",async()=>{
+ const {readFileSync}=await import("node:fs");
+ const src=makeZip(paragraph("SMN_FLAG_IN")+paragraph("SMN_FLAG_FR"));
+ const out=embedMemberFlagPictures(src,country=>readFileSync("public/flags/"+country.toLowerCase()+".png"));
+ const map=byName(out.bytes);
+ assert.equal(out.changes.length,2);
+ for(const country of ["in","fr"]){
+  const asset=readFileSync("public/flags/"+country+".png");
+  assert.ok(asset.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])));
+  assert.ok(map.get("ppt/media/smn-member-flag-"+country+".png").equals(asset));
+ }
+});
