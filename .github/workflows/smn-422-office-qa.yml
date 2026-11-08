@@ -9,6 +9,7 @@ on:
       - "src/server/reports/chart-style-contract.ts"
       - "src/server/reports/office-chart-style-resolver.ts"
       - "tests/smn-422-office-catalog-qa.test.ts"
+      - "scripts/poc/smn-422-performance-replay.ts"
       - "_bmad-output/implementation-artifacts/smn-422-office-catalog-qa/**"
       - "tests/smn-421-office-report-style.test.ts"
       - "tests/smn-420-style-editor.test.ts"
