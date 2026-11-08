@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
+import {readFileSync,cpSync,mkdtempSync,mkdirSync,rmSync} from "node:fs";
+import {tmpdir} from "node:os";
+import {join,resolve} from "node:path";
+import {spawnSync} from "node:child_process";
 import {
  LIMITS,TARGETS,FIXTURE,validateTarget,inspectPng,svgForTarget,rasterizeWithResvg,compareRenderers
 } from "../scripts/poc/smn-410-rasterizer-poc.mjs";
@@ -61,4 +64,27 @@ test("invalid image and over-budget buffer are refused",()=>{
  const oversized=Buffer.alloc(LIMITS.maxPngBytes+1);
  Buffer.from([137,80,78,71,13,10,26,10]).copy(oversized);
  assert.throws(()=>inspectPng(oversized),/office-poc-png-too-large/);
+});
+
+test("portable candidate loads in a copied directory without npm or a downloaded browser",()=>{
+ const root=mkdtempSync(join(tmpdir(),"smn-410-portable-"));
+ try{
+  const dir=join(root,".smn-410-poc");
+  mkdirSync(dir,{recursive:true});
+  cpSync(resolve(".smn-410-poc","node_modules"),join(dir,"node_modules"),{recursive:true});
+  // A fresh Node process can load the copied native binary using only local files.
+  const script=[
+   'const {Resvg}=require("./.smn-410-poc/node_modules/@resvg/resvg-js");',
+   'const svg="<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"400\\" height=\\"240\\"><text x=\\"10\\" y=\\"80\\">Équipe</text></svg>";',
+   'const png=new Resvg(svg).render().asPng();',
+   'if(png.readUInt32BE(16)!==400||png.readUInt32BE(20)!==240)process.exit(2);',
+   'console.log("portable-offline-ok");'
+  ].join("\n");
+  const child=spawnSync(process.execPath,["-e",script],{
+   cwd:root,encoding:"utf8",timeout:20000,
+   env:{...process.env,npm_config_offline:"true",HTTP_PROXY:"",HTTPS_PROXY:""}
+  });
+  assert.equal(child.status,0,child.stderr||child.error?.message);
+  assert.match(child.stdout,/portable-offline-ok/);
+ }finally{rmSync(root,{recursive:true,force:true});}
 });
