@@ -77,6 +77,7 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
  });
  const showLegend=common?common.legend.visible&&common.legend.position!=="none":true;
  const showLabels=common?.labels.visible??false;
+ const includeTitle=Boolean(common?.title||common?.subtitle);
  const number=(n)=>new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB",{
   maximumFractionDigits:common?.labels.decimals??2
  }).format(n);
@@ -84,19 +85,22 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
  const valid=validateChartSeries(cycles,series,type);
  if(!valid)return null;
  const {width:w,height:h}=geometry(target);
- const font=Math.max(38,Math.min(50,Math.round(Math.min(w/29,h/15))));
- const pad=Math.round(Math.min(w,h)*.055);
+ const defaultFont=Math.max(38,Math.min(50,Math.round(Math.min(w/29,h/15))));
+ const font=common?Math.max(30,Math.min(65,Math.round(common.fontSize*3.2))):defaultFont;
+ const pad=Math.round(Math.min(w,h)*.055)+(common?.spacing??0);
  const compact=w<800||h<620;
  const legendNeeded=showLegend&&series.length>1;
  const legendRows=legendNeeded?Math.ceil(series.length/Math.min(3,series.length)):0;
  const legendHeight=legendNeeded?Math.max(60,legendRows*font*1.35):0;
  const xLeft=pad+font*2.35,xRight=w-pad;
- const yTop=pad+font*.3,yBottom=h-pad-font*(compact?2.2:1.65)-legendHeight;
+ const yTop=pad+font*.3+(includeTitle?font*2:0),yBottom=h-pad-font*(compact?2.2:1.65)-legendHeight;
  const plotWidth=xRight-xLeft,plotHeight=yBottom-yTop;
  if(plotWidth<220||plotHeight<190)throw new OfficeChartLayoutError("office-chart-frame-too-small",{width:w,height:h});
  const axisLabelMax=Math.max(4,Math.floor(plotWidth/Math.max(1,cycles.length)/(.58*font)));
  const heavy=axisLabelMax<5;
  const svgParts=[rect(0,0,w,h,common?.background??"#ffffff")];
+ if(common?.title)svgParts.push(txt(common.title,w/2,pad+font*.7,font*1.15,{weight:600}));
+ if(common?.subtitle)svgParts.push(txt(common.subtitle,w/2,pad+font*1.6,font*.85));
  let drawn;
  const labels=series.map((s,i)=>({label:shortName(s.name??s.tag??"Série "+(i+1),Math.max(7,Math.floor(plotWidth/Math.max(1,series.length)/(.59*font)))),color:palette[i%palette.length]}));
  if(["pie","donut","gauge"].includes(type)){
@@ -115,8 +119,13 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
     return '<path d="M '+p0.join(" ")+' A '+num(r)+' '+num(r)+' 0 '+(end-start>.5?1:0)+' 1 '+p1.join(" ")+'" fill="none" stroke="'+color+'" stroke-width="'+num(radius*((options?.strokePercent??25)/100))+'" stroke-linecap="butt"/>';
    };
    svgParts.push(arc(0,1,"#e5ebf2"),arc(0,ratio,palette[0]));
-   svgParts.push(txt(number(val,locale)+" %",centerX,centerY+font*.15,font*1.35,{weight:600}));
+   svgParts.push(txt(number(val)+" %",centerX,centerY+font*.15,font*1.35,{weight:600}));
    svgParts.push(txt("0",centerX-radius,centerY+font*1.6,font),txt("100",centerX+radius,centerY+font*1.6,font));
+   if(options?.thresholds?.length)for(const threshold of options.thresholds){
+    const a=Math.PI*(1+threshold/100);
+    svgParts.push(line(centerX+(radius*.82)*Math.cos(a),centerY+(radius*.82)*Math.sin(a),
+     centerX+(radius*1.08)*Math.cos(a),centerY+(radius*1.08)*Math.sin(a),common?.textColor??"#33465c",3));
+   }
    drawn={style:type,points:active.length,range:[0,100],labels:[]};
   }else{
    let sum=0;
@@ -129,7 +138,15 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
     return '<path d="M '+num(centerX)+' '+num(centerY)+' L '+a.join(" ")+' A '+num(radius)+' '+num(radius)+' 0 '+(sweep>.5?1:0)+' 1 '+b.join(" ")+' Z" fill="'+color+'"/>';
    };
    active.forEach(s=>{const end=sum+s.value/total;svgParts.push(segment(sum,end,s.color));sum=end;});
-   if(type==="donut")svgParts.push('<circle cx="'+num(centerX)+'" cy="'+num(centerY)+'" r="'+num(radius*((options?.innerRadiusPercent??58)/100))+'" fill="'+(common?.background??"#ffffff")+'"/>');
+   if(type==="donut"){
+    svgParts.push('<circle cx="'+num(centerX)+'" cy="'+num(centerY)+'" r="'+num(radius*((options?.innerRadiusPercent??58)/100))+'" fill="'+(common?.background??"#ffffff")+'"/>');
+    if(options?.showCenterValue)svgParts.push(txt(number(total),centerX,centerY+font*.3,font*1.2,{weight:600}));
+   }
+   if(common?.labels.visible&&type==="pie")active.forEach((item,i)=>{
+    const formatted=options?.showPercent?number(item.value/total*100)+"%":number(item.value);
+    const angle=-Math.PI/2+2*Math.PI*(active.slice(0,i).reduce((sum,v)=>sum+v.value,0)+item.value/2)/total;
+    svgParts.push(txt(formatted,centerX+radius*.57*Math.cos(angle),centerY+radius*.57*Math.sin(angle),font*.65));
+   });
    if(legendNeeded){
     active.forEach((s,i)=>{
      const lx=xLeft+plotWidth*.77,ly=yTop+font*(1.2+i*1.55);
@@ -148,7 +165,7 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
   for(let k=0;k<=4;k++){
    const value=lower+(upper-lower)*k/4,y=scale(value);
    svgParts.push(line(xLeft,y,xRight,y));
-   svgParts.push(txt(number(value,locale),xLeft-font*.35,y+font*.33,font*.93,{anchor:"end"}));
+   svgParts.push(txt(number(value),xLeft-font*.35,y+font*.33,font*.93,{anchor:"end"}));
   }
   const useRotation=heavy&&cycles.length>6;
   const labelItems=[];
@@ -170,6 +187,7 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
      const x=colX(i)-bw*series.length/2+si*bw;
      svgParts.push(rect(x,Math.min(scale(v),baseline),Math.max(1,bw-2),Math.max(1,Math.abs(scale(v)-baseline)),color,radius?'rx="'+radius+'"':""));
      if(v===0)svgParts.push(rect(x,baseline-2,Math.max(1,bw-2),4,color));
+     if(showLabels)svgParts.push(txt(number(v),x+bw/2,scale(v)-font*.16,font*.7));
     });
    }else{
     const segments=[];let segment=[];
@@ -182,6 +200,10 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
      if(type==="area"&&points.length>1)
       svgParts.push('<polygon points="'+[[points[0][0],baseline],...points,[points.at(-1)[0],baseline]].map(p=>p.map(num).join(",")).join(" ")+'" fill="'+color+'" fill-opacity="'+(options?.opacity??.18")+'"/>');
      if(points.length>1)svgParts.push('<polyline fill="none" stroke="'+color+'" stroke-width="'+(options?.strokeWidth??Math.max(3,font*.085))+'" stroke-linejoin="round" points="'+points.map(p=>p.map(num).join(",")).join(" ")+'"/>');
+     if(showLabels)points.forEach((p,pi)=>{
+      const value=series[si].values.filter(v=>v!==null)[pi];
+      svgParts.push(txt(number(value),p[0],p[1]-font*.3,font*.68));
+     });
      if(options?.marker!=="none")points.forEach(p=>svgParts.push(
       options?.marker==="square"?
        rect(p[0]-Math.max(4,font*.12),p[1]-Math.max(4,font*.12),2*Math.max(4,font*.12),2*Math.max(4,font*.12),color):
