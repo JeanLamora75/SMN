@@ -68,7 +68,8 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
  const pad=Math.round(Math.min(w,h)*.055);
  const compact=w<800||h<620;
  const legendNeeded=series.length>1;
- const legendHeight=legendNeeded?Math.max(60,font*1.5):0;
+ const legendRows=legendNeeded?Math.ceil(series.length/Math.min(3,series.length)):0;
+ const legendHeight=legendNeeded?Math.max(60,legendRows*font*1.35):0;
  const xLeft=pad+font*2.35,xRight=w-pad;
  const yTop=pad+font*.3,yBottom=h-pad-font*(compact?2.2:1.65)-legendHeight;
  const plotWidth=xRight-xLeft,plotHeight=yBottom-yTop;
