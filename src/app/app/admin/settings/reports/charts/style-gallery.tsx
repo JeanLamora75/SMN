@@ -244,6 +244,7 @@ export default function ChartStyleGallery({isAdmin}:{isAdmin:boolean}){
     aria-labelledby="smn-style-dialog-title">
     <h2 className="h5" id="smn-style-dialog-title">{t(modal.mode==="rename"?"chartStyles.gallery.rename":"chartStyles.gallery.create")}</h2>
     <p className="small text-secondary">{t("chartStyles.gallery.basedOn")} {modal.source.name}</p>
+    {error&&<p className="alert alert-warning" role="alert">{message(error)}</p>}
     <form onSubmit={e=>void save(e)}>
      <label htmlFor="new-style-name" className="form-label">{t("chartStyles.gallery.name")}</label>
      <input id="new-style-name" autoFocus required maxLength={120} className="form-control mb-3"
@@ -263,6 +264,7 @@ export default function ChartStyleGallery({isAdmin}:{isAdmin:boolean}){
   {pendingDefault&&<div className="smn-chart-dialog-backdrop" role="presentation">
    <div role="dialog" aria-modal="true" aria-labelledby="smn-default-dialog-title" className="smn-chart-dialog smn-panel p-4">
     <h2 className="h5" id="smn-default-dialog-title">{t("chartStyles.gallery.confirmDefaultTitle")}</h2>
+    {error&&<p className="alert alert-warning" role="alert">{message(error)}</p>}
     <p>{t("chartStyles.gallery.confirmDefault").replace("{type}",
      t(("chartStyles.gallery.types."+pendingDefault.type) as "chartStyles.gallery.types.bar"))}</p>
     <div className="d-flex justify-content-end gap-2">
