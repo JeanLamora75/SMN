@@ -59,3 +59,11 @@
 @media(max-width:600px){.smn-chart-m2-fields-grid,.smn-chart-m2-specific{grid-template-columns:1fr}
  .smn-chart-m2-title{align-items:flex-start;flex-direction:column}
  .smn-chart-m2-actions>*{flex:1}}
+
+/* M1 thumbnails are real PNGs from the shared Office SVG/resvg engine. */
+.smn-chart-gallery-render{display:flex;flex-direction:column;gap:.4rem}
+.smn-chart-gallery-render .smn-chart-preview{width:100%;height:auto;aspect-ratio:12/7;object-fit:contain;max-height:unset;border-radius:9px;background:#fff}
+.smn-chart-preview-placeholder{display:flex;align-items:center;justify-content:center;
+ text-align:center;min-height:160px;aspect-ratio:12/7;border-radius:9px;
+ color:var(--bs-secondary-color,#617185);background:var(--bs-body-bg,#fff)}
+.smn-chart-gallery-preview-caption{font-size:.72rem;color:var(--bs-secondary-color,#64748b);text-align:right}
