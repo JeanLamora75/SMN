@@ -4,7 +4,7 @@
 **Agent :** Amelia (BMAD)  
 **Epic :** SMN-6 — Rapports Office  
 **Story :** https://lmn24.atlassian.net/browse/SMN-410  
-**CI exécutée et vérifiée :** https://github.com/JeanLamora75/SMN/actions/runs/42472550591  
+**CI exécutée et vérifiée (dernier run) :** https://github.com/JeanLamora75/SMN/actions/runs/42472811713  
 **Statut :** POC initial testé sur Linux et Windows en CI, **choix final et intégration dans le paquet Windows à confirmer**. Moteur de production SMN-402 inchangé.
 
 ## Objectif et approche
@@ -20,13 +20,13 @@ Vérifier la faisabilité d'un rasteriseur SVG→PNG **sans navigateur externe n
 ## Livrables
 
 - `scripts/poc/smn-410-rasterizer-poc.mjs` : génération SVG sur trois géométries, injection dans Resvg, PNG, contrôles de limites, mesure monotone du temps et variation RSS, comparaison baseline.
-- `tests/smn-410-rasterizer-poc.test.mjs` : six tests automatiques (limites, accents et ratios, moteur actuel, PNG, quatre images, erreurs).
+- `tests/smn-410-rasterizer-poc.test.mjs` : sept tests automatiques (limites, accents et ratios, moteur actuel, PNG, quatre images, erreurs).
 - `.github/workflows/smn-410-renderer-poc.yml` : matrice Ubuntu/Windows, installation isolée du candidat, tests et upload de l'artefact contenant PNG et JSON de mesures.
 - Artefacts **`smn-410-poc-ubuntu-latest`** et **`smn-410-poc-windows-latest`** de l'exécution GitHub Actions.
 
 ## Résultats de la CI
 
-**Résultat Windows : 6/6 tests, succès. Résultat Linux : 6/6 tests, succès.**
+**Résultat Windows : 7/7 tests, succès. Résultat Linux : 7/7 tests, succès.**
 
 | Test | Linux, Node 24.22.2 | Windows, Node 24.22.2 |
 |---|---:|---:|
@@ -73,5 +73,11 @@ Vérifier la faisabilité d'un rasteriseur SVG→PNG **sans navigateur externe n
 - UX : `_bmad-output/planning-artifacts/ux-designs/ux-office-graphiques-adaptatifs-2026-11-08/CONTRAT-UX-OPTION-B.md`
 - Architecture : `_bmad-output/planning-artifacts/architecture/rapports-office/ADR-GRAPHIQUES-ADAPTATIFS-PPTX-2026-11-08.md`
 - Jira : [SMN-410](https://lmn24.atlassian.net/browse/SMN-410)
-- CI : [run 42472550591](https://github.com/JeanLamora75/SMN/actions/runs/42472550591)
+- CI : [run 42472811713](https://github.com/JeanLamora75/SMN/actions/runs/42472811713)
 - Adaptation BMAD : le workflow `bmad-build` complet dépendant de `uv` n'a pas pu s'exécuter dans le présent environnement. Le POC et sa CI ont été exécutés via GitHub Actions. **Ces tests constituent des preuves propres, et non une exécution revendiquée du script BMAD.**
+
+## Complément — preuve de chargement portable hors npm
+
+Un septième test copie entièrement le répertoire de modules du POC vers un répertoire temporaire, puis démarre **un nouveau processus Node 24 dans ce répertoire**, avec `npm_config_offline=true` et sans proxy réseau. Ce processus charge la bibliothèque native Resvg copiée, rend un PNG 400×240 avec texte accentué et vérifie ses dimensions, sans exécuter npm ni navigateur.
+
+**Résultat : 7/7 sur Linux et Windows** dans le run [42472811713](https://github.com/JeanLamora75/SMN/actions/runs/42472811713). Ce test prouve la copie et l'exécution autonome du candidat **dans le contexte du runner GitHub Actions**. Il **ne prouve pas encore son intégration au ZIP Next.js standalone du packaging SMN**, ni l'absence de tout problème de licence ou de polices sur le PC utilisateur. Les autres réserves ci-dessus restent applicables.
