@@ -2,10 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
  CHART_TYPES,PREDEFINED_CHART_STYLES,DEFAULT_STYLE_ID,ChartStyleError,
- validChartStyleConfig,validChartStyleId,parseChartStyleCommand
+ validChartStyleConfig,validChartStyleId,parseChartStyleCommand,type ChartStyleConfig
 } from "../src/server/reports/chart-style-contract";
 
-const preset=()=>structuredClone(PREDEFINED_CHART_STYLES[0].config);
+const preset=():ChartStyleConfig=>structuredClone(PREDEFINED_CHART_STYLES[0].config) as ChartStyleConfig;
 test("global catalog defines three named presets and exactly six types",()=>{
  assert.deepEqual(CHART_TYPES,["bar","line","area","pie","donut","gauge"]);
  assert.equal(PREDEFINED_CHART_STYLES.length,3);
