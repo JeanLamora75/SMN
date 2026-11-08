@@ -11,7 +11,7 @@
 - **Installation neuve** : la transaction `installExpress` applique la migration additive à partir du répertoire du projet après le schéma natif v33 et avant le COMMIT. Les six défauts existent dès la première installation si celle-ci aboutit ; ce comportement reste à confirmer par test d'installation réel.
 - **Migrations explicites** : `prisma/migrations/20261108_smn416_chart_styles/migration.sql` et `scripts/apply-smn-416-chart-styles.ts`. La migration est additive et idempotente ; aucune donnée de l'ancien moteur d'indicateurs n'est mise à jour.
 - **Service** : `src/server/reports/chart-style-store.ts`, lecture et commandes create/update/delete/set-default, protection des modèles prédéfinis, verrou de transaction par installation et refus de suppression d'un style encore utilisé comme défaut.
-- **API** : `GET /api/admin/reports/chart-styles`, `POST /api/admin/reports/chart-styles`, authentification admin selon le type `settings` de la politique SMN, contrôle de session/origine, corps JSON borné, codes métier 400/403/404/409/503.
+- **API** : `GET /api/admin/reports/chart-styles`, `POST /api/admin/reports/chart-styles`, lecture pour comptes actifs autorisés (`collective/read`), écritures admin seulement (`settings/write`), contrôle de session/origine, corps JSON borné, codes métier 400/403/404/409/503.
 - **Langues** : messages `chartStyles` en `src/i18n/fr.json` et `src/i18n/en.json` ; les routes renvoient des codes stables à traduire dans la future interface.
 - **Tests** : `tests/smn-416-chart-style-contract.test.ts` et `tests/smn-416-chart-styles-pg.test.ts`.
 
@@ -75,7 +75,7 @@ Les futurs modules SMN-417/418 utiliseront ce service de lecture ; **les exports
 2. Les tests unitaires et PG, l'analyse TypeScript, ESLint, i18n et la CI **ne sont pas attestés** par cette publication. Sans exécution, la Story ne doit pas être déclarée terminée.
 3. PostgreSQL ne connaît pas les presets codés en TypeScript : le contrôle de présence d'un style est effectué transactionnellement dans le service.
 4. Un audit d'état est fourni par `revision`, `updated_at`, `updated_by` ; il n'existe pas encore de journal immuable des changements de styles. Ce point n'est pas un critère d'acceptation explicite de SMN-416.
-5. La politique d'accès actuelle des routes Paramètres rend la lecture API **administrateur uniquement** ; les futurs exports utiliseront le service interne pour les utilisateurs habilités aux rapports, conformément à leur propre autorisation.
+5. La lecture des styles est permise aux comptes actifs par une route contrôlée en lecture ; les mutations exigent un administrateur. Les futurs exports vérifieront indépendamment leurs droits et le contexte d'équipe.
 6. Aucun `uv` exécuté sur GitHub ; pas de mesure de performance ou de données réelles produites.
 
 ## Traçabilité des AC
