@@ -14,6 +14,7 @@
     "test": "tsx --test tests/*.test.ts tests/*.test.mjs",
     "test:smn-416": "tsx --test tests/smn-416-chart-style-contract.test.ts tests/smn-416-chart-styles-pg.test.ts tests/smn-416-chart-style-access.test.ts",
     "test:smn-417": "tsx --test tests/smn-417-office-chart-style-resolver.test.ts tests/smn-402-office-trends.test.ts tests/smn-411-chart-targets.test.mjs",
+    "test:smn-423": "tsx --test tests/smn-423-office-links.test.ts tests/smn-400-word-tables.test.mjs tests/smn-401-powerpoint-tables.test.mjs",
     "test:smn-422": "tsx --test tests/office-style-render-consistency.test.ts tests/smn-422-office-catalog-qa.test.ts tests/smn-421-office-report-style.test.ts tests/smn-420-style-editor.test.ts tests/smn-419-gallery.test.tsx tests/smn-418-unified-office-charts.test.ts tests/smn-417-office-chart-style-resolver.test.ts tests/smn-416-chart-style-contract.test.ts tests/smn-416-chart-style-access.test.ts tests/smn-415-office-baseline.test.mjs",
     "test:smn-421": "tsx --test tests/smn-421-office-report-style.test.ts tests/smn-417-office-chart-style-resolver.test.ts tests/smn-413-office-route.test.mjs",
     "test:smn-420": "tsx --test tests/smn-420-style-editor.test.ts tests/smn-419-gallery.test.tsx tests/smn-416-chart-style-contract.test.ts",
