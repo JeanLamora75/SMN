@@ -43,6 +43,8 @@ test("preview server checks authentication and strict v1 config before rasterize
  assert.match(s,/validChartType\(raw.type\)/);
  assert.match(s,/validChartStyleConfig\(raw.config\)/);
  assert.match(s,/2_000_000/);
+ assert.match(s,/raw.locale!=="fr"/);
+ assert.match(s,/raw.locale!=="en"/);
  assert.match(s,/Cache-Control":"private, no-store"/);
  assert.doesNotMatch(s,/readIndicatorReporting|INSERT INTO|UPDATE public|withAuthDb/);
 });
@@ -69,6 +71,7 @@ test("draft save carries revision and blocks invalid configurations",()=>{
  assert.match(s,/revision:original.revision/);
  assert.match(s,/action:"update"/);
  assert.match(s,/setPreviewStatus\("stale"\)/);
+ assert.match(s,/body:JSON.stringify\(\{type,config:draft,locale\}\)/);
  assert.match(s,/window\.confirm\(tr\("discardConfirm"\)\)/);
  assert.match(s,/beforeunload/);
  assert.match(s,/source==="custom"/);
