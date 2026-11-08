@@ -27,6 +27,15 @@ describe("SMN-226 — modes Cartes/Liste du catalogue",()=>{
   assert.equal(settingsCatalog("scrum",{role:"admin",is_active:true,must_change_password:false})
    .flatMap(g=>g.entries).length,13);
  });
+ it("dimensionne Catalogue comme les autres cartes sans modifier la vue liste",()=>{
+  const view=source("src/app/app/admin/settings/settings-catalog-view.tsx");
+  const section=view.slice(view.indexOf('aria-labelledby="settings-indicators-title"'),view.indexOf('aria-labelledby="smn-settings-companies-title"'));
+  assert.match(section,/view==="cards"\?"row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3":"d-grid gap-2"/);
+  assert.match(section,/className=\{view==="cards"\?"col":""\}/);
+  assert.match(section,/h-100 d-flex gap-3 align-items-start/);
+  assert.match(section,/view==="list"&&/);
+  assert.match(section,/href="\/app\/admin\/settings\/indicators"/);
+ });
  it("annonce les boutons et leur sélection aux technologies d'assistance",()=>{
   const view=source("src/app/app/admin/settings/settings-catalog-view.tsx");
   assert.match(view,/aria-pressed=\{view==="cards"\}/);
