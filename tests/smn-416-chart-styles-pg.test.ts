@@ -39,6 +39,7 @@ test("PostgreSQL isolated: create, defaults, optimistic revisions, permissions a
    const account=await db.query<{id:string}>("SELECT id FROM public.smn_account WHERE role='admin' LIMIT 1");
    const actor={id:account.rows[0].id,role:"admin"};
    const normal={...actor,role:"user"};
+   const indicatorBefore=await db.query<{c:string}>("SELECT COUNT(*)::text AS c FROM public.smn_indicator_definition");
    await db.query(sql);
    await db.query(sql);
    const defaults=await db.query<{c:string}>("SELECT COUNT(*)::text AS c FROM public.smn_chart_style_default");
@@ -72,7 +73,7 @@ test("PostgreSQL isolated: create, defaults, optimistic revisions, permissions a
    assert.equal(after.styles.length,3);
    assert.equal(after.defaults.line.styleId,"corporate");
    const indicator=await db.query<{c:string}>("SELECT COUNT(*)::text AS c FROM public.smn_indicator_definition");
-   assert.ok(Number(indicator.rows[0].c)>=0);
+   assert.equal(indicator.rows[0].c,indicatorBefore.rows[0].c);
   }finally{await db.end().catch(()=>undefined);}
  }finally{
   if(created)await server.query('DROP DATABASE "'+database+'" WITH (FORCE)').catch(()=>undefined);
