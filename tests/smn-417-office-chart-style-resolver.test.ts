@@ -45,6 +45,8 @@ test("all six types obey tag > report > default > legacy priority",()=>{
   const defaults=createOfficeChartStyleResolver(catalog);
   assert.deepEqual([defaults({type}).id,defaults({type}).source],["cockpit-agile","default"]);
   const legacy=createOfficeChartStyleResolver(legacyOfficeStyleSnapshot());
+  assert.deepEqual([legacy({type,style:"legacy"}).id,legacy({type,style:"legacy"}).source],
+   ["legacy","legacy"]);
   assert.deepEqual([legacy({type}).id,legacy({type}).source],[null,"legacy"]);
   assert.equal(legacy({type,style:"corporate"}).source,"tag");
  }
