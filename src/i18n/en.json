@@ -4109,7 +4109,9 @@
         "pie": "Pie",
         "donut": "Donut",
         "gauge": "Gauge"
-      }
+      },
+      "sectionTitle": "Reports",
+      "sectionDescription": "Manage chart styles for all Word and PowerPoint reports."
     }
   }
 }
