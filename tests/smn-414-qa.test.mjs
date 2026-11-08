@@ -55,7 +55,7 @@ test("four-slot synthetic fixture preserves untouched media and text while repla
 test("unsupported rotation and group abort before output, minimum size is explicit",async()=>{
  const source=syntheticFourSlotTemplate();
  const original=readZip(source).find(p=>p.name==="ppt/slides/slide1.xml").data.toString();
- const withRotation=original.replace("<a:xfrm>","<a:xfrm rot=\"600000\">");
+ const withRotation=original.replace(/(<p:cNvPr id="3"[\s\S]*?<a:xfrm)>/,"$1 rot=\"600000\">");
  const bad=readZip(source).map(p=>p.name==="ppt/slides/slide1.xml"?{...p,data:Buffer.from(withRotation)}:p);
  const {writeZip}=await import("../scripts/smn-397-office-poc.mjs");
  assert.throws(()=>insertAdaptivePowerPointCharts(writeZip(bad),()=>Buffer.alloc(64)),/office-chart-unsupported-transform/);
