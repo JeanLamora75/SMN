@@ -58,6 +58,15 @@ export default function OfficeTemplateCatalog({
    setMissingChartTag(result.tag);
    setError(tr("officeChartIndicatorUnavailable"));return;
   }
+  if(result?.error==="office-chart-invalid-target"){
+   setError(tr("officeChartTargetInvalid"));return;
+  }
+  if(result?.error==="office-chart-render-failed"){
+   setError(tr("officeChartRenderFailed"));return;
+  }
+  if(result?.error==="office-chart-insertion-failed"){
+   setError(tr("officeChartInsertionFailed"));return;
+  }
   setError(fallback);
  }
  async function checkThenSave(){
