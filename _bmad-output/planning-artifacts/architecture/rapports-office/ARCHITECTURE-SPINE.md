@@ -132,3 +132,8 @@ Références : [spécification fonctionnelle Office](../rapports-office/specific
 **AD-13 [ADOPTED] — Volume de données.** Aucune limite métier additionnelle sur les lignes de tableaux ; toutes les lignes autorisées doivent être rendues, débordement visuel accepté sans redimensionner ou déplacer artificiellement les objets. Les tendances gardent la limite SMN de six indicateurs compatibles de même unité. Plafonds de sécurité/ressources explicitement documentés et contrôlés, erreur si dépassés, jamais de troncature silencieuse.
 
 Les anciens Q3 à Q6 sont **tranchés fonctionnellement** par ces décisions ; seules les preuves de faisabilité et l'inventaire concret de tags restent techniques.
+
+
+## Avenant proposé — Graphiques adaptatifs PowerPoint (08/11/2026)
+
+Winston a formalisé la proposition de décisions de rendu adaptatif et d'insertion Open XML dans [ADR-GRAPHIQUES-ADAPTATIFS-PPTX-2026-11-08.md](ADR-GRAPHIQUES-ADAPTATIFS-PPTX-2026-11-08.md), en application des AD-03, AD-05, AD-07, AD-08 et AD-10 ci-dessus. Ce document est **une proposition soumise à validation et à un POC**, pas une révision des invariants adoptés ; les tags et la projection historique restent inchangés. Aucune implémentation n'est revendiquée.
