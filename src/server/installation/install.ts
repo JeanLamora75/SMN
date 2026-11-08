@@ -60,7 +60,13 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
   // L'installation est acceptée uniquement après diagnostic physique v33.
   const after=classifySnapshot(await probePostgres(uri.toString()));
   return after.status==="initialized"?{ok:true}:{ok:false,status:"verification-failed"};
- }catch{return {ok:false,status:"installation-failed"}}
+ }catch(error){
+  // Never log SQL text, user credentials or database URLs.
+  const state=error&&typeof error==="object"&&"code" in error?
+   (error as {code?:unknown}).code:null;
+  console.error("smn-native-install-failed",typeof state==="string"?state:"unclassified");
+  return {ok:false,status:"installation-failed"};
+ }
  finally{
   if(transaction)await client.query("ROLLBACK").catch(()=>undefined);
   await client.end().catch(()=>undefined);
