@@ -6,7 +6,7 @@ import {insertOfficeTrendImages} from "../scripts/smn-402-office-chart-tags.mjs"
 import {insertAdaptivePowerPointCharts} from "../scripts/smn-413-adaptive-pptx.mjs";
 import {syntheticOfficeTemplate} from "../scripts/poc/smn-415-office-baseline.mjs";
 import {composeAdaptiveChart,renderAdaptiveChartPng,CHART_STYLES} from "../scripts/smn-412-adaptive-chart.mjs";
-import {PREDEFINED_CHART_STYLES,type ChartType} from "../src/server/reports/chart-style-contract";
+import {PREDEFINED_CHART_STYLES,type ChartType,type ChartStyleConfig} from "../src/server/reports/chart-style-contract";
 import {createOfficeStyleSnapshot,createOfficeChartStyleResolver} from "../src/server/reports/office-chart-style-resolver";
 
 const snap=createOfficeStyleSnapshot({styles:PREDEFINED_CHART_STYLES.map(s=>({
@@ -39,7 +39,7 @@ test("one shared SVG/resvg function renders all six styles in Word and PowerPoin
  }
 });
 test("custom chart styling changes SVG but does not alter the input data or legacy scene",()=>{
- const style=structuredClone(PREDEFINED_CHART_STYLES[0].config);
+ const style=structuredClone(PREDEFINED_CHART_STYLES[0].config) as ChartStyleConfig;
  style.common.title="Graphique personnalisé";
  style.common.palette[0]="#ff0000";
  style.common.labels.visible=true;
