@@ -29,7 +29,11 @@ export const officeRowDefinitions:readonly RowDefinition[]=[
  {source:"ACTIONS",fr:"Actions",en:"Actions",
   fields:["ACTION_TITLE","ACTION_STATUS","ACTION_PRIORITY","ACTION_DATE"]},
  {source:"DECISIONS",fr:"Décisions",en:"Decisions",
-  fields:["DECISION_TITLE","DECISION_STATUS","DECISION_PRIORITY","DECISION_DATE"]}
+  fields:["DECISION_TITLE","DECISION_STATUS","DECISION_PRIORITY","DECISION_DATE"]},
+ {source:"LINKS_TRANSVERSE",fr:"Liens transverses accessibles",en:"Accessible cross-team links",
+  fields:["LINK_TITLE","LINK_URL","LINK_LABEL","LINK_DESCRIPTION","LINK_CATEGORY","LINK_SCOPE"]},
+ {source:"LINKS_TEAM",fr:"Liens de l'équipe du rapport",en:"Report team links",
+  fields:["LINK_TITLE","LINK_URL","LINK_LABEL","LINK_DESCRIPTION","LINK_CATEGORY","LINK_SCOPE"]}
 ];
 export const officeScalarDefinitions:readonly ScalarDefinition[]=[
  {key:"TEAM_NAME",fr:"Nom de l'équipe",en:"Team name"},
@@ -46,6 +50,8 @@ export const officeScalarDefinitions:readonly ScalarDefinition[]=[
  {key:"PRODUCT_GOAL",fr:"Objectif du produit (contexte de l'équipe)",en:"Product goal (team context)"},
  {key:"PRODUCT_VISION",fr:"Vision du produit (contexte de l'équipe)",en:"Product vision (team context)"},
  {key:"INDICATOR_<TAG>",fr:"Valeur d'un indicateur actif de l'équipe",en:"Value of an active team indicator",
+ {key:"LINK_COUNT_TRANSVERSE",fr:"Nombre de liens transverses accessibles",en:"Count of accessible cross-team links"},
+ {key:"LINK_COUNT_TEAM",fr:"Nombre de liens de l'équipe du rapport",en:"Count of report team links"},
   noteFr:"Remplacer <TAG> par le tag réel du catalogue, par exemple INDICATOR_VELOCITY",
   noteEn:"Replace <TAG> with the actual catalog tag, e.g. INDICATOR_VELOCITY"}
 ];
@@ -108,6 +114,9 @@ export default function OfficeTags({locale="fr",expanded=false}:{locale?:Locale;
    {scalarTable(indicators)}
   </TagSection>
   <TagSection title={fr?"3. Tableaux de données métier":"3. Business data tables"}>
+  <p className="small">{fr?
+   "Deux collections indépendantes : {{ROW:LINKS_TRANSVERSE}} pour tous les liens transverses accessibles, et {{ROW:LINKS_TEAM}} pour ceux de l'équipe du rapport. Aucun choix manuel. Tri par catégorie puis titre ; LINK_LABEL produit un hyperlien cliquable. Les compteurs sont utilisables hors tableaux. Une collection vide n'ajoute aucune ligne. Sur PowerPoint, le ROW doit être dans la ligne de tableau ou le paragraphe à répéter.":
+   "Two independent collections: {{ROW:LINKS_TRANSVERSE}} for all accessible cross-team links, and {{ROW:LINKS_TEAM}} for links belonging to the report team. No manual selection. Sorted by category then title; LINK_LABEL produces a clickable hyperlink. Counters can appear outside tables. Empty collections add no rows. In PowerPoint, ROW must be in the table row or paragraph to be repeated."}</p>
   <p className="small">
    {fr?"Dans le modèle, créer un tableau puis placer un marqueur {{ROW:SOURCE}} dans sa ligne d'exemple. Ajouter les champs voulus dans les cellules de cette même ligne. SMN reproduit la ligne pour chaque élément du sprint, en conservant sa mise en forme compatible.":
     "Create a table in the template and place a {{ROW:SOURCE}} marker in its sample row. Add the desired fields in the cells of that row. SMN repeats the row for each item in the sprint, retaining supported formatting."}
