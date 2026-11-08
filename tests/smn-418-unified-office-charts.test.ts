@@ -1,10 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
+import {readFileSync,mkdtempSync,rmSync,existsSync} from "node:fs";
+import {tmpdir} from "node:os";
+import {join} from "node:path";
 import {readZip} from "../scripts/smn-397-office-poc.mjs";
 import {insertOfficeTrendImages} from "../scripts/smn-402-office-chart-tags.mjs";
 import {insertAdaptivePowerPointCharts} from "../scripts/smn-413-adaptive-pptx.mjs";
-import {syntheticOfficeTemplate} from "../scripts/poc/smn-415-office-baseline.mjs";
+import {syntheticOfficeTemplate,runBaseline} from "../scripts/poc/smn-415-office-baseline.mjs";
+import {compareBaseline} from "../scripts/poc/smn-418-compare-baseline";
 import {composeAdaptiveChart,renderAdaptiveChartPng,CHART_STYLES} from "../scripts/smn-412-adaptive-chart.mjs";
 import {PREDEFINED_CHART_STYLES,type ChartType,type ChartStyleConfig} from "../src/server/reports/chart-style-contract";
 import {createOfficeStyleSnapshot,createOfficeChartStyleResolver} from "../src/server/reports/office-chart-style-resolver";
@@ -145,4 +148,22 @@ test("legacy no-catalog path and report-archive source remain available",()=>{
  assert.match(route,/isSupportedOfficePackage/);
  assert.match(module,/renderOfficeIndicatorChart\(report,cycleId,options,locale\)/);
  assert.match(module,/renderOfficeIndicatorAdaptiveChart\(report,cycleId,options,locale,target\)/);
+});
+
+test("SMN-418 benchmark compares matching 415 fixtures without changing archived source",()=>{
+ const before=mkdtempSync(join(tmpdir(),"smn418-before-"));
+ const after=mkdtempSync(join(tmpdir(),"smn418-after-"));
+ try{
+  const baseline=runBaseline({output:before,repeats:1,smoke:true});
+  assert.equal(baseline.configuration.images,4);
+  const compared=compareBaseline({before,out:after,repeats:1,styleId:"cockpit-agile",smoke:true});
+  assert.equal(compared.cases.length,4);
+  assert.ok(compared.cases.every(x=>x.width>0&&x.height>0));
+  assert.ok(existsSync(join(before,"baseline.json")));
+  assert.ok(existsSync(join(after,"comparison.json")));
+  assert.equal(compared.manualOfficeReview,"pending");
+ }finally{
+  rmSync(before,{recursive:true,force:true});
+  rmSync(after,{recursive:true,force:true});
+ }
 });
