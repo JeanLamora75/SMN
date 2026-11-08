@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {createOfficeStyleSnapshot,createOfficeChartStyleResolver,
  OfficeChartStyleResolutionError} from "../src/server/reports/office-chart-style-resolver";
-import {PREDEFINED_CHART_STYLES,CHART_TYPES} from "../src/server/reports/chart-style-contract";
+import {PREDEFINED_CHART_STYLES,CHART_TYPES,validChartType} from "../src/server/reports/chart-style-contract";
 import {parseOfficeChartTag,discoverOfficeChartTags} from "../scripts/smn-402-office-chart-tags.mjs";
 import {discoverPowerPointChartTargets} from "../scripts/smn-411-chart-targets.mjs";
 import {syntheticOfficeTemplate} from "../scripts/poc/smn-415-office-baseline.mjs";
@@ -15,6 +15,10 @@ const snapshot=createOfficeStyleSnapshot({
  styles,
  defaults:Object.fromEntries(CHART_TYPES.map(type=>[type,{styleId:"cockpit-agile",revision:1}]))
 });
+function typed<T extends {type:string;style?:string;last?:number;tags?:readonly string[]|null}>(value:T){
+ if(!validChartType(value.type))throw Error("Invalid chart type in Office tag");
+ return {...value,type:value.type};
+}
 test("report style never changes explicit tag STYLE and applies to other chart types",()=>{
  const resolver=createOfficeChartStyleResolver(snapshot,"corporate");
  for(const type of CHART_TYPES){
@@ -49,18 +53,18 @@ test("the same report-level override resolves mixed DOCX and PPTX chart tags",()
  const resolver=createOfficeChartStyleResolver(snapshot,"corporate");
  // Validate the same tag grammar used by Word and PowerPoint adapters.
  const expected=["corporate","minimal","corporate"];
- assert.deepEqual(example.map(tag=>resolver(parseOfficeChartTag(tag)).id),expected);
+ assert.deepEqual(example.map(tag=>resolver(typed(parseOfficeChartTag(tag))).id),expected);
  const original=JSON.stringify(snapshot);
  for(const format of ["docx","pptx"] as const){
   const bytes=syntheticOfficeTemplate(format,3,"horizontal");
   if(format==="docx"){
    const found=discoverOfficeChartTags(bytes,format);
    assert.equal(found.length,3);
-   assert.ok(found.every(item=>resolver(item.params).id==="corporate"));
+   assert.ok(found.every(item=>resolver(typed(item.params)).id==="corporate"));
   }else{
    const found=discoverPowerPointChartTargets(bytes);
    assert.equal(found.length,3);
-   assert.ok(found.every(item=>resolver(item.options).id==="corporate"));
+   assert.ok(found.every(item=>resolver(typed(item.options)).id==="corporate"));
   }
  }
  assert.equal(JSON.stringify(snapshot),original);
