@@ -35,3 +35,27 @@
  .smn-chart-style-hero{padding:1.3rem}
  .smn-chart-filter-action .btn{width:100%}}
 @media(prefers-reduced-motion:reduce){.smn-chart-skeleton-item{animation:none}}
+
+/* SMN-420 — M2 standalone style editor; no sidebar editing on the M1 landing page. */
+.smn-chart-m2-title{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+.smn-chart-m2-columns{display:grid;grid-template-columns:minmax(320px,1fr) minmax(360px,1.15fr);gap:1.1rem;align-items:start}
+.smn-chart-m2-fields,.smn-chart-m2-preview{border:1px solid var(--smn-chart-border);border-radius:15px;padding:1.15rem;min-width:0}
+.smn-chart-m2-fields details{border:1px solid var(--smn-chart-border);border-radius:12px;margin-bottom:.85rem;overflow:hidden}
+.smn-chart-m2-fields summary{cursor:pointer;display:list-item;background:var(--bs-tertiary-bg,#f3f7fb);padding:.85rem 1rem;font-weight:700}
+.smn-chart-m2-fields details[open] summary{border-bottom:1px solid var(--smn-chart-border)}
+.smn-chart-m2-section{padding:1.1rem;display:grid;gap:.85rem}
+.smn-chart-m2-fields-grid,.smn-chart-m2-specific{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.9rem}
+.smn-chart-editor-field{display:flex;flex-direction:column;gap:.35rem;min-width:0}
+.smn-chart-editor-field .form-label{font-size:.84rem;font-weight:650;margin:0}
+.smn-chart-editor-check{display:flex;align-items:center;gap:.55rem;cursor:pointer}
+.smn-chart-m2-palette{display:flex;align-items:end;gap:.55rem;flex-wrap:wrap}
+.smn-chart-preview-canvas{background:var(--bs-tertiary-bg,#f3f7fb);min-height:240px;border:1px dashed var(--smn-chart-border);
+ display:flex;align-items:center;justify-content:center;padding:1rem;border-radius:12px}
+.smn-chart-preview-canvas img{display:block;width:100%;height:auto;max-width:960px;object-fit:contain}
+.smn-chart-m2-preview{position:sticky;top:1rem}
+.smn-chart-m2-actions{position:sticky;bottom:0;z-index:10;display:flex;gap:.8rem;justify-content:flex-end;
+ border:1px solid var(--smn-chart-border);border-radius:12px;background:var(--bs-body-bg,#fff);box-shadow:0 -4px 22px rgba(20,44,74,.08)}
+@media(max-width:1000px){.smn-chart-m2-columns{grid-template-columns:1fr}.smn-chart-m2-preview{position:static}}
+@media(max-width:600px){.smn-chart-m2-fields-grid,.smn-chart-m2-specific{grid-template-columns:1fr}
+ .smn-chart-m2-title{align-items:flex-start;flex-direction:column}
+ .smn-chart-m2-actions>*{flex:1}}
