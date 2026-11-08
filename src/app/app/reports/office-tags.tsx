@@ -160,6 +160,10 @@ export default function OfficeTags({locale="fr",expanded=false}:{locale?:Locale;
     </tr>)}</tbody>
    </table>
   </div>
+  <p className="small fw-semibold">
+   {fr?"Attention : SP_DONE, SP_INIT et RATE_PERCENT ne sont que des exemples. Le tag doit exister, être actif pour l'équipe et visible dans ses Tendances ; sinon la génération échoue avec le tag concerné.":
+    "Important: SP_DONE, SP_INIT and RATE_PERCENT are examples only. The indicator tag must exist, be active for the team and visible in Trends; otherwise generation reports the missing tag."}
+  </p>
   <p className="small text-secondary">
    {fr?"Paramètres facultatifs : TYPE (bar, line, area, pie, donut, gauge), LAST (1 à 24 sprints), TAGS (1 à 6 indicateurs disponibles, de même unité). Remplacez les exemples SP_DONE, SP_INIT et RATE_PERCENT par les tags de votre catalogue. La jauge exige une seule série en pourcentage.":
     "Optional parameters: TYPE (bar, line, area, pie, donut, gauge), LAST (1 to 24 sprints), TAGS (1 to 6 available indicators sharing the same unit). Replace sample tags SP_DONE, SP_INIT and RATE_PERCENT with tags from your own catalog. Gauges require exactly one percentage series."}
