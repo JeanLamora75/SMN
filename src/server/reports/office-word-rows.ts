@@ -69,7 +69,7 @@ export async function readOfficeMemberGroups(db:Client,teamId:string,cycleId:str
   WHERE s.id=$2 AND s.team_id=$1 AND s.deleted_at IS NULL
     AND t.installation_id='singleton' LIMIT 1`,[teamId,cycleId]);
  const lastDay=until.rows[0]?.last_day;
- if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(lastDay??""))throw Error("office-members-invalid-cycle");
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(lastDay??""))throw Error("office-members-invalid-cycle");
  const projected=(member:MemberRow)=>({
   MEMBER_NAME:member.name,
   MEMBER_ROLE:member.role,
