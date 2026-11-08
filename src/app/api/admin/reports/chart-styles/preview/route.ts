@@ -18,16 +18,19 @@ export async function POST(req:NextRequest){
  if(!actor)return jsonResult({error:"forbidden"},403);
  const raw=await readJsonObject(req,12000);
  if(!raw||!validChartType(raw.type)||!validChartStyleConfig(raw.config)||
-  Object.keys(raw).some(key=>key!=="type"&&key!=="config"))
+  (raw.locale!==undefined&&raw.locale!=="fr"&&raw.locale!=="en")||
+  Object.keys(raw).some(key=>key!=="type"&&key!=="config"&&key!=="locale"))
   return jsonResult({error:"invalid-input"},400);
  const type=raw.type;
+ const locale=raw.locale==="en"?"en":"fr";
  try{
   const png=renderAdaptiveChartPng({
    target:{widthEmu:960*3048,heightEmu:560*3048},
    cycles:PREVIEW_CYCLES,series:type==="gauge"?[{
-    name:"Avancement",unit:"%",values:[38,44,56,65,70,76]
-   }]:PREVIEW_SERIES.map(series=>({...series,values:[...series.values]})),
-   type,locale:"fr",style:raw.config
+    name:locale==="en"?"Progress":"Avancement",unit:"%",values:[38,44,56,65,70,76]
+   }]:PREVIEW_SERIES.map((series,i)=>({...series,
+    name:locale==="en"?(i===0?"Delivered":"Planned"):series.name,values:[...series.values]})),
+   type,locale,style:raw.config
   });
   if(!png||png.length>2_000_000)return jsonResult({error:"preview-unavailable"},422);
   return new NextResponse(new Uint8Array(png),{status:200,headers:{
