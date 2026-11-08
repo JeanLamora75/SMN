@@ -6,7 +6,7 @@ import {generateWordTables} from "../scripts/smn-400-word-tables.mjs";
 import {generatePowerPointTables} from "../scripts/smn-401-powerpoint-tables.mjs";
 import {activateOfficeLinkLabels} from "../scripts/smn-423-office-link-hyperlinks.mjs";
 import {generateScalarOffice} from "../scripts/smn-399-office-scalars.mjs";
-import {buildOfficeLinkRows} from "../src/server/reports/office-link-rows";
+import {buildOfficeLinkRows} from "../src/lib/office-link-projection";
 
 const teamId="team-one";
 const links=[
