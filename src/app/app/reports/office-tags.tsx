@@ -49,9 +49,9 @@ export const officeScalarDefinitions:readonly ScalarDefinition[]=[
  {key:"PRODUCT_NAME",fr:"Nom du produit associé à l'équipe",en:"Product associated with the team"},
  {key:"PRODUCT_GOAL",fr:"Objectif du produit (contexte de l'équipe)",en:"Product goal (team context)"},
  {key:"PRODUCT_VISION",fr:"Vision du produit (contexte de l'équipe)",en:"Product vision (team context)"},
- {key:"INDICATOR_<TAG>",fr:"Valeur d'un indicateur actif de l'équipe",en:"Value of an active team indicator",
  {key:"LINK_COUNT_TRANSVERSE",fr:"Nombre de liens transverses accessibles",en:"Count of accessible cross-team links"},
  {key:"LINK_COUNT_TEAM",fr:"Nombre de liens de l'équipe du rapport",en:"Count of report team links"},
+ {key:"INDICATOR_<TAG>",fr:"Valeur d'un indicateur actif de l'équipe",en:"Value of an active team indicator",
   noteFr:"Remplacer <TAG> par le tag réel du catalogue, par exemple INDICATOR_VELOCITY",
   noteEn:"Replace <TAG> with the actual catalog tag, e.g. INDICATOR_VELOCITY"}
 ];
