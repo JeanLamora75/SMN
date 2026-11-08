@@ -3700,7 +3700,15 @@
     "officeReportsDirectory": "Répertoire de dépôt des rapports Office",
     "officeDirectoryUnavailable": "Répertoire indisponible : vérifier la configuration du serveur.",
     "officeTemplateDirectoryHint": "Déposez ici les fichiers .docx et .pptx, puis cliquez sur Actualiser.",
-    "officeReportsDirectoryHint": "Les rapports générés via Enregistrer sont déposés ici. Le bouton Télécharger utilise le navigateur."
+    "officeReportsDirectoryHint": "Les rapports générés via Enregistrer sont déposés ici. Le bouton Télécharger utilise le navigateur.",
+    "officeReportStyleLabel": "Style graphique du rapport (facultatif)",
+    "officeReportStyleDefaults": "Styles par défaut",
+    "officeReportStyleHint": "Ce choix s'applique uniquement à cet export, sauf lorsqu'un tag STYLE du modèle impose un style particulier. Aucun réglage global n'est modifié.",
+    "officeReportStyleMissing": "Le style graphique demandé n'existe plus. Rechargez le catalogue ou choisissez « Styles par défaut ».",
+    "officeReportStyleInvalid": "Le style graphique sélectionné ou présent dans le modèle est invalide. Le rapport n'a pas été généré.",
+    "officeReportStyleUnavailable": "Le catalogue des styles graphiques n'est pas disponible sur cette installation.",
+    "officeReportStyleForbidden": "Vous ne disposez pas des autorisations nécessaires pour produire ce rapport.",
+    "officeReportStyleLoadError": "Impossible de charger les styles disponibles. La génération avec les styles par défaut reste possible."
   },
   "reportsStudio": {
     "modes": "Modes du Studio",
