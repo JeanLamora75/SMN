@@ -126,7 +126,17 @@ Le workflow `SMN-422 — Recette catalogue graphique Office` s'exécute sur Wind
 
 **Décision : NO GO pour la clôture de SMN-422 tant que AC-03 et AC-05 ne disposent pas de preuves réelles.** Conserver SMN-422 au statut **En cours**, sans fermer automatiquement les Stories SMN-402/SMN-414 ni aucune autre Story.
 
-## 7. Références
+## 7. Correctif de cohérence aperçu / export (8 novembre 2026)
+
+**Constat :** les miniatures M1 de SMN-419 étaient dessinées à la main, indépendamment du moteur SVG/resvg de SMN-418. Elles pouvaient donc laisser croire qu'un style n'était pas appliqué dans le rapport Word ou PowerPoint.
+
+**Correction publiée sur main :** la carte M1 charge maintenant un véritable PNG depuis le même endpoint de prévisualisation utilisé en M2 (`/api/admin/reports/chart-styles/preview`), lui-même relié à `renderAdaptiveChartPng` utilisé pour les exports DOCX/PPTX. Le type de démonstration est **bar**, les données sont **fictives**, le format est **960 × 560 px**, la locale est FR/EN. Une légende indique qu'il s'agit d'un aperçu Office sur données fictives. Les URL locales du PNG sont révoquées et les requêtes annulées lorsqu'une carte disparaît ; aucun style ni indicateur n'est modifié.
+
+**Preuves automatisées :** `tests/office-style-render-consistency.test.ts` vérifie les palettes dans la composition SVG, les empreintes des PNG produits avec Corporate/Minimal/Cockpit Agile et les PNG effectivement intégrés dans les packages synthétiques DOCX et PPTX. Les tests vérifient aussi qu'un tag `STYLE` explicite prime sur le choix du rapport.
+
+**Limites :** une miniature M1 sur données fictives ne peut pas reproduire la courbe ou les valeurs réelles d'un rapport ; son moteur, ses règles de mise en page et son rendu sont en revanche les mêmes pour une configuration, un type et une géométrie identiques. L'ouverture effective d'un document Microsoft Office reste à valider séparément.
+
+## 8. Références
 
 - [Jira SMN-422](https://lmn24.atlassian.net/browse/SMN-422)
 - [UX Sally](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/catalogue-graphiques-2026-11-08/EXPERIENCE.md)
