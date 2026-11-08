@@ -3595,6 +3595,8 @@
     "loadMore": "Load more events"
   },
   "reportsCenter": {
+    "officeChartIndicatorUnavailable": "The chart could not be generated: indicator unavailable in this team's trends:",
+    "officeChartIndicatorHint": "Check the exact tag in Settings → Indicators → Catalog, and ensure it is active and visible in Trends.",
     "officeOpenDirectory": "Open in File Explorer",
     "officeExplorerError": "Unable to open this folder in File Explorer. Check that the directory exists and SMN is running on Windows.",
     "officeExplorerUnsupported": "Opening File Explorer is only available on the Windows computer running SMN.",
