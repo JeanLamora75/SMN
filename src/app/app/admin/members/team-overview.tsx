@@ -9,7 +9,7 @@ import TeamContextEditor from "./team-context-editor";
 import BootstrapIcon from "../../bootstrap-icon";
 import {availableFunctions,filterTeamMembers,initialTeamFilters,splitTeamMembersByAssignment,type TeamFilters} from "./team-cockpit-filter";
 
-type Member={id:string;companyId?:string|null;companyName?:string|null;companyColor?:string|null;displayName:string;countryIso2:string|null;professionalFunction?:string|null;isProvisional:boolean;memberNumber:number;archived:boolean;isAssigned:boolean;startOn:string|null;endOn:string|null;workedDays?:number;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
+type Member={id:string;companyId?:string|null;companyName?:string|null;companyColor?:string|null;displayName:string;countryIso2:string|null;city:string|null;professionalFunction?:string|null;isProvisional:boolean;memberNumber:number;archived:boolean;isAssigned:boolean;startOn:string|null;endOn:string|null;workedDays?:number;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
 type CompanyChoice={id:string;name:string;archivedAt:string|null};
 type Roster={team:{id:string;name:string;mode:string};members:Member[]};
 type TeamContextOverview={teamId:string;name:string;productName:string;
@@ -229,7 +229,8 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
          <th scope="col">{t("teamUX.member")}</th>
          <th scope="col">{t("teamUX.roles")}</th>
          <th scope="col">{t("teamCockpit.functionLabel")}</th>
-         <th scope="col">{t("teamUX.startDate")}</th>
+         <th scope="col">{t("teamUX.city")}</th>
+          <th scope="col">{t("teamUX.startDate")}</th>
          <th scope="col">{t("teamUX.endDate")}</th>
          <th scope="col">{t("teamUX.workedDays")}</th>
          <th scope="col">{t("teamCockpit.statusLabel")}</th>
@@ -250,6 +251,7 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
           {roles(member).map(([name,share])=>roleBadge(name,share))}
          </div></td>
          <td>{member.professionalFunction?.trim()||t("teamUX.functionMissing")}</td>
+          <td>{member.city?.trim()||"—"}</td>
          <td><time dateTime={member.startOn??undefined}>{dateLabel(member.startOn)}</time></td>
          <td>{member.endOn?<time dateTime={member.endOn}>{dateLabel(member.endOn)}</time>:"—"}</td>
          <td className="text-nowrap">{typeof member.workedDays==="number"?
