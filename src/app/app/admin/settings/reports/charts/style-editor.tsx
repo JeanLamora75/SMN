@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import {useCallback,useEffect,useRef,useState,type ReactNode} from "react";
-import {useTranslation} from "@/i18n/client";
+import {useLocale,useTranslation} from "@/i18n/client";
 import type {TranslationKey} from "@/i18n/catalog";
 import {CHART_TYPES,type ChartStyleConfig,type ChartType,validChartStyleConfig} from "@/server/reports/chart-style-contract";
 import {validGalleryCatalog,type GalleryStyle,type GalleryCatalog} from "@/lib/chart-style-gallery";
@@ -56,6 +56,7 @@ function localError(code:string,t:(k:TranslationKey)=>string){
 }
 export default function ChartStyleEditor({id,canEdit}:{id:string;canEdit:boolean}){
  const t=useTranslation();
+ const locale=useLocale();
  const tr=(name:string)=>t(("chartStyles.editor."+name) as TranslationKey);
  const [original,setOriginal]=useState<GalleryStyle|null>(null);
  const [draft,setDraft]=useState<ChartStyleConfig|null>(null);
@@ -94,6 +95,8 @@ export default function ChartStyleEditor({id,canEdit}:{id:string;canEdit:boolean
      setName(item.name);setDescription(item.description);
      setThresholdInput(item.config.types.gauge.thresholds.join(", "));
      setThresholdError(false);setPreviewStatus("fresh");setSuccess("");
+     if(previewUrl.current)URL.revokeObjectURL(previewUrl.current);
+     previewUrl.current=null;setPreview(null);
     }
    }catch(cause){if(alive)setError(cause instanceof Error?cause.message:"service-unavailable")}
    finally{if(alive)setLoading(false)}
@@ -123,7 +126,7 @@ export default function ChartStyleEditor({id,canEdit}:{id:string;canEdit:boolean
   setWorking(true);setError("");setPreviewStatus("loading");
   try{
    const response=await fetch(PREVIEW,{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({type,config:draft})});
+    body:JSON.stringify({type,config:draft,locale})});
    if(!response.ok){
     const detail=await response.json().catch(()=>({})) as {error?:string};
     throw Error(detail.error??"preview-unavailable");
