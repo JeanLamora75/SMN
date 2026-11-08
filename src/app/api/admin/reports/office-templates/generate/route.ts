@@ -8,11 +8,14 @@ import {resolveAdminTeam} from "@/server/teams/resolve";
 import {assertTeamReportCycle} from "@/server/reports/team-cycle";
 import {readReportIndicatorProjection} from "@/server/reports/dynamic-indicators";
 import {readIndicatorReporting,type ReportData} from "@/server/indicators/reporting";
-import {renderOfficeIndicatorChart,renderOfficeIndicatorAdaptiveChart,OfficeChartIndicatorUnavailableError} from "@/server/reports/office-indicator-charts";
+import {renderOfficeIndicatorSharedChart,OfficeChartIndicatorUnavailableError} from "@/server/reports/office-indicator-charts";
 import {discoverOfficeChartTags,insertOfficeTrendImages} from "../../../../../../../scripts/smn-402-office-chart-tags.mjs";
 import {insertAdaptivePowerPointCharts,OfficePowerPointInsertionError} from "../../../../../../../scripts/smn-413-adaptive-pptx.mjs";
 import {OfficeChartTargetError} from "../../../../../../../scripts/smn-411-chart-targets.mjs";
 import {OfficeChartLayoutError} from "../../../../../../../scripts/smn-412-adaptive-chart.mjs";
+import {loadOfficeStyleSnapshot,createOfficeChartStyleResolver,OfficeChartStyleResolutionError,
+ type OfficeStyleSnapshot} from "@/server/reports/office-chart-style-resolver";
+import {ChartStyleError} from "@/server/reports/chart-style-contract";
 import {embedMemberFlagPictures,OfficeMemberFlagError} from "../../../../../../../scripts/smn-415-office-flag-images.mjs";
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
 import {readOfficeMemberGroups,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
@@ -65,6 +68,7 @@ export async function POST(req:NextRequest){
   chartCount=discoverOfficeChartTags(selected.bytes,selected.template.format).length;
   businessSources=discoverOfficeBusinessSources(selected.bytes);
  }catch{return jsonResult({error:"office-chart-invalid-tag"},422);}
+ let styleSnapshot:Awaited<ReturnType<typeof loadOfficeStyleSnapshot>>|null=null;
  let payload:{values:ReturnType<typeof buildScalarValues>;
   rows:Record<string,Record<string,string|null>[]>;report:ReportData|null};
  try{
@@ -115,6 +119,16 @@ export async function POST(req:NextRequest){
    try{return jsonResult(await inspectOfficeReport(filename,selected.template.format));}
    catch{return jsonResult({error:"save-unavailable"},503);}
   }
+  // Style read is one per export. Missing legacy tables preserve the old
+  // renderer, but a broken migrated catalog is never silently ignored.
+  if(chartCount>0){
+   try{
+    styleSnapshot=await withAuthDb(db=>loadOfficeStyleSnapshot(db,{id:actor.id,role:actor.role}));
+   }catch(error){
+    if(!(error instanceof ChartStyleError&&error.code==="schema-not-ready"))throw error;
+   }
+  }
+  const resolveChartStyle=createOfficeChartStyleResolver(styleSnapshot);
   const base=selected.template.format==="docx"?
    generateWordTables(selected.bytes,payload.rows).bytes:
    generatePowerPointTables(selected.bytes,payload.rows,language as Locale).bytes;
@@ -126,10 +140,12 @@ export async function POST(req:NextRequest){
    }).bytes:result.bytes;
   const withCharts=chartCount>0&&payload.report?
    selected.template.format==="pptx"?
-    insertAdaptivePowerPointCharts(withFlags,(target:{options:{last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null};widthEmu:number;heightEmu:number})=>
-     renderOfficeIndicatorAdaptiveChart(payload.report!,cycleId,target.options,language as Locale,target)).bytes:
-    insertOfficeTrendImages(withFlags,selected.template.format,(_index:number,options:{last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null})=>
-     renderOfficeIndicatorChart(payload.report!,cycleId,options,language as Locale)).bytes:
+    insertAdaptivePowerPointCharts(withFlags,(target:{options:{last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null;style?:string};widthEmu:number;heightEmu:number})=>
+     renderOfficeIndicatorSharedChart(payload.report!,cycleId,target.options,language as Locale,
+      "pptx",resolveChartStyle(target.options),target)).bytes:
+    insertOfficeTrendImages(withFlags,selected.template.format,(_index:number,options:{last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null;style?:string})=>
+     renderOfficeIndicatorSharedChart(payload.report!,cycleId,options,language as Locale,
+      "docx",resolveChartStyle(options))).bytes:
    withFlags;
   if(!isSupportedOfficePackage(withCharts,selected.template.format))
    return jsonResult({error:"generation-failed"},422);
@@ -157,6 +173,10 @@ export async function POST(req:NextRequest){
    }
   });
  }catch(error){
+  if(error instanceof OfficeChartStyleResolutionError)
+   return jsonResult({error:error.code,styleId:error.styleId},422);
+  if(error instanceof ChartStyleError)
+   return jsonResult({error:error.code},error.code==="schema-not-ready"?409:422);
   if(error instanceof OfficeChartIndicatorUnavailableError)
    return jsonResult({error:"office-chart-indicator-unavailable",tag:error.tag},422);
   if(error instanceof OfficeChartTargetError)
