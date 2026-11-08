@@ -90,9 +90,10 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
  const pad=Math.round(Math.min(w,h)*.055)+(common?.spacing??0);
  const compact=w<800||h<620;
  const legendNeeded=showLegend&&series.length>1;
+ const rightLegend=legendNeeded&&common?.legend.position==="right"&&["bar","line","area"].includes(type);
  const legendRows=legendNeeded?Math.ceil(series.length/Math.min(3,series.length)):0;
- const legendHeight=legendNeeded?Math.max(60,legendRows*font*1.35):0;
- const xLeft=pad+font*2.35,xRight=w-pad;
+ const legendHeight=legendNeeded&&!rightLegend?Math.max(60,legendRows*font*1.35):0;
+ const xLeft=pad+font*2.35,xRight=w-pad-(rightLegend?Math.min(w*.26,font*4.8):0);
  const yTop=pad+font*.3+(includeTitle?font*2:0),yBottom=h-pad-font*(compact?2.2:1.65)-legendHeight;
  const plotWidth=xRight-xLeft,plotHeight=yBottom-yTop;
  if(plotWidth<220||plotHeight<190)throw new OfficeChartLayoutError("office-chart-frame-too-small",{width:w,height:h});
@@ -186,7 +187,10 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
   const radius=Math.min(plotHeight*.46,plotWidth*(legendNeeded?.31:.43));
   if(radius<85)throw new OfficeChartLayoutError("office-chart-frame-too-small");
   if(type==="gauge"){
-   const val=active[0].value,r=radius,ratio=val/100,arc=(start,end,color)=>{
+   const val=active[0].value,r=radius;
+   const gaugeMin=options?.min??0,gaugeMax=options?.max??100;
+   if(val<gaugeMin||val>gaugeMax)throw new OfficeChartLayoutError("office-chart-gauge-range");
+   const ratio=(val-gaugeMin)/(gaugeMax-gaugeMin),arc=(start,end,color)=>{
     if(end<=start)return "";
     const a0=Math.PI*(1+start),a1=Math.PI*(1+end),point=a=>[num(centerX+r*Math.cos(a)),num(centerY+r*Math.sin(a))];
     const p0=point(a0),p1=point(a1);
@@ -194,22 +198,24 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
    };
    svgParts.push(arc(0,1,"#e5ebf2"),arc(0,ratio,palette[0]));
    svgParts.push(txt(number(val)+" %",centerX,centerY+font*.15,font*1.35,{weight:600}));
-   svgParts.push(txt("0",centerX-radius,centerY+font*1.6,font),txt("100",centerX+radius,centerY+font*1.6,font));
+   svgParts.push(txt(number(gaugeMin),centerX-radius,centerY+font*1.6,font),txt(number(gaugeMax),centerX+radius,centerY+font*1.6,font));
    if(options?.thresholds?.length)for(const threshold of options.thresholds){
-    const a=Math.PI*(1+threshold/100);
+    const a=Math.PI*(1+(threshold-gaugeMin)/(gaugeMax-gaugeMin));
     svgParts.push(line(centerX+(radius*.82)*Math.cos(a),centerY+(radius*.82)*Math.sin(a),
      centerX+(radius*1.08)*Math.cos(a),centerY+(radius*1.08)*Math.sin(a),common?.textColor??"#33465c",3));
    }
-   drawn={style:type,points:active.length,range:[0,100],labels:[]};
+   drawn={style:type,points:active.length,range:[gaugeMin,gaugeMax],labels:[]};
   }else{
    let sum=0;
    const segment=(start,end,color)=>{
     const sweep=end-start;if(sweep<=0)return "";
     const startAngle=-Math.PI/2+start*Math.PI*2,endAngle=-Math.PI/2+end*Math.PI*2;
     const p=a=>[num(centerX+radius*Math.cos(a)),num(centerY+radius*Math.sin(a))];
-    if(sweep>=1)return '<circle cx="'+num(centerX)+'" cy="'+num(centerY)+'" r="'+num(radius)+'" fill="'+color+'"/>';
+    const separation=type==="pie"?(options?.separation??0):0;
+    const outline=separation?' stroke="'+(common?.background??"#ffffff")+'" stroke-width="'+separation+'"':"";
+    if(sweep>=1)return '<circle cx="'+num(centerX)+'" cy="'+num(centerY)+'" r="'+num(radius)+'" fill="'+color+'"'+outline+'/>';
     const a=p(startAngle),b=p(endAngle);
-    return '<path d="M '+num(centerX)+' '+num(centerY)+' L '+a.join(" ")+' A '+num(radius)+' '+num(radius)+' 0 '+(sweep>.5?1:0)+' 1 '+b.join(" ")+' Z" fill="'+color+'"/>';
+    return '<path d="M '+num(centerX)+' '+num(centerY)+' L '+a.join(" ")+' A '+num(radius)+' '+num(radius)+' 0 '+(sweep>.5?1:0)+' 1 '+b.join(" ")+' Z" fill="'+color+'"'+outline+'/>';
    };
    active.forEach(s=>{const end=sum+s.value/total;svgParts.push(segment(sum,end,s.color));sum=end;});
    if(type==="donut"){
@@ -254,7 +260,8 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
    const color=palette[si%palette.length];
    if(type==="bar"){
     const cw=plotWidth/cycles.length;
-    const bw=Math.min(cw/(series.length+1),Math.max(4,cw*.68/series.length));
+    const bw=Math.min(cw/(series.length+1),Math.max(4,cw*.68/series.length))*
+     (options?Math.max(.1,1-options.gap/100):1);
     const radius=Math.min(options?.radius??0,bw/2);
     s.values.forEach((v,i)=>{
      if(v===null)return;
@@ -273,7 +280,17 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
     for(const points of segments){
      if(type==="area"&&points.length>1)
       svgParts.push('<polygon points="'+[[points[0][0],baseline],...points,[points.at(-1)[0],baseline]].map(p=>p.map(num).join(",")).join(" ")+'" fill="'+color+'" fill-opacity="'+(options?.opacity??.18)+'"/>');
-     if(points.length>1)svgParts.push('<polyline fill="none" stroke="'+color+'" stroke-width="'+(options?.strokeWidth??Math.max(3,font*.085))+'" stroke-linejoin="round" points="'+points.map(p=>p.map(num).join(",")).join(" ")+'"/>');
+     if(points.length>1){
+      const stroke=options?.strokeWidth??Math.max(3,font*.085);
+      if(type==="line"&&options?.smooth){
+       let path="M "+points[0].map(num).join(" ");
+       for(let i=1;i<points.length;i++){
+        const a=points[i-1],b=points[i],middle=(a[0]+b[0])/2;
+        path+=" C "+[middle,a[1],middle,b[1],b[0],b[1]].map(num).join(" ");
+       }
+       svgParts.push('<path d="'+path+'" fill="none" stroke="'+color+'" stroke-width="'+stroke+'"/>');
+      }else svgParts.push('<polyline fill="none" stroke="'+color+'" stroke-width="'+stroke+'" stroke-linejoin="round" points="'+points.map(p=>p.map(num).join(",")).join(" ")+'"/>');
+     }
      if(showLabels)points.forEach((p,pi)=>{
       const value=series[si].values.filter(v=>v!==null)[pi];
       svgParts.push(txt(number(value),p[0],p[1]-font*.3,font*.68));
@@ -289,6 +306,13 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
   drawn={style:type,points:vals.length,range:[lower,upper],labels:labelItems,rotated:useRotation};
  }
  if(legendNeeded&&["bar","line","area","gauge"].includes(type)){
+  if(rightLegend){
+   labels.forEach((item,i)=>{
+    const x=xRight+font*.4,y=yTop+font*(1+i*1.25);
+    svgParts.push(rect(x,y-font*.75,font*.65,font*.65,item.color));
+    svgParts.push(txt(shortName(item.label,13),x+font*.9,y-font*.16,font*.75,{anchor:"start"}));
+   });
+  }else{
   const perRow=Math.min(3,series.length),rows=Math.ceil(series.length/perRow);
   if(rows*font*1.25>legendHeight)
    throw new OfficeChartLayoutError("office-chart-frame-too-small",{width:w,height:h});
@@ -298,6 +322,7 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
    svgParts.push(rect(x,y-font*.75,font*.65,font*.65,item.color));
    svgParts.push(txt(item.label,x+font*.9,y-font*.16,font*.82,{anchor:"start"}));
   });
+  }
  }
  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'">'+svgParts.join("")+'</svg>';
  return Object.freeze({svg,width:w,height:h,meta:Object.freeze(drawn)});
