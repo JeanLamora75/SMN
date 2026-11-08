@@ -14,7 +14,7 @@ import {insertAdaptivePowerPointCharts,OfficePowerPointInsertionError} from "../
 import {OfficeChartTargetError} from "../../../../../../../scripts/smn-411-chart-targets.mjs";
 import {OfficeChartLayoutError} from "../../../../../../../scripts/smn-412-adaptive-chart.mjs";
 import {loadOfficeStyleSnapshot,createOfficeChartStyleResolver,OfficeChartStyleResolutionError} from "@/server/reports/office-chart-style-resolver";
-import {ChartStyleError} from "@/server/reports/chart-style-contract";
+import {ChartStyleError,validChartStyleId} from "@/server/reports/chart-style-contract";
 import {embedMemberFlagPictures,OfficeMemberFlagError} from "../../../../../../../scripts/smn-415-office-flag-images.mjs";
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
 import {readOfficeMemberGroups,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
@@ -49,6 +49,12 @@ export async function POST(req:NextRequest){
  const input=await readJsonObject(req);
  if(!input)return jsonResult({error:"invalid-input"},400);
  const {modelId,teamId,cycleId,filename,language}=input;
+ // An absent value uses the global type defaults. An explicit ID is request-scoped.
+ const reportStyleId=input.reportStyleId===undefined||input.reportStyleId===null?
+  null:input.reportStyleId;
+ if(reportStyleId!==null&&
+  (!validChartStyleId(reportStyleId)||reportStyleId==="legacy"))
+  return jsonResult({error:"office-chart-invalid-style-id"},400);
  const action=input.action??"download";
  if(!["download","check","save"].includes(String(action)))return jsonResult({error:"invalid-input"},400);
  if(action==="save"&&typeof input.expectedFingerprint!=="string")return jsonResult({error:"invalid-input"},400);
@@ -114,20 +120,26 @@ export async function POST(req:NextRequest){
   return jsonResult({error:"forbidden"},403);
  }
  try{
+  // Validate the selected style on both "check" and generation, before offering
+  // overwrite confirmation. No style is persisted to templates or global settings.
+  if(chartCount>0||reportStyleId!==null){
+   try{
+    styleSnapshot=await withAuthDb(db=>loadOfficeStyleSnapshot(db,{id:actor.id,role:actor.role}));
+   }catch(error){
+    if(!(error instanceof ChartStyleError&&error.code==="schema-not-ready")||
+       reportStyleId!==null)throw error;
+   }
+  }
+  const resolveChartStyle=createOfficeChartStyleResolver(styleSnapshot,reportStyleId);
   if(action==="check"){
+   // Resolve all tags to catch missing or deleted explicit STYLE values early.
+   if(chartCount>0)for(const tag of discoverOfficeChartTags(selected.bytes,selected.template.format))
+    resolveChartStyle(tag.params);
    try{return jsonResult(await inspectOfficeReport(filename,selected.template.format));}
    catch{return jsonResult({error:"save-unavailable"},503);}
   }
   // Style read is one per export. Missing legacy tables preserve the old
   // renderer, but a broken migrated catalog is never silently ignored.
-  if(chartCount>0){
-   try{
-    styleSnapshot=await withAuthDb(db=>loadOfficeStyleSnapshot(db,{id:actor.id,role:actor.role}));
-   }catch(error){
-    if(!(error instanceof ChartStyleError&&error.code==="schema-not-ready"))throw error;
-   }
-  }
-  const resolveChartStyle=createOfficeChartStyleResolver(styleSnapshot);
   const base=selected.template.format==="docx"?
    generateWordTables(selected.bytes,payload.rows).bytes:
    generatePowerPointTables(selected.bytes,payload.rows,language as Locale).bytes;
