@@ -17,6 +17,9 @@ test("migration is additive, idempotent and checks all global defaults",()=>{
  assert.match(sql,/config jsonb NOT NULL/);
  assert.match(sql,/ON CONFLICT \(installation_id,chart_type\) DO NOTHING/);
  assert.doesNotMatch(sql,/DROP TABLE|DELETE FROM|TRUNCATE|ALTER TABLE public\.smn_indicator/i);
+ const installer=readFileSync(new URL("../src/server/installation/install.ts",import.meta.url),"utf8");
+ assert.match(installer,/20261108_smn416_chart_styles/);
+ assert.match(installer,/await client\.query\(chartStyleSql\)/);
 });
 test("PostgreSQL isolated: create, defaults, optimistic revisions, permissions and rollback",
  {skip:!source||!ci,timeout:180000},async()=>{
@@ -39,6 +42,8 @@ test("PostgreSQL isolated: create, defaults, optimistic revisions, permissions a
    const account=await db.query<{id:string}>("SELECT id FROM public.smn_account WHERE role='admin' LIMIT 1");
    const actor={id:account.rows[0].id,role:"admin"};
    const normal={...actor,role:"user"};
+   const nativeDefaults=await db.query<{c:string}>("SELECT COUNT(*)::text AS c FROM public.smn_chart_style_default");
+   assert.equal(nativeDefaults.rows[0].c,"6");
    const indicatorBefore=await db.query<{c:string}>("SELECT COUNT(*)::text AS c FROM public.smn_indicator_definition");
    await db.query(sql);
    await db.query(sql);
