@@ -6,7 +6,7 @@ import {resolveAdminTeam} from "@/server/teams/resolve";
 import {assertTeamReportCycle} from "@/server/reports/team-cycle";
 import {readReportIndicatorProjection} from "@/server/reports/dynamic-indicators";
 import {readIndicatorReporting,type ReportData} from "@/server/indicators/reporting";
-import {renderOfficeIndicatorChart} from "@/server/reports/office-indicator-charts";
+import {renderOfficeIndicatorChart,OfficeChartIndicatorUnavailableError} from "@/server/reports/office-indicator-charts";
 import {discoverOfficeChartTags,insertOfficeTrendImages} from "../../../../../../../scripts/smn-402-office-chart-tags.mjs";
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
 import {readOfficeMemberGroups,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
@@ -143,6 +143,8 @@ export async function POST(req:NextRequest){
    }
   });
  }catch(error){
+  if(error instanceof OfficeChartIndicatorUnavailableError)
+   return jsonResult({error:"office-chart-indicator-unavailable",tag:error.tag},422);
   if(error instanceof Error&&error.message.startsWith("Paramètres de tag"))
    return jsonResult({error:"invalid-tag-parameters"},422);
   return jsonResult({error:"generation-failed"},422);
