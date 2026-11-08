@@ -17,7 +17,7 @@ function decode(value){
   return String.fromCodePoint(code);
  });
 }
-export const SCALAR_NAMES=Object.freeze(["TEAM_NAME","SPRINT_NAME","SPRINT_START","SPRINT_END","SPRINT_STATUS","TODAY","SPRINT_GOAL","PRODUCT_NAME","PRODUCT_GOAL","PRODUCT_VISION"]);
+export const SCALAR_NAMES=Object.freeze(["TEAM_NAME","SPRINT_NAME","SPRINT_START","SPRINT_END","SPRINT_STATUS","TODAY","SPRINT_GOAL","PRODUCT_NAME","PRODUCT_GOAL","PRODUCT_VISION","LINK_COUNT_TRANSVERSE","LINK_COUNT_TEAM"]);
 
 export function formatScalarNumber(value,language="fr"){
  if(value===null||value===undefined)return null;
