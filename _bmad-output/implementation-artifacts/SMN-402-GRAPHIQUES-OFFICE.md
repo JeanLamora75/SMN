@@ -61,3 +61,14 @@ Le POC Word utilise une taille fixe du dessin ; l'incrément SMN-402 attribue d�
 Les tags `TYPE=pie`, `TYPE=donut` et `TYPE=gauge` sont maintenant reconnus, en plus de `bar`, `line` et `area`. Pour les secteurs et l'anneau, les valeurs utilisées sont les dernières valeurs **du sprint sélectionné** (jusqu'à six séries de même unité), avec rejet des valeurs négatives et `N/D` si la somme est nulle. Pour la jauge, une seule série avec une valeur courante entre 0 et 100 ; représentation en demi-cercle avec niveau et unité %. L'insertion reste fondée sur un tag libre Word/PPTX.
 
 Voir le [catalogue enrichi et les tests associés](SMN-OFFICE-EXTENSION-CATALOGUE-TAGS.md). La recette Microsoft Office et PostgreSQL réelle reste à effectuer.
+
+
+## Diagnostic du tag graphique non disponible (08/11/2026)
+
+L'expression `{{CHART:TREND|TYPE=bar|TAGS=SP_DONE|LAST=6}}` est **syntaxiquement valide**, mais `SP_DONE` est uniquement un **exemple de tag** dans le guide SMN : ce n'est pas un identifiant garanti dans le catalogue propre à l'équipe.
+
+La génération recherche les tags demandés dans la projection `readIndicatorReporting(..., "trends", "scrum")`. Les indicateurs doivent donc être présents dans le catalogue global, actifs pour l'équipe et visibles dans le paramétrage des tendances. En l'absence d'une correspondance, `renderOfficeIndicatorChart` renvoie désormais `OfficeChartIndicatorUnavailableError(tag)`. L'API le traduit en HTTP 422 `{error:"office-chart-indicator-unavailable",tag:"..."}` et l'interface propose une explication FR/EN, en mettant en gras le tag concerné ; les autres erreurs techniques gardent leur message générique.
+
+Le guide précise que les valeurs `SP_DONE`, `SP_INIT` et `RATE_PERCENT` doivent être remplacées par de vrais tags de l'équipe ; elles ne constituent pas une configuration prête à l'emploi.
+
+Tests : `tests/smn-402-office-trends.test.ts` et workflow dédié `smn-402-office-trends.yml`. Le rendu du modèle PPTX privé n'a pas été vérifié directement : une anomalie de structure Open XML resterait une autre cause possible de génération échouée.
