@@ -14,7 +14,7 @@ import {insertAdaptivePowerPointCharts,OfficePowerPointInsertionError} from "../
 import {OfficeChartTargetError} from "../../../../../../../scripts/smn-411-chart-targets.mjs";
 import {OfficeChartLayoutError} from "../../../../../../../scripts/smn-412-adaptive-chart.mjs";
 import {loadOfficeStyleSnapshot,createOfficeChartStyleResolver,OfficeChartStyleResolutionError} from "@/server/reports/office-chart-style-resolver";
-import {ChartStyleError,validChartStyleId} from "@/server/reports/chart-style-contract";
+import {ChartStyleError,validChartStyleId,validChartType} from "@/server/reports/chart-style-contract";
 import {embedMemberFlagPictures,OfficeMemberFlagError} from "../../../../../../../scripts/smn-415-office-flag-images.mjs";
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
 import {readOfficeMemberGroups,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
@@ -133,8 +133,10 @@ export async function POST(req:NextRequest){
   const resolveChartStyle=createOfficeChartStyleResolver(styleSnapshot,reportStyleId);
   if(action==="check"){
    // Resolve all tags to catch missing or deleted explicit STYLE values early.
-   if(chartCount>0)for(const tag of discoverOfficeChartTags(selected.bytes,selected.template.format))
-    resolveChartStyle(tag.params);
+   if(chartCount>0)for(const tag of discoverOfficeChartTags(selected.bytes,selected.template.format)){
+    if(!validChartType(tag.params.type))return jsonResult({error:"office-chart-invalid-style"},422);
+    resolveChartStyle({...tag.params,type:tag.params.type});
+   }
    try{return jsonResult(await inspectOfficeReport(filename,selected.template.format));}
    catch{return jsonResult({error:"save-unavailable"},503);}
   }
