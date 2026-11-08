@@ -36,10 +36,19 @@ export default function SettingsCatalogView({groups,showCompanies=false}:{groups
   </div>
   {showCompanies&&<section className="mb-4" aria-labelledby="settings-indicators-title">
    <h2 className="h5 mb-3" id="settings-indicators-title">{t("indicators.title")}</h2>
-   <Link className="smn-panel rounded-4 p-3 d-flex text-decoration-none text-body gap-3" href="/app/admin/settings/indicators">
-    <span aria-hidden="true" className="fs-4">▤</span>
-    <span><strong>{t("indicators.catalog")}</strong><span className="d-block small text-secondary">{t("indicators.catalog")}</span></span>
-   </Link>
+   <div className={view==="cards"?"row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3":"d-grid gap-2"}>
+    <div className={view==="cards"?"col":""}>
+     <Link className="smn-panel rounded-4 p-3 h-100 d-flex gap-3 align-items-start text-decoration-none text-body smn-settings-entry-link"
+      href="/app/admin/settings/indicators">
+      <span aria-hidden="true" className="fs-4 flex-shrink-0">▤</span>
+      <span className={"d-flex flex-wrap align-items-start gap-2 flex-grow-1"+(view==="cards"?" flex-column":"")}>
+       <strong>{t("indicators.catalog")}</strong>
+       <span className="d-block small text-secondary">{t("indicators.catalog")}</span>
+      </span>
+      {view==="list"&&<span aria-hidden="true" className="ms-auto">›</span>}
+     </Link>
+    </div>
+   </div>
   </section>}
   {showCompanies&&<section className="mb-4" aria-labelledby="smn-settings-companies-title">
    <h2 className="h5 mb-3" id="smn-settings-companies-title">Entreprises</h2>
