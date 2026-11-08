@@ -3700,7 +3700,15 @@
     "officeReportsDirectory": "Office report output directory",
     "officeDirectoryUnavailable": "Directory unavailable: check server configuration.",
     "officeTemplateDirectoryHint": "Place .docx and .pptx files here, then click Refresh.",
-    "officeReportsDirectoryHint": "Reports saved using Save are stored here. Download uses your browser."
+    "officeReportsDirectoryHint": "Reports saved using Save are stored here. Download uses your browser.",
+    "officeReportStyleLabel": "Report chart style (optional)",
+    "officeReportStyleDefaults": "Default styles",
+    "officeReportStyleHint": "This choice applies only to this export, unless a STYLE tag in the template specifies another style. Global settings are unchanged.",
+    "officeReportStyleMissing": "The requested chart style no longer exists. Reload the catalog or choose Default styles.",
+    "officeReportStyleInvalid": "The selected chart style or a style in the template is invalid. No report was generated.",
+    "officeReportStyleUnavailable": "The chart style catalog is not available on this installation.",
+    "officeReportStyleForbidden": "You do not have permission to generate this report.",
+    "officeReportStyleLoadError": "Unable to load available styles. You can still generate using default styles."
   },
   "reportsStudio": {
     "modes": "Studio modes",
