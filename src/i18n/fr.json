@@ -2061,6 +2061,7 @@
     "openMember": "Ouvrir la fiche de {name}",
     "activeAssignmentHeading": "Membres actifs dans l'équipe",
     "inactiveAssignmentHeading": "Membres inactifs dans l'équipe",
+    "city": "Ville",
     "startDate": "Date début",
     "endDate": "Date fin",
     "inactiveAssignmentStatus": "Inactif",
