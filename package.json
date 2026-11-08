@@ -14,6 +14,7 @@
     "test": "tsx --test tests/*.test.ts tests/*.test.mjs",
     "test:smn-416": "tsx --test tests/smn-416-chart-style-contract.test.ts tests/smn-416-chart-styles-pg.test.ts tests/smn-416-chart-style-access.test.ts",
     "test:smn-417": "tsx --test tests/smn-417-office-chart-style-resolver.test.ts tests/smn-402-office-trends.test.ts tests/smn-411-chart-targets.test.mjs",
+    "test:smn-418": "tsx --test tests/smn-418-unified-office-charts.test.ts tests/smn-412-adaptive-chart.test.mjs tests/smn-413-adaptive-pptx.test.mjs tests/smn-414-qa.test.mjs tests/smn-402-office-trends.test.ts tests/smn-417-office-chart-style-resolver.test.ts",
     "db:check:smn-416": "tsx scripts/apply-smn-416-chart-styles.ts --check",
     "db:migrate:smn-416": "tsx scripts/apply-smn-416-chart-styles.ts --apply",
     "typecheck": "node scripts/reset-next-generated-types.mjs && next typegen && tsc --noEmit",
