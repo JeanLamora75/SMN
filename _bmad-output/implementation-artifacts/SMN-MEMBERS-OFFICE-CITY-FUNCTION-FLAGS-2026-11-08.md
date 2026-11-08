@@ -44,6 +44,12 @@ Pour les fichiers PPTX seulement, `MEMBER_FLAG` est projeté en marqueur interne
 
 **Points non certifiés par les tests synthétiques :** le rendu visuel `a:buBlip` sous Microsoft PowerPoint sur le modèle réel, la taille exacte du drapeau dans sa cellule ou zone de texte, le positionnement des colonnes et la justesse historique du fallback de localisation. Ces critères restent dans la recette SMN-414 : comparer la capture du rapport réel avec le modèle et les données membres affichées dans SMN.
 
+## CI finale contrôlée
+
+**Run de référence :** https://github.com/JeanLamora75/SMN/actions/runs/42480986866 — **Windows et Ubuntu : succès 30/30 tests par OS** (16 tests d'images/drapeaux et insertion Open XML, 2 tests de projection ville/fonction, 12 tests de non-régression Office). Vérifications TypeScript et ESLint également réussies.
+
+Les tests ont **réellement chargé les fichiers `public/flags/in.png` et `public/flags/fr.png`** et vérifié que les PNG intégrés dans le paquet PowerPoint correspondaient octet pour octet à ces fichiers. Le rendu visuel de ces puces images dans un fichier PPTX généré et ouvert sous Microsoft PowerPoint reste à valider avec le modèle utilisateur.
+
 ## Vérification utilisateur
 
 Après récupération de `main`, réinstaller les dépendances verrouillées si nécessaire et redémarrer SMN. Régénérer « Rapport de Sprint FR » avec le même sprint. Attendus : villes renseignées si une localisation récente existe, fonctions inchangées, drapeaux français/indiens en PNG. Si un drapeau n'apparaît pas ou se décale, relever l'emplacement exact et joindre le PPTX original pour tester sa structure précise.
