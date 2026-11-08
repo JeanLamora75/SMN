@@ -1,0 +1,43 @@
+name: SMN-420 — Éditeur M2 et aperçu graphique
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/app/app/admin/settings/reports/charts/**"
+      - "src/app/api/admin/reports/chart-styles/preview/**"
+      - "src/i18n/fr.json"
+      - "src/i18n/en.json"
+      - "tests/smn-420-style-editor.test.ts"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/smn-420-chart-editor.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  editor:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Tests M2 et compatibilité M1
+        run: pnpm test:smn-420
+      - name: Contrôle TypeScript
+        run: pnpm typecheck
+      - name: Analyse statique
+        run: pnpm exec eslint src/app/app/admin/settings/reports/charts src/app/api/admin/reports/chart-styles/preview tests/smn-420-style-editor.test.ts
+      - name: Traductions FR/EN
+        run: pnpm i18n:check
