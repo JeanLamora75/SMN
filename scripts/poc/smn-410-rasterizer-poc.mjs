@@ -3,6 +3,7 @@ import {createRequire} from "node:module";
 import {fileURLToPath} from "node:url";
 import path from "node:path";
 import {performance} from "node:perf_hooks";
+import {mkdirSync,writeFileSync} from "node:fs";
 import {renderOfficeTrendPng} from "../smn-402-trend-png.mjs";
 
 export const LIMITS=Object.freeze({maxPngBytes:8*1024*1024,maxAxis:4096,maxPixels:16_000_000});
@@ -102,5 +103,18 @@ export function compareRenderers(root=process.cwd()){
  };
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- console.log(JSON.stringify(compareRenderers(),null,2));
+ const result=compareRenderers();
+ const outputIndex=process.argv.indexOf("--evidence");
+ if(outputIndex!==-1){
+  const dir=path.resolve(process.argv[outputIndex+1]||"smn-410-evidence");
+  mkdirSync(dir,{recursive:true});
+  writeFileSync(path.join(dir,"benchmark.json"),JSON.stringify(result,null,2)+"\\n");
+  const baseline=renderOfficeTrendPng({...FIXTURE,type:"line",language:"fr"});
+  writeFileSync(path.join(dir,"baseline-960x560.png"),baseline);
+  for(const target of TARGETS)for(const locale of ["fr","en"]){
+   writeFileSync(path.join(dir,"resvg-"+target.id+"-"+locale+".png"),
+    rasterizeWithResvg(svgForTarget(target.width,target.height,locale)));
+  }
+ }
+ console.log(JSON.stringify(result,null,2));
 }
