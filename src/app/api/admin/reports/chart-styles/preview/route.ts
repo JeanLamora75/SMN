@@ -2,7 +2,7 @@ import {NextRequest,NextResponse} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {validChartStyleConfig,validChartType} from "@/server/reports/chart-style-contract";
-import {renderAdaptiveChartPng} from "../../../../../../../../scripts/smn-412-adaptive-chart.mjs";
+import {renderAdaptiveChartPng} from "../../../../../../../scripts/smn-412-adaptive-chart.mjs";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
