@@ -1,0 +1,45 @@
+name: SMN-423 — Liens cliquables Word et PowerPoint
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/server/reports/office-link-rows.ts"
+      - "src/app/api/admin/reports/office-templates/generate/route.ts"
+      - "src/app/app/reports/office-tags.tsx"
+      - "scripts/smn-423-office-link-hyperlinks.mjs"
+      - "scripts/smn-400-word-tables.mjs"
+      - "scripts/smn-401-powerpoint-tables.mjs"
+      - "scripts/smn-399-office-scalars.mjs"
+      - "tests/smn-423-office-links.test.ts"
+      - "package.json"
+      - ".github/workflows/smn-423-office-links.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  hyperlinks:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Répétition de lignes et hyperliens Word/PPTX
+        run: pnpm test:smn-423
+      - name: Typage
+        run: pnpm typecheck
+      - name: ESLint
+        run: pnpm exec eslint src/server/reports/office-link-rows.ts src/app/api/admin/reports/office-templates/generate/route.ts tests/smn-423-office-links.test.ts
+      - name: Traductions
+        run: pnpm i18n:check
