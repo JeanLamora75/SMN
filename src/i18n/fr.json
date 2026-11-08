@@ -3603,6 +3603,7 @@
     "officeChartCauseRatio": "Le format du graphique ne correspond pas à celui de la zone.",
     "officeChartCauseDuplicate": "Deux formes portent le même identifiant sur cette diapositive.",
     "officeChartSlide": "diapositive",
+    "officeMemberFlagFailed": "Le drapeau du membre ne peut pas être intégré au PowerPoint. Vérifiez que le fichier PNG correspondant est présent dans public/flags et que le tag MEMBER_FLAG se trouve en début de ligne.",
     "officeChartInsertionFailed": "L'insertion du graphique PowerPoint a échoué. Vérifiez les formes et relations du modèle ; aucun rapport incomplet n'a été enregistré.",
     "officeChartIndicatorUnavailable": "Le graphique ne peut pas être généré : indicateur introuvable dans les tendances de cette équipe :",
     "officeChartIndicatorHint": "Vérifiez le tag exact dans Paramètres → Indicateurs → Catalogue, son activation et sa visibilité pour les tendances.",
