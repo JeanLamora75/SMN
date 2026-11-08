@@ -61,6 +61,7 @@ export function compareBaseline(input:Input){
    maximumRss=Math.max(maximumRss,process.memoryUsage().rss);
    if(!image)throw Error("Styled renderer did not return a PNG for "+c.id);
   }
+  if(image===null)throw Error("Missing PNG after rendering "+c.id);
   const png=inspectBaselinePng(image);
   if(png.width!==previous.width||png.height!==previous.height)
    throw Error("Geometry changed unexpectedly for "+c.id);
