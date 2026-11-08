@@ -4119,7 +4119,12 @@
         "gauge": "Gauge"
       },
       "sectionTitle": "Reports",
-      "sectionDescription": "Manage chart styles for all Word and PowerPoint reports."
+      "sectionDescription": "Manage chart styles for all Word and PowerPoint reports.",
+      "previewLabel": "Actual Office chart engine preview",
+      "previewAlt": "Preview for style {name}",
+      "previewLoading": "Generating preview…",
+      "previewError": "Preview unavailable",
+      "previewCaption": "Bars · sample data · Office rendering"
     },
     "editor": {
       "breadcrumb": "Settings / Reports / Charts / Style",
