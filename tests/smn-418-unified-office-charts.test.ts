@@ -101,8 +101,8 @@ test("custom advanced layouts render controlled SVG for six types",()=>{
  }
  const gauge=structuredClone(style);
  gauge.types.gauge.min=20;gauge.types.gauge.max=80;
- const bad={type:"gauge",target:target(1600,900),cycles,series:series.slice(0,1),
-  locale:"fr",style:gauge};
+ const bad={type:"gauge" as const,target:target(1600,900),cycles,series:series.slice(0,1),
+  locale:"fr" as const,style:gauge};
  assert.throws(()=>composeAdaptiveChart(bad),/office-chart-gauge-range/);
 });
 
