@@ -13,14 +13,14 @@
 - **Service** : `src/server/reports/chart-style-store.ts`, lecture et commandes create/update/delete/set-default, protection des modèles prédéfinis, verrou de transaction par installation et refus de suppression d'un style encore utilisé comme défaut.
 - **API** : `GET /api/admin/reports/chart-styles`, `POST /api/admin/reports/chart-styles`, lecture pour comptes actifs autorisés (`collective/read`), écritures admin seulement (`settings/write`), contrôle de session/origine, corps JSON borné, codes métier 400/403/404/409/503.
 - **Langues** : messages `chartStyles` en `src/i18n/fr.json` et `src/i18n/en.json` ; les routes renvoient des codes stables à traduire dans la future interface.
-- **Tests** : `tests/smn-416-chart-style-contract.test.ts` et `tests/smn-416-chart-styles-pg.test.ts`.
+- **Tests** : `tests/smn-416-chart-style-contract.test.ts`, `tests/smn-416-chart-style-access.test.ts` et `tests/smn-416-chart-styles-pg.test.ts` ; alias `pnpm test:smn-416`.
 
 ## Commandes Windows 11 — PowerShell
 
 Depuis la racine du dépôt après synchronisation `main`, avec Node 24 et pnpm :
 
 ```powershell
-pnpm exec tsx --test tests/smn-416-chart-style-contract.test.ts
+pnpm test:smn-416
 pnpm typecheck
 pnpm lint
 pnpm i18n:check
@@ -31,14 +31,14 @@ pnpm i18n:check
 La procédure **ne modifie pas l'installation sans autorisation de sauvegarde** :
 
 ```powershell
-pnpm exec tsx scripts/apply-smn-416-chart-styles.ts --check
+pnpm db:check:smn-416
 ```
 
 Après avoir vérifié et conservé une sauvegarde PostgreSQL v33, et **uniquement si elle est vérifiée** :
 
 ```powershell
 $env:SMN_V33_BACKUP_VERIFIED = "YES"
-pnpm exec tsx scripts/apply-smn-416-chart-styles.ts --apply
+pnpm db:migrate:smn-416
 pnpm exec tsx scripts/apply-smn-416-chart-styles.ts --check
 Remove-Item Env:SMN_V33_BACKUP_VERIFIED
 ```
