@@ -11,6 +11,7 @@ on:
       - "src/server/reports/chart-style-contract.ts"
       - "src/app/api/admin/reports/office-templates/generate/route.ts"
       - "tests/smn-418-unified-office-charts.test.ts"
+      - "scripts/poc/smn-418-compare-baseline.ts"
       - "tests/smn-413-office-route.test.mjs"
       - "tests/smn-412-adaptive-chart.test.mjs"
       - "tests/smn-413-adaptive-pptx.test.mjs"
