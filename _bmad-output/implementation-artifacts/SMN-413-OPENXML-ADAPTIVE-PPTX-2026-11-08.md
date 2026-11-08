@@ -71,3 +71,18 @@ Les tests apportent une preuve technique réelle de l'intégration et du rendu n
 6. Le workflow `uv` officiel BMAD n'a pas été exécuté. Le travail a été réalisé par intégrations GitHub/Jira et actions CI, selon le mode de fonctionnement autorisé du projet.
 
 **Définition de terminé :** tests ciblés Windows/Linux verts et documentation/Jira publiés, avant recette visuelle globale SMN-414. Les points non vérifiés ne doivent pas être présentés comme validés.
+
+## Correctif de régression constatée après SMN-413 (08/11/2026)
+
+**Signal utilisateur :** le modèle « Rapport de Sprint FR — PPTX », pour « PI26 Q4.2 Sprint 103 », renvoie un message générique « L'insertion du graphique PowerPoint a échoué » alors que le même modèle fonctionnait avant l'activation du renderer adaptatif. Le PowerPoint source du modèle n'a pas été fourni en binaire dans cette conversation : **cause exacte non prouvée sur le fichier original**.
+
+**Constats dans le code :**
+1. La transformation `p:sp → p:pic` exigeait à tort `<p:cNvPr .../>` au format autofermant. Les formes Open XML valides peuvent contenir `<p:cNvPr ...><a:hlinkClick.../></p:cNvPr>`. Le nouveau moteur refusait la forme avec `office-chart-invalid-shape` ; le moteur historique n'imposait pas cette restriction.
+2. L'insertion exigeait une fermeture `</Relationships>`. Un `<Relationships .../>` autofermant est légal et doit être développé pour accueillir une relation image.
+3. L'interface masquait `reason` et `slide` fournis par l'API et affichait un message générique.
+
+**Correctifs publiés sur `main` :** lecteur tolérant les deux formes de `p:cNvPr`, gestion des deux écritures de `Relationships` en préservant son préfixe de namespace éventuel, tests de non-régression pour ces écritures, messages FR/EN détaillant le motif et la diapositive concernée.
+
+**Garantie et limite :** les nouveaux tests prouvent ces cas Open XML synthétiques ; ils ne remplacent pas l'ouverture du véritable PPTX utilisateur. Réessayer après récupération de `main`. Si un autre motif est remonté, poursuivre sur le code précis et le numéro de diapositive sans dégrader silencieusement vers une image basse définition.
+
+**CI correctif :** https://github.com/JeanLamora75/SMN/actions/runs/42478902966 (résultat à consigner après vérification).
