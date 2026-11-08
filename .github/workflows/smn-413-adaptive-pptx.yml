@@ -15,6 +15,7 @@ on:
       - "src/i18n/en.json"
       - "package.json"
       - "pnpm-lock.yaml"
+      - "next.config.ts"
       - ".github/workflows/smn-413-adaptive-pptx.yml"
   workflow_dispatch:
 permissions:
@@ -45,5 +46,14 @@ jobs:
         run: pnpm exec tsx --test tests/smn-402-office-trends.test.ts
       - name: TypeScript
         run: pnpm typecheck
+      - name: Build Next.js standalone (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: SMN_BUILD_STANDALONE=1 pnpm build
+      - name: Vérifier le module natif dans le bundle (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          test -f .next/standalone/server.js
+          test -d .next/standalone/node_modules/@resvg/resvg-js
+          test -d .next/standalone/node_modules/@resvg/resvg-js-linux-x64-gnu
       - name: ESLint
         run: pnpm exec eslint scripts/smn-413-adaptive-pptx.mjs tests/smn-413-adaptive-pptx.test.mjs scripts/smn-412-adaptive-chart.mjs src/server/reports/office-indicator-charts.ts src/app/api/admin/reports/office-templates/generate/route.ts
