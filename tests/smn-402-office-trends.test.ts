@@ -108,7 +108,7 @@ test("SMN-402: invalid chart indicator is reported with safe localized tag UI",(
  const client=readFileSync("src/app/app/reports/office-template-catalog.tsx","utf8");
  const docs=readFileSync("src/app/app/reports/office-tags.tsx","utf8");
  assert.match(api,/error:"office-chart-indicator-unavailable",tag:error.tag/);
- assert.match(client,/result\.error==="office-chart-indicator-unavailable"/);
+ assert.match(client,/result\?\.error==="office-chart-indicator-unavailable"/);
  assert.match(client,/<strong><code className="text-danger">\{missingChartTag\}<\/code><\/strong>/);
  assert.doesNotMatch(client,/dangerouslySetInnerHTML/);
  assert.match(docs,/SP_DONE, SP_INIT et RATE_PERCENT ne sont que des exemples/);
