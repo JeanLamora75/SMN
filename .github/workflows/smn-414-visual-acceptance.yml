@@ -1,0 +1,46 @@
+name: SMN-414 — Preuves recette graphique Office
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/poc/smn-414-qa-matrix.mjs"
+      - "tests/smn-414-qa.test.mjs"
+      - ".github/workflows/smn-414-visual-acceptance.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validation:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Tests de recette et non-régression SMN-411/412/413
+        run: node --test tests/smn-411-chart-targets.test.mjs tests/smn-412-adaptive-chart.test.mjs tests/smn-413-adaptive-pptx.test.mjs tests/smn-413-office-route.test.mjs tests/smn-414-qa.test.mjs
+      - name: Non-régression Word et PowerPoint
+        run: pnpm exec tsx --test tests/smn-402-office-trends.test.ts
+      - name: TypeScript
+        run: pnpm typecheck
+      - name: ESLint ciblé
+        run: pnpm exec eslint scripts/poc/smn-414-qa-matrix.mjs tests/smn-414-qa.test.mjs
+      - name: Produire 36 images, 18 cas de charge et grille de recette
+        run: node scripts/poc/smn-414-qa-matrix.mjs smn-414-evidence
+      - name: Publier les preuves sans certifier une recette visuelle
+        uses: actions/upload-artifact@v4
+        with:
+          name: smn-414-qa-${{ matrix.os }}
+          path: smn-414-evidence/
+          if-no-files-found: error
