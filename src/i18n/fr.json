@@ -4060,6 +4060,10 @@
     "protectedStyle": "Un style prédéfini ne peut pas être modifié ou supprimé.",
     "defaultStyle": "Ce style est utilisé par défaut. Choisissez un autre style avant de le supprimer.",
     "schemaNotReady": "Le stockage des styles graphiques n'est pas installé.",
-    "serviceUnavailable": "Le service de styles graphiques est indisponible."
+    "serviceUnavailable": "Le service de styles graphiques est indisponible.",
+    "invalidStyleId": "Identifiant de style graphique invalide.",
+    "invalidChartType": "Type de graphique inconnu.",
+    "styleNotFound": "Le style graphique demandé n'existe pas ou a été supprimé.",
+    "styleCorrupt": "La configuration du style graphique est incohérente."
   }
 }
