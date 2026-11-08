@@ -2,7 +2,12 @@
 // The PPTX packaging adapter remains owned by the next integration.
 import {emuToPixels} from "./smn-411-chart-targets.mjs";
 import {Resvg} from "@resvg/resvg-js";
-import {inspectPng} from "./poc/smn-410-rasterizer-poc.mjs";
+const PNG_SIGNATURE=Buffer.from([137,80,78,71,13,10,26,10]);
+function inspectPng(bytes){
+ if(!Buffer.isBuffer(bytes)||bytes.length<45||bytes.length>8*1024*1024||
+    !bytes.subarray(0,8).equals(PNG_SIGNATURE))throw new OfficeChartLayoutError("office-chart-invalid-png");
+ return {width:bytes.readUInt32BE(16),height:bytes.readUInt32BE(20)};
+}
 
 export const CHART_STYLES=Object.freeze(["bar","line","area","pie","donut","gauge"]);
 export const COLORS=Object.freeze(["#1b508d","#b45638","#159895","#7955a7","#bc8c21","#426da4"]);
