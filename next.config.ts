@@ -12,6 +12,7 @@ export function standaloneOutputFor(
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  serverExternalPackages: ["@resvg/resvg-js"],
   output: standaloneOutputFor(
     process.platform,
     process.env.SMN_BUILD_STANDALONE === "1",
