@@ -13,9 +13,24 @@ CREATE TABLE IF NOT EXISTS public.smn_chart_style (
  updated_by text NULL,
  PRIMARY KEY (installation_id,id),
  UNIQUE (installation_id,name),
- CONSTRAINT smn_chart_style_id_format CHECK (id ~ '^[a-z][a-z0-9-]{2,63}$'),
- CONSTRAINT smn_chart_style_updated_by_fk FOREIGN KEY (installation_id,updated_by)
-  REFERENCES public.smn_account(installation_id,id) ON DELETE SET NULL
+ CONSTRAINT smn_chart_style_id_format CHECK (id ~ '^[a-z][a-z0-9-]{2,63}
+);
+CREATE TABLE IF NOT EXISTS public.smn_chart_style_default (
+ installation_id text NOT NULL REFERENCES public.smn_installation(id) ON DELETE CASCADE,
+ chart_type text NOT NULL CHECK (chart_type IN ('bar','line','area','pie','donut','gauge')),
+ style_id text NOT NULL,
+ revision integer NOT NULL DEFAULT 1 CHECK (revision>0),
+ updated_at timestamptz NOT NULL DEFAULT now(),
+ PRIMARY KEY (installation_id,chart_type),
+ CONSTRAINT smn_chart_style_default_id_format CHECK (style_id ~ '^[a-z][a-z0-9-]{2,63}$')
+);
+INSERT INTO public.smn_chart_style_default (installation_id,chart_type,style_id)
+SELECT i.id,t.type,'cockpit-agile'
+FROM public.smn_installation i
+CROSS JOIN (VALUES ('bar'),('line'),('area'),('pie'),('donut'),('gauge')) AS t(type)
+WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version=33
+ON CONFLICT (installation_id,chart_type) DO NOTHING;
+)
 );
 CREATE TABLE IF NOT EXISTS public.smn_chart_style_default (
  installation_id text NOT NULL REFERENCES public.smn_installation(id) ON DELETE CASCADE,
