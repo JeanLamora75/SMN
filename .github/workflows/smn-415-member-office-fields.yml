@@ -1,0 +1,44 @@
+name: SMN — Membres Office ville fonction et drapeaux PNG
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/server/reports/office-word-rows.ts"
+      - "scripts/smn-415-office-flag-images.mjs"
+      - "tests/smn-415-member-flags.test.mjs"
+      - "src/app/api/admin/reports/office-templates/generate/route.ts"
+      - "src/app/app/reports/office-template-catalog.tsx"
+      - "src/app/app/reports/office-tags.tsx"
+      - "src/i18n/fr.json"
+      - "src/i18n/en.json"
+      - ".github/workflows/smn-415-member-office-fields.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  office-members:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Tests tableaux Office, tags et drapeaux
+        run: node --test tests/smn-415-member-flags.test.mjs tests/smn-413-adaptive-pptx.test.mjs
+      - name: Tests non-régression Office
+        run: pnpm exec tsx --test tests/smn-402-office-trends.test.ts
+      - name: TypeScript
+        run: pnpm typecheck
+      - name: ESLint ciblé
+        run: pnpm exec eslint scripts/smn-415-office-flag-images.mjs tests/smn-415-member-flags.test.mjs src/server/reports/office-word-rows.ts src/app/api/admin/reports/office-templates/generate/route.ts
