@@ -6,8 +6,11 @@ import {resolveAdminTeam} from "@/server/teams/resolve";
 import {assertTeamReportCycle} from "@/server/reports/team-cycle";
 import {readReportIndicatorProjection} from "@/server/reports/dynamic-indicators";
 import {readIndicatorReporting,type ReportData} from "@/server/indicators/reporting";
-import {renderOfficeIndicatorChart,OfficeChartIndicatorUnavailableError} from "@/server/reports/office-indicator-charts";
+import {renderOfficeIndicatorChart,renderOfficeIndicatorAdaptiveChart,OfficeChartIndicatorUnavailableError} from "@/server/reports/office-indicator-charts";
 import {discoverOfficeChartTags,insertOfficeTrendImages} from "../../../../../../../scripts/smn-402-office-chart-tags.mjs";
+import {insertAdaptivePowerPointCharts,OfficePowerPointInsertionError} from "../../../../../../../scripts/smn-413-adaptive-pptx.mjs";
+import {OfficeChartTargetError} from "../../../../../../../scripts/smn-411-chart-targets.mjs";
+import {OfficeChartLayoutError} from "../../../../../../../scripts/smn-412-adaptive-chart.mjs";
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
 import {readOfficeMemberGroups,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
 import {discoverOfficeBusinessSources,readOfficeBusinessRows} from "@/server/reports/office-business-rows";
@@ -114,8 +117,11 @@ export async function POST(req:NextRequest){
    generatePowerPointTables(selected.bytes,payload.rows,language as Locale).bytes;
   const result=generateScalarOffice(base,selected.template.format,payload.values);
   const withCharts=chartCount>0&&payload.report?
-   insertOfficeTrendImages(result.bytes,selected.template.format,(_index:number,options:{last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null})=>
-    renderOfficeIndicatorChart(payload.report!,cycleId,options,language as Locale)).bytes:
+   selected.template.format==="pptx"?
+    insertAdaptivePowerPointCharts(result.bytes,(target:{options:{last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null};widthEmu:number;heightEmu:number})=>
+     renderOfficeIndicatorAdaptiveChart(payload.report!,cycleId,target.options,language as Locale,target)).bytes:
+    insertOfficeTrendImages(result.bytes,selected.template.format,(_index:number,options:{last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null})=>
+     renderOfficeIndicatorChart(payload.report!,cycleId,options,language as Locale)).bytes:
    result.bytes;
   if(!isSupportedOfficePackage(withCharts,selected.template.format))
    return jsonResult({error:"generation-failed"},422);
@@ -145,6 +151,12 @@ export async function POST(req:NextRequest){
  }catch(error){
   if(error instanceof OfficeChartIndicatorUnavailableError)
    return jsonResult({error:"office-chart-indicator-unavailable",tag:error.tag},422);
+  if(error instanceof OfficeChartTargetError)
+   return jsonResult({error:"office-chart-invalid-target",reason:error.code},422);
+  if(error instanceof OfficePowerPointInsertionError)
+   return jsonResult({error:"office-chart-insertion-failed",reason:error.code,slide:error.slide,shapeId:error.shapeId},422);
+  if(error instanceof OfficeChartLayoutError)
+   return jsonResult({error:"office-chart-render-failed",reason:error.code},422);
   if(error instanceof Error&&error.message.startsWith("Paramètres de tag"))
    return jsonResult({error:"invalid-tag-parameters"},422);
   return jsonResult({error:"generation-failed"},422);
