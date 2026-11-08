@@ -55,7 +55,14 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
   await client.query("INSERT INTO public.smn_general_settings(installation_id,palette) VALUES ('singleton','red-purple')");
   // Initialize the additive chart catalog atomically for fresh native v33 installs.
   const chartStyleSql=readFileSync(resolve(process.cwd(),"prisma","migrations","20261108_smn416_chart_styles","migration.sql"),"utf8");
-  await client.query(chartStyleSql);
+  try{await client.query(chartStyleSql);}
+  catch(error){
+   const pg=error as {code?:unknown;position?:unknown};
+   console.error("smn-chart-style-bootstrap-rejected",
+    typeof pg?.code==="string"?pg.code:"unclassified",
+    typeof pg?.position==="string"?pg.position:"no-position");
+   throw error;
+  }
   await client.query("COMMIT");transaction=false;
   // L'installation est acceptée uniquement après diagnostic physique v33.
   const after=classifySnapshot(await probePostgres(uri.toString()));
