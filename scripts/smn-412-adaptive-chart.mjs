@@ -192,8 +192,9 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
   const active=series.map((s,i)=>({name:s.name??s.tag??"Série "+(i+1),value:values[i],color:palette[i%palette.length]})).filter(s=>s.value!==null);
   const total=active.reduce((sum,s)=>sum+s.value,0);
   if(total===0&&(type!=="gauge"||active.length===0))return null;
-  const centerX=xLeft+plotWidth*(legendNeeded?.42:.5),centerY=yTop+plotHeight*.53;
-  const radius=Math.min(plotHeight*.46,plotWidth*(legendNeeded?.31:.43));
+  const pieBottom=legendNeeded&&common?.legend.position==="bottom";
+  const centerX=xLeft+plotWidth*(pieBottom?.5:legendNeeded?.42:.5),centerY=yTop+plotHeight*.53;
+  const radius=Math.min(plotHeight*.46,plotWidth*(pieBottom?.43:legendNeeded?.31:.43));
   if(radius<85)throw new OfficeChartLayoutError("office-chart-frame-too-small");
   if(type==="gauge"){
    const val=active[0].value,r=radius;
@@ -237,11 +238,20 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
     svgParts.push(txt(formatted,centerX+radius*.57*Math.cos(angle),centerY+radius*.57*Math.sin(angle),font*.65));
    });
    if(legendNeeded){
-    active.forEach((s,i)=>{
-     const lx=xLeft+plotWidth*.77,ly=yTop+font*(1.2+i*1.55);
-     svgParts.push(rect(lx,ly-font*.68,font*.7,font*.7,s.color));
-     svgParts.push(txt(shortName(s.name,Math.floor((xRight-lx)/(.58*font))-2),lx+font,ly,font,{anchor:"start"}));
-    });
+    if(pieBottom){
+     const perRow=Math.min(3,active.length),rows=Math.ceil(active.length/perRow),each=plotWidth/perRow;
+     active.forEach((item,i)=>{
+      const x=xLeft+(i%perRow)*each,y=h-pad-((rows-1)-Math.floor(i/perRow))*font*1.25;
+      svgParts.push(rect(x,y-font*.75,font*.65,font*.65,item.color));
+      svgParts.push(txt(shortName(item.name,14),x+font*.9,y-font*.16,font*.72,{anchor:"start"}));
+     });
+    }else{
+     active.forEach((item,i)=>{
+      const lx=xLeft+plotWidth*.77,ly=yTop+font*(1.2+i*1.55);
+      svgParts.push(rect(lx,ly-font*.68,font*.7,font*.7,item.color));
+      svgParts.push(txt(shortName(item.name,Math.floor((xRight-lx)/(.58*font))-2),lx+font,ly,font,{anchor:"start"}));
+     });
+    }
    }
    drawn={style:type,points:active.length,range:[0,total],labels:[]};
   }
