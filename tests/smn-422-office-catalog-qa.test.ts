@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
+import {readFileSync,mkdtempSync,rmSync,existsSync} from "node:fs";
+import {tmpdir} from "node:os";
+import {join} from "node:path";
+import {runReplay} from "../scripts/poc/smn-422-performance-replay";
 import {CHART_TYPES,PREDEFINED_CHART_STYLES} from "../src/server/reports/chart-style-contract";
 import {officeChartDefinitions} from "../src/app/app/reports/office-tags";
 import {parseOfficeChartTag} from "../scripts/smn-402-office-chart-tags.mjs";
@@ -60,4 +63,21 @@ test("historical tags and v33 projection are still connected to the Office engin
   "renderOfficeIndicatorSharedChart","insertAdaptivePowerPointCharts","insertOfficeTrendImages",
   "isSupportedOfficePackage","saveOfficeReport"])assert.ok(route.includes(name),name);
  for(const key of ["TYPE","TAGS","LAST","STYLE"])assert.ok(parser.includes(key),key);
+});
+
+test("same-process SMN-422 smoke replay measures CPU and wall time on identical fixtures",()=>{
+ const out=mkdtempSync(join(tmpdir(),"smn-422-perf-"));
+ try{
+  const report=runReplay({out,repeats:1,smoke:true,style:"cockpit-agile"});
+  assert.equal(report.configuration.matrixCases,4);
+  assert.equal(report.configuration.stressCases,2);
+  assert.equal(report.results.length,6);
+  assert.equal(report.realMicrosoftOfficeReview,"not-executed");
+  assert.ok(report.results.every(item=>
+   item.before.width===item.after.width&&item.before.height===item.after.height&&
+   item.before.timeMsMedian>=0&&item.after.timeMsMedian>=0&&
+   item.before.cpuMsMedian>=0&&item.after.cpuMsMedian>=0&&
+   item.after.rssSampledMaxBytes>0));
+  assert.ok(existsSync(join(out,"replay.json")));
+ }finally{rmSync(out,{recursive:true,force:true});}
 });
