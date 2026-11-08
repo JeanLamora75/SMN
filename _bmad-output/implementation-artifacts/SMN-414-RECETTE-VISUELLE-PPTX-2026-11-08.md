@@ -7,7 +7,7 @@
 
 ## 1. État de la recette et principe de preuve
 
-La recette **automatisable** est réalisée dans la CI Windows/Linux SMN-414. Le fichier PowerPoint **original de l'utilisateur** (en-tête rouge, logo, photo à droite, quatre cadres et un seul tag) n'est **pas accessible comme fichier binaire dans la session**. Le générateur de preuves utilise donc un fixture **Open XML synthétique** pour vérifier la géométrie, les relations et l'intégrité des objets hors cible, ainsi que 36 images indépendantes.
+La recette **automatisable** est réalisée dans la CI Windows/Linux SMN-414. **Dernier run vérifié : https://github.com/JeanLamora75/SMN/actions/runs/42477866661 — succès sur Ubuntu et Windows, 30 tests de recette/intégration et 12 tests de non-régression par OS (42/42), TypeScript et ESLint réussis.** Le fichier PowerPoint **original de l'utilisateur** (en-tête rouge, logo, photo à droite, quatre cadres et un seul tag) n'est **pas accessible comme fichier binaire dans la session**. Le générateur de preuves utilise donc un fixture **Open XML synthétique** pour vérifier la géométrie, les relations et l'intégrité des objets hors cible, ainsi que 36 images indépendantes.
 
 **NE PAS qualifier cette preuve de conformité Microsoft PowerPoint** : l'ouverture réelle du PPTX original, l'affichage à 100 %, le diaporama, l'export PDF, les captures avant/après et la validation finale Sally/Winston/utilisateur doivent être consignés séparément. Le fixture n'est pas présenté comme un fichier Office prêt à l'emploi.
 
@@ -59,7 +59,8 @@ En cas de différence, consigner **modèle, variante, dimensions, tag, langue, c
 
 ## 6. Liens de vérification
 
-- CI SMN-414 : https://github.com/JeanLamora75/SMN/actions/workflows/smn-414-visual-acceptance.yml
+- CI SMN-414 — exécution verte : https://github.com/JeanLamora75/SMN/actions/runs/42477866661 ; artefacts `smn-414-qa-ubuntu-latest` et `smn-414-qa-windows-latest` (36 PNG, 18 cas de densité, SHA256, checklist)
+- Workflow SMN-414 : https://github.com/JeanLamora75/SMN/actions/workflows/smn-414-visual-acceptance.yml
 - CI SMN-413 avec Resvg natif : https://github.com/JeanLamora75/SMN/actions/runs/42476755722
 - UX Sally : https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-office-graphiques-adaptatifs-2026-11-08/CONTRAT-UX-OPTION-B.md
 - Architecture Winston : https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/architecture/rapports-office/ADR-GRAPHIQUES-ADAPTATIFS-PPTX-2026-11-08.md
