@@ -3,7 +3,7 @@ import {trendNumbers,validateTrendSelection} from "@/lib/indicators/trend-series
 import {renderOfficeTrendPng} from "../../../scripts/smn-402-trend-png.mjs";
 import {renderAdaptiveChartPng} from "../../../scripts/smn-412-adaptive-chart.mjs";
 
-type ChartOptions={last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null};
+type ChartOptions={last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null;style?:string};
 /** A chart tag must match an indicator enabled and visible in the team's Trends screen. */
 export class OfficeChartIndicatorUnavailableError extends Error{
  constructor(public readonly tag:string){
