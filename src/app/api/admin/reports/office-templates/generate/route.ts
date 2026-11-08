@@ -9,7 +9,7 @@ import {readIndicatorReporting,type ReportData} from "@/server/indicators/report
 import {renderOfficeIndicatorChart} from "@/server/reports/office-indicator-charts";
 import {discoverOfficeChartTags,insertOfficeTrendImages} from "../../../../../../../scripts/smn-402-office-chart-tags.mjs";
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
-import {readOfficeWordMembers,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
+import {readOfficeMemberGroups,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
 import {discoverOfficeBusinessSources,readOfficeBusinessRows} from "@/server/reports/office-business-rows";
 import {readOfficeContextScalars} from "@/server/reports/office-context-scalars";
 import {inspectOfficeReport,saveOfficeReport,OfficeSaveConflict,OfficeSaveFailure} from "@/server/reports/office-storage";
@@ -91,13 +91,13 @@ export async function POST(req:NextRequest){
     SPRINT_STATUS:status[locale][sprint.status]??sprint.status,
     indicators:indicators.map(indicator=>({...indicator,value:formatScalarNumber(indicator.value,locale)}))
    });
-   const members=await readOfficeWordMembers(db,teamId,cycleId,locale);
+   const members=await readOfficeMemberGroups(db,teamId,cycleId,locale);
    const report=chartCount>0?await readIndicatorReporting(db,teamId,"trends","scrum"):null;
    const business=await readOfficeBusinessRows(db,teamId,{
     id:cycleId,startAt:new Date(sprint.start_at!).toISOString(),
     endAt:new Date(sprint.end_at!).toISOString(),timeZone:sprint.time_zone
    },locale,businessSources);
-   return {values,rows:{MEMBERS:members,INDICATORS:officeWordIndicatorRows(indicators,locale),...business},report};
+   return {values,rows:{MEMBERS:[...members.active,...members.inactive],MEMBERS_ACTIVE:members.active,MEMBERS_INACTIVE:members.inactive,INDICATORS:officeWordIndicatorRows(indicators,locale),...business},report};
   });
  }catch(error){
   if(error instanceof Error&&error.message==="too-many-indicators")
