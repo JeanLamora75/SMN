@@ -186,7 +186,7 @@ export async function createQuickMembers(client:Client,actorId:string,raw:unknow
      VALUES($1,$2,1,$3::date,$4,NULL,NULL,NULL,'installation-default',$5)`,
      [randomUUID(),id,startOn,defaultCountry,actorId]);
    }
-   members.push({id,memberNumber,displayName,email:null,professionalFunction:null,countryIso2:null,revision:0,isProvisional:true,agileRole:role,startOn,endOn:null,archived:false,archivedAt:null,isAssigned:true,
+   members.push({id,memberNumber,displayName,email:null,professionalFunction:null,countryIso2:null,city:null,revision:0,isProvisional:true,agileRole:role,startOn,endOn:null,archived:false,archivedAt:null,isAssigned:true,
     contractPercent:100,allocationPercent:100,rolePercent:100,contributionPercent:100,
     roleShares:{scrumMaster:role==="scrum_master"?100:0,productOwner:role==="product_owner"?100:0,developer:role==="developer"?100:0},
     developmentCapacityJh:null});
