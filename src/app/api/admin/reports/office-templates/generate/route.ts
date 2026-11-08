@@ -1,3 +1,5 @@
+import {readFileSync} from "node:fs";
+import {join} from "node:path";
 import type {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
@@ -11,6 +13,7 @@ import {discoverOfficeChartTags,insertOfficeTrendImages} from "../../../../../..
 import {insertAdaptivePowerPointCharts,OfficePowerPointInsertionError} from "../../../../../../../scripts/smn-413-adaptive-pptx.mjs";
 import {OfficeChartTargetError} from "../../../../../../../scripts/smn-411-chart-targets.mjs";
 import {OfficeChartLayoutError} from "../../../../../../../scripts/smn-412-adaptive-chart.mjs";
+import {embedMemberFlagPictures,OfficeMemberFlagError} from "../../../../../../../scripts/smn-415-office-flag-images.mjs";
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
 import {readOfficeMemberGroups,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
 import {discoverOfficeBusinessSources,readOfficeBusinessRows} from "@/server/reports/office-business-rows";
@@ -94,7 +97,7 @@ export async function POST(req:NextRequest){
     SPRINT_STATUS:status[locale][sprint.status]??sprint.status,
     indicators:indicators.map(indicator=>({...indicator,value:formatScalarNumber(indicator.value,locale)}))
    });
-   const members=await readOfficeMemberGroups(db,teamId,cycleId,locale);
+   const members=await readOfficeMemberGroups(db,teamId,cycleId,locale,selected.template.format);
    const report=chartCount>0?await readIndicatorReporting(db,teamId,"trends","scrum"):null;
    const business=await readOfficeBusinessRows(db,teamId,{
     id:cycleId,startAt:new Date(sprint.start_at!).toISOString(),
@@ -116,13 +119,18 @@ export async function POST(req:NextRequest){
    generateWordTables(selected.bytes,payload.rows).bytes:
    generatePowerPointTables(selected.bytes,payload.rows,language as Locale).bytes;
   const result=generateScalarOffice(base,selected.template.format,payload.values);
+  const withFlags=selected.template.format==="pptx"?
+   embedMemberFlagPictures(result.bytes,(country:string)=>{
+    try{return readFileSync(join(process.cwd(),"public","flags",country.toLowerCase()+".png"));}
+    catch{return null;}
+   }).bytes:result.bytes;
   const withCharts=chartCount>0&&payload.report?
    selected.template.format==="pptx"?
-    insertAdaptivePowerPointCharts(result.bytes,(target:{options:{last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null};widthEmu:number;heightEmu:number})=>
+    insertAdaptivePowerPointCharts(withFlags,(target:{options:{last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null};widthEmu:number;heightEmu:number})=>
      renderOfficeIndicatorAdaptiveChart(payload.report!,cycleId,target.options,language as Locale,target)).bytes:
-    insertOfficeTrendImages(result.bytes,selected.template.format,(_index:number,options:{last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null})=>
+    insertOfficeTrendImages(withFlags,selected.template.format,(_index:number,options:{last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null})=>
      renderOfficeIndicatorChart(payload.report!,cycleId,options,language as Locale)).bytes:
-   result.bytes;
+   withFlags;
   if(!isSupportedOfficePackage(withCharts,selected.template.format))
    return jsonResult({error:"generation-failed"},422);
   if(action==="save"){
@@ -155,6 +163,8 @@ export async function POST(req:NextRequest){
    return jsonResult({error:"office-chart-invalid-target",reason:error.code},422);
   if(error instanceof OfficePowerPointInsertionError)
    return jsonResult({error:"office-chart-insertion-failed",reason:error.code,slide:error.slide,shapeId:error.shapeId},422);
+  if(error instanceof OfficeMemberFlagError)
+   return jsonResult({error:"office-member-flag-failed",reason:error.code,country:error.country},422);
   if(error instanceof OfficeChartLayoutError)
    return jsonResult({error:"office-chart-render-failed",reason:error.code},422);
   if(error instanceof Error&&error.message.startsWith("Paramètres de tag"))
