@@ -105,7 +105,7 @@ export function parseChartStyleCommand(raw:unknown):
  if(a==="create"||a==="update"){
   const keys=a==="create"?["action","id","name","description","config"]:["action","id","name","description","config","revision"];
   if(!fields(raw,keys)||!validChartStyleId(raw.id)||BUILTIN_IDS.some(id=>id===raw.id)||
-   !str(raw.name,120)||!(raw.name as string).trim()||!str(raw.description,500)||
+   raw.id==="legacy"||!str(raw.name,120)||!(raw.name as string).trim()||!str(raw.description,500)||
    !validChartStyleConfig(raw.config))throw new ChartStyleError("invalid-input");
   if(a==="create")return {action:a,id:raw.id,name:(raw.name as string).trim(),description:raw.description as string,config:raw.config};
   if(!integer(raw.revision,1,2147483647))throw new ChartStyleError("invalid-input");
