@@ -46,7 +46,20 @@ La génération des modèles **DOCX reste sur le renderer historique** (SMN-402)
 - `tests/smn-411-chart-targets.test.mjs`, `tests/smn-412-adaptive-chart.test.mjs` et `tests/smn-402-office-trends.test.ts` : non-régressions.
 - `.github/workflows/smn-413-adaptive-pptx.yml` : Node 24, pnpm 12.10.0, installation figée, Windows/Linux, types, lint et contrôle supplémentaire du build standalone Linux.
 
-**Preuve de tests techniques Windows et Linux (avant ajout du contrôle standalone) :** https://github.com/JeanLamora75/SMN/actions/runs/42475072306. Les validations du build Next.js standalone et de la présence des modules natifs doivent être examinées dans la CI complémentaire : https://github.com/JeanLamora75/SMN/actions/runs/42475219005.
+**Preuve finale Windows/Linux (tests et builds) :** https://github.com/JeanLamora75/SMN/actions/runs/42476755722.
+
+## Résultats définitifs de validation (08/11/2026)
+
+**CI de référence :** https://github.com/JeanLamora75/SMN/actions/runs/42476755722 — **succès Windows et Ubuntu** avec Node 24/pnpm 12.10.
+
+- **Windows : 25 tests de géométrie/rendu/OPC + 12 tests de non-régression Word/PowerPoint = 37/37**, vérification TypeScript, ESLint et **build Next.js standalone réussis**.
+- **Linux : 37/37 tests**, TypeScript, ESLint et build Next.js standalone réussis.
+- **Linux, packaging :** une copie isolée du bundle standalone peut charger Resvg et générer un PNG valide 400 × 240, sans utiliser les dépendances du dépôt source.
+- **Windows, packaging :** Next standalone ne reprend pas toujours le binaire optionnel `@resvg/resvg-js-win32-x64-msvc` à la racine de `node_modules`. Le fichier `scripts/windows/package-portable.mjs` a été corrigé pour localiser le module natif réellement installé par pnpm via `require.resolve`, puis copier explicitement les deux modules `resvg-js` et `resvg-js-win32-x64-msvc` dans le paquet. Un test CI copie les deux modules vers une arborescence isolée et produit réellement un PNG 400 × 240 (`resvg-windows-standalone-smoke-ok`).
+- Le workflow temporaire de régénération du lockfile a été supprimé après commit des versions exactes ; `pnpm install --frozen-lockfile` réussit sur les deux OS.
+- **Limite de preuve :** le test de packaging Windows ne copie pas l'intégralité du bundle Next.js. Les copies complètes du bundle ont rencontré des erreurs d'accès sur des jonctions pnpm existantes ; un build Next.js a également émis un avertissement de copie d'un fichier externe `node:fs_promises` sans empêcher le build. La construction d'une archive SMN portable complète, son démarrage et le chargement de modèles PowerPoint réels restent à démontrer lors du flux d'installation/recette SMN-414. **Ne pas assimiler le smoke test Resvg à un lancement complet du paquet Windows.**
+
+Les tests apportent une preuve technique réelle de l'intégration et du rendu natif, mais **pas encore** une preuve de fidélité visuelle sur le véritable modèle PowerPoint fourni par l'utilisateur.
 
 ## Risques et limites résiduels
 
