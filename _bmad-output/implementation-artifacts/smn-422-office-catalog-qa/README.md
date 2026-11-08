@@ -70,6 +70,15 @@ pnpm exec tsx scripts/poc/smn-418-compare-baseline.ts --before "$env:TEMP\smn-41
 
 Résultat attendu : `smn-418-after/comparison.json` et `smn-418-after/images` (48 PNG). Conserver également `baseline.json` **inchangé** dans le répertoire avant.
 
+Pour mesurer le **CPU par scénario**, les durées et le RSS sur les deux moteurs dans **le même processus Node**, rejouer les cas SMN-422 sur Windows 11 :
+
+```powershell
+pnpm exec tsx scripts/poc/smn-422-performance-replay.ts --out "$env:TEMP\smn-422-replay" --repeats 3 --style cockpit-agile
+```
+
+Le fichier `replay.json` contient **48 scénarios de matrice et 36 scénarios de stress**, chacun mesuré avant/après (temps médian, CPU utilisateur+système en ms, RSS échantillonné). Le mode `--smoke` ne mesure que 4 cas de matrice et 2 stress ; il ne constitue pas une recette de performance. L'outil ne modifie pas la baseline d'origine, n'ouvre pas Word/PowerPoint et ne garantit pas la mesure de pics mémoire. Le seuil de 10 % sert à signaler les anomalies.
+
+
 `comparison.json` permet de mesurer dimensions, empreintes et temps médians. Il inclut des échantillons RSS observés à certains instants, **pas une mémoire pic validée**. La baseline SMN-415 ne contient **pas de valeur CPU** directement comparable ; la consommation CPU et les pics mémoire doivent donc être instrumentés lors de nouvelles exécutions avant et après. Un seuil cible provisoire de régression médiane **≤ 10 %** est utilisé comme signal : tout scénario dépassant 10 % doit donner lieu à une **anomalie documentée**, et non à une conformité déclarée. Les changements de hash d'image ne signifient pas automatiquement une régression, car le rendu Word est volontairement différent après unification SVG.
 
 ### Fiche de mesure à compléter
@@ -79,7 +88,7 @@ Résultat attendu : `smn-418-after/comparison.json` et `smn-418-after/images` (4
 | Images / scénarios / packages | 48 / 36 / 6 (historique communiqué) | Non exécuté sur poste | N/D | À mesurer |
 | Temps médian par cas (48) | `baseline.json` disponible localement | `comparison.json` attendu | N/D | À mesurer |
 | Durée des cas de stress 1/6/24 | Baseline initiale locale | Comparaison à instrumenter | N/D | À mesurer |
-| CPU process (secondes) | Non mesuré | Non mesuré | N/D | À instrumenter |
+| CPU du processus (ms par cas) | Rejeu SMN-422 à effectuer | Rejeu SMN-422 à effectuer | N/D | Non exécuté sur le poste |
 | RSS maximum (observé) | Baseline locale | Comparaison locale | N/D | À mesurer |
 | Mémoire pic Windows | Non mesuré | Non mesuré | N/D | À instrumenter |
 | Qualité visuelle Word/PPTX | Référence manuelle absente | Non exécuté | N/D | Manuel — non validé |
