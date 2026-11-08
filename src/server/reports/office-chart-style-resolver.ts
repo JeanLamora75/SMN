@@ -96,7 +96,7 @@ export function createOfficeChartStyleResolver(
 ):(request:OfficeChartRequest)=>ResolvedOfficeChartStyle{
  if(reportStyleId!==undefined&&reportStyleId!==null&&!validChartStyleId(reportStyleId))
   throw new OfficeChartStyleResolutionError("office-chart-invalid-style-id",String(reportStyleId));
- const available=new Map(snapshot?.styles.map(s=>[s.id,s])??[]);
+ const available=new Map<string,OfficeStyleRecord>(snapshot?.styles.map(s=>[s.id,s] as const)??[]);
  if(reportStyleId!==undefined&&reportStyleId!==null&&!available.has(reportStyleId))
   throw new OfficeChartStyleResolutionError("office-chart-style-not-found",reportStyleId);
  return (request:OfficeChartRequest)=>{
