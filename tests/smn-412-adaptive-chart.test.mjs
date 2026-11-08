@@ -109,5 +109,5 @@ test("renderer does not modify legacy production export path or core chart seman
  assert.match(production,/export function renderOfficeIndicatorAdaptiveChart/);
  const source=fs.readFileSync("scripts/smn-412-adaptive-chart.mjs","utf8");
  assert.match(source,/emuToPixels/);
- assert.match(source,/rasterizeWithResvg/);
+ assert.match(source,/new Resvg\(scene\.svg/);
 });
