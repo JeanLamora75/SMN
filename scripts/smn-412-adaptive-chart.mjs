@@ -237,7 +237,16 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
    drawn={style:type,points:active.length,range:[0,total],labels:[]};
   }
  }else{
-  const vals=series.flatMap(s=>s.values).filter(v=>v!==null);
+  const stackedArea=type==="area"&&options?.stacked===true;
+  const positiveStack=cycles.map(()=>0),negativeStack=cycles.map(()=>0);
+  const stackLevels=stackedArea?series.map(s=>s.values.map((value,i)=>{
+   if(value===null)return null;
+   const from=value>=0?positiveStack[i]:negativeStack[i],to=from+value;
+   if(value>=0)positiveStack[i]=to;else negativeStack[i]=to;
+   return {from,to};
+  })):null;
+  const vals=stackedArea?[...positiveStack,...negativeStack]:
+   series.flatMap(s=>s.values).filter(v=>v!==null);
   const min=Math.min(0,...vals),max=Math.max(0,...vals);
   const lower=min===max?min-1:min,upper=max===lower?lower+1:max;
   const scale=v=>yBottom-(v-lower)/(upper-lower)*plotHeight;
@@ -274,12 +283,17 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
     const segments=[];let segment=[];
     s.values.forEach((v,i)=>{
      if(v===null){if(segment.length)segments.push(segment);segment=[];return;}
-     segment.push([colX(i),scale(v)]);
+     segment.push(stackedArea?[colX(i),scale(stackLevels[si][i].to),i]:[colX(i),scale(v)]);
     });
     if(segment.length)segments.push(segment);
     for(const points of segments){
-     if(type==="area"&&points.length>1)
-      svgParts.push('<polygon points="'+[[points[0][0],baseline],...points,[points.at(-1)[0],baseline]].map(p=>p.map(num).join(",")).join(" ")+'" fill="'+color+'" fill-opacity="'+(options?options.opacity:".18")+'"/>');
+     if(type==="area"&&points.length>1){
+      const footprint=stackedArea?[
+       ...points.map(p=>p.slice(0,2)),
+       ...points.slice().reverse().map(p=>[p[0],scale(stackLevels[si][p[2]].from)])
+      ]:[[points[0][0],baseline],...points,[points.at(-1)[0],baseline]];
+      svgParts.push('<polygon points="'+footprint.map(p=>p.map(num).join(",")).join(" ")+'" fill="'+color+'" fill-opacity="'+(options?options.opacity:".18")+'"/>');
+     }
      if(points.length>1){
       const stroke=options?.strokeWidth??Math.max(3,font*.085);
       if(type==="line"&&options?.smooth){
@@ -289,7 +303,7 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
         path+=" C "+[middle,a[1],middle,b[1],b[0],b[1]].map(num).join(" ");
        }
        svgParts.push('<path d="'+path+'" fill="none" stroke="'+color+'" stroke-width="'+stroke+'"/>');
-      }else svgParts.push('<polyline fill="none" stroke="'+color+'" stroke-width="'+stroke+'" stroke-linejoin="round" points="'+points.map(p=>p.map(num).join(",")).join(" ")+'"/>');
+      }else svgParts.push('<polyline fill="none" stroke="'+color+'" stroke-width="'+stroke+'" stroke-linejoin="round" points="'+points.map(p=>p.slice(0,2).map(num).join(",")).join(" ")+'"/>');
      }
      if(showLabels)points.forEach((p,pi)=>{
       const value=series[si].values.filter(v=>v!==null)[pi];
