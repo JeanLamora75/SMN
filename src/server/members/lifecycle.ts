@@ -108,7 +108,7 @@ export async function inspectMemberLifecycle(client:Client,id:string):Promise<Li
   referenceCount:referenceCount+foreign.count,canDelete,
   deletionImpact:{foreignReferenceCount:foreign.count,unknown:foreign.unknown,
    tables:foreign.tables,requiresConfirmation:true,permanent:true,
-   auditReady:auditReady.rows[0]?.present===true}};
+   auditReady:auditReady.rows[0]?.ready===true}};
 }
 export async function applyLifecycleAction(client:Client,id:string,actorId:string,raw:unknown):Promise<LifecycleResult>{
  const input=parseLifecycleAction(raw);
