@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {isValidDate} from "./assignment";
+import {inspectMemberForeignReferences,requireMemberRemovalAudit} from "./removal-audit";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export type LifecycleAction=
@@ -10,14 +11,16 @@ export type LifecycleAction=
 export type LifecycleError="invalid-input"|"not-found"|"team-unavailable"|"conflict"|
  "assignment-not-found"|"assignment-already-closed"|"invalid-date"|"future-version"|
  "assignment-still-open"|"already-archived"|"not-archived"|"historical-references"|
- "business-data"|"cascade-risk";
+ "business-data"|"cascade-risk"|"audit-not-ready";
 export type LifecycleResult=
  |{ok:true;action:LifecycleAction["action"];revision:number;activeCount:number;warning:"team-below-three"|null}
  |{ok:false;error:LifecycleError};
 export type LifecycleAssignment={id:string;teamId:string;startOn:string;endOn:string|null};
 export type LifecycleImpact={memberId:string;teamId:string;displayName:string;revision:number;
  archived:boolean;archivedAt:string|null;today:string;activeCount:number;
- assignments:LifecycleAssignment[];referenceCount:number;canDelete:boolean};
+ assignments:LifecycleAssignment[];referenceCount:number;canDelete:boolean;
+ deletionImpact:{foreignReferenceCount:number;unknown:boolean;tables:{name:string;count:number}[];
+  requiresConfirmation:true;permanent:true};};
 
 type MemberRow={id:string;revision:number;is_provisional:boolean;display_name:string;email:string|null;
  archived_at:string|null;contract_percent:number;contribution_percent:number};
@@ -95,13 +98,20 @@ export async function inspectMemberLifecycle(client:Client,id:string):Promise<Li
  if(!state)throw new Error("member-not-found");
  const rows=await assignments(client,id,false);
  if(rows.some(a=>a.team_id!==state.teamId))throw new Error("member-out-of-scope");
- const [date,count,referenceCount]=await Promise.all([
-  today(client),activeCount(client,state.teamId),references(client,id)]);
+ const [date,count,referenceCount,foreign,auditReady]=await Promise.all([
+  today(client),activeCount(client,state.teamId),references(client,id),
+  inspectMemberForeignReferences(client,id),
+  client.query<{present:boolean}>("SELECT to_regclass('public.smn_member_removal_audit') IS NOT NULL AS present")
+ ]);
+ const canDelete=rows.length===0&&referenceCount===0&&foreign.count===0&&
+  !foreign.unknown&&auditReady.rows[0]?.present===true&&isEmpty(state.member);
  return {memberId:id,teamId:state.teamId,displayName:state.member.display_name,
   revision:state.member.revision,archived:state.member.archived_at!==null,
   archivedAt:state.member.archived_at,today:date,activeCount:count,
   assignments:rows.map(r=>({id:r.id,teamId:r.team_id,startOn:r.start_on,endOn:r.end_on})),
-  referenceCount,canDelete:rows.length===0&&referenceCount===0&&isEmpty(state.member)&&!await hasCascadeRisk(client)};
+  referenceCount:referenceCount+foreign.count,canDelete,
+  deletionImpact:{foreignReferenceCount:foreign.count,unknown:foreign.unknown,
+   tables:foreign.tables,requiresConfirmation:true,permanent:true}};
 }
 export async function applyLifecycleAction(client:Client,id:string,actorId:string,raw:unknown):Promise<LifecycleResult>{
  const input=parseLifecycleAction(raw);
@@ -143,10 +153,24 @@ export async function applyLifecycleAction(client:Client,id:string,actorId:strin
   }else{
    if(list.length>0||await references(client,id)>0)return stop("historical-references");
    if(!isEmpty(state.member))return stop("business-data");
-   if(await hasCascadeRisk(client))return stop("cascade-risk");
-   await client.query(`DELETE FROM public.smn_member WHERE id=$1
-    AND installation_id='singleton'`,[id]);
-   details={confirmed:true};
+   const foreign=await inspectMemberForeignReferences(client,id);
+   if(foreign.unknown||foreign.count>0)return stop("historical-references");
+   const available=await client.query<{ready:boolean}>(`
+    SELECT to_regclass('public.smn_member_removal_audit') IS NOT NULL AS ready`);
+   if(available.rows[0]?.ready!==true)return stop("audit-not-ready");
+   await requireMemberRemovalAudit(client);
+   const deleted=await client.query(`DELETE FROM public.smn_member WHERE id=$1
+    AND installation_id='singleton' AND revision=$2 RETURNING id`,[id,input.revision]);
+   if(deleted.rowCount!==1)throw new Error("member-delete-conflict");
+   await client.query(`INSERT INTO public.smn_member_removal_audit
+    (id,installation_id,member_id,actor_id,revision,reference_count,preview_confirmation)
+    VALUES($1,'singleton',$2,$3,$4,0,'SUPPRIMER')`,
+    [randomUUID(),id,actorId,input.revision]);
+   // Audit has no member FK: otherwise the parent deletion would fail.
+   const count=await activeCount(client,state.teamId);
+   await client.query("COMMIT");
+   return {ok:true,action:"delete",revision:input.revision+1,activeCount:count,
+    warning:null};
   }
   if(input.action==="close"){
    await client.query(`UPDATE public.smn_member SET revision=revision+1,updated_at=now()
