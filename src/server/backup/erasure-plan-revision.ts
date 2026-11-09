@@ -1,11 +1,11 @@
 import "server-only";
 import {createHash} from "node:crypto";
-import {lstat,readFile,readdir} from "node:fs/promises";
-import {join} from "node:path";
 import type {Client} from "pg";
 import {scanDocuments} from "./files";
 import {readVerifiedPdfArchive} from "../reports/pdf-archive-store";
 import {officeReportsDirectory} from "../reports/office-storage";
+import {officeTemplatesDirectory} from "../reports/office-catalog";
+import {fingerprintManagedOfficeStores} from "./erasure-office-fingerprint";
 
 const sha=(value:string)=>createHash("sha256").update(value).digest("hex");
 const LIMIT=40,MAX_BYTES=100*1024*1024;
@@ -30,26 +30,8 @@ export async function captureErasureRevision(db:Client,
   const docs=await scanDocuments(privateDir);
   if(docs.length>2000)throw new Error("too-many-private-documents");
   parts.push("private="+sha(JSON.stringify(docs)));
-  const officeDir=officeReportsDirectory();
-  const officeStat=await lstat(officeDir).catch((e:NodeJS.ErrnoException)=>{
-   if(e.code==="ENOENT")return null;throw e;
-  });
-  if(officeStat){
-   if(!officeStat.isDirectory()||officeStat.isSymbolicLink())
-    throw new Error("office-dir-untrusted");
-   const names=(await readdir(officeDir)).filter(n=>/\.(?:docx|pptx)$/i.test(n)).sort();
-   if(names.length>LIMIT)throw new Error("too-many-office-files");
-   let total=0;
-   for(const name of names){
-    const location=join(officeDir,name),stat=await lstat(location);
-    if(!stat.isFile()||stat.isSymbolicLink()||stat.size>20*1024*1024)
-     throw new Error("office-file-untrusted");
-    total+=stat.size;if(total>MAX_BYTES)throw new Error("too-many-bytes");
-    const bytes=await readFile(location);
-    if(bytes.length!==stat.size)throw new Error("office-file-changed");
-    parts.push("office="+name+":"+createHash("sha256").update(bytes).digest("hex"));
-   }
-  }
+  parts.push(...await fingerprintManagedOfficeStores(
+   officeReportsDirectory(),officeTemplatesDirectory()));
   const archives=await db.query<{id:string}>(`
    SELECT id FROM public.smn_report_pdf_archive
    WHERE team_id=ANY($1::text[]) ORDER BY id LIMIT $2`,[teamIds,LIMIT+1]);
