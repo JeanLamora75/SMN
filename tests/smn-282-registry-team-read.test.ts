@@ -101,7 +101,7 @@ test("Navigation et retour conservent l'équipe dans les liens sans URL extérie
 test("v27 : routeur du registre conserve son ancien chemin monoéquipe",async()=>{
  const f=fake({version:27});
  const result=await resolveRegistryReadContext(f.db,admin,null);
- assert.deepEqual(result,{version:27});
+ assert.deepEqual(result,{version:27,schemaVersion:27});
  const reads=f.queries.filter(q=>q.sql.includes("SELECT p.id AS product_id"));
  assert.equal(reads.length,0);
 });

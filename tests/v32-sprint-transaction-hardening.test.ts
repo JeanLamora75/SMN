@@ -4,7 +4,7 @@ import {test} from "node:test";
 
 const source=(name:string)=>readFileSync(new URL("../src/server/"+(name==="story-points.ts"?"compat-v32/":"sprints/")+name,import.meta.url),"utf8");
 const cases=[
- {name:"goals.ts",mode:"i.schema_version BETWEEN 28 AND 32",legacy:true},
+ {name:"goals.ts",mode:"i.schema_version BETWEEN 28 AND 33",legacy:true},
  {name:"story-points.ts",mode:"i.schema_version BETWEEN 28 AND 32",legacy:true},
  {name:"closure.ts",mode:"to_jsonb(t)->>'agile_mode'",legacy:false},
  {name:"sprint-capacity-kpis.ts",mode:"to_jsonb(t)->>'agile_mode'",legacy:false}

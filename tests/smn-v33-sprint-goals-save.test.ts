@@ -25,7 +25,7 @@ function fixture(owner="team_1",initialRevision=1){
   if(sql.includes("FROM public.smn_account_team_preference"))
    return {rows:[{team_id:"team_1"}]};
   if(sql.includes("SELECT p.id AS product_id"))
-   return {rows:[{product_id:"product",product:"Product",team_id:owner,team:"Team",mode:"scrum"}]};
+   return {rows:[{product_id:"product",product:"Product",team_id:"team_1",team:"Team",mode:"scrum"}]};
   if(sql.includes("FROM public.smn_sprint s")&&sql.includes("JOIN public.smn_team t")){
    assert.match(sql,/i\.schema_version BETWEEN 28 AND 33/);
    assert.match(sql,/s\.team_id=\$2/);
