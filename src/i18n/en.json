@@ -4259,5 +4259,51 @@
       "saved": "Style saved.",
       "discardConfirm": "Discard your unsaved changes?"
     }
+  },
+  "erasure": {
+    "title": "Exceptional erasure impact preview",
+    "intro": "Read-only exploratory analysis. Indirect relationships, archives, and free text are not yet fully covered; this preview cannot authorize erasure.",
+    "target": "Affected member",
+    "selectTarget": "Select a member",
+    "mode": "Proposed operation",
+    "erase": "Erasure",
+    "anonymize": "Anonymization",
+    "preview": "Analyze impact",
+    "loading": "Analyzing…",
+    "unavailable": "Unable to load members.",
+    "previewFailed": "Impact analysis unavailable. No data were changed.",
+    "incomplete": "Incomplete analysis: erasure or anonymization cannot be started from this screen.",
+    "targetSummary": "Inspected target: {target}",
+    "category": "Category",
+    "count": "Affected count",
+    "coverage": "Inspection status",
+    "unknown": "Unknown",
+    "inspected": "Direct links inspected",
+    "notExhaustive": "Further review required",
+    "directReferences": "View inspected database tables",
+    "table": "PostgreSQL table",
+    "warningsTitle": "Limitations and precautions",
+    "close": "Close preview",
+    "noAction": "This screen cannot delete or change any data.",
+    "categories": {
+      "personal-records": "Personal records",
+      "associations": "Associations and assignments",
+      "calendars": "Calendars and absences",
+      "history": "Histories",
+      "free-text": "Free text",
+      "private-files": "Private documents",
+      "archived-pdf-txt": "Archived PDF/TXT",
+      "collective-indicators": "Collective metrics",
+      "managed-backups": "Managed backups"
+    },
+    "warnings": {
+      "indirect-links-unchecked": "Indirect relationships and historical versions may still contain data linked to this member.",
+      "free-text-unchecked": "Free-text fields are not fully inspected; names may remain present.",
+      "archived-files-unchecked": "Immutable PDF/TXT files require access restriction or a separate redacted version; originals must not be silently rewritten.",
+      "indicators-unchecked": "Retaining statistics must be justified against reidentification risk.",
+      "managed-backups-may-contain-data": "Backups may contain previously erased data and require SMN-40 checks.",
+      "external-copies-not-controlled": "Exported copies outside SMN storage cannot automatically be monitored or deleted.",
+      "no-erasure-ledger": "The authoritative erasure ledger is not operational; restoring remains blocked."
+    }
   }
 }
