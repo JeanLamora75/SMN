@@ -5,7 +5,8 @@ import type {Client} from "pg";
 import {backupInventory} from "./verification";
 import {backupRootPath} from "./runner";
 import {classifyBackupEvidence,classifyCleanupEvidence,blockedOperation,
- type OperationEvidence} from "./operation-diagnostics";
+ type OperationEvidence,unresolvedOperation} from "./operation-diagnostics";
+import {inspectUnfinishedBackupArtifacts} from "./operation-artifacts";
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 type Marker={id:string;createdAt:string;status:"running"|"success"|"failed"|"cancelled"};
 async function marker(root:string):Promise<Marker|null>{
@@ -66,7 +67,13 @@ export async function readProtectionDiagnostics(db:Client):Promise<{
 }>{
  const checkedAt=new Date().toISOString();
  const root=backupRootPath();
- const [previous,cleanup]=await Promise.all([marker(root),cleanupMarker(root)]);
+ const [previous,cleanup,artifacts]=await Promise.all([
+  marker(root),cleanupMarker(root),inspectUnfinishedBackupArtifacts(root)
+ ]);
+ const hasMarker=async(name:string)=>{
+  try{await lstat(join(root,name));return true;}
+  catch(error){if((error as NodeJS.ErrnoException).code==="ENOENT")return false;throw error;}
+ };
  const operations:OperationEvidence[]=[];
  const running=await currentlyRunning(db);
  if(previous){
@@ -79,6 +86,17 @@ export async function readProtectionDiagnostics(db:Client):Promise<{
    packageExists:!!item
   }));
  }
+ if(!previous&&await hasMarker("last-attempt.json"))
+  operations.push(unresolvedOperation("backup",checkedAt,"invalid-operation-marker",1));
+ const unpublished=artifacts.stagingBackupIds.length+artifacts.unknownBackupArtifacts;
+ if(unpublished>0)operations.push(unresolvedOperation(
+  "backup",checkedAt,"unpublished-backup-artifact",unpublished));
+ if(!cleanup&&await hasMarker("last-cleanup.json"))
+  operations.push(unresolvedOperation("retention-cleanup",checkedAt,
+   "invalid-operation-marker",1));
+ const pending=artifacts.retentionPendingIds.length+artifacts.unknownRetentionArtifacts;
+ if(pending>0)operations.push(unresolvedOperation("retention-cleanup",checkedAt,
+  "pending-retention-tombstone",pending));
  if(cleanup){
   const recorded=classifyCleanupEvidence({
    operationId:cleanup.operationId,startedAt:cleanup.startedAt,checkedAt,
@@ -102,13 +120,13 @@ export async function readProtectionDiagnostics(db:Client):Promise<{
    uncertain=cleanup.processed-verified;
   }catch{verified=0;uncertain=cleanup.processed;}
   const fullyVerified=cleanup.status==="success"&&
-   verified===cleanup.planned&&cleanup.failed===0&&cleanup.inFlight===null;
+   verified===cleanup.planned&&cleanup.failed===0&&cleanup.inFlight===null&&pending===0;
   operations.push({...recorded,
    status:fullyVerified?"succeeded":
     running.cleanup&&cleanup.status==="running"?"running":
-    verified>0||uncertain>0||cleanup.inFlight?"partial":"interrupted",
+    verified>0||uncertain>0||cleanup.inFlight||pending>0?"partial":"interrupted",
    reason:fullyVerified?"cleanup-complete":
-    verified>0||uncertain>0||cleanup.inFlight?"partial-cleanup":"unverifiable-state",
+    verified>0||uncertain>0||cleanup.inFlight||pending>0?"partial-cleanup":"unverifiable-state",
    recovery:fullyVerified?"recheck":"reinspect-inventory-before-retry",
    processed:verified,
    unprocessed:Math.max(0,cleanup.planned-verified-cleanup.failed),
