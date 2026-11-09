@@ -28,3 +28,45 @@ Cette limitation est intentionnelle : SMN-33 constate un risque d'effacement non
 - Respect du mode ChatGPT + connecteurs GitHub/Jira ; script `uv` du skill BMAD non exécuté.
 
 **Ne pas passer la Story à Terminée** ni présenter cette livraison comme permettant de charger une sauvegarde. L'API de préflight répond 409 et l'interface ne comporte pas de bouton exécutant une restauration.
+
+
+## Lot de finalisation demandé — répétition de restauration isolée (09/11/2026)
+
+**Statut de conformité : NON TERMINÉE.** Une reconstruction technique est désormais codée pour une base PostgreSQL 18 jetable. La recette réelle et la restauration active demeurent bloquées pour ne pas perdre les données et ne pas réintroduire d'effacements personnels.
+
+### Ajouts publiés
+- `src/server/backup/restore-sandbox-policy.ts` : refuse tout URI de cible non locale, identique à la source, non nommé `smn_restore_test_*`, sur un autre serveur/port ou sous un autre utilisateur PostgreSQL. Ce contrat est testable sans accéder aux données.
+- `src/server/backup/restore-sandbox.ts` : relecture de l'intégrité réelle de chaque paquet, déverrouillage par clé locale ou phrase de récupération (variable d'environnement non loguée), vérification des métadonnées signées par AES-GCM, déchiffrement du dump PostgreSQL **en flux vers l'entrée standard** de `pg_restore` (aucun dump SQL clair écrit sur disque), `--single-transaction --exit-on-error` dans une base dédiée **préexistante et vide**. Extraction privée temporaire des documents TXT/PDF capturés et contrôle des couples manifestes/fichiers par `scanDocuments`. Nettoyage en `finally`. Les éventuelles sorties PostgreSQL contenant des secrets ne sont pas relayées.
+- `scripts/smn-34-restore-rehearsal.ts` : entrée CLI explicite `--archive <uuid> --sandbox-only`. Nécessite `SMN_RESTORE_TEST_URL` : jamais de création/suppression automatique de base, aucune application sur `SMN_DATABASE_URL` et aucun branchement au bouton de restauration de l'application.
+- `tests/smn-34-restore-sandbox.test.ts` : matrice de refus de cibles locales actives, distantes, sur mauvais port, identiques, non dédiées ou sans mot de passe.
+- `.github/workflows/smn-34-restore-sandbox.yml` : contrôles sur Windows/Linux (tests de politique, typecheck et traductions), déclenchables sur `main`.
+- Le backend SMN-34 conserve `canExecute:false`, car la preuve de confidentialité SMN-40 demeure indisponible.
+
+### Découverte bloquante sur AC1/AC5
+Le format réel de sauvegarde `runner.ts` capture le dump et le contenu de `SMN_PRIVATE_DOCUMENTS_DIR`. **Il ne contient pas automatiquement les PDF des rapports archivés par `pdf-archive-store.ts` dans `SMN_PRIVATE_REPORT_ARCHIVE_DIR`, ni les fichiers générés de `SMN_OFFICE_REPORTS_DIR`.** Les références `smn_report_pdf_archive` sont donc présentes dans la base restaurée, mais leurs fichiers peuvent manquer. Le simulateur interroge le nombre de ces références et retourne `incomplete-archive-scope` si elles existent. Il ne crée aucun faux PDF/TXT. Ce contrôle **ne constitue pas** un inventaire exhaustif des autres types de fichiers hors paquet. Le résultat expose systématiquement `fullRestoreQualified:false`. Les sauvegardes existantes ne sont pas déclarées complètes rétroactivement.
+
+### Qualification Windows / PostgreSQL 18 — protocole
+1. Contrôler les fichiers de `main`, la version de PostgreSQL 18, les outils `pg_restore` 18 et les variables de connexion **sans publier aucune URL contenant le mot de passe**.
+2. Créer manuellement une **nouvelle base vide dédiée** : nom `smn_restore_test_abcdef1234`, sur le même serveur local, avec le même compte que la base source. Vérifier dans pg_catalog qu'aucune relation métier n'y existe. Ne pas utiliser une base contenant des données de travail.
+3. Définir `SMN_RESTORE_TEST_URL` uniquement pour cette base jetable. Une copie de la clé locale (dans le répertoire des sauvegardes) ou `SMN_BACKUP_RECOVERY_PHRASE` doit permettre l'ouverture du paquet.
+4. Exécuter depuis la racine du projet :
+   ```powershell
+   pnpm exec tsx --test tests/smn-34-restore-sandbox.test.ts tests/backup-restore-readiness.test.ts tests/backup-erasure-protection.test.ts
+   pnpm typecheck
+   pnpm i18n:check
+   pnpm exec tsx scripts/smn-34-restore-rehearsal.ts --archive <UUID_DE_SAUVEGARDE> --sandbox-only
+   ```
+5. Constater : schéma version conforme, cohérence d'intégrité, nombre de documents, statut de reconstruction, nombre de références PDF non capturées. Un statut de reconstruction dans la sandbox n'autorise **jamais** une bascule active.
+6. Tester séparément : paquet chiffré corrompu, clé erronée, phrase erronée, schéma incompatible, cible non vide, cible active ou distante, fichiers document orphelins, coupure pendant `pg_restore`, et chaque catégorie de documents absente. Requalifier sur un environnement Windows jetable.
+7. Ne pas publier la phrase secrète, la clé, les URLs contenant des mots de passe, ni les répertoires temporaires. Détruire **manuellement** la base jetable une fois la recette terminée.
+
+### Ce qui empêche de déclarer SMN-34 terminée
+1. **Extension du format de sauvegarde** : couvrir PDF archivés, rapports Office et les autres stockages métier sous contrôle SMN, avec empreintes, vérifications et compatibilité des anciennes sauvegardes.
+2. **Preuve SMN-40** : registre d'effacement append-only crédible, ancre externe et vérification temporelle ; `ledger-not-implemented` demeure un refus de restauration.
+3. **Bascule réellement sûre et récupérable** : inventaire exact du point de reprise, interruption des écritures, coordination DB/fichiers par journal durable, rollback crash-safe, invalidation des sessions, audit de succès signé et tests de panne. La base et le système de fichiers ne constituent pas une transaction commune.
+4. **Recette réelle** : le workflow et les tests ont été **publiés**, mais leur exécution/résultat ne sont pas attestés dans cette session (aucun accès exécutable au dépôt Windows ou à une base PostgreSQL isolée vérifiée). Un job GitHub n'est pas déclaré vert sur la seule base du fichier YAML.
+
+**Conclusion : une répétition isolée plus protectrice existe dans le code ; la restauration active reste intentionnellement désactivée. Ne pas clôturer Jira.**
+
+### Adaptation BMAD
+Le dépôt est accessible via connecteurs GitHub/Jira, pas comme racine de projet locale exécutable. Le fichier `.agents/skills/bmad-build/SKILL.md` a été relu ; la commande `uv run ... render_skill.py` ne peut pas être exécutée depuis la vue GitHub. Aucune simulation de l'exécution BMAD n'est revendiquée.
