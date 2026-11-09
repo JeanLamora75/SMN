@@ -4,7 +4,7 @@ import {describe,it} from "node:test";
 import type {Client} from "pg";
 import {applyLifecycleAction,inspectMemberLifecycle,parseLifecycleAction}
  from "../src/server/members/lifecycle";
-import {inspectMemberForeignReferences,MEMBER_REMOVAL_AUDIT_SQL}
+import {MEMBER_REMOVAL_AUDIT_SQL,MEMBER_REMOVAL_AUDIT_READY_SQL}
  from "../src/server/members/removal-audit";
 
 const memberId=randomUUID(),actorId=randomUUID();
@@ -113,5 +113,7 @@ describe("SMN-36 — archives réversibles et suppressions protégées",()=>{
   assert.match(MEMBER_REMOVAL_AUDIT_SQL,/member_id text NOT NULL/);
   assert.doesNotMatch(MEMBER_REMOVAL_AUDIT_SQL,/REFERENCES public.smn_member\(/);
   assert.doesNotMatch(MEMBER_REMOVAL_AUDIT_SQL,/display_name|email|full_name/);
+  assert.match(MEMBER_REMOVAL_AUDIT_SQL,/BEFORE UPDATE OR DELETE/);
+  assert.match(MEMBER_REMOVAL_AUDIT_READY_SQL,/smn36_removal_audit_immutable/);
  });
 });
