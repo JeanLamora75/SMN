@@ -21,6 +21,7 @@ type Manifest={version:2|3;id:string;schemaVersion:number;postgresVersion:string
 export type RehearsalResult={
  archiveId:string;status:"reconstructed-in-sandbox"|"incomplete-archive-scope";
  sandboxOnly:true;restoredTables:number;verifiedDocuments:number;
+ verifiedReportPdfs:number;verifiedOfficeReports:number;
  missingDocumentReferences:number;archiveHashChecked:true;
  databaseAndDocumentsConsistent:boolean;activeInstallationModified:false;
  fullRestoreQualified:false;
@@ -132,7 +133,6 @@ export async function rehearseBackupRestore(options:{
    finally{bytes.fill(0);}
   }
   const files={pdf:manifest.reportPdfs??[],office:manifest.officeReports??[]};
-  let restoredExtras=0;
   for(const kind of ["pdf","office"] as const){
    const parts=files[kind];
    if(!parts.length)continue;
@@ -148,7 +148,6 @@ export async function rehearseBackupRestore(options:{
     const bytes=await decryptComponent(join(packageDir,part.path),part,key,20*1024*1024);
     try{await writeFile(join(dir,part.sourceName),bytes,{flag:"wx",mode:0o600});}
     finally{bytes.fill(0);}
-    restoredExtras++;
    }
   }
   const inventory=await scanDocuments(docs);
@@ -218,6 +217,7 @@ export async function rehearseBackupRestore(options:{
   return {archiveId,status:missing===0?"reconstructed-in-sandbox":
    "incomplete-archive-scope",sandboxOnly:true,
    restoredTables:Number(count.rows[0]?.n),verifiedDocuments:inventory.length/2,
+   verifiedReportPdfs:files.pdf.length,verifiedOfficeReports:files.office.length,
    missingDocumentReferences:missing,archiveHashChecked:true,
    databaseAndDocumentsConsistent:missing===0,activeInstallationModified:false,
    fullRestoreQualified:false};
