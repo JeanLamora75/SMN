@@ -77,6 +77,7 @@ const TEXT_SOURCES:readonly TextSource[]=[
  {table:"smn_registry_comment",columns:["body","author_name","editor_name","withdrawn_by_name"],teamColumn:null},
  {table:"smn_dashboard_note",columns:["body"],teamColumn:"team_id"},
  {table:"smn_report_document",columns:["title","content"],teamColumn:"team_id"},
+ {table:"smn_report_pdf_archive",columns:["manifest"],teamColumn:"team_id"},
  {table:"smn_report_studio_archive_snapshot",columns:["snapshot"],teamColumn:null},
  {table:"smn_sprint_review_analysis",columns:["body"],teamColumn:null},
  {table:"smn_sprint_goal",columns:["title","comment"],teamColumn:null}
@@ -91,7 +92,7 @@ export async function inspectTextCandidates(db:Client,memberId:string,
   .filter(s=>s.length>=3&&s.length<=254))];
  const result:TableImpact[]=[];
  for(const source of TEXT_SOURCES){
-  const columns=[...source.columns,...source.teamColumn?[source.teamColumn]:[]];
+  const columns=[...source.columns,...(source.teamColumn?[source.teamColumn]:[])];
   if(!await available(db,source.table,columns)){
    result.push({table:source.table,category:"free-text",scope:"text-match",count:null,state:"unknown"});
    continue;
