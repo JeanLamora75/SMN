@@ -6,6 +6,7 @@ on:
       - "src/server/backup/erasure-ledger.ts"
       - "src/server/backup/erasure-intent.ts"
       - "src/server/backup/erasure-transaction.ts"
+      - "src/server/installation/install.ts"
       - "prisma/migrations/20261109_smn39_privacy_receipt/migration.sql"
       - "src/server/backup/erasure-evidence-format.ts"
       - "src/server/backup/erasure-fk-discovery.ts"
