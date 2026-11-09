@@ -7,7 +7,8 @@ type Impact={
  memberId:string;memberLabel:string;mode:"erase"|"anonymize";capturedAt:string;
  complete:false;canExecute:false;
  findings:{category:string;state:string;affectedCount:number|null}[];
- observedTables:{table:string;count:number;state:"inspected"|"unknown"}[];
+ observedTables:{table:string;count:number|null;state:"inspected"|"unknown";
+  scope:"direct"|"indirect"|"text-match"|"team-archive"}[];
  warnings:string[];
 };
 export default function ErasureImpactAdmin(){
@@ -95,7 +96,7 @@ export default function ErasureImpactAdmin(){
     <summary>{t("erasure.directReferences")}</summary>
     <div className="table-responsive mt-2"><table className="table table-sm small">
      <thead><tr><th>{t("erasure.table")}</th><th>{t("erasure.count")}</th><th>{t("erasure.coverage")}</th></tr></thead>
-     <tbody>{result.observedTables.map(row=><tr key={row.table}>
+     <tbody>{result.observedTables.map(row=><tr key={row.table+"-"+row.scope}>
       <td><code>{row.table}</code></td>
       <td>{row.state==="inspected"?row.count:t("erasure.unknown")}</td>
       <td>{t(row.state==="inspected"?"erasure.inspected":"erasure.notExhaustive")}</td>
