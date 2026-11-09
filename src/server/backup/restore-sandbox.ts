@@ -8,7 +8,7 @@ import {Transform} from "node:stream";
 import {pipeline} from "node:stream/promises";
 import {Client} from "pg";
 import {inspectBackup} from "./verification";
-import {unseal} from "./crypto";
+import {unseal,recoverKey,type RecoveryEnvelope} from "./crypto";
 import {scanDocuments,type BackupComponent} from "./files";
 import {validateSandboxTarget} from "./restore-sandbox-policy";
 
@@ -86,10 +86,19 @@ export async function rehearseBackupRestore(options:{
    JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace
    WHERE ns.nspname='public' AND c.relkind IN ('r','p','v','m','f')`);
   if(tables.rows[0]?.n!=="0")throw Error("sandbox-not-empty");
-  const keyInfo=await lstat(keyPath);
-  if(!keyInfo.isFile()||keyInfo.isSymbolicLink()||keyInfo.size!==32)
-   throw Error("restore-key-invalid");
-  key=await readFile(keyPath);
+  const keyInfo=await lstat(keyPath).catch(()=>null);
+  if(keyInfo){
+   if(!keyInfo.isFile()||keyInfo.isSymbolicLink()||keyInfo.size!==32)
+    throw Error("restore-key-invalid");
+   key=await readFile(keyPath);
+  }else{
+   const phrase=process.env.SMN_BACKUP_RECOVERY_PHRASE;
+   if(!phrase||phrase.length<20||phrase.length>256)
+    throw Error("restore-key-or-recovery-phrase-required");
+   const index=JSON.parse(await readFile(join(packageDir,"index.json"),"utf8")) as
+    {recovery:RecoveryEnvelope};
+   key=recoverKey(index.recovery,phrase);
+  }
   const verified=await inspectBackup(backupRoot,archiveId,key);
   if(verified.status!=="verified"||!verified.integrityVerified)
    throw Error("restore-archive-unverified");
