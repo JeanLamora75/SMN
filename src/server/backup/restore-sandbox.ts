@@ -38,7 +38,7 @@ function metadata(value:unknown):Manifest{
  if(!value||typeof value!=="object")throw Error("manifest-invalid");
  const m=value as Partial<Manifest>;
  if(![2,3].includes(m.version as number)||!UUID.test(m.id??"")||!m.database||
-  !Array.isArray(m.documents)||m.documents.length>200||
+  !Array.isArray(m.documents)||m.documents.length>2000||
   m.documents.reduce((sum,part)=>sum+(Number(part.size)||0),0)>512*1024*1024||
   (m.version===3&&(!Array.isArray(m.reportPdfs)||
    !Array.isArray(m.officeReports)||m.reportPdfs.length>200||
@@ -46,8 +46,9 @@ function metadata(value:unknown):Manifest{
   throw Error("manifest-invalid");
  return m as Manifest;
 }
-async function decryptComponent(path:string,part:BackupComponent,key:Buffer):Promise<Buffer>{
- if(part.size>12*1024*1024)throw Error("document-too-large");
+async function decryptComponent(path:string,part:BackupComponent,key:Buffer,
+ limit=12*1024*1024):Promise<Buffer>{
+ if(part.size>limit)throw Error("document-too-large");
  const bytes=await readFile(path);
  if(bytes.length!==part.encryptedSize||
   createHash("sha256").update(bytes).digest("hex")!==part.encryptedSha256)
@@ -144,7 +145,7 @@ export async function rehearseBackupRestore(options:{
     if(!validExtraName(kind,part.sourceName)||seen.has(part.sourceName)||
      part.path!==expected)throw Error("restore-extra-archive-invalid");
     seen.add(part.sourceName);
-    const bytes=await decryptComponent(join(packageDir,part.path),part,key);
+    const bytes=await decryptComponent(join(packageDir,part.path),part,key,20*1024*1024);
     try{await writeFile(join(dir,part.sourceName),bytes,{flag:"wx",mode:0o600});}
     finally{bytes.fill(0);}
     restoredExtras++;
@@ -209,7 +210,7 @@ export async function rehearseBackupRestore(options:{
     file.size!==ref.byte_length)
     throw Error("restore-pdf-references-missing");
   }
-  const missing=manifest.version===3?0:pdfRefs.rows.length;
+  const missing=manifest.version===3?0:Math.max(1,pdfRefs.rows.length);
   const count=await sandbox.query<{n:string}>(`
    SELECT count(*)::text AS n FROM pg_catalog.pg_class c
    JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace
