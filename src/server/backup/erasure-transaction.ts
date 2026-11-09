@@ -15,11 +15,12 @@ import {beginErasureIntent,finalizeErasureIntent,
  */
 export async function withAuditedErasureTransaction(
  db:Pick<Client,"query">,
- input:Readonly<{scopeRevision:string;operation:"erase"|"anonymize";expectedRows?:number}>,
+ input:Readonly<{scopeRevision:string;operation:"erase"|"anonymize";expectedRows?:number;subjectId?:string}>,
  apply:()=>Promise<number>
 ):Promise<Readonly<{receiptId:string;affectedRows:number;recorded:true}>>{
  const pending:IntentHandle=await beginErasureIntent({
-  planRevision:input.scopeRevision,operation:input.operation
+  planRevision:input.scopeRevision,operation:input.operation,
+  subjectId:input.subjectId
  });
  let started=false,committed=false,affectedRows=0;
  try{
