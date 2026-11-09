@@ -14,6 +14,7 @@ import {inspectExtraArchives,encryptExtraArchives,pdfArchiveDirectory}
  from "./extra-archives";
 import {officeReportsDirectory} from "../reports/office-storage";
 import {officeTemplatesDirectory} from "../reports/office-catalog";
+import {captureFenceUnchanged} from "./capture-fence";
 
 type Admin=Readonly<{id:string;role:string;password_hash:string}>;
 export type BackupState=Readonly<{
@@ -146,7 +147,8 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    if(JSON.stringify(extras)!==JSON.stringify(await inspectExtraArchives(client)))
     throw new Error("backup-extra-archives-changed");
    const end=await client.query<{lsn:string}>("SELECT pg_current_wal_lsn()::text AS lsn");
-   if(end.rows[0]?.lsn!==begin.rows[0].lsn)
+   if(!captureFenceUnchanged({walLsn:begin.rows[0].lsn,documents:inventory,archives:extras},
+    {walLsn:end.rows[0]?.lsn??"",documents:after,archives:await inspectExtraArchives(client)}))
     throw Error("backup-database-changed-during-capture");
    const manifest={version:4,id,createdAt,installation:"singleton",
     installationSource:"singleton:"+new Date(meta.rows[0].installation_created_at).toISOString(),
@@ -172,9 +174,8 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    const finalArchives=await inspectExtraArchives(client);
    const finalWal=await client.query<{lsn:string}>(
     "SELECT pg_current_wal_lsn()::text AS lsn");
-   if(JSON.stringify(finalDocs)!==JSON.stringify(inventory)||
-    JSON.stringify(finalArchives)!==JSON.stringify(extras)||
-    finalWal.rows[0]?.lsn!==begin.rows[0].lsn)
+   if(!captureFenceUnchanged({walLsn:begin.rows[0].lsn,documents:inventory,archives:extras},
+    {walLsn:finalWal.rows[0]?.lsn??"",documents:finalDocs,archives:finalArchives}))
     throw Error("backup-scope-changed-before-publication");
    await rename(staging,join(packages,id));
    staging="";
