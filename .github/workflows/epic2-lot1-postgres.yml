@@ -5,6 +5,13 @@ on:
     paths:
       - "src/server/members/removal-audit.ts"
       - "src/server/backup/erasure-private-documents.ts"
+      - "src/server/backup/erasure-pdf-text.ts"
+      - "src/server/backup/runner.ts"
+      - "src/server/backup/verification.ts"
+      - "src/server/members/lifecycle.ts"
+      - "src/app/app/admin/backups/**"
+      - "src/i18n/fr.json"
+      - "src/i18n/en.json"
       - "src/server/backup/archive-immutability.ts"
       - "src/server/audit/journal.ts"
       - "scripts/smn-35-archive-guards.ts"
