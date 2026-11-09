@@ -105,6 +105,8 @@ export async function executeBackupRetention(client:Client,root:string,actorId:s
   "SELECT pg_try_advisory_lock(20261021,30) AS acquired");
  if(lock.rows[0]?.acquired!==true)return {ok:false,error:"conflict"};
  try{
+  // Distinguish an actual cleanup from policy writes sharing the same lock.
+  await client.query("SELECT set_config('application_name','smn-retention-cleanup',false)");
   const policy=await readBackupRetention(client);
   if(policy.revision!==expectedRevision)return {ok:false,error:"conflict"};
   const entries=await backupInventory(root);
