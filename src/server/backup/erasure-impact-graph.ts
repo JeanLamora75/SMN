@@ -107,7 +107,7 @@ export async function inspectTextCandidates(db:Client,memberId:string,
    : "";
   // Do not claim scoping for tables without a reliable team path.
   const sql=`SELECT count(*)::text AS n FROM public."${source.table}" t
-   WHERE EXISTS(SELECT 1 FROM unnest($2::text[]) term
+   WHERE EXISTS(SELECT 1 FROM unnest($2::text[]) AS terms(term)
     WHERE position(term IN lower(${expressions}))>0)${scoped}`;
   const rows=await db.query<{n:string}>(sql,[memberId,meaningful]);
   result.push({table:source.table,category:"free-text",scope:"text-match",
