@@ -44,7 +44,6 @@ jobs:
         run: >-
           pnpm exec tsx --test
           tests/epic2-lot1-audit-coverage.test.ts
-          tests/epic2-lot1-native-v33.test.ts
           tests/epic2-lot2-capture-fence.test.ts
           tests/epic2-lot2-retention-safety.test.ts
           tests/backup-verification.test.ts
@@ -112,7 +111,7 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Migrations, historique et audit v33
-        run: pnpm exec tsx --test tests/epic2-lot1-postgres.test.ts
+        run: pnpm exec tsx --test tests/epic2-lot1-postgres.test.ts tests/epic2-lot1-native-v33.test.ts
       - name: Reconstruction chiffrée v4 de source native v33
         run: pnpm exec tsx --test tests/smn-34-v3-postgres.test.ts
       - name: Contrôle du périmètre et de l'effacement de membre
