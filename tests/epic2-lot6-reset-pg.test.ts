@@ -1,14 +1,15 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {randomBytes,randomUUID} from "node:crypto";
-import {mkdtemp,rm,mkdir} from "node:fs/promises";
+import {mkdtemp,rm,mkdir,writeFile,readFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {Client} from "pg";
 import {installExpress} from "../src/server/installation/install";
 import {provisionIndependentResetCandidate} from "../src/server/installation/reset-independent";
 import {previewInstallationReset} from "../src/server/installation/reset-preview";
-import {rehearseOfflineDatabaseCutover} from "../src/server/backup/restore-cutover-drill";
+import {rehearseCoordinatedOfflineCutover} from "../src/server/backup/restore-coordinated-drill";
+import {inspectRestoreFileTree} from "../src/server/backup/restore-file-cutover-drill";
 
 test("SMN-37 PG18 : une installation vierge indépendante conserve la source et sa reprise",
  {timeout:180000},async()=>{
@@ -90,12 +91,35 @@ test("SMN-37 PG18 : une installation vierge indépendante conserve la source et 
     "SELECT username FROM public.smn_account WHERE role='admin'");
    assert.equal(account.rows[0].username,"fresh");
   }finally{await sourceCheck.end();await freshCheck.end();}
-  // Only a disposable cutover is permitted: production DB names cannot match.
-  const swapped=await rehearseOfflineDatabaseCutover({
-   maintenanceUri:raw,original:source,candidate:fresh,rollback:previous,
-   journalDir:dir,auditKeyHex:randomBytes(32).toString("hex")
+  // Simulate reset of the FOUR managed file scopes, including an empty
+  // destination: old private data must remain in a separate rollback root.
+  const fileOld=join(dir,"smn_restore_test_oldfiles");
+  const fileNew=join(dir,"smn_restore_test_newfiles");
+  const fileRollback=join(dir,"smn_restore_test_oldbackup");
+  for(const root of [fileOld,fileNew])
+   for(const kind of ["documents","report-pdfs","office-reports","office-templates"])
+    await mkdir(join(root,kind),{recursive:true});
+  await writeFile(join(fileOld,"documents","private.txt"),"original-private-data");
+  await writeFile(join(fileOld,"office-reports","report.docx"),"old-report");
+  const swapped=await rehearseCoordinatedOfflineCutover({
+   database:{
+    maintenanceUri:raw,original:source,candidate:fresh,rollback:previous,
+    journalDir:dir,auditKeyHex:randomBytes(32).toString("hex")
+   },
+   files:{
+    originalRoot:fileOld,candidateRoot:fileNew,rollbackRoot:fileRollback,
+    allowVerifiedEmptyCandidate:true
+   },
+   recoveredFilesRoot:join(dir,"smn_restore_test_recovered")
   });
-  assert.equal(swapped.stage,"verified");
+  assert.equal(swapped.state,"verified");
+  assert.equal(swapped.databaseRollbackPreserved,true);
+  assert.equal(swapped.filesRollbackPreserved,true);
+  assert.equal((await inspectRestoreFileTree(fileOld)).count,0);
+  assert.equal(await readFile(join(fileRollback,"documents","private.txt"),"utf8"),
+   "original-private-data");
+  assert.equal(await readFile(join(fileRollback,"office-reports","report.docx"),"utf8"),
+   "old-report");
   const verifyNew=new Client({connectionString:dbUrl(source)});
   const verifyRollback=new Client({connectionString:dbUrl(previous)});
   try{
