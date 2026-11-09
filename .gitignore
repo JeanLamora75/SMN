@@ -30,3 +30,6 @@ Desktop.ini
 
 # Modèles Office et rapports locaux (jamais versionner les documents privés)
 /data/office/
+
+# Cluster PostgreSQL portable et données personnelles locales
+/data/postgres/
