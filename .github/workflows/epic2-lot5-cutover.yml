@@ -8,6 +8,8 @@ on:
       - "src/server/backup/restore-coordinated-drill.ts"
       - "tests/epic2-lot5-coordinated-pg.test.ts"
       - "src/server/auth/session-store.ts"
+      - "src/server/backup/restore-maintenance.ts"
+      - "tests/epic2-lot5-maintenance.test.ts"
       - "src/server/auth/session.ts"
       - "tests/epic2-lot5-file-cutover.test.ts"
       - "tests/epic2-lot5-session-reset.test.ts"
@@ -39,7 +41,7 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Restore readiness and cutover controls
-        run: pnpm exec tsx --test tests/backup-restore-readiness.test.ts tests/epic2-lot5-cutover-policy.test.ts tests/epic2-lot5-file-cutover.test.ts tests/epic2-lot5-session-reset.test.ts
+        run: pnpm exec tsx --test tests/backup-restore-readiness.test.ts tests/epic2-lot5-cutover-policy.test.ts tests/epic2-lot5-file-cutover.test.ts tests/epic2-lot5-session-reset.test.ts tests/epic2-lot5-maintenance.test.ts
       - name: TypeScript
         run: pnpm typecheck
       - name: Translations
