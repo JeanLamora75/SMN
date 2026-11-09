@@ -3,7 +3,6 @@ import {join,resolve} from "node:path";
 import type {Client} from "pg";
 import {sealedFile,sha,type BackupComponent} from "./files";
 import {officeReportsDirectory} from "../reports/office-storage";
-import {readVerifiedPdfArchive} from "../reports/pdf-archive-store";
 
 export type ExtraFile=BackupComponent&{sourceName:string};
 export type ExtraInventory={pdf:readonly {name:string;hash:string;size:number}[];
