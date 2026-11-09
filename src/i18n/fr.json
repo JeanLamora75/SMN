@@ -645,12 +645,28 @@
       "settings_updated": "Paramètres modifiés",
       "password_changed": "Mot de passe renouvelé",
       "recovery_prepared": "Phrase de secours préparée",
-      "recovery_used": "Récupération de compte effectuée"
+      "recovery_used": "Récupération de compte effectuée",
+      "backup_policy_changed": "Durée de conservation modifiée",
+      "backup_package_deleted": "Sauvegarde gérée supprimée",
+      "sprint_changed": "Sprint modifié",
+      "member_archived": "Membre archivé",
+      "member_reactivated": "Membre réactivé",
+      "member_assignment_closed": "Affectation de membre clôturée",
+      "team_context_changed": "Contexte d’équipe modifié",
+      "registry_item_changed": "Élément de registre modifié",
+      "pdf_archive_recorded": "Archive PDF enregistrée",
+      "member_removed": "Fiche provisoire supprimée"
     },
     "types": {
       "account": "Compte",
       "settings": "Paramètres généraux",
-      "authentication": "Authentification"
+      "authentication": "Authentification",
+      "backup": "Sauvegarde",
+      "sprint": "Sprint",
+      "member": "Membre",
+      "team": "Équipe",
+      "registry": "Registre",
+      "report": "Rapport"
     },
     "fields": {
       "role": "Rôle",
