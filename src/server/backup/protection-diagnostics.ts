@@ -88,13 +88,17 @@ export async function readProtectionDiagnostics(db:Client):Promise<{
  }
  if(!previous&&await hasMarker("last-attempt.json"))
   operations.push(unresolvedOperation("backup",checkedAt,"invalid-operation-marker",1));
- const unpublished=artifacts.stagingBackupIds.length+artifacts.unknownBackupArtifacts;
+ const unpublished=artifacts.stagingBackupIds.filter(id=>
+  !(running.backup&&previous?.status==="running"&&previous.id===id)).length+
+  artifacts.unknownBackupArtifacts;
  if(unpublished>0)operations.push(unresolvedOperation(
   "backup",checkedAt,"unpublished-backup-artifact",unpublished));
  if(!cleanup&&await hasMarker("last-cleanup.json"))
   operations.push(unresolvedOperation("retention-cleanup",checkedAt,
    "invalid-operation-marker",1));
- const pending=artifacts.retentionPendingIds.length+artifacts.unknownRetentionArtifacts;
+ const pending=artifacts.retentionPendingIds.filter(id=>
+  !(running.cleanup&&cleanup?.status==="running"&&cleanup.inFlight===id)).length+
+  artifacts.unknownRetentionArtifacts;
  if(pending>0)operations.push(unresolvedOperation("retention-cleanup",checkedAt,
   "pending-retention-tombstone",pending));
  if(cleanup){
