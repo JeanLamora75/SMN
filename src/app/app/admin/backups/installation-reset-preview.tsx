@@ -1,5 +1,5 @@
-import type {TranslationKey} from "@/i18n/catalog";
 "use client";
+import type {TranslationKey} from "@/i18n/catalog";
 import {useState} from "react";
 import {useTranslation} from "@/i18n/client";
 
