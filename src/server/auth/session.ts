@@ -5,6 +5,7 @@ import { LoginLimiter } from "./rate-limit";
 import { accountById, passwordFingerprint, type Account } from "./credentials";
 import { withSessionReadDb } from "./database";
 import { SESSION_COOKIE } from "./guards";
+import {restoreMaintenanceActive} from "../backup/restore-maintenance";
 
 type AuthState = { sessions: SessionStore; limiter: LoginLimiter };
 declare global { var __smnAuthState: AuthState | undefined; }
@@ -20,6 +21,8 @@ export function revokeAccountSessions(accountId: string): void { state().session
 /** Only an offline restore supervisor may call this after validated cutover. */
 export function invalidateAllSessionsAfterRestore(): number { return state().sessions.revokeAll(); }
 export async function sessionAccount(token: string | undefined): Promise<Account | null> {
+  // A persisted offline recovery marker denies requests even after a crash.
+  if(await restoreMaintenanceActive())return null;
   const session = state().sessions.get(token);
   if (!session) { if (token) console.warn("smn-session-invalid", "not-in-server-store"); return null; }
   try {
