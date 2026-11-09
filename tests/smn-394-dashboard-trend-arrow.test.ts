@@ -41,7 +41,7 @@ test("SMN-394 AC1/3/5: accessible arrow, one KPI, wizard and Cockpit styles",()=
  const rendering=read("app/app/dashboard-builder/dashboard-visualization.tsx");
  const consultation=read("app/app/dashboard-builder/dashboard-consultation.tsx");
  const css=read("app/app/dashboard-builder/dashboard-dimensions.module.css");
- assert.match(wizard,/trend-arrow:"Tendance"/);
+ assert.match(wizard,/"trend-arrow":"Tendance"/);
  assert.match(wizard,/"trend-arrow":"Trend arrow"/);
  assert.match(wizard,/view==="trend-arrow"/);
  assert.match(rendering,/trendDirection\(model\.value\)/);

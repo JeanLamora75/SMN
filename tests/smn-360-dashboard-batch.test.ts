@@ -26,7 +26,7 @@ test("SMN-360 AC1/AC3: equal source requests deduplicate, distinct errors isolat
  const db={query:async(sql:string)=>{
   if(sql.includes("smn_dashboard_team_grant"))return {rows:[{role:"admin",can_read:true,can_edit:true}]};
   if(sql.includes("schema_version"))return {rows:[{schema_version:33}]};
-  if(sql.includes("smn_indicator_definition"))return {rows:[{id:"indicator1",tag:"TEST",name:"Test",unit:"sp"}]};
+  if(sql.includes("smn_indicator_definition"))return {rows:[{id:"indicator1",tag:"TEST",name:"Test",unit:"sp",is_selected:true,is_visible:true}]};
   if(sql.includes("smn_indicator_manual_value")){producerCalls++;return {rows:[{value:"0"}]};}
   throw Error("unexpected query");
  }} as unknown as Client;

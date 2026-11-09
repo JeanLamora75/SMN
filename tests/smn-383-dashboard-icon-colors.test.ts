@@ -43,12 +43,13 @@ test("SMN-383 AC16: duplication et changement de modèle conservent les couleurs
 test("SMN-383 AC13-14: éditeur et consultation utilisent la palette commune",()=>{
  const editor=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-editor.tsx",import.meta.url),"utf8");
  const consultation=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-consultation.tsx",import.meta.url),"utf8");
- const picker=readFileSync(new URL("../src/app/app/ceremony-color-picker.tsx",import.meta.url),"utf8");
+ const picker=readFileSync(new URL("../src/app/app/icon-picker.tsx",import.meta.url),"utf8");
  assert.match(editor,/setBlockIconColor/);
  assert.match(editor,/setSlotIconColor/);
- assert.equal((editor.match(/<CeremonyColorPicker /g)??[]).length,4);
+ assert.equal((editor.match(/<IconPicker /g)??[]).length,4);
  assert.match(consultation,/ceremonyIconColorHex\(block\.iconColor\)/);
  assert.equal((consultation.match(/ceremonyIconColorHex\(slot\.iconColor\)/g)??[]).length,3);
  assert.match(picker,/useId/);
- assert.match(picker,/name=\{id\}/);
+ assert.match(picker,/Couleur des icônes/);
+ assert.match(picker,/ceremonyIconColorHex\(draftColor\)/);
 });

@@ -31,7 +31,7 @@ test("member function and city are copied from the member record without substit
  assert.equal(fr?.MEMBER_FLAG,"SMN_FLAG_FR");
  assert.match(queries[0],/m\.professional_function AS role/);
  assert.match(queries[0],/loc\.city,loc\.country_iso2/);
- assert.match(queries[0],/CASE WHEN ml\.effective_from/);
+ assert.match(queries[0],/ml\.effective_from<=CURRENT_DATE/);
 });
 test("Word still uses Unicode flags rather than leaking PowerPoint picture tokens",async()=>{
  const {db}=mockDb();

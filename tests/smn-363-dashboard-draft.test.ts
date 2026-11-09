@@ -6,7 +6,7 @@ const page=readFileSync(new URL("../src/app/app/dashboard-builder/page.tsx",impo
 test("SMN-363 AC1: draft is distinct and personalization requires edit permission",()=>{
  assert.match(editor,/setDraft\(copy\(published\)\)/);
  assert.match(editor,/if\(!canEdit\)return/);
- assert.match(editor,/<summary className="btn btn-outline-primary btn-sm">Actions<\/summary>/);
+ assert.match(editor,/<DashboardActionsMenu header items=/);
  assert.match(editor,/Personnaliser/);
  assert.match(page,/dashboardPermission\(db/);
  assert.match(page,/canEdit=\{data.canEdit\}/);

@@ -34,10 +34,11 @@ test("SMN-229 AC10: migration additive, sauvegarde vérifiée et occurrences pr�
 });
 test("SMN-229 AC7-8: composants partagés et aperçu sans recolorer le texte",()=>{
  const form=readFileSync(new URL("../src/app/app/admin/sprints/template-form.tsx",import.meta.url),"utf8");
- const picker=readFileSync(new URL("../src/app/app/ceremony-color-picker.tsx",import.meta.url),"utf8");
+ const picker=readFileSync(new URL("../src/app/app/icon-picker.tsx",import.meta.url),"utf8");
  assert.match(form,/IconPicker/);
- assert.match(form,/CeremonyColorPicker/);
- assert.match(form,/SMNIcon/);
- assert.match(picker,/type="radio"/);
- assert.match(picker,/Par défaut/);
+ assert.match(form,/color=\{form\.iconColor\} onColorChange=/);
+ assert.match(picker,/SMNIcon/);
+ assert.match(picker,/Couleur des icônes/);
+ assert.match(picker,/ceremonyIconColorHex\(draftColor\)/);
+ assert.doesNotMatch(form,/<CeremonyColorPicker/);
 });

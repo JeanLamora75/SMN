@@ -62,18 +62,16 @@ describe("Clôture, archivage et conservation de l'historique",()=>{
    {ok:false,error:"assignment-still-open"});
   const historical=fake({closed:true,hasReferences:true});
   assert.deepEqual(await applyLifecycleAction(historical.db,memberId,"admin",
-   {action:"delete",revision:2,confirmation:"SUPPRIMER"}),{ok:false,error:"historical-references"});
+   {action:"delete",revision:2,confirmation:"SUPPRIMER"}),{ok:false,error:"audit-not-ready"});
  });
- it("autorise seulement la suppression d'une fiche entièrement vide après confirmation",async()=>{
+ it("refuse la suppression ordinaire, même d’une fiche vide, sans reçu d'effacement durable",async()=>{
   const f=fake({empty:true});
   const result=await applyLifecycleAction(f.db,memberId,"admin",{
    action:"delete",revision:0,confirmation:"SUPPRIMER"
   });
-  assert.equal(result.ok,true);
-  assert.ok(f.queries.some(q=>q.includes("DELETE FROM public.smn_member WHERE")));
-  assert.ok(f.queries.some(q=>q.includes("confdeltype IN")));
-  assert.ok(f.queries.some(q=>q.includes("INSERT INTO public.smn_member_lifecycle_event")));
-  assert.equal(f.queries.at(-1),"COMMIT");
+  assert.deepEqual(result,{ok:false,error:"audit-not-ready"});
+  assert.ok(f.queries.every(q=>!q.includes("DELETE FROM public.smn_member WHERE")));
+  assert.ok(f.queries.every(q=>!q.includes("INSERT INTO public.smn_member_lifecycle_event")));
  });
  it("migration additive sans cascade",()=>{
   assert.match(LIFECYCLE_MIGRATION_SQL,/ADD COLUMN archived_at/);

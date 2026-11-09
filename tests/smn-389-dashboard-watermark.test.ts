@@ -15,8 +15,8 @@ const list:SourceDescriptor={
 };
 const read=(name:string)=>readFileSync(new URL("../src/app/app/dashboard-builder/"+name,import.meta.url),"utf8");
 
-test("SMN-389 AC1: exactly two new variants in the nine-view catalog",()=>{
- assert.equal(SOURCE_VIEWS.length,9);
+test("SMN-389 AC1: two watermark variants remain available in the expanded view catalog",()=>{
+ assert.equal(SOURCE_VIEWS.length,15);
  assert.ok(SOURCE_VIEWS.includes("card-watermark"));
  assert.ok(SOURCE_VIEWS.includes("list-watermark"));
  assert.deepEqual(compatibleVisualizations(indicator).map(x=>x.kind),indicator.views);
@@ -64,7 +64,7 @@ test("SMN-389 AC5/AC6: wizard choices, persistence and list adapters",()=>{
  assert.match(wizard,/Liste — Filigrane/);
  assert.match(wizard,/KPI card — Watermark/);
  assert.match(editor,/DashboardSlotWizard locale=\{locale\}/);
- assert.match(editor,/updateDashboardSlot\(current,wizardSlot,\{source,view,filters:options\}\)/);
+ assert.match(editor,/updateDashboardSlot\(current,slotId,\{source,view,filters:options\}\)/);
  assert.match(visualization,/model\.kind==="card-watermark"/);
  assert.match(batch,/r\.view==="list-watermark"/);
 });

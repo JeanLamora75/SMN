@@ -9,8 +9,8 @@ const read=(name:string)=>readFileSync(name,"utf8");
 test("Office folders use two distinct, accurate local paths",()=>{
  const env={LOCALAPPDATA:"C:\\Users\\Test\\AppData\\Local"} as unknown as NodeJS.ProcessEnv;
  const models=officeTemplatesDirectory(env),reports=officeReportsDirectory(env);
- assert.ok(models.endsWith(path.join("ScrumMasterNotebook","office-templates")));
- assert.ok(reports.endsWith(path.join("ScrumMasterNotebook","office-reports")));
+ assert.ok(models===path.join(process.cwd(),"data","office","templates"));
+ assert.ok(reports===path.join(process.cwd(),"data","office","reports"));
  assert.notEqual(models,reports);
 });
 test("Config overrides both directories, and UI uses the same server resolvers",()=>{

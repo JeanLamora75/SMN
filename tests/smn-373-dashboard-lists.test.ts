@@ -23,6 +23,7 @@ test("SMN-373 links read-only to existing detail, empty collection separate",()=
  const consultation=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-consultation.tsx",import.meta.url),"utf8");
  assert.match(component,/href=\{item.href\}/);
  assert.match(component,/Aucun résultat/);
- assert.match(component,/Pagination des fiches/);
+ assert.doesNotMatch(component,/Pagination des fiches/);
+ assert.match(component,/Aucun résultat/);
  assert.match(consultation,/DashboardBusinessList/);
 });

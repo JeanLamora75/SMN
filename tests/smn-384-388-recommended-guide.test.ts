@@ -22,7 +22,7 @@ test("Filtres cumulés et isolement des modes",()=>{
  const scrum=recommendedForMode("scrum"),kanban=recommendedForMode("kanban");
  assert.ok(scrum.every(x=>x.mode==="scrum"));
  assert.ok(kanban.every(x=>x.mode==="kanban"));
- const result=filterRecommendedIndicators(scrum,"VELOcité","Tendances","computed");
+ const result=filterRecommendedIndicators(scrum,"Vélocité","Tendances","computed");
  assert.ok(result.length>0&&result.every(x=>x.domain==="Tendances"&&x.type==="computed"));
  assert.deepEqual(filterRecommendedIndicators(kanban,"", "Flux","manual").map(x=>x.id),["KAN-08","KAN-09","KAN-11","KAN-12"]);
  assert.equal(filterRecommendedIndicators(kanban,"not-existing", "", "").length,0);

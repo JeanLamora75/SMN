@@ -25,7 +25,7 @@ test("date presentation follows report locale without leaking raw ISO",()=>{
  assert.ok(en.includes("Oct"));
 });
 test("center retains existing report, model and archive routes",()=>{
- assert.match(page,/const tabs=\["reports","templates","archives"\]/);
+ assert.match(page,/const tabs=\["reports","templates","tags","archives"\]/);
  assert.match(page,/name="cycleId"/);
  assert.match(page,/name="status"/);
  assert.match(page,/name="q"/);

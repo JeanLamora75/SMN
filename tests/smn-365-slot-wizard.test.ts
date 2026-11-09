@@ -17,7 +17,7 @@ test("SMN-365 AC2: only compatible visualizations, responsive preview",()=>{
 });
 test("SMN-365 AC3: confirmation updates draft only",()=>{
  assert.match(editor,/setDraft\(current=>current/);
- assert.match(editor,/updateDashboardSlot\(current,wizardSlot,\{source,view,filters:options\}\)/);
+ assert.match(editor,/updateDashboardSlot\(current,slotId,\{source,view,filters:options\}\)/);
  assert.match(editor,/setWizardSlot\(null\)/);
  assert.match(wizard,/onConfirm\(selected.code,view,clean\)/);
 });

@@ -58,7 +58,7 @@ describe("SMN-237 — colonne événements du Sprint",()=>{
    assert.equal(result.items.length,5);
    assert.deepEqual(result.items.map(x=>x.kind),["template","exceptional","ceremony","template","template"]);
   }
-  const ordered=fixtureDb.statements.find(x=>x.sql.includes("ORDER BY"));
+  const ordered=fixtureDb.statements.find(x=>x.sql.includes("ORDER BY")&&x.sql.includes("LIMIT 5"));
   assert.match(ordered!.sql,/LIMIT 5/);
   assert.match(ordered!.sql,/CASE WHEN starts_at >= \$2::timestamptz/);
   assert.equal(ordered!.params?.[0],sprintId);
@@ -71,7 +71,7 @@ describe("SMN-237 — colonne événements du Sprint",()=>{
   const result=await readCurrentSprintEvents(f.db,sprintId,now,true);
   assert.equal(result.state,"available");
   if(result.state==="available")assert.equal(result.total,0);
-  assert.match(f.statements.find(x=>x.sql.includes("ORDER BY"))!.sql,
+  assert.match(f.statements.find(x=>x.sql.includes("ORDER BY")&&x.sql.includes("LIMIT 5"))!.sql,
    /ORDER BY starts_at DESC,id ASC LIMIT 5/);
  });
  it("une installation sans aucun producteur ne doit pas produire un zéro fictif",async()=>{
