@@ -9,6 +9,7 @@ on:
       - "prisma/migrations/20261109_smn39_privacy_receipt/migration.sql"
       - "src/server/backup/erasure-evidence-format.ts"
       - "src/server/backup/erasure-fk-discovery.ts"
+      - "src/server/backup/erasure-report-binaries.ts"
       - "src/server/backup/erasure-protection.ts"
       - "src/app/api/admin/backups/restore/preflight/route.ts"
       - "src/server/backup/exceptional-erasure-policy.ts"
