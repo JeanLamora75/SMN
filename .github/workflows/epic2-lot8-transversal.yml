@@ -119,8 +119,10 @@ jobs:
         run: pnpm exec tsx --test tests/epic2-lot4-postgres.test.ts
       - name: Copies avant/après effacement et barrière de réintroduction
         run: pnpm exec tsx --test tests/epic2-lot4-privacy-restore-pg.test.ts
-      - name: Bascule PostgreSQL 18 jetable et récupération des fichiers
-        run: pnpm exec tsx --test tests/epic2-lot5-cutover-pg.test.ts tests/epic2-lot5-coordinated-pg.test.ts
+      - name: Bascule PostgreSQL 18 jetable et retour arrière SQL
+        run: pnpm exec tsx --test tests/epic2-lot5-cutover-pg.test.ts
+      - name: Coordination PostgreSQL/fichiers sans concurrence de verrou
+        run: pnpm exec tsx --test tests/epic2-lot5-coordinated-pg.test.ts
       - name: Installation indépendante, bascule et rollback jetables
         run: pnpm exec tsx --test tests/epic2-lot6-reset-pg.test.ts
       - name: Contrôle réel de purge interrompue
