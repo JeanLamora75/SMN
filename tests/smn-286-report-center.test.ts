@@ -29,7 +29,7 @@ test("center retains existing report, model and archive routes",()=>{
  assert.match(page,/name="cycleId"/);
  assert.match(page,/name="status"/);
  assert.match(page,/name="q"/);
- assert.match(page,/TemplateLibrary/);
+ assert.match(page,/OfficeTemplateCatalog/);
  assert.match(page,/\/api\/admin\/reports\/archives\//);
 });
 test("admin-only creation uses native modal and preserves existing request contract",()=>{

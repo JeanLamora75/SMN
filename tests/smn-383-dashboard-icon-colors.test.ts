@@ -48,7 +48,7 @@ test("SMN-383 AC13-14: éditeur et consultation utilisent la palette commune",()
  assert.match(editor,/setSlotIconColor/);
  assert.equal((editor.match(/<IconPicker /g)??[]).length,4);
  assert.match(consultation,/ceremonyIconColorHex\(block\.iconColor\)/);
- assert.equal((consultation.match(/ceremonyIconColorHex\(slot\.iconColor\)/g)??[]).length,3);
+ assert.equal((consultation.match(/ceremonyIconColorHex\(slot\.iconColor\)/g)??[]).length,4);
  assert.match(picker,/useId/);
  assert.match(picker,/Couleur des icônes/);
  assert.match(picker,/ceremonyIconColorHex\(draftColor\)/);

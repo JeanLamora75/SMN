@@ -38,7 +38,7 @@ test("Dashboard Builder: slot displays business source labels without leaking UU
  assert.match(editor,/sourceByCode\.get\(slot\.source\)\?\.name/);
  assert.match(editor,/Source introuvable/);
  assert.doesNotMatch(editor,/["\u0027]✎ ["\u0027]\+slot\.source/);
- assert.match(editor,/updateDashboardSlot\(current,wizardSlot,\{source,view,filters:options\}\)/);
+ assert.match(editor,/updateDashboardSlot\(current,slotId,\{source,view,filters:options\}\)/);
 });
 
 test("Dashboard Builder: editing is separate from consultation and has responsive cards",()=>{
