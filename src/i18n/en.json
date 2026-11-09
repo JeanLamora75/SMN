@@ -4436,7 +4436,10 @@
       "restore-not-enabled": "Active restoration has not been qualified (SMN-34/40).",
       "reset-not-enabled": "Active reset has not been qualified (SMN-37).",
       "unverifiable-state": "Available evidence is insufficient.",
-      "cancelled-before-write": "The operation was cancelled before writing."
+      "cancelled-before-write": "The operation was cancelled before writing.",
+      "unpublished-backup-artifact": "An unfinished backup remains in staging and was never published.",
+      "pending-retention-tombstone": "An interrupted cleanup has left a package pending reconciliation.",
+      "invalid-operation-marker": "An operation journal is invalid or unreadable, so its outcome cannot be confirmed."
     },
     "recoveries": {
       "recheck": "Recheck the inventory and evidence before taking further action.",
