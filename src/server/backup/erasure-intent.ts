@@ -82,7 +82,7 @@ export async function finalizeErasureIntent(handle:IntentHandle):Promise<void>{
   const pending=await parseIntent(config.anchor,config.key);
   if(!pending||pending.id!==handle.id||pending.planRevision!==handle.planRevision)
    throw Error("erasure-intent-mismatch");
-  await appendCompletedErasure(pending.operation);
+  await appendCompletedErasure(pending.operation,new Date(),pending.id);
   await rm(join(config.anchor,FILENAME));
  }finally{
   if(acquired)await rm(lock,{force:true});
