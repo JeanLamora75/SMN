@@ -219,6 +219,14 @@ export default function ErasureImpactAdmin(){
       {executing?t("erasure.executing"):t("erasure.executeRestricted")}
      </button>
     </div>}
+   {result.qualification?.scope==="historical-or-unqualified"&&
+    <section className="border rounded p-3 d-grid gap-2">
+     <h3 className="h6 mb-0">{t("erasure.historicalReviewTitle")}</h3>
+     <p className="small text-secondary mb-0">{t("erasure.historicalReviewNotice")}</p>
+     <ul className="mb-0">{result.qualification.pending.map(step=><li key={step}>
+      {t(("erasure.historicalReviewSteps."+step) as TranslationKey)}
+     </li>)}</ul>
+    </section>}
    <section className="border rounded p-3 d-grid gap-2">
     <h3 className="h6 mb-0">{t("erasure.archiveReviewTitle")}</h3>
     <p className="small text-secondary mb-0">

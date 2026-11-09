@@ -3,6 +3,8 @@ import {authorizeApi} from "@/server/auth/authorization";
 import {readJsonObject,jsonResult} from "@/server/auth/request";
 import {listErasureTargets,previewMemberErasure} from "@/server/backup/erasure-preview";
 import {issueImpactReceipt} from "@/server/backup/erasure-plan-token";
+import {assessHistoricalPrivacyQualification}
+ from "@/server/backup/historical-privacy-qualification";
 import {withSessionReadDb} from "@/server/auth/database";
 import {inspectDependentMemberErasure} from "@/server/backup/erasure-dependent-member";
 import {inspectRestrictedMemberErasure,managedBinaryScopeEmpty}
@@ -47,7 +49,12 @@ export async function POST(request:NextRequest){
     }
    }catch{/* An incomplete inspection can never grant permission. */}
   }
-  return jsonResult({...preview,restrictedEligible,dependentEligible,plan:issued?{
+  const qualification=assessHistoricalPrivacyQualification({
+   mode:preview.mode,observedTables:preview.observedTables,
+   boundedProvisionalEligible:restrictedEligible||dependentEligible
+  });
+  return jsonResult({...preview,restrictedEligible,dependentEligible,
+   qualification,plan:issued?{
    planId:issued.receipt.planId,token:issued.token,expiresAt:issued.receipt.expiresAt,
    executionPermitted:false
   }:null});

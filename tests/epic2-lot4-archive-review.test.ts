@@ -10,7 +10,8 @@ test("SMN-38: no archive can be silently declared inspected",()=>{
  ],"2026-11-09T12:00:00.000Z");
  assert.equal(inventory.candidates.length,2);
  assert.ok(inventory.candidates.every(c=>c.inspection==="human-review-required"));
- assert.equal(assessArchiveReview(inventory,[]).permitted,false);
+ assert.equal(assessArchiveReview(inventory,[],
+  new Date("2026-11-09T12:05:00.000Z")).permitted,false);
  const verified=inventory.candidates.map(c=>({
   fingerprint:c.fingerprint,originalSha256:c.sha256,
   action:"restrict-original" as const,reviewedBy:"independent-reviewer",
