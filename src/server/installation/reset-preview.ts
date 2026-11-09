@@ -56,7 +56,9 @@ export async function previewInstallationReset():Promise<ResetImpact>{
  }finally{await db.end().catch(()=>undefined);}
  let privateDocuments:ResetImpact["privateDocuments"]={count:null,state:"unavailable"};
  try{
-  const docs=await scanDocuments(process.env.SMN_PRIVATE_DOCUMENTS_DIR);
+  const directory=process.env.SMN_PRIVATE_DOCUMENTS_DIR;
+  if(!directory)throw Error("documents-directory-unconfigured");
+  const docs=await scanDocuments(directory);
   privateDocuments={count:docs.filter(x=>x.name.endsWith(".meta.json")).length,
    state:"verified"};
  }catch{/* Unknown scope, not zero. */}
