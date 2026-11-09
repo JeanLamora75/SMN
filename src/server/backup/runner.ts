@@ -166,6 +166,16 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    };
    const index:BackupIndex={version:1,id,createdAt,encryptedManifest,recovery};
    await writeFile(join(staging,"index.json"),JSON.stringify(index),{flag:"wx",mode:0o600});
+   // Final conservative fence immediately before publication. This cannot
+   // make external file writes transactional, but prevents known drift.
+   const finalDocs=await scanDocuments(source);
+   const finalArchives=await inspectExtraArchives(client);
+   const finalWal=await client.query<{lsn:string}>(
+    "SELECT pg_current_wal_lsn()::text AS lsn");
+   if(JSON.stringify(finalDocs)!==JSON.stringify(inventory)||
+    JSON.stringify(finalArchives)!==JSON.stringify(extras)||
+    finalWal.rows[0]?.lsn!==begin.rows[0].lsn)
+    throw Error("backup-scope-changed-before-publication");
    await rename(staging,join(packages,id));
    staging="";
    // Après la publication atomique, une panne du fichier de statut ne doit pas
