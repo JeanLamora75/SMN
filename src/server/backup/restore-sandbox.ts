@@ -21,6 +21,7 @@ export type RehearsalResult={
  sandboxOnly:true;restoredTables:number;verifiedDocuments:number;
  missingDocumentReferences:number;archiveHashChecked:true;
  databaseAndDocumentsConsistent:boolean;activeInstallationModified:false;
+ fullRestoreQualified:false;
 };
 function executable():string{
  if(process.env.SMN_PG_RESTORE_PATH)return process.env.SMN_PG_RESTORE_PATH;
@@ -184,7 +185,8 @@ export async function rehearseBackupRestore(options:{
    "incomplete-archive-scope",sandboxOnly:true,
    restoredTables:Number(count.rows[0]?.n),verifiedDocuments:inventory.length/2,
    missingDocumentReferences:missing,archiveHashChecked:true,
-   databaseAndDocumentsConsistent:missing===0,activeInstallationModified:false};
+   databaseAndDocumentsConsistent:missing===0,activeInstallationModified:false,
+   fullRestoreQualified:false};
  }finally{
   key?.fill(0);
   await sandbox.end().catch(()=>undefined);
