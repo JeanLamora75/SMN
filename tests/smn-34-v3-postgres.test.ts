@@ -93,13 +93,15 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
  const url=(name:string)=>{const uri=new URL(maintenance);uri.pathname="/"+name;return uri.toString();};
  const root=await mkdtemp(join(tmpdir(),"smn34-full-backup-"));
  const backup=join(root,"backups"),documents=join(root,"private-documents");
- const reports=join(root,"report-pdfs"),office=join(root,"office-reports");
+ const reports=join(root,"report-pdfs"),office=join(root,"office-reports"),
+  templates=join(root,"office-templates");
  const originalEnv={
   SMN_DATABASE_URL:process.env.SMN_DATABASE_URL,
   SMN_BACKUP_DIR:process.env.SMN_BACKUP_DIR,
   SMN_PRIVATE_DOCUMENTS_DIR:process.env.SMN_PRIVATE_DOCUMENTS_DIR,
   SMN_PRIVATE_REPORT_ARCHIVE_DIR:process.env.SMN_PRIVATE_REPORT_ARCHIVE_DIR,
-  SMN_OFFICE_REPORTS_DIR:process.env.SMN_OFFICE_REPORTS_DIR
+  SMN_OFFICE_REPORTS_DIR:process.env.SMN_OFFICE_REPORTS_DIR,
+  SMN_OFFICE_TEMPLATES_DIR:process.env.SMN_OFFICE_TEMPLATES_DIR
  };
  const admin=new Client({connectionString:maintenance.toString(),connectionTimeoutMillis:3500});
  const owned:string[]=[];
@@ -112,12 +114,13 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
    await admin.query('CREATE DATABASE "'+name+'"');
    owned.push(name);
   }
-  await Promise.all([backup,documents,reports,office].map(path=>mkdir(path,{recursive:true})));
+  await Promise.all([backup,documents,reports,office,templates].map(path=>mkdir(path,{recursive:true})));
   process.env.SMN_DATABASE_URL=url(source);
   process.env.SMN_BACKUP_DIR=backup;
   process.env.SMN_PRIVATE_DOCUMENTS_DIR=documents;
   process.env.SMN_PRIVATE_REPORT_ARCHIVE_DIR=reports;
   process.env.SMN_OFFICE_REPORTS_DIR=office;
+  process.env.SMN_OFFICE_TEMPLATES_DIR=templates;
   assert.deepEqual(await installExpress({adminUsername:"smn34",
    adminEmail:"smn34@example.test",password:"TestPassword-SMN-34-2026"},url(source)),{ok:true});
   const db=new Client({connectionString:url(source)});
@@ -147,6 +150,7 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
     [pdfId,pdfHash,pdf.length,pdfId+".pdf",actor.id,teamId,sprintId,
      JSON.stringify({id:pdfId,sha256:pdfHash,byteLength:pdf.length,teamId,cycleId:sprintId})]);
    await writeFile(join(office,"Rapport-SMN34.docx"),officeBytes,{flag:"wx"});
+   await writeFile(join(templates,"Modele-SMN34.docx"),officeBytes,{flag:"wx"});
    const note=Buffer.from("Compte rendu sprint sauvegardé","utf8");
    const docId="smn34-document";
    await writeFile(join(documents,docId+".txt"),note);
@@ -163,12 +167,14 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
    assert.equal(check.status,"verified");
    assert.ok(check.components.some(c=>c.kind==="report-pdf"));
    assert.ok(check.components.some(c=>c.kind==="office-report"));
+    assert.ok(check.components.some(c=>c.kind==="office-template"));
   }finally{key.fill(0);}
   const rehearsal=await rehearseBackupRestore({sourceUri:url(source),
    sandboxUri:url(target),backupRoot:backup,archiveId:captured.id});
   assert.equal(rehearsal.status,"reconstructed-in-sandbox");
   assert.equal(rehearsal.verifiedReportPdfs,1);
   assert.equal(rehearsal.verifiedOfficeReports,1);
+   assert.equal(rehearsal.verifiedOfficeTemplates,1);
   assert.equal(rehearsal.verifiedDocuments,1);
   assert.equal(rehearsal.missingDocumentReferences,0);
   assert.equal(rehearsal.databaseAndDocumentsConsistent,true);
@@ -193,9 +199,10 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
     createHash("sha256").update(pdf).digest("hex"));
   }finally{await unchanged.end().catch(()=>undefined);}
   process.stdout.write(JSON.stringify({
-   evidence:"SMN-34-v3-PG18-sandbox",sandbox:true,
+   evidence:"EPIC2-LOT2-v4-PG18-sandbox",sandbox:true,
    pdfCount:rehearsal.verifiedReportPdfs,
    officeCount:rehearsal.verifiedOfficeReports,
+   templateCount:rehearsal.verifiedOfficeTemplates,
    privateCount:rehearsal.verifiedDocuments,
    databaseAndDocumentsConsistent:true,
    activeInstallationModified:false
