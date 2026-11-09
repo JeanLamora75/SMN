@@ -1,4 +1,5 @@
 import type {RestorePreview} from "./preview";
+import {evaluateErasureProtection,type ErasureEvidence} from "./erasure-protection";
 
 export type RestoreGate={
  decision:"blocked";archiveId:string;checkedAt:string;
@@ -11,7 +12,8 @@ export type RestoreGate={
  * recoverable checkpoint, a privacy erasure check (SMN-40), and a proven cutover.
  * These prerequisites cannot be bypassed through client-provided flags.
  */
-export function assessRestoreGate(preview:RestorePreview):RestoreGate{
+export function assessRestoreGate(preview:RestorePreview,
+ evidence:ErasureEvidence={state:"unavailable",reason:"ledger-not-implemented"}):RestoreGate{
  const blockers=new Set<string>();
  const warnings:string[]=[];
  if(preview.archive.status!=="verified"||!preview.archive.integrityVerified)
@@ -28,7 +30,11 @@ export function assessRestoreGate(preview:RestorePreview):RestoreGate{
  if(!preview.archive.createdAt)blockers.add("archive-date-unavailable");
  if(preview.issues.includes("snapshot-older"))warnings.push("potential-data-loss");
  // These cannot be inferred from the presence of a backup or asserted by a request.
- blockers.add("privacy-erasures-unverified");
+ const privacy=evaluateErasureProtection(preview.archive.createdAt,evidence);
+ if(!privacy.permitted){
+  blockers.add(privacy.code==="previously-erased-data"?"privacy-erased-data":
+   privacy.code==="coverage-gap"?"privacy-coverage-gap":"privacy-erasures-unverified");
+ }
  blockers.add("isolated-restore-unverified");
  blockers.add("rollback-checkpoint-unverified");
  blockers.add("atomic-cutover-unverified");
