@@ -94,7 +94,7 @@ test("SMN-34 real PG18 and files: coordinated offline cutover with rollback",
    },
    files:{
     originalRoot:paths.originalRoot,candidateRoot:newCandidate,
-    rollbackRoot:join(root,"smn_restore_test_fback")
+    rollbackRoot:join(root,"smn_restore_test_fbackup")
    },
    recoveredFilesRoot:join(root,"smn_restore_test_recovered2")
   });
