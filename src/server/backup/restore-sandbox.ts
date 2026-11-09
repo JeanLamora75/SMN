@@ -48,7 +48,7 @@ function metadata(value:unknown):Manifest{
    m.officeReports.length>200))||
   (m.version===4&&(!Array.isArray(m.officeTemplates)||
    m.officeTemplates.length>200||m.consistency?.method!=="wal-fence-v1"||
-   !/^[a-f0-9]+\/[a-f0-9]+$/i.test(m.consistency.walLsn))))
+   !/^[a-f0-9]+\/[a-f0-9]+$/i.test(m.consistency?.walLsn??""))))
   throw Error("manifest-invalid");
  return m as Manifest;
 }
