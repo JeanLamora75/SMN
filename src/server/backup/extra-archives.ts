@@ -3,12 +3,15 @@ import {join,resolve} from "node:path";
 import type {Client} from "pg";
 import {sealedFile,sha,type BackupComponent} from "./files";
 import {officeReportsDirectory,safeOfficeReportName} from "../reports/office-storage";
+import {officeTemplatesDirectory,isSupportedOfficePackage} from "../reports/office-catalog";
 
 export type ExtraFile=BackupComponent&{sourceName:string};
 export type ExtraInventory={pdf:readonly {name:string;hash:string;size:number}[];
- office:readonly {name:string;hash:string;size:number}[]};
+ office:readonly {name:string;hash:string;size:number}[];
+ templates:readonly {name:string;hash:string;size:number}[]};
 const PDF=/^[a-f0-9-]{36}\.pdf$/i;
 const OFFICE=/^[^\\/:*?"<>|\x00-\x1f]{1,120}\.(?:docx|pptx)$/i;
+const TEMPLATE=/^[^\\/:*?"<>|\x00-\x1f]{1,220}\.(?:docx|pptx)$/i;
 const MAX=200,MAX_FILE=20*1024*1024,MAX_TOTAL=512*1024*1024;
 
 export function pdfArchiveDirectory():string{
@@ -40,9 +43,11 @@ async function pdfReferences(db:Pick<Client,"query">){
 }
 /** DB reference + SHA verification, not merely directory listing. */
 export async function inspectExtraArchives(db:Pick<Client,"query">):Promise<ExtraInventory>{
- const pdfRoot=pdfArchiveDirectory(),officeRoot=officeReportsDirectory();
- const [pdfExists,officeExists,refs]=await Promise.all([
-  checkedDirectory(pdfRoot),checkedDirectory(officeRoot),pdfReferences(db)
+ const pdfRoot=pdfArchiveDirectory(),officeRoot=officeReportsDirectory(),
+  templateRoot=officeTemplatesDirectory();
+ const [pdfExists,officeExists,templateExists,refs]=await Promise.all([
+  checkedDirectory(pdfRoot),checkedDirectory(officeRoot),
+  checkedDirectory(templateRoot),pdfReferences(db)
  ]);
  if(refs.length&&!pdfExists)throw Error("extra-archive-pdf-directory-missing");
  const pdfNames=pdfExists?await readdir(pdfRoot):[];
@@ -69,16 +74,27 @@ export async function inspectExtraArchives(db:Pick<Client,"query">):Promise<Extr
   total+=bytes.length;if(total>MAX_TOTAL)throw Error("extra-archive-too-large");
   office.push({name,hash:sha(bytes),size:bytes.length});
  }
- return {pdf,office};
+ const templateNames=templateExists?(await readdir(templateRoot)).sort():[];
+ if(templateNames.length>MAX||templateNames.some(n=>!validExtraName("template",n)))
+  throw Error("extra-archive-template-unrecognized");
+ const templates:ExtraInventory["templates"][number][]=[];
+ for(const name of templateNames){
+  const bytes=await safeBytes(templateRoot,name);
+  if(!isSupportedOfficePackage(bytes,name.toLowerCase().endsWith(".docx")?"docx":"pptx"))
+   throw Error("extra-archive-template-invalid");
+  total+=bytes.length;if(total>MAX_TOTAL)throw Error("extra-archive-too-large");
+  templates.push({name,hash:sha(bytes),size:bytes.length});
+ }
+ return {pdf,office,templates};
 }
 export async function encryptExtraArchives(inventory:ExtraInventory,key:Buffer,
- staging:string):Promise<{pdf:ExtraFile[];office:ExtraFile[]}>{
- const result:{pdf:ExtraFile[];office:ExtraFile[]}={pdf:[],office:[]};
- for(const kind of ["pdf","office"] as const){
+ staging:string):Promise<{pdf:ExtraFile[];office:ExtraFile[];templates:ExtraFile[]}>{
+ const result:{pdf:ExtraFile[];office:ExtraFile[];templates:ExtraFile[]}={pdf:[],office:[],templates:[]};
+ for(const kind of ["pdf","office","templates"] as const){
   const files=inventory[kind];
   if(!files.length)continue;
-  const folder=kind==="pdf"?"report-pdfs":"office-reports";
-  const root=kind==="pdf"?pdfArchiveDirectory():officeReportsDirectory();
+  const folder=kind==="pdf"?"report-pdfs":kind==="office"?"office-reports":"office-templates";
+  const root=kind==="pdf"?pdfArchiveDirectory():kind==="office"?officeReportsDirectory():officeTemplatesDirectory();
   await mkdir(join(staging,folder),{mode:0o700});
   for(const [index,file] of files.entries()){
    const bytes=await safeBytes(root,file.name);
@@ -91,8 +107,10 @@ export async function encryptExtraArchives(inventory:ExtraInventory,key:Buffer,
  }
  return result;
 }
-export function validExtraName(kind:"pdf"|"office",name:string){
+export function validExtraName(kind:"pdf"|"office"|"template",name:string){
  if(kind==="pdf")return PDF.test(name);
+ if(kind==="template")return TEMPLATE.test(name)&&!name.startsWith(".")&&
+  !name.startsWith("~$")&&!name.endsWith(".")&&!name.endsWith(" ");
  if(!OFFICE.test(name))return false;
  const format=name.toLowerCase().endsWith(".docx")?"docx":"pptx";
  try{return safeOfficeReportName(name,format).toLowerCase()===name.toLowerCase();}
