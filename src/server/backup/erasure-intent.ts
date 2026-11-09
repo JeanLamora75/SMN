@@ -7,13 +7,13 @@ import {erasureLedgerConfig,readErasureLedger,appendCompletedErasure} from "./er
 const FILENAME="pending-erasure-intent.json";
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 const SHA=/^[a-f0-9]{64}$/;
-type Intent=Readonly<{version:1;id:string;createdAt:string;planRevision:string;
- operation:"erase"|"anonymize";mac:string}>;
+type Intent=Readonly<{version:1|2;id:string;createdAt:string;planRevision:string;
+ operation:"erase"|"anonymize";subjectToken?:string;mac:string}>;
 export type IntentHandle=Readonly<{id:string;planRevision:string}>;
 function signature(key:Buffer,input:Omit<Intent,"mac">):string{
  return createHmac("sha256",key).update([
   "smn-erasure-intent-v1",input.version,input.id,input.createdAt,
-  input.planRevision,input.operation
+  input.planRevision,input.operation,...(input.version===2?[input.subjectToken??""]:[])
  ].join("|")).digest("hex");
 }
 async function parseIntent(anchor:string,key:Buffer):Promise<Intent|null>{
@@ -25,7 +25,10 @@ async function parseIntent(anchor:string,key:Buffer):Promise<Intent|null>{
  if(!stat.isFile()||stat.isSymbolicLink()||stat.size>4096)
   throw Error("erasure-intent-untrusted");
  const value=JSON.parse(await readFile(path,"utf8")) as Intent;
- if(value.version!==1||!UUID.test(value.id)||!SHA.test(value.planRevision)||
+ if(![1,2].includes(value.version)||
+  (value.version===1&&value.subjectToken!==undefined)||
+  (value.version===2&&!SHA.test(value.subjectToken??""))||
+  !UUID.test(value.id)||!SHA.test(value.planRevision)||
   !["erase","anonymize"].includes(value.operation)||!SHA.test(value.mac)||
   !Number.isFinite(Date.parse(value.createdAt))||
   new Date(value.createdAt).toISOString()!==value.createdAt)
@@ -47,9 +50,10 @@ export async function hasUnresolvedErasureIntent():Promise<boolean>{
  * plan revisions are stored; no member IDs, names, or text.
  */
 export async function beginErasureIntent(input:{
- planRevision:string;operation:"erase"|"anonymize"
+ planRevision:string;operation:"erase"|"anonymize";subjectId?:string
 },now=new Date()):Promise<IntentHandle>{
  if(!SHA.test(input.planRevision)||!["erase","anonymize"].includes(input.operation)||
+  (input.subjectId!==undefined&&!/^[A-Za-z0-9_-]{1,120}$/.test(input.subjectId))||
   !Number.isFinite(now.getTime()))throw Error("erasure-intent-invalid");
  const state=await readErasureLedger();
  if(now.toISOString()<state.coverageStart)throw Error("erasure-ledger-coverage-gap");
@@ -57,8 +61,10 @@ export async function beginErasureIntent(input:{
  if(!config)throw Error("erasure-ledger-unconfigured");
  try{
   const value:Omit<Intent,"mac">={
-   version:1,id:randomUUID(),createdAt:now.toISOString(),
-   planRevision:input.planRevision,operation:input.operation
+   version:input.subjectId?2:1,id:randomUUID(),createdAt:now.toISOString(),
+   planRevision:input.planRevision,operation:input.operation,
+   ...(input.subjectId?{subjectToken:createHmac("sha256",config.key)
+    .update("smn-erased-member-v2|").update(input.subjectId).digest("hex")}:{})
   };
   const file=join(config.anchor,FILENAME);
   await writeFile(file,JSON.stringify({...value,mac:signature(config.key,value)}),
@@ -91,7 +97,7 @@ export async function finalizeErasureIntent(handle:IntentHandle,
    receipt.rows[0].scope_revision!==pending.planRevision||
    receipt.rows[0].operation!==pending.operation)
    throw Error("erasure-intent-commit-unverified");
-  await appendCompletedErasure(pending.operation,new Date(),pending.id);
+  await appendCompletedErasure(pending.operation,new Date(),pending.id,pending.subjectToken);
   await rm(join(config.anchor,FILENAME));
  }finally{
   if(acquired)await rm(lock,{force:true});
