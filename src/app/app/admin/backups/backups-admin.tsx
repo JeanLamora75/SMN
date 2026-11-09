@@ -2,7 +2,7 @@
 import {useCallback,useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 
-type Outcome={status:"running"|"success"|"failed"|"cancelled";id?:string;createdAt:string};
+type Outcome={status:"running"|"success"|"failed"|"cancelled"|"interrupted"|"unverifiable";id?:string;createdAt:string};
 type Component={path:string;kind:"database"|"document";size:number;
  encryptedSize:number;encryptedSha256:string};
 type InventoryEntry={
@@ -167,7 +167,9 @@ export default function BackupsAdmin(){
    {state?.last&&<p role="status" className="small">
     {t("backups.lastResult")}: {t(state.last.status==="success"?"backups.successStatus":
       state.last.status==="running"?"backups.running":
-      state.last.status==="cancelled"?"protectionOperations.statuses.cancelled":"backups.failedStatus")}
+      state.last.status==="cancelled"?"protectionOperations.statuses.cancelled":
+      state.last.status==="interrupted"?"protectionOperations.statuses.interrupted":
+      state.last.status==="unverifiable"?"backups.unverifiable":"backups.failedStatus")}
     {" · "}{new Date(state.last.createdAt).toLocaleString()}
     {state.last.id&&<> · {t("backups.identifier")}: <code>{state.last.id}</code></>}
    </p>}
