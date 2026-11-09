@@ -3,6 +3,7 @@ import {constants as fsConstants} from "node:fs";
 import {open,lstat,readdir} from "node:fs/promises";
 import {join} from "node:path";
 import {unseal} from "./crypto";
+import {validExtraName} from "./extra-archives";
 import {privateFolder,safeAtomicJson,sha,type BackupComponent,type BackupIndex} from "./files";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -16,7 +17,7 @@ const MAX_DATABASE=8*1024*1024*1024;
 
 export type VerificationStatus="verified"|"invalid"|"incomplete"|"unverifiable";
 export type VerifiedComponent=Readonly<{
- path:string;kind:"database"|"document";size:number;encryptedSize:number;encryptedSha256:string;
+ path:string;kind:"database"|"document"|"report-pdf"|"office-report";size:number;encryptedSize:number;encryptedSha256:string;
 }>;
 export type BackupInventoryEntry=Readonly<{
  id:string;createdAt:string|null;status:VerificationStatus;reason:string|null;
@@ -168,14 +169,14 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
   try{parsedManifest=JSON.parse(clear.toString("utf8"));}catch{invalid("manifest-json-invalid");}
   finally{clear.fill(0);}
   const manifest=record(parsedManifest);
-  if(!manifest||(manifest.version!==1&&manifest.version!==2)||
+  if(!manifest||![1,2,3].includes(manifest.version as number)||
    manifest.id!==id||manifest.createdAt!==createdAt||
    manifest.installation!=="singleton"||!Number.isSafeInteger(manifest.schemaVersion)||
    (manifest.schemaVersion as number)<1||
    typeof manifest.postgresVersion!=="string"||
    !/^18(?:\.|$)/.test(manifest.postgresVersion)||
    !Array.isArray(manifest.documents))invalid("manifest-invalid");
-  if(manifest.version===2&&
+  if((manifest.version===2||manifest.version===3)&&
    (typeof manifest.appVersion!=="string"||manifest.appVersion.length>80||
     !/^[0-9]+\.[0-9]+\.[0-9]+/.test(manifest.appVersion)||
     typeof manifest.installationSource!=="string"||
@@ -200,8 +201,32 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
    names.add(documentMeta.sourceName);
    documents.push(documentMeta);
   }
+  const additional:{pdf:({sourceName:string}&BackupComponent)[];
+   office:({sourceName:string}&BackupComponent)[]}={pdf:[],office:[]};
+  for(const [field,kind,dir] of [
+   ["reportPdfs","pdf","report-pdfs"],["officeReports","office","office-reports"]
+  ] as const){
+   const items=manifest[field];
+   if(manifest.version===3&&!Array.isArray(items))invalid("extra-archive-inventory-missing");
+   if(manifest.version!==3)continue;
+   const files=items as unknown[];
+   if(files.length>200)invalid("extra-archive-inventory-limit");
+   const entries=kind==="pdf"?additional.pdf:additional.office;
+   const used=new Set<string>();
+   for(const [i,item] of files.entries()){
+    const v=record(item),expected=dir+"/"+String(i).padStart(5,"0")+".enc";
+    if(!v||typeof v.sourceName!=="string"||!validExtraName(kind,v.sourceName)||
+     used.has(v.sourceName)||!component(v)||v.path!==expected||
+     v.size>20*1024*1024||v.encryptedSize>20*1024*1024)
+     invalid("extra-archive-component-invalid");
+    used.add(v.sourceName);
+    entries.push(v as {sourceName:string}&BackupComponent);
+   }
+  }
   const expectedTop=new Set(["index.json","manifest.enc","database.pgcustom.enc"]);
   if(documents.length)expectedTop.add("documents");
+  if(additional.pdf.length)expectedTop.add("report-pdfs");
+  if(additional.office.length)expectedTop.add("office-reports");
   const top=await readdir(folder);
   if(top.length!==expectedTop.size||top.some(name=>!expectedTop.has(name)))
    invalid("package-components-unexpected");
@@ -213,6 +238,18 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
    if(documentFiles.length<documents.length)incomplete("document-component-missing");
    if(documentFiles.length>documents.length||
     documentFiles.some(name=>!/^\d{5}\.enc$/.test(name)))invalid("documents-directory-unexpected");
+  }
+  for(const [kind,dir] of [["pdf","report-pdfs"],["office","office-reports"]] as const){
+   const entries=kind==="pdf"?additional.pdf:additional.office;
+   if(!entries.length)continue;
+   const archiveDir=join(folder,dir),stat=await lstat(archiveDir);
+   if(!stat.isDirectory()||stat.isSymbolicLink())invalid("extra-archive-folder-invalid");
+   const names=await readdir(archiveDir);
+   if(names.length!==entries.length||
+    names.some(name=>!/^\\d{5}\\.enc$/.test(name)))
+    invalid("extra-archive-folder-unexpected");
+   for(const part of entries)
+    await verifyEncrypted(join(folder,part.path),part,key,20*1024*1024,false);
   }
   await verifyEncrypted(join(folder,database.path),database,key,MAX_DATABASE,false);
   const metadata=new Map<string,Record<string,unknown>>();
@@ -238,13 +275,16 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
     invalid("document-link-invalid");
   }
   if(metadata.size!==contentHash.size)invalid("document-link-invalid");
-  const components=[database,...documents].map((item):VerifiedComponent=>({
-   path:item.path,kind:item.path==="database.pgcustom.enc"?"database":"document",
+  const components=[database,...documents,...additional.pdf,...additional.office]
+   .map((item):VerifiedComponent=>({
+   path:item.path,kind:item.path==="database.pgcustom.enc"?"database":
+    item.path.startsWith("report-pdfs/")?"report-pdf":
+    item.path.startsWith("office-reports/")?"office-report":"document",
    size:item.size,encryptedSize:item.encryptedSize,encryptedSha256:item.encryptedSha256
   }));
   return {id,createdAt,status:"verified",reason:null,checkedAt,
-   installationSource:manifest.version===2?manifest.installationSource as string:"singleton (legacy)",
-   applicationVersion:manifest.version===2?manifest.appVersion as string:null,
+    installationSource:manifest.version!==1?manifest.installationSource as string:"singleton (legacy)",
+   applicationVersion:manifest.version!==1?manifest.appVersion as string:null,
    schemaVersion:manifest.schemaVersion as number,postgresVersion:manifest.postgresVersion as string,
    components,documentCount:documents.length/2,integrityVerified:true,restoreTested:false};
  }catch(error){
