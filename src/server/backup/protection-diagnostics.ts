@@ -19,7 +19,8 @@ async function marker(root:string):Promise<Marker|null>{
  }catch{return null;}
 }
 type CleanupMarker={operationId:string;startedAt:string;status:string;
- planned:number;processed:number;failed:number};
+ planned:number;processed:number;failed:number;inFlight:string|null;
+ plannedIds:string[];processedIds:string[]};
 async function cleanupMarker(root:string):Promise<CleanupMarker|null>{
  try{
   const file=join(root,"last-cleanup.json"),stat=await lstat(file);
@@ -28,8 +29,17 @@ async function cleanupMarker(root:string):Promise<CleanupMarker|null>{
   if(!UUID.test(x.operationId??"")||typeof x.startedAt!=="string"||
    !Number.isFinite(Date.parse(x.startedAt))||
    !["running","success","partial","failed"].includes(x.status??"")||
-   ![x.planned,x.processed,x.failed].every(v=>Number.isSafeInteger(v)&&v!>=0)||
-   x.processed!+x.failed!>x.planned!)return null;
+   ![x.planned,x.processed,x.failed].every(v=>Number.isSafeInteger(v)&&
+    typeof v==="number"&&v>=0)||
+   x.processed!+x.failed!>x.planned!||
+   !Array.isArray(x.plannedIds)||!Array.isArray(x.processedIds)||
+   x.plannedIds.length!==x.planned||x.processedIds.length!==x.processed||
+   x.plannedIds.some(id=>typeof id!=="string"||!UUID.test(id))||
+   x.processedIds.some(id=>typeof id!=="string"||!UUID.test(id))||
+   x.inFlight!==null&&(typeof x.inFlight!=="string"||!UUID.test(x.inFlight))||
+   new Set(x.plannedIds).size!==x.plannedIds.length||
+   new Set(x.processedIds).size!==x.processedIds.length||
+   x.processedIds.some(id=>!x.plannedIds!.includes(id)))return null;
   return x as CleanupMarker;
  }catch{return null;}
 }
@@ -62,18 +72,40 @@ export async function readProtectionDiagnostics(db:Client):Promise<{
   }));
  }
  if(cleanup){
-  const item=classifyCleanupEvidence({
+  const recorded=classifyCleanupEvidence({
    operationId:cleanup.operationId,startedAt:cleanup.startedAt,checkedAt,
    planned:cleanup.planned,processed:cleanup.processed,failed:cleanup.failed,
    running:running&&cleanup.status==="running"
   });
-  // The progress journal is not a transaction: on restart, an unfinalized
-  // operation is never declared successful, even if all recorded steps finished.
-  operations.push(cleanup.status==="running"&&!running?{
-   ...item,status:item.processed>0?"partial":"interrupted",
-   reason:item.processed>0?"partial-cleanup":"unverifiable-state",
-   recovery:"reinspect-inventory-before-retry"
-  }:item);
+  // Verify each recorded successful removal through *both* its audit row
+  // and absence of the managed package. No success from the journal alone.
+  let verified=0;
+  let uncertain=cleanup.processed;
+  try{
+   verified=0;
+   for(const id of cleanup.processedIds){
+    const audit=await db.query<{n:string}>(`
+     SELECT count(*)::text AS n FROM public.smn_backup_retention_audit
+     WHERE package_id=$1 AND action='package_deleted'`,[id]);
+    const exists=await lstat(join(root,"packages",id)).then(()=>true,
+     (error:NodeJS.ErrnoException)=>{if(error.code==="ENOENT")return false;throw error;});
+    if(!exists&&Number(audit.rows[0]?.n)>=1)verified++;
+   }
+   uncertain=cleanup.processed-verified;
+  }catch{verified=0;uncertain=cleanup.processed;}
+  const fullyVerified=cleanup.status==="success"&&
+   verified===cleanup.planned&&cleanup.failed===0&&cleanup.inFlight===null;
+  operations.push({...recorded,
+   status:fullyVerified?"succeeded":
+    running&&cleanup.status==="running"?"running":
+    verified>0||uncertain>0||cleanup.inFlight?"partial":"interrupted",
+   reason:fullyVerified?"cleanup-complete":
+    verified>0||uncertain>0||cleanup.inFlight?"partial-cleanup":"unverifiable-state",
+   recovery:fullyVerified?"recheck":"reinspect-inventory-before-retry",
+   processed:verified,
+   unprocessed:Math.max(0,cleanup.planned-verified-cleanup.failed),
+   failed:cleanup.failed+uncertain
+  });
  }
  operations.push(blockedOperation("restore",checkedAt));
  operations.push(blockedOperation("installation-reset",checkedAt));
