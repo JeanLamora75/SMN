@@ -28,14 +28,35 @@ export async function requireMemberRemovalAudit(db:Pick<Client,"query">){
  if(check.rows[0]?.present!==true)throw new Error("member-removal-audit-not-ready");
 }
 
-/** Hard blockers: missing schema or any FK pointing to a member. */
-export async function memberDeletionBlockers(db:Pick<Client,"query">,id:string){
- const refs=await db.query<{table_name:string;dependent_count:string}>(`
-  SELECT c.conrelid::regclass::text AS table_name,'1' AS dependent_count
+/** Inspect actual rows in any single-column FK referring to this member.
+ * Always fail closed for multi-column or uninspectable relationships.
+ */
+export async function inspectMemberForeignReferences(
+ db:Pick<Client,"query">,id:string
+):Promise<{count:number;unknown:boolean;tables:{name:string;count:number}[]}>{
+ const keys=await db.query<{table_name:string;column_name:string;arity:number}>(`
+  SELECT format('%I.%I',ns.nspname,rel.relname) AS table_name,
+   att.attname AS column_name,cardinality(c.conkey)::int AS arity
   FROM pg_catalog.pg_constraint c
+  JOIN pg_catalog.pg_class rel ON rel.oid=c.conrelid
+  JOIN pg_catalog.pg_namespace ns ON ns.oid=rel.relnamespace
+  LEFT JOIN pg_catalog.pg_attribute att
+   ON att.attrelid=c.conrelid AND att.attnum=c.conkey[1]
   WHERE c.contype='f' AND c.confrelid='public.smn_member'::regclass
-  ORDER BY c.conrelid::regclass::text`);
- // Other domain reference tables may be present, including future upgrades:
- // this routine does not claim absence by mere FK catalog enumeration.
- return refs.rows.map(r=>r.table_name);
+   AND ns.nspname='public'
+  ORDER BY rel.relname,c.conname`);
+ let count=0,unknown=false;const tables:{name:string;count:number}[]=[];
+ for(const key of keys.rows){
+  if(key.arity!==1||!key.column_name||!/^"[a-z0-9_]+"\."[a-z0-9_]+"$/.test(key.table_name)){
+   unknown=true;continue;
+  }
+  const col='"'+key.column_name.replace(/"/g,'""')+'"';
+  const rows=await db.query<{n:string}>(`SELECT count(*)::text AS n
+   FROM ${key.table_name} WHERE ${col}::text=$1`,[id]);
+  const n=Number(rows.rows[0]?.n);
+  if(!Number.isSafeInteger(n)||n<0){unknown=true;continue;}
+  count+=n;
+  tables.push({name:key.table_name,count:n});
+ }
+ return {count,unknown,tables};
 }
