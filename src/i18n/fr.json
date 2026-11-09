@@ -4436,7 +4436,10 @@
       "restore-not-enabled": "La restauration active n'est pas qualifiée (SMN-34/40).",
       "reset-not-enabled": "La réinitialisation active n'est pas qualifiée (SMN-37).",
       "unverifiable-state": "Les preuves disponibles sont insuffisantes.",
-      "cancelled-before-write": "L'opération a été annulée avant toute modification."
+      "cancelled-before-write": "L'opération a été annulée avant toute modification.",
+      "unpublished-backup-artifact": "Une sauvegarde incomplète reste dans un répertoire temporaire et n'a pas été publiée.",
+      "pending-retention-tombstone": "Une suppression interrompue laisse un paquet en attente de réconciliation.",
+      "invalid-operation-marker": "Un journal d'opération est absent ou illisible : son résultat ne peut pas être affirmé."
     },
     "recoveries": {
       "recheck": "Revérifier l'inventaire et les preuves avant toute nouvelle action.",
