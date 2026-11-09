@@ -58,6 +58,9 @@ jobs:
           tests/epic2-lot4-erasure-intent.test.ts
           tests/epic2-lot4-erasure-ledger.test.ts
           tests/epic2-lot4-fk-coverage.test.ts
+          tests/epic2-step2-deletion-coverage.test.ts
+          tests/epic2-step2-office-fingerprint.test.ts
+          tests/epic2-step2-historical-qualification.test.ts
           tests/epic2-lot4-pdf-restriction.test.ts
           tests/backup-erasure-protection.test.ts
           tests/erasure-impact-preview.test.ts

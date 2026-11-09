@@ -29,6 +29,10 @@ on:
       - "prisma/migrations/20261109_smn39_privacy_receipt/migration.sql"
       - "src/server/backup/erasure-evidence-format.ts"
       - "src/server/backup/erasure-fk-discovery.ts"
+      - "src/server/backup/erasure-office-fingerprint.ts"
+      - "src/server/backup/erasure-plan-revision.ts"
+      - "src/server/backup/historical-privacy-qualification.ts"
+      - "tests/epic2-step2-*.test.ts"
       - "src/server/backup/erasure-report-binaries.ts"
       - "src/server/backup/erasure-protection.ts"
       - "src/app/api/admin/backups/restore/preflight/route.ts"
@@ -63,7 +67,7 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Privacy and erasure ledger contracts
-        run: pnpm exec tsx --test tests/epic2-lot4-erasure-ledger.test.ts tests/epic2-lot4-erasure-intent.test.ts tests/epic2-lot4-fk-coverage.test.ts tests/backup-erasure-protection.test.ts tests/exceptional-erasure-policy.test.ts tests/erasure-impact-preview.test.ts tests/erasure-impact-receipt.test.ts tests/erasure-indirect-archives.test.ts tests/erasure-ooxml-content.test.ts tests/epic2-lot4-pdf-restriction.test.ts tests/epic2-lot4-archive-review.test.ts tests/smn-36-lifecycle-safety.test.ts
+        run: pnpm exec tsx --test tests/epic2-lot4-erasure-ledger.test.ts tests/epic2-lot4-erasure-intent.test.ts tests/epic2-lot4-fk-coverage.test.ts tests/backup-erasure-protection.test.ts tests/exceptional-erasure-policy.test.ts tests/erasure-impact-preview.test.ts tests/erasure-impact-receipt.test.ts tests/erasure-indirect-archives.test.ts tests/erasure-ooxml-content.test.ts tests/epic2-lot4-pdf-restriction.test.ts tests/epic2-lot4-archive-review.test.ts tests/smn-36-lifecycle-safety.test.ts tests/epic2-step2-deletion-coverage.test.ts tests/epic2-step2-office-fingerprint.test.ts tests/epic2-step2-historical-qualification.test.ts
       - name: TypeScript
         run: pnpm typecheck
       - name: Internationalization
