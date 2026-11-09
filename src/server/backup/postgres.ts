@@ -1,10 +1,10 @@
 import {createCipheriv,createHash,randomBytes} from "node:crypto";
 import {spawn,execFile} from "node:child_process";
 import {promisify} from "node:util";
-import {createReadStream,createWriteStream,existsSync} from "node:fs";
+import {createReadStream,createWriteStream} from "node:fs";
 import {Transform} from "node:stream";
 import {pipeline} from "node:stream/promises";
-import {join} from "node:path";
+import {managedPostgresExecutable} from "../bootstrap/managed-paths";
 import type {BackupComponent} from "./files";
 
 
@@ -12,11 +12,8 @@ const exec=promisify(execFile);
 function dumpExecutable():string{
  if(process.env.SMN_PG_DUMP_PATH)return process.env.SMN_PG_DUMP_PATH;
  if(process.platform==="win32"){
-  const base=process.env.LOCALAPPDATA;
-  if(base){
-   const path=join(base,"ScrumMasterNotebook","pgsql","bin","pg_dump.exe");
-   if(existsSync(path))return path;
-  }
+  const managed=managedPostgresExecutable("pg_dump.exe");
+  if(managed)return managed;
   return "pg_dump.exe";
  }
  return "pg_dump";
