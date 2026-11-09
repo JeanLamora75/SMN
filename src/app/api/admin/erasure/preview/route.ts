@@ -4,6 +4,7 @@ import {readJsonObject,jsonResult} from "@/server/auth/request";
 import {listErasureTargets,previewMemberErasure} from "@/server/backup/erasure-preview";
 import {issueImpactReceipt} from "@/server/backup/erasure-plan-token";
 import {withSessionReadDb} from "@/server/auth/database";
+import {inspectDependentMemberErasure} from "@/server/backup/erasure-dependent-member";
 import {inspectRestrictedMemberErasure,managedBinaryScopeEmpty}
  from "@/server/backup/erasure-restricted-member";
 export const runtime="nodejs";
@@ -30,15 +31,23 @@ export async function POST(request:NextRequest){
    actorId:actor.id,memberId:preview.memberId,mode:preview.mode,
    scopeRevision:preview.scopeRevision
   }):null;
-  let restrictedEligible=false;
+  let restrictedEligible=false,dependentEligible=false;
   if(body.mode==="erase"&&issued){
    try{
-    if(await managedBinaryScopeEmpty())
-     restrictedEligible=(await withSessionReadDb(db=>
-      inspectRestrictedMemberErasure(db,preview.memberId,{lock:false}))).eligible;
-   }catch{/* Unknown coverage is never an affirmative eligibility verdict. */}
+    if(await managedBinaryScopeEmpty()){
+     const verdict=await withSessionReadDb(async db=>{
+      const restricted=await inspectRestrictedMemberErasure(
+       db,preview.memberId,{lock:false});
+      const dependent=restricted.eligible?null:
+       await inspectDependentMemberErasure(db,preview.memberId,{lock:false});
+      return {restricted,dependent};
+     });
+     restrictedEligible=verdict.restricted.eligible;
+     dependentEligible=verdict.dependent?.eligible===true;
+    }
+   }catch{/* An incomplete inspection can never grant permission. */}
   }
-  return jsonResult({...preview,restrictedEligible,plan:issued?{
+  return jsonResult({...preview,restrictedEligible,dependentEligible,plan:issued?{
    planId:issued.receipt.planId,token:issued.token,expiresAt:issued.receipt.expiresAt,
    executionPermitted:false
   }:null});
