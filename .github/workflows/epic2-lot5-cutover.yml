@@ -5,6 +5,8 @@ on:
     paths:
       - "src/server/backup/restore-cutover-drill.ts"
       - "src/server/backup/restore-file-cutover-drill.ts"
+      - "src/server/backup/restore-coordinated-drill.ts"
+      - "tests/epic2-lot5-coordinated-pg.test.ts"
       - "src/server/auth/session-store.ts"
       - "src/server/auth/session.ts"
       - "tests/epic2-lot5-file-cutover.test.ts"
@@ -70,4 +72,4 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: PostgreSQL 18 actual offline cutover, rollback and fault injection
-        run: pnpm exec tsx --test tests/epic2-lot5-cutover-pg.test.ts
+        run: pnpm exec tsx --test tests/epic2-lot5-cutover-pg.test.ts tests/epic2-lot5-coordinated-pg.test.ts
