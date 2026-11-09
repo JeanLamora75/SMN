@@ -13,6 +13,7 @@ import {encryptedPgDump} from "./postgres";
 import {inspectExtraArchives,encryptExtraArchives,pdfArchiveDirectory}
  from "./extra-archives";
 import {officeReportsDirectory} from "../reports/office-storage";
+import {officeTemplatesDirectory} from "../reports/office-catalog";
 
 type Admin=Readonly<{id:string;role:string;password_hash:string}>;
 export type BackupState=Readonly<{
@@ -100,7 +101,7 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
  await privateFolder(root,true);
  const source=process.env.SMN_PRIVATE_DOCUMENTS_DIR;
  if(source&&sameOrNested(root,source))throw new Error("backup-root-overlaps-documents");
- for(const folder of [pdfArchiveDirectory(),officeReportsDirectory()])
+ for(const folder of [pdfArchiveDirectory(),officeReportsDirectory(),officeTemplatesDirectory()])
   if(sameOrNested(root,folder)||source&&sameOrNested(source,folder))
    throw new Error("backup-root-overlaps-extra-archives");
  const uri=await installedDatabaseUri();
@@ -132,6 +133,10 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
            current_setting('server_version') AS pg_version
     FROM public.smn_installation i WHERE i.id='singleton' AND i.state='initialized'`);
    if(meta.rowCount!==1)throw new Error("backup-installation-invalid");
+   // A conservative consistency fence: reject any PostgreSQL WAL activity
+   // between dump start and final file verification, even if unrelated.
+   const begin=await client.query<{lsn:string}>("SELECT pg_current_wal_lsn()::text AS lsn");
+   if(!begin.rows[0]?.lsn)throw Error("backup-wal-unavailable");
    const database=await encryptedPgDump(uri,key,join(staging,"database.pgcustom.enc"));
    const documents=await encryptDocuments(source,inventory,join(staging,"documents"),key);
    const archiveFiles=await encryptExtraArchives(extras,key,staging);
@@ -140,13 +145,18 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
     throw new Error("backup-documents-changed");
    if(JSON.stringify(extras)!==JSON.stringify(await inspectExtraArchives(client)))
     throw new Error("backup-extra-archives-changed");
-   const manifest={version:3,id,createdAt,installation:"singleton",
+   const end=await client.query<{lsn:string}>("SELECT pg_current_wal_lsn()::text AS lsn");
+   if(end.rows[0]?.lsn!==begin.rows[0].lsn)
+    throw Error("backup-database-changed-during-capture");
+   const manifest={version:4,id,createdAt,installation:"singleton",
     installationSource:"singleton:"+new Date(meta.rows[0].installation_created_at).toISOString(),
     appVersion:appPackage.version,
     schemaVersion:meta.rows[0].schema_version,postgresVersion:meta.rows[0].pg_version,
     database,documents:inventory.map((document,index)=>({
      sourceName:document.name,...documents[index],
-    })),reportPdfs:archiveFiles.pdf,officeReports:archiveFiles.office};
+    })),reportPdfs:archiveFiles.pdf,officeReports:archiveFiles.office,
+    officeTemplates:archiveFiles.templates,
+    consistency:{method:"wal-fence-v1",walLsn:begin.rows[0].lsn}};
    const sealed=seal(key,Buffer.from(JSON.stringify(manifest),"utf8"));
    await writeFile(join(staging,"manifest.enc"),sealed.ciphertext,{flag:"wx",mode:0o600});
    const encryptedManifest:Omit<BackupComponent,"path">={
