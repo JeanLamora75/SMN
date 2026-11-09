@@ -106,6 +106,10 @@ test("SMN-37 PG18 : une installation vierge indépendante conserve la source et 
   }finally{await verifyNew.end();await verifyRollback.end();}
   process.stdout.write("SMN37-PG18: native v33 reset candidate, source retained, rollback verified\n");
  }finally{
+  for(const [index,key] of envNames.entries()){
+   if(previousEnvironment[index]===undefined)delete process.env[key];
+   else process.env[key]=previousEnvironment[index];
+  }
   if(sourceDb)await sourceDb.end().catch(()=>undefined);
   for(const name of [source,fresh,previous])
    await admin.query('DROP DATABASE IF EXISTS "'+name+'" WITH (FORCE)')
