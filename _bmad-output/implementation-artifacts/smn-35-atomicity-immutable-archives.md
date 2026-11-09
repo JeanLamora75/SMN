@@ -59,3 +59,18 @@ La commande peut lire `.env.local` si `SMN_DATABASE_URL` ou `DATABASE_URL` n'est
 
 ## Adaptation BMAD
 Le skill `.agents/skills/bmad-build/SKILL.md` demande `uv run ... render_skill.py`, indisponible depuis GitHub ; intervention via connecteurs GitHub/Jira sans revendiquer ce workflow ni des tests non exécutés.
+
+
+## Qualification finale vérifiée — 9 novembre 2026
+
+**Workflow : SUCCÈS** — [GitHub Actions #42612519686](https://github.com/JeanLamora75/SMN/actions/runs/42612519686), commit `c6117a4235920fcf2682a7366dc1f8e2244a67e8`.
+
+- Windows : tests des contrats d'audit, de transaction et de cycle de vie **réussis** ; `pnpm typecheck` **réussi** ; `pnpm i18n:check` **réussi**.
+- Linux : mêmes étapes **réussies**.
+- PostgreSQL 18 isolé : **deux scénarios d'intégration réussis**. Le premier installe deux fois les triggers sur un schéma de recette, refuse UPDATE/DELETE, vérifie l'audit transversal et injecte un échec d'audit dans la modification réelle de rétention pour prouver le ROLLBACK métier+audit. Le second installe la vraie baseline native v33 dans une base jetable, installe deux fois les triggers additionnels, vérifie que `schema_version` n'a pas changé et que les preuves de suppression restent immuables.
+- Logs PostgreSQL : `EPIC2-LOT1-NATIVE-V33-PG18: schema intact, guards=3, audit=true` et `EPIC2-LOT1-PG18: triggers=3, immutableRows=3, crossDomainAudit=true, businessAuditRollback=true`.
+- Le défaut de typage qui empêchait la CI a été corrigé dans les modules sauvegarde/aperçus SMN-34/38/41. Aucune information sensible du processus externe `pdftotext` ne reçoit l'environnement complet.
+
+**Portée de la réussite :** qualification du lot 1 en CI sur bases jetables PostgreSQL 18. **Aucune commande `--apply` n'a été exécutée sur la base locale de l'utilisateur.** La recette de déploiement local, la revue des dernières données et la couverture exhaustive de tous les futurs événements métier restent distinctes ; ces limites ne remettent pas en cause les réussites CI ci-dessus.
+
+Les nouvelles migrations sont additives, idempotentes et le SQL de la baseline v33 versionnée n'a pas été modifié.
