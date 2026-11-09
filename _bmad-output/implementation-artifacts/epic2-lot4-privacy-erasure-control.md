@@ -99,3 +99,40 @@ BMAD : les commandes uv du skill bmad-build n'ont pas été exécutées, faute d
 Les migrations restent séparées de la baseline native v33. Les opérations de test ne portent sur aucune donnée personnelle réelle.
 
 **Qualification :** les mécanismes d'infrastructure sont testés. Le chantier demandé ne peut pas être certifié intégralement terminé à ce stade : aucune suppression de membre ou révocation d'archive en situation métier, ni vérification visuelle de tous les binaires, ni restauration active expurgée ne figure dans ces preuves.
+
+
+## Complément d'implémentation — 9 novembre 2026 : effacement strict et restrictions d'accès
+
+### Cas désormais exécutable (SMN-39)
+
+L'endpoint Administrateur POST /api/admin/erasure/execute exige un reçu de prévisualisation HMAC valide, lié à l'Administrateur, au mode erase, au membre, à une révision de périmètre revérifiée et à une expiration de dix minutes. La confirmation saisie doit être exactement EFFACER suivi de l'identifiant du plan et les limites relatives aux copies externes doivent être explicitement reconnues.
+
+Le périmètre est volontairement plus étroit que la Story complète. Le moteur accepte uniquement la suppression d'une fiche **provisoire, jamais révisée, sans email, sans FK entrante, sans référence textuelle retrouvée dans une table SMN et sans données binaires/fichiers gérés**. Le répertoire privé doit être réellement présent et vide. Les chemins Office, PDF et les autres stockages gérés sont inspectés ; tout doute, archive, schéma imprévu, référence ou erreur SQL entraîne un refus. Un membre affecté à une équipe, ayant un historique ou ayant fait l'objet d'une publication n'est pas éligible. Aucun mode anonymize n'est autorisé par cette route.
+
+L'exécution qualifiée utilise une transaction PostgreSQL SERIALIZABLE avec contrôle de périmètre renouvelé, DELETE strictement borné, reçu SQL immuable inséré dans le COMMIT, intention extérieure durable créée avant mutation et événement HMAC après commit. En cas de panne ou de résultat incertain, l'intention demeure et la restauration est bloquée. Le seul objet effectivement détruit est la fiche admissible ; la destruction des données de travail de l'utilisateur n'a jamais été exécutée par ChatGPT.
+
+La modale Cockpit Agile n'affiche la confirmation destructive que lorsque le contrôle serveur supplémentaire déclare le cas restreint éligible. Elle demande une revérification, une confirmation textuelle et une reconnaissance du sort des copies externes. Les dossiers non éligibles restent en lecture/analyse sans action destructrice.
+
+### Archives PDF : infrastructure de révocation
+
+La migration additive 20261109_smn39_archive_restriction définit une table de révocation d'accès, reliée au reçu de transaction et protégée par un déclencheur immuable. Le lecteur central readVerifiedPdfArchive refuse de délivrer un PDF dès lors qu'une restriction existe. Il ne réécrit jamais le PDF ni son manifeste original ; toute version expurgée serait publiée sous un nouvel identifiant.
+
+Cette infrastructure **ne constitue pas encore** une fonctionnalité complète de révocation de tous les exports. L'activation de la table sur les installations existantes exige une migration additive qualifiée ; le parcours administrateur d'identification, de revue et de révocation de chaque archive, ainsi que l'inspection de tous les autres chemins de lecture, ne sont pas encore validés. Le contrôle du lecteur ne prouve pas qu'aucune copie locale ou externe n'existe.
+
+### Protection SMN-40 : distinction des preuves
+
+evaluateErasureProtection retourne désormais le motif previously-erased-data dès qu'une trace signée démontre un événement postérieur à la sauvegarde, **même si l'historique global est incomplet**. L'absence d'événement dans un journal dont la complétude n'est pas attestée ne donne jamais la permission de restaurer. Les sauvegardes d'avant la date d'enrôlement du registre et les intentions non résolues sont toujours refusées. Le précontrôle de restauration active continue à refuser la bascule.
+
+### Compatibilité native v33
+
+La migration de reçu d'effacement est ajoutée à l'installation neuve et la liste explicite des objets SQL autorisés au diagnostic v33 a été étendue aux deux tables et fonctions de confidentialité. La baseline v33 elle-même reste immuable. Les migrations existantes sont uniquement additives ; une installation déjà créée doit les appliquer selon une procédure de migration qualifiée.
+
+### Traçabilité des limites
+
+SMN-38 n'a pas de preuve d'absence de données sémantiques ou d'objets binaires pour les membres historiques. L'approche adoptée consiste à **refuser** leur effacement automatisé ; elle ne contourne pas le besoin d'une revue humaine attestée et d'un plan d'expurgation.
+
+SMN-39 n'efface réellement que les dossiers isolés ; un moteur couvrant toutes les relations historiques, archives TXT/Office et règles de conservation des agrégats reste absent. Il est interdit d'appeler l'opération partielle un effacement complet.
+
+SMN-40 garantit à ce stade un **refus conservateur** de restauration active, non une restauration expurgée et validée. completeHistory=false reste obligatoire en l'absence d'instrumentation exhaustive des chemins de suppression. La condition fonctionnelle de non-réintroduction est donc tenue par **blocage**, mais l'acceptation AC3 (restauration conforme) n'est pas prouvée.
+
+Aucune Story ne doit être close sur la seule base de la qualification de l'exécuteur restreint ; les limites sont des lacunes fonctionnelles réelles et non de simples avertissements cosmétiques.
