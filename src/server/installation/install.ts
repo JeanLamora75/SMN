@@ -69,6 +69,9 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
   const privacyReceiptSql=readFileSync(resolve(process.cwd(),"prisma","migrations",
    "20261109_smn39_privacy_receipt","migration.sql"),"utf8");
   await client.query(privacyReceiptSql);
+  const memberDeleteGuardSql=readFileSync(resolve(process.cwd(),"prisma","migrations",
+   "20261109_smn40_member_delete_guard","migration.sql"),"utf8");
+  await client.query(memberDeleteGuardSql);
   await client.query("COMMIT");transaction=false;
   // L'installation est acceptée uniquement après diagnostic physique v33.
   const after=classifySnapshot(await probePostgres(uri.toString()));
