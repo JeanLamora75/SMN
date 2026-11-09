@@ -6,7 +6,7 @@ import {useTranslation} from "@/i18n/client";
 type Target={id:string;label:string};
 type Impact={
  memberId:string;memberLabel:string;mode:"erase"|"anonymize";capturedAt:string;
- complete:false;canExecute:false;scopeRevision:string|null;revisionReason:string;
+ complete:false;canExecute:false;restrictedEligible?:boolean;scopeRevision:string|null;revisionReason:string;
  plan:{planId:string;token:string;expiresAt:string;executionPermitted:false}|null;
  findings:{category:string;state:string;affectedCount:number|null}[];
  observedTables:{table:string;count:number|null;state:"inspected"|"unknown";
@@ -23,6 +23,10 @@ export default function ErasureImpactAdmin(){
  const [validating,setValidating]=useState(false);
  const [validation,setValidation]=useState<"unchanged"|"stale"|"failed"|null>(null);
  const [error,setError]=useState("");
+ const [confirmation,setConfirmation]=useState("");
+ const [copiesAcknowledged,setCopiesAcknowledged]=useState(false);
+ const [executing,setExecuting]=useState(false);
+ const [executed,setExecuted]=useState(false);
  useEffect(()=>{
   let active=true;
   fetch("/api/admin/erasure/preview",{cache:"no-store"}).then(async response=>{
@@ -52,10 +56,30 @@ export default function ErasureImpactAdmin(){
   }catch{setValidation("failed");}
   finally{setValidating(false);}
  }
+ async function executeRestricted(){
+  if(!result?.plan||!result.restrictedEligible||validation!=="unchanged"||
+   !copiesAcknowledged||confirmation!=="EFFACER "+result.plan.planId||executing)return;
+  setExecuting(true);setError("");
+  try{
+   const response=await fetch("/api/admin/erasure/execute",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({token:result.plan.token,confirmation,
+     acknowledgeExternalCopies:true}),cache:"no-store"
+   });
+   const data=await response.json() as {status?:string;affectedRows?:number};
+   if(!response.ok||data.status!=="erased"||data.affectedRows!==1)
+    throw new Error("execution-blocked");
+   setExecuted(true);setResult(null);setValidation(null);
+   setTargets(list=>list.filter(item=>item.id!==memberId));
+   setMemberId("");
+  }catch{setError(t("erasure.executionFailed"));}
+  finally{setExecuting(false);setConfirmation("");setCopiesAcknowledged(false);}
+ }
  async function submit(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
   if(loading||!memberId)return;
-  setResult(null);setValidation(null);setError("");setLoading(true);
+  setResult(null);setValidation(null);setExecuted(false);
+  setConfirmation("");setCopiesAcknowledged(false);setError("");setLoading(true);
   try{
    const response=await fetch("/api/admin/erasure/preview",{
     method:"POST",headers:{"Content-Type":"application/json"},
@@ -99,6 +123,7 @@ export default function ErasureImpactAdmin(){
    </div>
   </form>
   {error&&<p role="alert" className="alert alert-warning">{error}</p>}
+  {executed&&<p role="status" className="alert alert-success">{t("erasure.executionSucceeded")}</p>}
   {result&&<div className="d-grid gap-3">
    <p role="status" className="alert alert-warning mb-0">{t("erasure.incomplete")}</p>
    <p className="small mb-0">{t("erasure.targetSummary",{target:result.memberLabel})}</p>
@@ -144,6 +169,30 @@ export default function ErasureImpactAdmin(){
      {t(("erasure.planStatuses."+validation) as TranslationKey)}
     </p>}
    </div>
+   {result.restrictedEligible&&result.plan&&mode==="erase"&&
+    <div className="border rounded p-3 d-grid gap-2">
+     <h3 className="h6 mb-0">{t("erasure.restrictedTitle")}</h3>
+     <p className="small text-secondary mb-0">{t("erasure.restrictedNotice")}</p>
+     <label className="form-check">
+      <input className="form-check-input" type="checkbox"
+       checked={copiesAcknowledged}
+       onChange={event=>setCopiesAcknowledged(event.target.checked)}/>
+      <span className="form-check-label">{t("erasure.externalCopiesAcknowledgment")}</span>
+     </label>
+     <label className="form-label mb-0" htmlFor="erasure-confirmation">
+      {t("erasure.confirmationLabel",{
+       expected:"EFFACER "+result.plan.planId})}
+     </label>
+     <input id="erasure-confirmation" className="form-control"
+      autoComplete="off" value={confirmation}
+      onChange={event=>setConfirmation(event.target.value)}/>
+     <button type="button" className="btn btn-danger"
+      disabled={executing||validation!=="unchanged"||!copiesAcknowledged||
+       confirmation!=="EFFACER "+result.plan.planId}
+      onClick={executeRestricted}>
+      {executing?t("erasure.executing"):t("erasure.executeRestricted")}
+     </button>
+    </div>}
    <div className="d-flex flex-wrap gap-2 align-items-center">
     <button className="btn btn-outline-secondary" type="button"
      onClick={()=>{setResult(null);setValidation(null);}}>{t("erasure.close")}</button>
