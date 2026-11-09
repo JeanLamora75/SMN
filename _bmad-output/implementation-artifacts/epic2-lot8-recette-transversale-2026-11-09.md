@@ -84,3 +84,9 @@ Les 13 tickets restent accessibles, le 09/11/2026, avec 12 statuts **En cours** 
 Audit exécuté via connecteurs GitHub/Jira : lecture du commit, des documents, du journal de jobs et de leurs conclusions. L'agent n'a **pas** exécuté localement `pnpm test`, `pnpm typecheck`, `pnpm build`, PostgreSQL 18, Microsoft Office ou Windows 11 et n'a pas effectué de suppression/restauration de données réelles. Aucun script `uv` BMAD exécuté.
 
 Toute correction de code doit être soumise à sa propre CI sur le commit résultant. Un résultat de workflow déjà vert reste une preuve historique sur son SHA, non une garantie sur les futurs commits.
+
+## Correctif transversal réalisé après l'audit initial
+
+Le défaut React/ESLint identifié dans `src/app/app/admin/backups/protection-operations.tsx` a été corrigé sur `main` au commit [`7b986432`](https://github.com/JeanLamora75/SMN/commit/7b986432fc1457beac4b3969e789d5c80e95acb3). Le chargement initial utilise désormais une requête asynchrone avec garde de démontage, plutôt qu'une mise à jour d'état synchrone depuis `useEffect`. La récupération manuelle conserve sa logique et les validations des données serveur ont été centralisées.
+
+Une nouvelle [Vérification I0](https://github.com/JeanLamora75/SMN/actions/runs/42662760482) et un nouveau [lot 7](https://github.com/JeanLamora75/SMN/actions/runs/42662760376) ont été déclenchés par GitHub sur ce commit : ils étaient **en attente/d'exécution lors de cette vérification**. Leur conclusion ne doit pas être inventée. Les autres défauts Windows et les blocages sécurité de la matrice subsistent indépendamment de cette correction.
