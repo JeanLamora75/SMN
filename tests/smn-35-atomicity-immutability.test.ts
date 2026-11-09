@@ -64,6 +64,27 @@ describe("SMN-35 — unité métier atomique audit + données",()=>{
   assert.ok(!f.events.some(x=>x.includes("INSERT INTO public.smn_backup_retention_audit")));
   assert.equal(f.events.at(-1),"ROLLBACK");
  });
+ it("trois blocs indépendants ne partagent pas une fausse transaction globale",async()=>{
+  const f=simulatedDb();
+  const blocks:string[]=[];
+  await withAtomicBusinessUnit(f.db,async()=>{
+   blocks.push("bilan-A");
+   return atomicCommit("A");
+  });
+  await assert.rejects(()=>withAtomicBusinessUnit(f.db,async()=>{
+   blocks.push("bilan-B");
+   throw new Error("injected-second-block-failure");
+  }),/injected-second-block-failure/);
+  await withAtomicBusinessUnit(f.db,async()=>{
+   blocks.push("bilan-C");
+   return atomicCommit("C");
+  });
+  assert.deepEqual(blocks,["bilan-A","bilan-B","bilan-C"]);
+  assert.equal(f.events.filter(x=>x==="BEGIN").length,3);
+  assert.equal(f.events.filter(x=>x==="COMMIT").length,2);
+  assert.equal(f.events.filter(x=>x==="ROLLBACK").length,1);
+  assert.equal(f.open(),false);
+ });
  it("réutilise le mécanisme sur deux étapes métier fictives",async()=>{
   const f=simulatedDb();
   const result=await withAtomicBusinessUnit(f.db,async()=>
