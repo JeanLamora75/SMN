@@ -54,3 +54,35 @@ Tests régressifs : backup-erasure-protection, exceptional-erasure-policy, erasu
 **Décision :** les exigences de sécurité empêchent de déclarer le lot 4 intégralement terminé ou de clôturer SMN-39/40. Mieux vaut conserver les opérations destructives désactivées que risquer une fausse anonymisation. Aucune installation utilisateur n'a été réinitialisée, restaurée ou effacée.
 
 BMAD : les commandes uv du skill bmad-build n'ont pas été exécutées, faute d'environnement de travail BMAD local ; vérifications réalisées directement avec GitHub et GitHub Actions.
+
+
+## Renforcement technique complémentaire — 9 novembre 2026
+
+### SMN-38 : exploration relationnelle et contenus binaires
+- Découverte des clés étrangères simples et composites dans pg_catalog ; les paires de colonnes ordonnées servent aux jointures des descendants de smn_member.
+- Tout chemin tronqué par le budget ou la profondeur retourne un état unknown, jamais zéro.
+- Un document Office contenant des images est non concluant, même si sa couche texte a été lue ; un PDF sans correspondance textuelle positive est non concluant tant que son contenu visuel n'est pas inspecté.
+- Tests de contrats : tests/epic2-lot4-fk-coverage.test.ts ; test réel PostgreSQL : tests/epic2-lot4-postgres.test.ts.
+- Les identifiants sémantiques et les images non inspectables demandent toujours une **revue humaine**, avec arbitrage de retrait, de production d'une version expurgée et de conservation des indicateurs collectifs.
+
+### SMN-39 : protocole transactionnel de reprise
+- src/server/backup/erasure-intent.ts : intention signée et persistée avant toute mutation, verrou exclusif, refus de transactions parallèles, suivi d'une intention interrompue.
+- prisma/migrations/20261109_smn39_privacy_receipt/migration.sql : table additive smn_privacy_erasure_receipt, preuve de commit sans identité personnelle, refus SQL des UPDATE/DELETE de reçus.
+- src/server/backup/erasure-transaction.ts : BEGIN, verrou PostgreSQL, mutation SQL contrôlée par le futur orchestrateur, insertion du reçu dans la transaction, COMMIT, puis clôture du journal.
+- Une intention ne peut être clôturée que si le reçu PostgreSQL correspondant est présent avec identifiant, mode et révision identiques.
+- Une panne avant ou pendant le commit laisse une intention en suspens et interdit toute restauration tant qu'un opérateur n'a pas démontré l'état réel.
+- La clôture relancée après un événement déjà enregistré ne produit pas de doublon.
+- La migration s'applique atomiquement lors de nouvelles installations v33 ; une installation déjà existante nécessitera une migration additive explicitement qualifiée avant activation du mécanisme.
+- Test PostgreSQL sur une table factice : vérification des reçus, impossibilité de les effacer, rollback après panne injectée, et maintien de l'intention de reprise.
+
+### SMN-40 : anti-réintroduction
+- Le précontrôle lit l'intention externe ainsi que le journal HMAC ; tout événement interrompu rend la preuve indisponible.
+- Le journal et l'ancre sont interdits dans le dossier de sauvegarde par défaut Windows et les répertoires de données déclarés.
+- Le résultat completeHistory reste volontairement FALSE tant que tous les chemins d'effacement métier ne sont pas intégrés. Les sauvegardes anciennes ne peuvent donc pas être approuvées sur la seule existence du registre.
+
+### Conditions de libération non encore démontrées
+- Aucun effacement réel de membre, retrait d'accès à une archive PDF/Office ou création de version expurgée n'a été activé ; le composant transactionnel est une primitive interne, pas une route destructrice.
+- La preuve de non-réidentification dans des images, PDF scannés, objets Office et copies externes ne peut pas être automatisée intégralement.
+- La reprise d'une installation reconstruite et expurgée, puis sa bascule active, doivent être démontrées au lot 5.
+
+**Décision de sécurité :** ne pas déclarer les trois blocages résolus ni clôturer les Stories concernées tant que les vérifications ci-dessus manquent. Un test d'atomicité sur données factices n'est pas une recette d'effacement réel.
