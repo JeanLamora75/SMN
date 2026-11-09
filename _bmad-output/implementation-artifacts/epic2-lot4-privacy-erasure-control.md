@@ -72,7 +72,7 @@ BMAD : les commandes uv du skill bmad-build n'ont pas été exécutées, faute d
 - Une intention ne peut être clôturée que si le reçu PostgreSQL correspondant est présent avec identifiant, mode et révision identiques.
 - Une panne avant ou pendant le commit laisse une intention en suspens et interdit toute restauration tant qu'un opérateur n'a pas démontré l'état réel.
 - La clôture relancée après un événement déjà enregistré ne produit pas de doublon.
-- La migration s'applique atomiquement lors de nouvelles installations v33 ; une installation déjà existante nécessitera une migration additive explicitement qualifiée avant activation du mécanisme.
+- La migration reste **additive et séparée** de la baseline native v33, qui ne doit pas être modifiée. Elle est appliquée sur la base jetable dans le test PostgreSQL 18 ; toute installation existante nécessite une procédure de migration qualifiée avant activation.
 - Test PostgreSQL sur une table factice : vérification des reçus, impossibilité de les effacer, rollback après panne injectée, et maintien de l'intention de reprise.
 
 ### SMN-40 : anti-réintroduction
