@@ -6,7 +6,9 @@ import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 type Assignment={id:string;teamId:string;startOn:string;endOn:string|null};
 type Impact={memberId:string;teamId:string;displayName:string;revision:number;
  archived:boolean;archivedAt:string|null;today:string;activeCount:number;
- assignments:Assignment[];referenceCount:number;canDelete:boolean};
+ assignments:Assignment[];referenceCount:number;canDelete:boolean;
+ deletionImpact?:{foreignReferenceCount:number;unknown:boolean;auditReady:boolean;
+  tables:{name:string;count:number}[];requiresConfirmation:true;permanent:true}};
 type Action="close"|"archive"|"reactivate"|"delete";
 export default function MemberLifecycleEditor({memberId,onSaved,onCancel,onDirtyChange}:{
  memberId:string;onSaved:(action:Action,warning:boolean)=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean,busy:boolean)=>void;
@@ -67,6 +69,7 @@ export default function MemberLifecycleEditor({memberId,onSaved,onCancel,onDirty
      result.error==="future-version"?"members.lifecycle.futureVersion":
      result.error==="conflict"?"members.lifecycle.conflict":
      result.error==="business-data"?"members.lifecycle.hasBusinessData":
+     result.error==="audit-not-ready"?"members.lifecycle.auditNotReady":
      result.error==="cascade-risk"?"members.lifecycle.cascadeRisk":
      result.error==="invalid-date"?"members.lifecycle.badDate":"members.lifecycle.failed"));
     return;
@@ -114,6 +117,20 @@ export default function MemberLifecycleEditor({memberId,onSaved,onCancel,onDirty
     <h4 className="h6 mb-0">{t("members.lifecycle.deleteTitle")}</h4>
     <p className="small text-secondary mb-0">{t(impact.canDelete?
      "members.lifecycle.deleteHelp":"members.lifecycle.noDelete")}</p>
+    {impact.deletionImpact&&<div className="small d-grid gap-1">
+     {!impact.deletionImpact.auditReady&&<p role="status" className="text-warning mb-0">
+      {t("members.lifecycle.auditNotReady")}</p>}
+     {impact.deletionImpact.unknown&&<p role="status" className="text-warning mb-0">
+      {t("members.lifecycle.unknownReferences")}</p>}
+     {impact.deletionImpact.tables.filter(x=>x.count>0).length>0&&
+      <details>
+       <summary>{t("members.lifecycle.referenceDetails")}</summary>
+       <ul className="mb-0">{impact.deletionImpact.tables.filter(x=>x.count>0)
+        .map(x=><li key={x.name}><code>{x.name}</code> — {x.count}</li>)}</ul>
+      </details>}
+     {impact.canDelete&&<p className="text-danger mb-0">
+      {t("members.lifecycle.permanentDeletionNotice")}</p>}
+    </div>}
     {impact.canDelete&&<>
      <label htmlFor="delete-member-confirmation" className="form-label mb-0">
       {t("members.lifecycle.confirmLabel")}</label>
