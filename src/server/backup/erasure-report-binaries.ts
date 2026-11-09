@@ -42,7 +42,10 @@ export async function inspectVerifiedPdfArchiveText(db:Client,
     return row("report-pdf-text-matches",null,"unknown");
    if(matches(result.text,terms))matched++;
   }
-  return row("report-pdf-text-matches",matched,"inspected");
+  // A text layer does not establish that scanned images have no names.
+  // Positive matches are useful leads; a negative result is not proof.
+  return row("report-pdf-text-matches",matched>0?matched:null,
+   matched>0?"inspected":"unknown");
  }catch{return row("report-pdf-text-matches",null,"unknown");}
 }
 
@@ -102,6 +105,7 @@ export async function inspectOfficeReportText(terms:readonly string[]):Promise<r
     metadata.size<=0){inspectable=false;continue;}
    const inspected=extractOoxmlText(await readFile(path));
    if(inspected.state!=="extracted"||!inspected.text){inspectable=false;continue;}
+   if(inspected.imagesPresent)inspectable=false;
    if(matches(inspected.text,terms))matched++;
    // Images/embedded files can contain additional personal data; the match
    // is a positive candidate and must never be interpreted as a negative proof.
