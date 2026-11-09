@@ -30,6 +30,7 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{id:stri
    const conflict=["conflict","historical-references","business-data","cascade-risk",
     "assignment-already-closed","already-archived","not-archived","assignment-still-open",
     "future-version"].includes(result.error);
+   if(result.error==="audit-not-ready")return jsonResult({error:result.error},503);
    return jsonResult({error:result.error},result.error==="not-found"||
     result.error==="assignment-not-found"||result.error==="team-unavailable"?404:conflict?409:400);
   }
