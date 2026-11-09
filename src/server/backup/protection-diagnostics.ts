@@ -4,7 +4,7 @@ import {join} from "node:path";
 import type {Client} from "pg";
 import {backupInventory} from "./verification";
 import {backupRootPath} from "./runner";
-import {classifyBackupEvidence,classifyCleanupEvidence,blockedOperation,
+import {classifyBackupEvidence,reconcileCleanupEvidence,blockedOperation,
  type OperationEvidence,unresolvedOperation} from "./operation-diagnostics";
 import {inspectUnfinishedBackupArtifacts,unresolvedArtifactCounts} from "./operation-artifacts";
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
@@ -102,15 +102,9 @@ export async function readProtectionDiagnostics(db:Client):Promise<{
  if(pending>0)operations.push(unresolvedOperation("retention-cleanup",checkedAt,
   "pending-retention-tombstone",pending));
  if(cleanup){
-  const recorded=classifyCleanupEvidence({
-   operationId:cleanup.operationId,startedAt:cleanup.startedAt,checkedAt,
-   planned:cleanup.planned,processed:cleanup.processed,failed:cleanup.failed,
-   running:running.cleanup&&cleanup.status==="running"
-  });
   // Verify each recorded successful removal through *both* its audit row
   // and absence of the managed package. No success from the journal alone.
   let verified=0;
-  let uncertain=cleanup.processed;
   try{
    verified=0;
    for(const id of cleanup.processedIds){
@@ -121,20 +115,13 @@ export async function readProtectionDiagnostics(db:Client):Promise<{
      (error:NodeJS.ErrnoException)=>{if(error.code==="ENOENT")return false;throw error;});
     if(!exists&&Number(audit.rows[0]?.n)>=1)verified++;
    }
-   uncertain=cleanup.processed-verified;
-  }catch{verified=0;uncertain=cleanup.processed;}
-  const fullyVerified=cleanup.status==="success"&&
-   verified===cleanup.planned&&cleanup.failed===0&&cleanup.inFlight===null&&pending===0;
-  operations.push({...recorded,
-   status:fullyVerified?"succeeded":
-    running.cleanup&&cleanup.status==="running"?"running":
-    verified>0||uncertain>0||cleanup.inFlight||pending>0?"partial":"interrupted",
-   reason:fullyVerified?"cleanup-complete":
-    verified>0||uncertain>0||cleanup.inFlight||pending>0?"partial-cleanup":"unverifiable-state",
-   recovery:fullyVerified?"recheck":"reinspect-inventory-before-retry",
-   processed:verified,
-   unprocessed:Math.max(0,cleanup.planned-verified-cleanup.failed),
-   failed:cleanup.failed+uncertain
+  }catch{verified=0;}
+  operations.push(reconcileCleanupEvidence({
+   operationId:cleanup.operationId,startedAt:cleanup.startedAt,checkedAt,
+   status:cleanup.status,planned:cleanup.planned,
+   recordedProcessed:cleanup.processed,recordedFailed:cleanup.failed,
+   verifiedRemoved:verified,inFlight:cleanup.inFlight!==null,
+   currentlyRunning:running.cleanup,unresolvedTombstones:pending
   });
  }
  operations.push(blockedOperation("restore",checkedAt));
