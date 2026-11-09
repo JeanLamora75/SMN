@@ -12,7 +12,7 @@ import {randomUUID} from "node:crypto";
  */
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 export type MaintenanceMarker=Readonly<{
- version:1;operationId:string;createdAt:string;purpose:"offline-restore"
+ version:1;operationId:string;createdAt:string;purpose:"offline-restore"|"offline-reset"
 }>;
 const outside=(file:string,root:string)=>{
  const diff=relative(resolve(root),file);
@@ -45,11 +45,21 @@ export async function restoreMaintenanceActive():Promise<boolean>{
  }
 }
 export async function beginOfflineRestoreMaintenance():Promise<MaintenanceMarker>{
+ return beginOfflineMaintenance("offline-restore");
+}
+/** Shared maintenance fence for a disposable reset rehearsal.
+ * The active reset route remains blocked. */
+export async function beginOfflineResetMaintenance():Promise<MaintenanceMarker>{
+ return beginOfflineMaintenance("offline-reset");
+}
+async function beginOfflineMaintenance(
+ purpose:MaintenanceMarker["purpose"]
+):Promise<MaintenanceMarker>{
  const path=restoreMaintenanceMarkerPath();
  if(!path)throw Error("restore-maintenance-not-configured");
  const record:MaintenanceMarker={
   version:1,operationId:randomUUID(),createdAt:new Date().toISOString(),
-  purpose:"offline-restore"
+  purpose
  };
  const f=await open(path,"wx",0o600);
  try{await f.writeFile(JSON.stringify(record));await f.sync();}
@@ -67,7 +77,9 @@ export async function inspectOfflineRestoreMaintenance():Promise<MaintenanceMark
  if(!stat.isFile()||stat.isSymbolicLink()||stat.size>2048)
   throw Error("restore-maintenance-marker-invalid");
  const v=JSON.parse(await readFile(path,"utf8")) as MaintenanceMarker;
- if(v.version!==1||v.purpose!=="offline-restore"||!UUID.test(v.operationId)||
+ if(v.version!==1||
+  (v.purpose!=="offline-restore"&&v.purpose!=="offline-reset")||
+  !UUID.test(v.operationId)||
   !Number.isFinite(Date.parse(v.createdAt))||
   new Date(v.createdAt).toISOString()!==v.createdAt)
   throw Error("restore-maintenance-marker-invalid");
