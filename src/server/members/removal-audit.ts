@@ -35,7 +35,7 @@ export async function inspectMemberForeignReferences(
  db:Pick<Client,"query">,id:string
 ):Promise<{count:number;unknown:boolean;tables:{name:string;count:number}[]}>{
  const keys=await db.query<{table_name:string;column_name:string;arity:number}>(`
-  SELECT format('%I.%I',ns.nspname,rel.relname) AS table_name,
+  SELECT format('"%s"."%s"',ns.nspname,rel.relname) AS table_name,
    att.attname AS column_name,cardinality(c.conkey)::int AS arity
   FROM pg_catalog.pg_constraint c
   JOIN pg_catalog.pg_class rel ON rel.oid=c.conrelid
