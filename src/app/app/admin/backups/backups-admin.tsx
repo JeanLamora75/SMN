@@ -4,13 +4,13 @@ import {useCallback,useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 
 type Outcome={status:"running"|"success"|"failed"|"cancelled"|"interrupted"|"unverifiable";id?:string;createdAt:string};
-type Component={path:string;kind:"database"|"document";size:number;
+type Component={path:string;kind:"database"|"document"|"report-pdf"|"office-report"|"office-template";size:number;
  encryptedSize:number;encryptedSha256:string};
 type InventoryEntry={
  id:string;createdAt:string|null;status:"verified"|"invalid"|"incomplete"|"unverifiable";
  reason:string|null;checkedAt:string;installationSource:string|null;applicationVersion:string|null;
  schemaVersion:number|null;postgresVersion:string|null;components:Component[];
- documentCount:number;integrityVerified:boolean;scopeComplete:boolean;restoreTested:false;
+ documentCount:number;integrityVerified:boolean;scopeComplete?:boolean;restoreTested:false;
 };
 type RestorePreview={
  id:string;checkedAt:string;archive:InventoryEntry;
