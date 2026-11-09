@@ -96,7 +96,8 @@ export async function eraseDependentMember(db:Client,input:{
  const initial=await inspectDependentMemberErasure(db,input.memberId);
  if(!initial.eligible)throw Error("dependent-erasure-blocked-"+initial.reason);
  return withAuditedErasureTransaction(db,{
-  operation:"erase",scopeRevision:input.scopeRevision
+  operation:"erase",scopeRevision:input.scopeRevision,
+  expectedRows:1+initial.assignments+initial.versions
  },async()=>{
   if(!await managedBinaryScopeEmpty())throw Error("dependent-erasure-archives-changed");
   const current=await inspectDependentMemberErasure(db,input.memberId);
