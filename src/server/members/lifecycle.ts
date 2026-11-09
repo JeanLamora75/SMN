@@ -1,7 +1,8 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {isValidDate} from "./assignment";
-import {inspectMemberForeignReferences,requireMemberRemovalAudit} from "./removal-audit";
+import {inspectMemberForeignReferences,requireMemberRemovalAudit,
+ MEMBER_REMOVAL_AUDIT_READY_SQL} from "./removal-audit";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export type LifecycleAction=
@@ -96,10 +97,10 @@ export async function inspectMemberLifecycle(client:Client,id:string):Promise<Li
  const [date,count,referenceCount,foreign,auditReady]=await Promise.all([
   today(client),activeCount(client,state.teamId),references(client,id),
   inspectMemberForeignReferences(client,id),
-  client.query<{present:boolean}>("SELECT to_regclass('public.smn_member_removal_audit') IS NOT NULL AS present")
+  client.query<{ready:boolean}>(MEMBER_REMOVAL_AUDIT_READY_SQL)
  ]);
  const canDelete=rows.length===0&&referenceCount===0&&foreign.count===0&&
-  !foreign.unknown&&auditReady.rows[0]?.present===true&&isEmpty(state.member);
+  !foreign.unknown&&auditReady.rows[0]?.ready===true&&isEmpty(state.member);
  return {memberId:id,teamId:state.teamId,displayName:state.member.display_name,
   revision:state.member.revision,archived:state.member.archived_at!==null,
   archivedAt:state.member.archived_at,today:date,activeCount:count,
@@ -151,8 +152,7 @@ export async function applyLifecycleAction(client:Client,id:string,actorId:strin
    if(!isEmpty(state.member))return stop("business-data");
    const foreign=await inspectMemberForeignReferences(client,id);
    if(foreign.unknown||foreign.count>0)return stop("historical-references");
-   const available=await client.query<{ready:boolean}>(`
-    SELECT to_regclass('public.smn_member_removal_audit') IS NOT NULL AS ready`);
+   const available=await client.query<{ready:boolean}>(MEMBER_REMOVAL_AUDIT_READY_SQL);
    if(available.rows[0]?.ready!==true)return stop("audit-not-ready");
    await requireMemberRemovalAudit(client);
    const deleted=await client.query(`DELETE FROM public.smn_member WHERE id=$1
