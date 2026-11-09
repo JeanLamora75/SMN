@@ -70,8 +70,8 @@ describe("SMN-38 — lecture des fichiers privés TXT/PDF",()=>{
    await add("two","team-2","TXT","Note pour Alice");
    await add("three","team-1","PDF","%PDF-1.4 mock");
    const rows=await inspectPrivateDocuments(root,["Alice"],new Set(["team-1"]));
-   assert.equal(rows.find(r=>r.table==="private-txt")?.count,1);
-   assert.equal(rows.find(r=>r.table==="private-pdf")?.count,1);
+   assert.equal(rows.find(r=>r.table==="private-txt-matches")?.count,1);
+   assert.equal(rows.find(r=>r.table==="private-pdf-candidates")?.count,1);
    assert.ok(!JSON.stringify(rows).includes("Note pour Alice"));
   }finally{await rm(root,{recursive:true,force:true});}
  });
