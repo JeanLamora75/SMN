@@ -150,3 +150,41 @@ Référence du code exécuté : commit faeb6e2fc96b42fa12a4322990c239307a40d00a.
 Aucune preuve de revue visuelle exhaustive des binaires, de traitement des archives Office historiques ou de reconstruction expurgée n'a été fournie. Les points restants ne sont pas clôturés.
 
 La table de restriction PDF est une **migration additive disponible mais distincte**, dont l'application et le raccordement complet aux parcours d'administration d'une installation existante restent à qualifier. La présence du lecteur qui applique la restriction ne doit pas être assimilée à une révocation effectuée sur des archives réelles.
+
+
+## Lot 4 — approfondissement du 9 novembre 2026 : dépendances, revue humaine, preuve de reconstruction
+
+### SMN-39 : suppression qualifiée de dépendances bornées
+
+- Le nouveau module src/server/backup/erasure-dependent-member.ts traite un **membre provisoire sans identité révisée ni e-mail**, avec uniquement ses affectations et ses versions de rôle.
+- Analyse des FK directes/indirectes, de toutes les tables SMN (identifiants et noms), des octets stockés, des documents gérés ; si un chemin n'est pas inspectable ou si un lien inconnu existe, l'opération est rejetée.
+- Aucun sprint Scrum ni période Kanban ne doit exister pour les équipes d'affectation : les KPI historiques, rapports et capacités ne sont ainsi jamais recalculés implicitement.
+- L'opération supprime versions, affectations, puis membre, au sein d'une transaction SERIALIZABLE auditée avec **nombre exact de lignes attendu**.
+- L'action Administrateur utilise le reçu de prévisualisation signé, sa nouvelle vérification, une confirmation textuelle et la reconnaissance des copies externes. La page Cockpit n'affiche l'action que pour les deux périmètres qualifiés : fiche isolée ou fiche provisoire avec affectations/versions sans cycle.
+- Les membres historiques confirmés, avec absences, calendriers, révisions d'identité, sprint, Kanban ou rapports personnels **ne sont pas encore automatiquement effaçables**. Leurs données exigent une procédure métier spécifique, et non une cascade SQL universelle.
+
+### SMN-38 : inventaire des archives nécessitant une revue effective
+
+- src/server/backup/erasure-archive-review.ts calcule l'inventaire vérifié des PDF de rapports, modèles et rapports Office, et documents privés. Il associe à chaque objet son type, son nom d'origine, sa taille et un SHA-256, sans retourner son contenu.
+- GET /api/admin/erasure/archive-review, réservé aux Administrateurs, expose cet inventaire en lecture seule ; la page Cockpit Agile permet son affichage.
+- **Tous les objets présents restent en état human-review-required** ; ni la couche texte d'un PDF scanné, ni la présence de texte dans un DOCX/PPTX ne permet de conclure à l'absence de nom ou d'image identifiable.
+- assessArchiveReview refuse un inventaire incomplet, périmé, modifié, un risque de réidentification non exclu, un contenu conservé sans retrait d'accès et une déclaration client sans preuve de restriction serveur.
+- Une véritable revue visuelle de fichiers personnels **n'a pas été exécutée** : les fichiers et décisions de l'installation Windows ne sont pas accessibles ici. Cette phase exige une inspection humaine des fichiers signalés et une vérification des restrictions sur les originaux, avec production de nouvelles versions expurgées lorsque nécessaire. Ne jamais qualifier « vérifié » un simple inventaire.
+
+### SMN-40 : suppression durable et restitution sans réintroduction
+
+- Le chemin historique smn_member / SUPPRIMER de SMN-36 est **désactivé** : il ne peut plus contourner l'intention extérieure et la preuve HMAC. Les anciens appels renvoient audit-not-ready.
+- Une migration additive 20261109_smn40_member_delete_guard introduit un trigger PostgreSQL qui interdit tout DELETE de smn_member sans reçu SQL immuable déjà inséré dans la même transaction. La baseline v33 reste inchangée ; le garde-fou est créé à l'installation neuve.
+- Les nouveaux événements d'effacement (format v2, rétrocompatible avec v1) portent un HMAC du membre, sans nom, adresse ou identifiant brut. Les anciennes preuves v1 sans empreinte de sujet ne sont jamais considérées comme exhaustives.
+- src/server/backup/erasure-completeness.ts recoupe le trigger actif, les reçus SQL, les événements HMAC v2, l'absence d'anciens effacements ordinaires non journalisés depuis l'enrôlement, les membres encore présents et les fichiers gérés. Une seule pièce manquante entraîne l'échec.
+- La route de précontrôle de restauration effectue cette vérification sur la base actuelle, en transaction READ ONLY.
+- **Preuve physique ciblée :** tests/epic2-lot4-privacy-restore-pg.test.ts crée sur PostgreSQL 18 une base native v33, une copie avant effacement et une copie après effacement, avec un membre provisoire et son historique de rôle. La copie d'avant contient encore l'identité et est refusée ; la copie d'après ne contient plus ni membre ni affectation ni version et conserve reçus et marqueurs. Cette copie est réalisée via PostgreSQL TEMPLATE dans des bases jetables : **ce n'est pas un essai de récupération d'une archive chiffrée v4**.
+- Le résultat de complétude s'appelle explicitement **memberScopeVerified** ; il ne peut pas devenir un completeHistory global tant que les suppressions de données personnelles dans les notes, documents, registres ou autres entités ne sont pas toutes instrumentées. La restauration active reste bloquée, même après la preuve ciblée réussie.
+
+### Points encore nécessaires avant clôture complète
+
+1. Définir et appliquer les règles métier de redaction/anonymisation des historiques réels, des capacités et des KPI des membres ayant participé à des cycles ; tests sur véritables cas représentatifs.
+2. Faire exécuter et signer une revue humaine des archives non inspectables, avec contrôle des versions expurgées et de la révocation de toutes les voies de lecture, y compris les copies hors SMN.
+3. Relier **toutes** les voies de suppression de données personnelles au registre ; construire ensuite une reconstruction depuis une sauvegarde chiffrée v4 post-effacement, comparer les preuves et seulement alors autoriser une restauration active, sous réserve du lot 5 (bascule et rollback).
+
+**Statut des Stories :** SMN-38, 39 et 40 restent ouvertes sur les aspects généraux. Le périmètre restreint (sans cycle ni binaire) dispose d'une preuve, mais ne se substitue pas aux trois critères universels.
