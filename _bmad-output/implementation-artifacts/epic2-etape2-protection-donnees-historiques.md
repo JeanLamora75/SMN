@@ -52,3 +52,9 @@ Workflows : [Lot 4](../../.github/workflows/epic2-lot4-erasure.yml) et [Epic 2 t
 4. Prouver la couverture globale des suppressions et restaurer **un paquet v4 chiffré post-effacement** sur PostgreSQL 18 isolé, comparer les données et documents, puis seulement proposer une activation fonctionnelle.
 
 **Décision de sécurité :** SMN-38, 39, 40 restent **en cours**. Aucune suppression personnelle historique ni restauration active déverrouillée. L'absence d'archives réelles ou de justification de conservation ne peut pas être simulée par des tests de contrat.
+
+## 4. Cohérence PostgreSQL et archives — complément
+
+Le contrôle `managedBinaryScopeEmpty(db)` ne se contente plus de vérifier des dossiers vides. Il exige désormais que l'inventaire PDF référencé en PostgreSQL et les fichiers des répertoires gérés concordent via `inspectExtraArchives(db)`. Un PDF attendu en base mais absent du disque, un fichier non géré ou une erreur d'inventaire bloquent la suppression même d'un membre provisoire. Le précontrôle de l'interface et l'exécution effective réutilisent ce garde-fou. Régression `tests/epic2-step2-archive-db-integrity.test.ts` exécutée dans les jobs Windows/Linux des workflows de confidentialité et transversal.
+
+Cette qualification des chemins gérés ne démontre pas que les copies externes et les archives non inspectables sont exemptes de données personnelles. Aucune autorisation générale d'effacement historique n'est introduite.

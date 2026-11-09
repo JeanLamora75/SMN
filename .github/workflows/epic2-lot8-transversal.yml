@@ -9,6 +9,9 @@ on:
       - "src/server/audit/**"
       - "src/app/api/admin/backups/**"
       - "src/app/api/admin/erasure/**"
+      - "src/app/app/admin/backups/erasure-impact-admin.tsx"
+      - "src/i18n/fr.json"
+      - "src/i18n/en.json"
       - "src/app/api/admin/installation/**"
       - "tests/epic2-*.test.ts"
       - "tests/smn-34-*.test.ts"
@@ -60,6 +63,7 @@ jobs:
           tests/epic2-lot4-fk-coverage.test.ts
           tests/epic2-step2-deletion-coverage.test.ts
           tests/epic2-step2-office-fingerprint.test.ts
+          tests/epic2-step2-archive-db-integrity.test.ts
           tests/epic2-step2-historical-qualification.test.ts
           tests/epic2-lot4-pdf-restriction.test.ts
           tests/backup-erasure-protection.test.ts
