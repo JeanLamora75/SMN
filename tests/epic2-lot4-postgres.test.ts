@@ -113,6 +113,11 @@ test("Epic 2 lot 4 PG18 — read-only impact scan on isolated native v33",
     assert.deepEqual(await inspectRestrictedMemberErasure(db,isolatedMember),{
      eligible:true,reason:"eligible"
     });
+    await assert.rejects(
+     db.query("DELETE FROM public.smn_member WHERE id=$1",[isolatedMember]),
+     /smn40-member-delete-requires-audited-intent/,
+     "Legacy direct deletion must be rejected by PostgreSQL itself");
+
     await assert.rejects(eraseRestrictedMember(db,{
      memberId:member,scopeRevision:"c".repeat(64)
     }),/privacy-restricted-scope-references-present/);
@@ -159,6 +164,13 @@ test("Epic 2 lot 4 PG18 — read-only impact scan on isolated native v33",
      "SELECT 1 FROM public.smn_member_assignment_version WHERE assignment_id=$1",
      [linkedAssignment])).rows.length,0);
     assert.equal((await readErasureLedger()).markers.length,3);
+    await db.query("INSERT INTO public.smn_sprint "+
+     "(id,team_id,number,name,start_at,end_at,time_zone,status) "+
+     "VALUES($1,$2,1,'Sprint protege',now(),now()+interval '14 days','Europe/Paris','planned')",
+     [randomUUID(),team]);
+    assert.equal((await inspectDependentMemberErasure(db,member)).reason,
+     "team-has-sprints","Members used by Agile cycles remain protected");
+
     assert.deepEqual(await inspectErasureCommit(db,linkedErased.receiptId),{
      state:"committed",affectedRows:3
     });
