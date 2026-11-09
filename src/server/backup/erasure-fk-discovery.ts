@@ -23,8 +23,8 @@ const unknown=(table:string):TableImpact=>({
 export async function inspectMemberForeignKeys(db:Client,memberId:string):Promise<TableImpact[]>{
  const response=await db.query<ForeignKey>(
   "SELECT child.relname AS child_table,parent.relname AS parent_table,"+
-  " array_agg(ca.attname ORDER BY k.ordinality) AS child_columns,"+
-  " array_agg(pa.attname ORDER BY k.ordinality) AS parent_columns"+
+  " array_agg(ca.attname::text ORDER BY k.ordinality) AS child_columns,"+
+  " array_agg(pa.attname::text ORDER BY k.ordinality) AS parent_columns"+
   " FROM pg_catalog.pg_constraint c"+
   " JOIN pg_catalog.pg_class child ON child.oid=c.conrelid"+
   " JOIN pg_catalog.pg_namespace nc ON nc.oid=child.relnamespace"+
