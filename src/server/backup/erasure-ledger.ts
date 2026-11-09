@@ -20,7 +20,11 @@ const HEX=/^[a-f0-9]{64}$/,DATE=(s:string)=>typeof s==="string"&&
 const sign=(key:Buffer,a:Omit<Anchor,"seal">)=>createHmac("sha256",key)
  .update(["smn-erasure-anchor-v1",a.version,a.coverageStart,a.count,a.headMac].join("|")).digest("hex");
 const constrained=(root:string)=>isAbsolute(root)&&resolve(root)===root;
-const nested=(a:string,b:string)=>a===b||a.startsWith(b+sep)||b.startsWith(a+sep);
+const nested=(a:string,b:string)=>{
+ const x=process.platform==="win32"?a.toLowerCase():a;
+ const y=process.platform==="win32"?b.toLowerCase():b;
+ return x===y||x.startsWith(y+sep)||y.startsWith(x+sep);
+};
 
 export function erasureLedgerConfig():{ledger:string;anchor:string;key:Buffer}|null{
  const left=process.env.SMN_ERASURE_LEDGER_DIR;
@@ -31,10 +35,17 @@ export function erasureLedgerConfig():{ledger:string;anchor:string;key:Buffer}|n
   !constrained(left)||!constrained(right))throw Error("erasure-ledger-config-invalid");
  const ledger=resolve(left),anchor=resolve(right);
  if(nested(ledger,anchor))throw Error("erasure-ledger-config-overlap");
- const backups=process.env.SMN_BACKUP_DIR;
- if(backups&&isAbsolute(backups)&&
-  (nested(ledger,resolve(backups))||nested(anchor,resolve(backups))))
-  throw Error("erasure-ledger-backup-overlap");
+ const fallback=process.platform==="win32"&&process.env.LOCALAPPDATA?
+  join(process.env.LOCALAPPDATA,"ScrumMasterNotebook","backups"):null;
+ const protectedStores=[process.env.SMN_BACKUP_DIR??fallback,
+  process.env.SMN_PRIVATE_DOCUMENTS_DIR,
+  process.env.SMN_OFFICE_REPORTS_DIR,process.env.SMN_OFFICE_TEMPLATES_DIR]
+  .filter((x):x is string=>typeof x==="string"&&x.length>0);
+ for(const store of protectedStores){
+  if(!isAbsolute(store))throw Error("erasure-ledger-protected-path-invalid");
+  if(nested(ledger,resolve(store))||nested(anchor,resolve(store)))
+   throw Error("erasure-ledger-backup-overlap");
+ }
  return {ledger,anchor,key:Buffer.from(secret,"hex")};
 }
 async function checkedFolder(path:string):Promise<void>{
