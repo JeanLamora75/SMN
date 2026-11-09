@@ -11,6 +11,7 @@ BEGIN
   SELECT 1 FROM public.smn_privacy_erasure_receipt r
   WHERE r.id::text=receipt_id AND r.operation='erase'
    AND r.affected_rows>=1
+   AND r.committed_at=transaction_timestamp()
  ) THEN
   RAISE EXCEPTION 'smn40-member-delete-requires-audited-intent'
    USING ERRCODE='55000';
