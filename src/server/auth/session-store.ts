@@ -40,6 +40,12 @@ export class SessionStore {
   revoke(token: string | undefined): void {
     if (token && /^[a-f0-9]{64}$/.test(token)) this.sessions.delete(keyOf(token));
   }
+  /** Called after an offline restore; do not preserve old principal sessions. */
+  revokeAll(): number {
+    const count=this.sessions.size;
+    this.sessions.clear();
+    return count;
+  }
   revokeAccount(accountId: string): void {
     for (const [key, value] of this.sessions) if (value.accountId === accountId) this.sessions.delete(key);
   }
