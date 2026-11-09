@@ -79,6 +79,19 @@ function makeDocx():Buffer{
  return Buffer.concat([...locals,bytes,eocd]);
 }
 
+async function fingerprint(db:Client):Promise<Record<string,{count:number;hash:string}>>{
+ const names=await db.query<{tablename:string}>("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename");
+ const result:Record<string,{count:number;hash:string}>={};
+ for(const {tablename} of names.rows){
+  const safe='"'+tablename.replaceAll('"','""')+'"';
+  const rows=await db.query<{v:string}>("SELECT to_jsonb(t)::text AS v FROM public."+safe+" AS t");
+  const hash=createHash("sha256");
+  for(const v of rows.rows.map(row=>row.v).sort())hash.update(v.length+":"+v+"\n");
+  result[tablename]={count:rows.rowCount??0,hash:hash.digest("hex")};
+ }
+ return result;
+}
+
 
 test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
  {timeout:240000},async()=>{
@@ -126,6 +139,8 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
   const db=new Client({connectionString:url(source)});
   let actor:{id:string;role:string;password_hash:string};
   const pdfId=randomUUID(),teamId=randomUUID(),sprintId=randomUUID();
+  const team2=randomUUID(),sprint2=randomUUID(),sprint3=randomUUID();
+  let snapshot:Record<string,{count:number;hash:string}>;
   const pdf=makePdf();
   const officeBytes=makeDocx();
   assert.ok(validateFinalPdf(pdf));
@@ -141,6 +156,18 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
     (id,team_id,number,name,start_at,end_at,time_zone,status)
     VALUES($1,$2,1,'Restauration',now()-interval '2 days',now(),'Europe/Paris','finished')`,
     [sprintId,teamId]);
+
+   await db.query("INSERT INTO public.smn_team(id,installation_id,name,agile_mode) VALUES($1,'singleton','Equipe B','scrum')",[team2]);
+   await db.query("INSERT INTO public.smn_sprint(id,team_id,number,name,start_at,end_at,time_zone,status) VALUES($1,$3,2,'Sprint 2',now()+interval '2 days',now()+interval '16 days','Europe/Paris','planned'),($2,$4,1,'Sprint B1',now()-interval '10 days',now()-interval '2 days','Europe/Paris','finished')",[sprint2,sprint3,teamId,team2]);
+   const member=randomUUID(),batch=randomUUID();
+   await db.query("INSERT INTO public.smn_member_batch(id,installation_id,team_id,requested_count) VALUES($1,'singleton',$2,1)",[batch,teamId]);
+   await db.query("INSERT INTO public.smn_member(id,installation_id,batch_id,member_number,display_name) VALUES($1,'singleton',$2,1,'Test member')",[member,batch]);
+   await db.query("INSERT INTO public.smn_indicator_definition(id,tag,name,indicator_type) VALUES('lot3manual','LOT3_MANUAL','Manual indicator','manual'),('lot3computed','LOT3_COMPUTED','Computed indicator','computed')".replace("('lot3computed','LOT3_COMPUTED','Computed indicator','computed')","('lot3computed','LOT3_COMPUTED','Computed indicator','computed')"));
+   await db.query("UPDATE public.smn_indicator_definition SET formula='LOT3_MANUAL*2' WHERE id='lot3computed'");
+   await db.query("INSERT INTO public.smn_indicator_dependency(id,indicator_id,source_type,source_indicator_id) VALUES('lot3dep','lot3computed','indicator','lot3manual')");
+   await db.query("INSERT INTO public.smn_indicator_team_selection(team_id,indicator_id) VALUES($1,'lot3manual'),($1,'lot3computed'),($2,'lot3manual')",[teamId,team2]);
+   await db.query("INSERT INTO public.smn_indicator_display_preference(team_id,indicator_id,screen_key,is_visible,display_order,display_style) VALUES($1,'lot3manual','reports',true,1,'number')",[teamId]);
+   await db.query("INSERT INTO public.smn_indicator_manual_value(team_id,cycle_type,cycle_id,indicator_id,value,updated_by) VALUES($1,'scrum',$2,'lot3manual',13,$3),($4,'scrum',$5,'lot3manual',5,$3)",[teamId,sprintId,actor.id,team2,sprint3]);
    const pdfHash=createHash("sha256").update(pdf).digest("hex");
    await writeFile(join(reports,pdfId+".pdf"),pdf,{flag:"wx"});
    await db.query(`INSERT INTO public.smn_report_pdf_archive
@@ -158,6 +185,11 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
     id:docId,teamId,format:"TXT",userAuthorized:true,
     sha256:createHash("sha256").update(note).digest("hex")
    }));
+   snapshot=await fingerprint(db);
+   assert.equal(snapshot.smn_team.count,2);
+   assert.equal(snapshot.smn_sprint.count,3);
+   assert.equal(snapshot.smn_member.count,1);
+   assert.equal(snapshot.smn_indicator_manual_value.count,2);
   }finally{await db.end().catch(()=>undefined);}
   const captured=await createManualBackup(actor!,"Phrase de récupération dédiée pour recette SMN 34!");
   assert.equal(captured.status,"success");
@@ -188,6 +220,10 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
    assert.equal(refs.rows.length,1);
    assert.equal(refs.rows[0].stored_name,pdfId+".pdf");
    assert.equal(refs.rows[0].sha256,createHash("sha256").update(pdf).digest("hex"));
+   assert.deepEqual(await fingerprint(restored),snapshot,
+    "Every public table must have identical rows after reconstruction");
+   const values=await restored.query<{value:string}>("SELECT value::text FROM public.smn_indicator_manual_value WHERE team_id=$1 AND cycle_id=$2 AND indicator_id='lot3manual'",[teamId,sprintId]);
+   assert.equal(values.rows[0].value,"13");
   }finally{await restored.end().catch(()=>undefined);}
   // Prove that rehearsing the restoration did not remove or rewrite the source.
   const unchanged=new Client({connectionString:url(source)});
