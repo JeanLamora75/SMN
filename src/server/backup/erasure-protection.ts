@@ -59,6 +59,9 @@ export async function currentErasureEvidence(
  try{
   const {readErasureLedger}=await import("./erasure-ledger");
   const state=await readErasureLedger();
+  const {hasUnresolvedErasureIntent}=await import("./erasure-intent");
+  if(await hasUnresolvedErasureIntent())
+   return {state:"unavailable",reason:"ledger-untrusted"};
   // A missing pre-enrollment history must never turn into a false permission.
   if(state.coverageStart>backupCreatedAt)
    return {state:"unavailable",reason:"ledger-untrusted"};
