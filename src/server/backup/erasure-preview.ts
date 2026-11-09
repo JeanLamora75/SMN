@@ -3,6 +3,7 @@ import {withSessionReadDb} from "../auth/database";
 import type {ImpactCategory,ImpactFinding,ErasureMode} from "./exceptional-erasure-policy";
 import {inspectMemberRelations,inspectTextCandidates,inspectArchiveCandidates,
  type TableImpact} from "./erasure-impact-graph";
+import {inspectPrivateDocuments} from "./erasure-private-documents";
 
 const ID=/^[a-zA-Z0-9_-]{1,120}$/;
 export const IMPACT_CLASSES=[
@@ -34,6 +35,7 @@ export async function previewMemberErasure(memberId:string,mode:ErasureMode):Pro
  if(!ID.test(memberId)||!["erase","anonymize"].includes(mode))
   throw new Error("invalid-input");
  return withSessionReadDb(async db=>{
+  await db.query("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
   const found=await db.query<{id:string;display_name:string;email:string|null}>(`
    SELECT id,display_name,email FROM public.smn_member
    WHERE id=$1 AND installation_id='singleton'`,[memberId]);
@@ -44,7 +46,11 @@ export async function previewMemberErasure(memberId:string,mode:ErasureMode):Pro
    inspectTextCandidates(db,memberId,[member.display_name,member.email??""]),
    inspectArchiveCandidates(db,memberId)
   ]);
-  const observed=[...relations,...textCandidates,...archiveCandidates];
+  const assigned=await db.query<{team_id:string}>(`
+   SELECT DISTINCT team_id FROM public.smn_member_assignment WHERE member_id::text=$1`,[memberId]);
+  const privateFiles=await inspectPrivateDocuments(process.env.SMN_PRIVATE_DOCUMENTS_DIR,
+   [member.display_name,member.email??""],new Set(assigned.rows.map(r=>r.team_id)));
+  const observed=[...relations,...textCandidates,...archiveCandidates,...privateFiles];
   // A positive text match is a candidate, not a verified link. The absence of
   // a match does NOT prove the person's data are absent from a given archive.
   const findings:ImpactFinding[]=IMPACT_CLASSES.map(category=>{
