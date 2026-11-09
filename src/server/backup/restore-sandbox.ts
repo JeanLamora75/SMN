@@ -13,6 +13,7 @@ import {scanDocuments,type BackupComponent} from "./files";
 import {validateSandboxTarget} from "./restore-sandbox-policy";
 import {validExtraName} from "./extra-archives";
 import {inspectRestoreFileTree} from "./restore-file-cutover-drill";
+import {managedPostgresExecutable} from "../bootstrap/managed-paths";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 type DocumentPart=BackupComponent&{sourceName:string};
@@ -33,8 +34,8 @@ export type RehearsalResult={
 function executable():string{
  if(process.env.SMN_PG_RESTORE_PATH)return process.env.SMN_PG_RESTORE_PATH;
  if(process.platform==="win32"){
-  const root=process.env.LOCALAPPDATA;
-  if(root)return join(root,"ScrumMasterNotebook","pgsql","bin","pg_restore.exe");
+  const managed=managedPostgresExecutable("pg_restore.exe");
+  if(managed)return managed;
   throw Error("pg-restore-unavailable");
  }
  return "pg_restore";
