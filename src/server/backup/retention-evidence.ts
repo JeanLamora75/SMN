@@ -2,7 +2,7 @@ import {lstat} from "node:fs/promises";
 import {join} from "node:path";
 import type {Client} from "pg";
 
-const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
+const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 /** Both immutable audit evidence and physical absence must agree.
  * A failed SQL query or unreadable directory is uncertainty, not deletion.
