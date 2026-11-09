@@ -12,6 +12,7 @@ import {currentErasureEvidence} from "../src/server/backup/erasure-protection";
 import {Client} from "pg";
 import {installExpress} from "../src/server/installation/install";
 import {inspectMemberRelations} from "../src/server/backup/erasure-impact-graph";
+import {inspectMemberForeignKeys} from "../src/server/backup/erasure-fk-discovery";
 
 test("Epic 2 lot 4 PG18 — read-only impact scan on isolated native v33",
  {timeout:180000},async()=>{
@@ -48,6 +49,9 @@ test("Epic 2 lot 4 PG18 — read-only impact scan on isolated native v33",
     assert.equal(rows.find(r=>r.table==="smn_member")?.count,1);
     assert.equal(rows.find(r=>r.table==="smn_member_assignment")?.count,1);
     assert.equal(rows.find(r=>r.table==="smn_member_assignment_version")?.count,1);
+    const discovered=await inspectMemberForeignKeys(db,member);
+    assert.equal(discovered.find(r=>r.table==="smn_member_assignment")?.count,1);
+    assert.equal(discovered.find(r=>r.table==="smn_member_assignment_version")?.count,1);
     await assert.rejects(
      db.query("UPDATE public.smn_member SET display_name='Forbidden' WHERE id=$1",[member]),
      /read-only transaction/i);
