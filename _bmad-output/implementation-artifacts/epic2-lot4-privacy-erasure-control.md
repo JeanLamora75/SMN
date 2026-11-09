@@ -136,3 +136,17 @@ SMN-39 n'efface réellement que les dossiers isolés ; un moteur couvrant toutes
 SMN-40 garantit à ce stade un **refus conservateur** de restauration active, non une restauration expurgée et validée. completeHistory=false reste obligatoire en l'absence d'instrumentation exhaustive des chemins de suppression. La condition fonctionnelle de non-réintroduction est donc tenue par **blocage**, mais l'acceptation AC3 (restauration conforme) n'est pas prouvée.
 
 Aucune Story ne doit être close sur la seule base de la qualification de l'exécuteur restreint ; les limites sont des lacunes fonctionnelles réelles et non de simples avertissements cosmétiques.
+
+
+## Dernière recette automatisée de l'extension restreinte
+
+**GitHub Actions #42637559487 : https://github.com/JeanLamora75/SMN/actions/runs/42637559487 — 3 jobs réussis sur 3.**
+Référence du code exécuté : commit faeb6e2fc96b42fa12a4322990c239307a40d00a.
+
+- Ubuntu : contrats du registre et d'impact, preuve de non-réintroduction, politique SMN-39, restriction de PDF, pnpm typecheck et i18n:check — succès.
+- Windows : mêmes contrôles — succès.
+- PostgreSQL 18 : installation native v33 isolée avec reçus additifs, recherche des références d'un membre historique, refus d'UPDATE dans une transaction READ ONLY, suppression effective d'une fiche provisoire isolée, conservation de la fiche historique, journal de commit et marqueurs HMAC, et refus après panne injectée — succès.
+
+Aucune preuve de revue visuelle exhaustive des binaires, de traitement des archives Office historiques ou de reconstruction expurgée n'a été fournie. Les points restants ne sont pas clôturés.
+
+La table de restriction PDF est une **migration additive disponible mais distincte**, dont l'application et le raccordement complet aux parcours d'administration d'une installation existante restent à qualifier. La présence du lecteur qui applique la restriction ne doit pas être assimilée à une révocation effectuée sur des archives réelles.
