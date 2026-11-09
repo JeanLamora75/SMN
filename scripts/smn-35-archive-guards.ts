@@ -12,6 +12,9 @@ if((apply&&check)||process.argv.some(v=>v.startsWith("--")&&
  process.stderr.write("Explicit confirmation required for additive archive guards.\n");
  process.exitCode=2;
 }else{
+ if(!process.env.SMN_DATABASE_URL&&!process.env.DATABASE_URL){
+  try{process.loadEnvFile(".env.local");}catch{/* Optional local file. */}
+ }
  const uri=process.env.SMN_DATABASE_URL||process.env.DATABASE_URL||"";
  let valid=false;
  try{
