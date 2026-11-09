@@ -909,7 +909,11 @@
       "closeSaved": "Affectation clôturée, historique conservé.",
       "archiveSaved": "Fiche archivée, historique conservé.",
       "reactivateSaved": "Même fiche réactivée. Une nouvelle affectation peut être créée séparément après la dernière date de fin.",
-      "deleteSaved": "Fiche vide supprimée après contrôle des références."
+      "deleteSaved": "Fiche vide supprimée après contrôle des références.",
+      "auditNotReady": "Le journal de suppression sécurisée n'est pas encore installé. Suppression indisponible.",
+      "unknownReferences": "Certaines références n'ont pas pu être vérifiées : suppression bloquée.",
+      "referenceDetails": "Consulter les relations historiques qui bloquent la suppression",
+      "permanentDeletionNotice": "Cette suppression définitive ne concerne que la fiche provisoire vide, sans historique. L'archivage est réversible."
     },
     "calendar": {
       "manage": "Calendrier individuel",
