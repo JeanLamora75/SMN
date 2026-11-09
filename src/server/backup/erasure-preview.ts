@@ -41,6 +41,7 @@ export async function previewMemberErasure(memberId:string,mode:ErasureMode):Pro
   throw new Error("invalid-input");
  return withSessionReadDb(async db=>{
   await db.query("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
+  const walBefore=await db.query<{lsn:string}>("SELECT pg_current_wal_lsn()::text AS lsn");
   const found=await db.query<{id:string;display_name:string;email:string|null}>(`
    SELECT id,display_name,email FROM public.smn_member
    WHERE id=$1 AND installation_id='singleton'`,[memberId]);
@@ -63,7 +64,7 @@ export async function previewMemberErasure(memberId:string,mode:ErasureMode):Pro
    inspectVerifiedPdfArchiveText(db,teams,tokens),
    inspectAiBriefText(db,teams,tokens),
    inspectOfficeReportText(tokens),
-   captureErasureRevision(db,teams)
+   captureErasureRevision(db,teams,walBefore.rows[0]?.lsn??"")
   ]);
   const observed=[...relations,...additionalFks,...textCandidates,
    ...archiveCandidates,...privateFiles,officialPdfTexts,aiBriefTexts,...officeTexts];
