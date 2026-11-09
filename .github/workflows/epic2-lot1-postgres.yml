@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - "src/server/members/removal-audit.ts"
+      - "src/server/backup/erasure-private-documents.ts"
       - "src/server/backup/archive-immutability.ts"
       - "src/server/audit/journal.ts"
       - "scripts/smn-35-archive-guards.ts"
