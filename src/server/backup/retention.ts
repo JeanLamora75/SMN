@@ -5,6 +5,7 @@ import type {Client} from "pg";
 import {privateFolder,safeAtomicJson} from "./files";
 import type {BackupInventoryEntry} from "./verification";
 import {withAtomicBusinessUnit,atomicCommit,atomicAbort} from "./atomic-unit";
+import {inspectInterruptedRetention} from "./retention-interruptions";
 
 const MAX_DAYS=3650;
 const DAY_MS=86400_000;
@@ -109,6 +110,9 @@ export async function executeBackupRetention(client:Client,root:string,actorId:s
   await client.query("SELECT set_config('application_name','smn-retention-cleanup',false)");
   const policy=await readBackupRetention(client);
   if(policy.revision!==expectedRevision)return {ok:false,error:"conflict"};
+  const interrupted=await inspectInterruptedRetention(root);
+  if(interrupted.interrupted.length||interrupted.unknown.length)
+   return {ok:false,error:"conflict"};
   const entries=await backupInventory(root);
   const eligible=expiredManagedBackups(entries,policy.days);
   const expected=[...confirmedIds].sort();
