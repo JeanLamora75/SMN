@@ -118,7 +118,9 @@ export async function executeBackupRetention(client:Client,root:string,actorId:s
   const log=async(status:"running"|"success"|"partial"|"failed",failed:number)=>
    safeAtomicJson(join(root,"last-cleanup.json"),{
     operationId,startedAt,status,planned:eligible.length,
-    processed:deleted.length,failed,inFlight,checkedAt:new Date().toISOString()
+    processed:deleted.length,failed,inFlight,
+    plannedIds:eligible.map(x=>x.id),processedIds:[...deleted],
+    checkedAt:new Date().toISOString()
    });
   await log("running",0);
   try{
