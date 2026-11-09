@@ -13,6 +13,15 @@ import {scanDocuments,type BackupComponent} from "./files";
 import {validateSandboxTarget} from "./restore-sandbox-policy";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+type DocumentPart=BackupComponent&{sourceName:string};
+type Manifest={version:2;id:string;schemaVersion:number;postgresVersion:string;
+ database:BackupComponent;documents:DocumentPart[]};
+export type RehearsalResult={
+ archiveId:string;status:"reconstructed-in-sandbox"|"incomplete-archive-scope";
+ sandboxOnly:true;restoredTables:number;verifiedDocuments:number;
+ missingDocumentReferences:number;archiveHashChecked:true;
+ databaseAndDocumentsConsistent:boolean;activeInstallationModified:false;
+};
 function executable():string{
  if(process.env.SMN_PG_RESTORE_PATH)return process.env.SMN_PG_RESTORE_PATH;
  if(process.platform==="win32"){
