@@ -188,3 +188,12 @@ La table de restriction PDF est une **migration additive disponible mais distinc
 3. Relier **toutes** les voies de suppression de données personnelles au registre ; construire ensuite une reconstruction depuis une sauvegarde chiffrée v4 post-effacement, comparer les preuves et seulement alors autoriser une restauration active, sous réserve du lot 5 (bascule et rollback).
 
 **Statut des Stories :** SMN-38, 39 et 40 restent ouvertes sur les aspects généraux. Le périmètre restreint (sans cycle ni binaire) dispose d'une preuve, mais ne se substitue pas aux trois critères universels.
+
+
+### Qualification finale des mécanismes implémentés
+
+**GitHub Actions #42645650065** — https://github.com/JeanLamora75/SMN/actions/runs/42645650065 — commit 63589b45cec5abce4e3671b814764bfdd8907601 : **3 jobs sur 3 réussis** (Windows, Linux, PostgreSQL 18).
+
+Le test PostgreSQL démontre qu'un ancien reçu de transaction ne peut pas être rejoué pour autoriser un nouvel effacement. Il contrôle aussi les suppressions des dépendances admissibles et la comparaison des copies PostgreSQL avant/après effacement.
+
+**Limites de cette preuve :** le clone SQL n'est pas une restauration d'un paquet chiffré v4. La revue effective des archives privées non accessibles, l'anonymisation des personnes ayant participé aux cycles et la traçabilité de toutes les autres suppressions de données personnelles ne sont pas réalisées. Le contrôle memberScopeVerified concerne seulement les membres qualifiés ; completeHistory global reste faux, et la restauration active demeure bloquée.
