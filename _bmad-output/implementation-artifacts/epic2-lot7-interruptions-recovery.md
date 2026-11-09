@@ -47,3 +47,18 @@ Le tableau affiche **RPO 24 h / RTO 60 min** uniquement en tant que cibles indic
 SMN-41 diagnostique et explique les incidents des opérations **réellement activées**. Elle ne crée pas un processus de restauration/reset en production ; SMN-34 et SMN-37 restent verrouillées. Un test de récupération d'une base jetable ne prouve pas la reprise opérationnelle de l'installation Windows personnelle. Les audits d'effacement personnel restent régis par SMN-38 à SMN-40.
 
 **Décision :** valider SMN-41 pour le diagnostic des sauvegardes, purges et blocages ; conserver les réserves explicites sur les opérations destructrices non activées.
+
+## Qualification finale vérifiée — 9 novembre 2026
+
+**Exécution GitHub Actions :** https://github.com/JeanLamora75/SMN/actions/runs/42658557608 — commit testé `4b91015b666a144c5c0c1ceb3fffc5a6a7bc02de`.
+
+Résultats consultés directement :
+- **recovery-contracts (ubuntu-latest)** : success ; test de scénarios d'interruption et de reprise, ancien test de rétention, TypeScript, traductions.
+- **recovery-contracts (windows-latest)** : success ; mêmes contrôles.
+- **postgres18-retention** : success ; base PostgreSQL 18 jetable, audit de suppression, paquet physiquement présent/absent, doublon d'audit, répertoire `.retention-removing-*` après incident et TypeScript.
+
+Les échecs CI précédents (validation UUID, parenthèse du rapprochement et typage des statuts) ont été corrigés avant ce run et ne constituent pas les résultats retenus.
+
+**Bilan des critères :** AC1 à AC5 sont couverts par les contrôles techniques pour les parcours actuellement autorisés. Une restauration ou réinitialisation active n'étant toujours pas qualifiée, le diagnostic affiche honnêtement son blocage au lieu d'annoncer une reprise réussie. Aucune reprise de l'installation Windows personnelle n'a été exécutée.
+
+**Réserve d'exploitation :** les cibles RPO 24 h / RTO 60 min sont purement indicatives et ne font l'objet d'aucune mesure de durée ni garantie contractuelle ; la preuve doit être produite à partir d'exercices réels avant de changer `targetsValidated`.
