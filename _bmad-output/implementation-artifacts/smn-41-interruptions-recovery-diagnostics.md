@@ -44,3 +44,10 @@ La réparation automatique d'une purge partielle **n'est pas activée** : elle d
 
 ## Adaptation BMAD
 Le skill `.agents/skills/bmad-build/SKILL.md` a été lu sur GitHub. Il demande `uv run --no-cache ... render_skill.py` ; `uv` et l'arborescence exécutable de SMN n'étant pas disponibles dans le connecteur GitHub, la procédure officielle n'a pas été exécutée. Adaptation documentaire GitHub/Jira, sans prétendre à des validations BMAD ni des tests non réalisés.
+
+## Précisions du contrôle après revue statique
+- Le processus de purge prend temporairement l'`application_name` PostgreSQL `smn-retention-cleanup` ; le diagnostic distingue ainsi une purge réellement active de la modification de la politique de rétention, qui partage le même verrou.
+- Chaque journal de purge inclut les UUID des paquets prévus/confirmés et un UUID `inFlight`. Les UUID restent des identifiants techniques, sans contenu de sauvegarde ni données personnelles.
+- Pour chaque retrait déclaré confirmé, la lecture des preuves compare `smn_backup_retention_audit` avec l'absence du paquet dans `packages/`. Une divergence ou une erreur de consultation rend le résultat partiel ou incertain ; la simple présence de `status:success` ne suffit pas.
+- Le bandeau existant « Dernière tentative » dans `GET /api/admin/backups` suit désormais la classification **vérifiée** des sauvegardes. Une trace historique avec `success` mais sans UUID/preuve donne « Non vérifiable ».
+- Les statuts de restauration/réinitialisation sont présentés comme **bloqués**, pas comme annulés ou réussis.
