@@ -72,3 +72,28 @@ Une exécution doit être considérée comme qualifiée uniquement après vérif
 - Ne pas déclarer SMN-34 achevée : la bascule active, la révocation de sessions, le retour arrière crash-safe et le registre d'effacement SMN-40 ne sont pas fournis par le lot 2.
 
 **Adaptation BMAD :** la commande `uv run` officielle ne peut pas être exécutée à travers le connecteur GitHub ; documentation et développements sont réalisés via GitHub et Jira. Le résultat d'une CI réelle est consulté séparément, sans inventer d'exécution sur le poste Windows de l'utilisateur.
+
+
+## 7. Qualification finale exécutée — 9 novembre 2026
+
+**SUCCÈS attesté** : [GitHub Actions #42618124959](https://github.com/JeanLamora75/SMN/actions/runs/42618124959) — commit testé `7998cb1ad33b79c0ae0772471947c95246d1bee3`.
+
+| Job | Résultat réellement constaté |
+|---|---|
+| `sandbox-policy (windows-latest)` | **Success** : contrats de restauration, archives, cohérence, rétention et autres protections ; `pnpm typecheck` ; `pnpm i18n:check` |
+| `sandbox-policy (ubuntu-latest)` | **Success** : mêmes contrôles sous Linux |
+| `postgres-18-v4-reconstruction` | **Success** : PostgreSQL 18 réel, installation v33 source et base de reconstruction jetable |
+
+**Preuve textuelle de la reconstruction tirée des logs :**
+
+```json
+{"evidence":"EPIC2-LOT2-v4-PG18-sandbox","sandbox":true,"pdfCount":1,"officeCount":1,"templateCount":1,"privateCount":1,"databaseAndDocumentsConsistent":true,"activeInstallationModified":false}
+```
+
+Le test PostgreSQL s'est terminé avec **1 réussite, 0 échec**. Il s'agit d'un contrôle de **reconstruction isolée**, non d'une bascule de restauration active, ni d'une preuve de récupérabilité complète sur le poste de l'utilisateur.
+
+**Point d'architecture non résolu pour une garantie absolue de cohérence :** le WAL et les doubles inventaires évitent la publication en cas de dérive détectée, mais ne sont pas une transaction atomique PostgreSQL + système de fichiers. Une fenêtre résiduelle subsiste pour les écrivains externes et entre l'ultime contrôle et le renommage. Ce risque doit être arbitré avant de rendre SMN-34 exécutable. Les éditions hors SMN et les copies externes restent hors des garanties du mécanisme.
+
+Aucune migration, sauvegarde, restauration ou purge n'a été exécutée sur l'installation Windows personnelle de l'utilisateur. Les modifications ont été publiées sur GitHub `main` et qualifiées sur des runners GitHub et des bases jetables uniquement.
+
+**Statut de livraison recommandé :** lot 2 développé et qualifié en CI pour le périmètre des fichiers gérés ; SMN-30/31/32 conservent une recette d'installation locale et une acceptation fonctionnelle à réaliser avant clôture Jira.
