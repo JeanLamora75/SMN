@@ -7,6 +7,7 @@ import {translate} from "@/i18n/catalog";
 import BackupsAdmin from "./backups-admin";
 import ErasureImpactAdmin from "./erasure-impact-admin";
 import InstallationResetPreview from "./installation-reset-preview";
+import ProtectionOperations from "./protection-operations";
 export const dynamic="force-dynamic";
 export default async function BackupsPage(){
  const account=await currentAccount();
@@ -22,6 +23,7 @@ export default async function BackupsPage(){
    <Link href="/app" className="btn btn-outline-secondary">{translate(locale,"backups.back")}</Link>
   </header>
   <BackupsAdmin/>
+  <div className="mt-4"><ProtectionOperations/></div>
   <div className="mt-4"><ErasureImpactAdmin/></div>
   <div className="mt-4"><InstallationResetPreview/></div>
  </div>;
