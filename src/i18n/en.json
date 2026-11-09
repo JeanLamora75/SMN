@@ -4367,18 +4367,18 @@
   },
   "installationReset": {
     "title": "Reset installation",
-    "intro": "Review the impact before any reset. This feature remains disabled until recovery and rollback have been qualified.",
+    "intro": "This read-only analysis identifies affected data and archives. Destructive reset remains blocked; a separate new installation can be prepared offline without erasing the current one.",
     "inspect": "Preview reset impact",
     "inspecting": "Inspecting…",
     "failed": "Unable to assess this installation. No changes were made.",
-    "blocked": "Reset is unavailable: no data were changed. The recovery process has not been qualified.",
+    "blocked": "Active reset is forbidden: no data were changed. Global privacy and safe cutover to a new installation require further qualification.",
     "schema": "Schema version",
     "tables": "SMN tables",
-    "estimatedRows": "Estimated rows",
+    "estimatedRows": "Counted rows",
     "documents": "Verified private documents",
     "backups": "Managed backup packages",
     "unknown": "Unknown",
-    "estimatesWarning": "Row counts are PostgreSQL estimates, not a comprehensive inventory. Listed backups are not necessarily restorable.",
+    "estimatesWarning": "SQL inspection is read-only. Row counts do not prove that external or archived content can be inspected.",
     "tableDetails": "View largest tables",
     "table": "Table",
     "risksTitle": "Affected data and risks",
@@ -4394,7 +4394,12 @@
       "backup-before-reset": "A verified, demonstrably restorable backup is required.",
       "rollback-not-qualified": "Isolated reconstruction and rollback remain unqualified.",
       "external-copies": "Copies exported outside SMN cannot be automatically controlled."
-    }
+    },
+    "exactWarning": "Exact row counts of all SMN tables present at inspection time, read-only. Files and external copies must be verified separately.",
+    "archiveUnavailable": "PDF/Office archives cannot be fully verified. The scope is unknown and reset remains blocked.",
+    "pdfArchives": "Archived report PDFs",
+    "officeReports": "Exported Office reports",
+    "officeTemplates": "Office templates"
   },
   "protectionOperations": {
     "title": "Operation status and recovery",
