@@ -70,3 +70,44 @@ Le format réel de sauvegarde `runner.ts` capture le dump et le contenu de `SMN_
 
 ### Adaptation BMAD
 Le dépôt est accessible via connecteurs GitHub/Jira, pas comme racine de projet locale exécutable. Le fichier `.agents/skills/bmad-build/SKILL.md` a été relu ; la commande `uv run ... render_skill.py` ne peut pas être exécutée depuis la vue GitHub. Aucune simulation de l'exécution BMAD n'est revendiquée.
+
+
+## Extension des sauvegardes v3 — PDF + Office (9 novembre 2026)
+
+**Implémenté dans le code de `main`, recette PostgreSQL 18 réelle programmée mais réussite non attestée dans cette conversation.** Les diagnostics SMN-34 et le blocage SMN-40 demeurent actifs ; aucune restauration sur l'installation de travail.
+
+### Capture v3
+- `src/server/backup/extra-archives.ts` répertorie toutes les références de `smn_report_pdf_archive`, impose que chaque PDF du magasin officiel `SMN_PRIVATE_REPORT_ARCHIVE_DIR` corresponde à une référence, puis compare taille et SHA-256 du fichier à la ligne SQL. Aucun PDF non référencé, symlink, nom dangereux ou fichier illisible ne peut être silencieusement ignoré.
+- Le magasin des rapports Office `SMN_OFFICE_REPORTS_DIR` est entièrement inventorié pour les fichiers DOCX/PPTX. Les fichiers sont chiffrés AES-256-GCM dans le nouveau paquet ; une entrée inconnue, un fichier illisible ou une modification pendant la capture invalide la sauvegarde.
+- `runner.ts` chiffre désormais ces fichiers dans `report-pdfs/` et `office-reports/`, avec des métadonnées `reportPdfs` et `officeReports` en **manifest.version=3** et leurs empreintes. Un second scan en fin de capture refuse les changements des sources. Les archives PDF/Office ne sont **pas** détruites ni réécrites.
+- Les anciens paquets v1/v2 restent lisibles pour la vérification d'intégrité mais ne sont **pas** promus au niveau complet v3 par hypothèse.
+- Les modèles Office situés dans `SMN_OFFICE_TEMPLATES_DIR`, les copies exportées en dehors des répertoires gérés et d'éventuels autres médias externes ne sont pas inclus par cette extension. Il faut les qualifier séparément si leur restauration est requise.
+
+### Vérification / répétition
+- `verification.ts` impose pour v3 les deux inventaires supplémentaires, noms et positions attendus, taille, SHA-256 des contenus **clairs et chiffrés**, AES-GCM valide, absence de composants supplémentaires ou manquants.
+- `restore-sandbox.ts` reconstruit en quarantaine les PDF et DOCX/PPTX, sans toucher à la cible active ; après `pg_restore` isolé, il compare chaque `smn_report_pdf_archive` restauré à un PDF effectivement présent et validé dans le paquet v3. Les absences donnent une erreur explicite, jamais un PDF inventé. Les fichiers déchiffrés de la quarantaine temporaire sont nettoyés à la fin de la répétition ; aucune publication de l'installation active n'est effectuée.
+- `RehearsalResult` indique `verifiedReportPdfs`, `verifiedOfficeReports`, `verifiedDocuments`, `missingDocumentReferences` et `fullRestoreQualified:false` (la répétition isolée ne prouve pas une bascule crash-safe ni la confidentialité SMN-40). Les paquets v2 sont classés incomplets dans cette répétition.
+
+### Essais codés
+- `tests/smn-34-extra-archives.test.ts` : fichiers réels en répertoires temporaires, comparaison SQL/SHA-256, chiffrement/déchiffrement AES-GCM, absence de mutation des sources et refus de PDF orphelin.
+- `tests/smn-34-v3-postgres.test.ts` : test d'intégration **réel** à exécuter avec PostgreSQL 18. Crée deux bases jetables `smn_restore_source_*` et `smn_restore_test_*`, installe SMN v33, ajoute équipe, sprint, archive PDF, document TXT et rapport Office, exécute `createManualBackup` v3, vérifie le paquet chiffré, exécute `rehearseBackupRestore`, compare les références SQL restaurées, puis détruit uniquement ses propres bases temporaires. Ne touche jamais à une base de travail préexistante.
+- `.github/workflows/smn-34-restore-sandbox.yml` inclut maintenant un job `postgres-18-v3-reconstruction` avec service PostgreSQL 18 et client officiel PostgreSQL 18, plus les contrats Windows/Linux, typage et traductions. **La présence du job dans GitHub n'est pas la preuve de sa réussite.**
+
+### Contrat de qualification
+L'exécution doit produire pour le test `SMN-34-v3-PG18-sandbox` une preuve de succès contenant `pdfCount=1`, `officeCount=1`, `privateCount=1`, `databaseAndDocumentsConsistent=true` et `activeInstallationModified=false`. Ce sont des valeurs **attendues**, non un résultat observé dans cette session.
+
+Consulter les jobs et logs de GitHub Actions :
+https://github.com/JeanLamora75/SMN/actions/workflows/smn-34-restore-sandbox.yml
+
+En local Windows avec PostgreSQL 18 déjà disponible :
+```powershell
+pnpm exec tsx --test tests/smn-34-extra-archives.test.ts tests/smn-34-restore-sandbox.test.ts
+pnpm typecheck
+pnpm i18n:check
+# Uniquement avec SMN_TEST_DATABASE_URL pointant sur la base maintenance
+# postgres d'un service PostgreSQL 18 local réservé aux essais :
+pnpm exec tsx --test tests/smn-34-v3-postgres.test.ts
+```
+
+### Clôture
+Ne pas clôturer SMN-34 tant que les tests n'ont pas une preuve **exécutée** (dont Windows), que la restauration isolée ne couvre pas les stockages métier requis et que le moteur de bascule sûre, de retour arrière, de gestion des sessions et le registre d'effacements SMN-40 ne sont pas qualifiés. Aucune affirmation « restauration active réussie » n'est justifiée par ce lot.
