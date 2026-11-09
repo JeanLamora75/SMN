@@ -7,7 +7,9 @@ type ResetImpact={
  inspectedAt:string;
  installation:{id:string;schemaVersion:number;createdAt:string;postgresVersion:string};
  database:{tables:number;estimatedRows:number;
-  examples:{table:string;estimatedRows:number}[];estimatesOnly:true};
+  examples:{table:string;estimatedRows:number}[];estimatesOnly:boolean;complete:boolean};
+ archives:{reportPdfs:number|null;officeReports:number|null;officeTemplates:number|null;
+  state:"verified"|"unavailable"};
  privateDocuments:{count:number|null;state:"verified"|"unavailable"};
  backups:{count:number|null;lastSuccessfulAt:string|null;state:"available"|"unavailable"};
  risks:string[];confirmationRequired:string;canExecute:false;blocked:true;
@@ -52,10 +54,20 @@ export default function InstallationResetPreview(){
     <dd className="col-sm-7">{impact.database.estimatedRows.toLocaleString()}</dd>
     <dt className="col-sm-5">{t("installationReset.documents")}</dt>
     <dd className="col-sm-7">{impact.privateDocuments.count??t("installationReset.unknown")}</dd>
+    <dt className="col-sm-5">{t("installationReset.pdfArchives")}</dt>
+    <dd className="col-sm-7">{impact.archives.reportPdfs??t("installationReset.unknown")}</dd>
+    <dt className="col-sm-5">{t("installationReset.officeReports")}</dt>
+    <dd className="col-sm-7">{impact.archives.officeReports??t("installationReset.unknown")}</dd>
+    <dt className="col-sm-5">{t("installationReset.officeTemplates")}</dt>
+    <dd className="col-sm-7">{impact.archives.officeTemplates??t("installationReset.unknown")}</dd>
     <dt className="col-sm-5">{t("installationReset.backups")}</dt>
     <dd className="col-sm-7">{impact.backups.count??t("installationReset.unknown")}</dd>
    </dl>
-   <p className="small text-secondary">{t("installationReset.estimatesWarning")}</p>
+   <p className="small text-secondary">{t(impact.database.complete?
+    "installationReset.exactWarning":"installationReset.estimatesWarning")}</p>
+   {impact.archives.state!=="verified"&&
+    <p role="alert" className="alert alert-warning mb-0">
+     {t("installationReset.archiveUnavailable")}</p>}
    <details>
     <summary>{t("installationReset.tableDetails")}</summary>
     <div className="table-responsive mt-2"><table className="table table-sm small">
