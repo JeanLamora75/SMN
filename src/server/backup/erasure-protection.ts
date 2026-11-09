@@ -1,3 +1,4 @@
+import type {Client} from "pg";
 /**
  * SMN-40 — Privacy barrier for restoring older backups.
  *
@@ -55,7 +56,7 @@ export function evaluateErasureProtection(
  * trust missing files as an empty journal.
  */
 export async function currentErasureEvidence(
- backupCreatedAt?:string
+ backupCreatedAt?:string,db?:Pick<Client,"query">
 ):Promise<ErasureEvidence>{
  if(!backupCreatedAt||!validUtc(backupCreatedAt))
   return {state:"unavailable",reason:"ledger-untrusted"};
@@ -72,11 +73,15 @@ export async function currentErasureEvidence(
   // No destructive SMN-39 executor or SMN-36 audit bridge is wired yet.
   // Therefore the cryptographic chain is authentic but NOT a complete
   // history of every possible personal-data deletion in this installation.
+  const checked=db?
+   await (await import("./erasure-completeness")).verifyErasureIntegrity(db):null;
+  const completeHistory=checked?.complete===true&&
+   checked.events===state.markers.length;
   return {state:"verified",source:"external-append-only",
    coverageStart:state.coverageStart,checkedAt:state.checkedAt,
    latestErasureAt:state.markers.at(-1)?.occurredAt??null,
    entriesAfterBackup:subsequent.length,
-   signatureVerified:true,completeHistory:false};
+   signatureVerified:true,completeHistory};
  }catch{
   return {state:"unavailable",reason:"ledger-unavailable"};
  }
