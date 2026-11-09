@@ -16,7 +16,7 @@ export async function POST(request:NextRequest){
   !uuid.test(payload.id))return jsonResult({error:"invalid-input"},400);
  try{
   const preview=await previewBackup(payload.id);
-  const evidence=await currentErasureEvidence(preview.archive.createdAt);
+  const evidence=await currentErasureEvidence(preview.archive.createdAt??undefined);
   return jsonResult({preview,gate:assessRestoreGate(preview,evidence)},409);
  }catch{return jsonResult({error:"restore-preflight-unavailable"},503);}
 }
