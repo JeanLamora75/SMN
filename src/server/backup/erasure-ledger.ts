@@ -101,7 +101,7 @@ export async function initializeErasureLedger(now=new Date()):Promise<void>{
  * append is intentionally not reconciled automatically (fail closed).
  */
 export async function appendCompletedErasure(operation:"erase"|"anonymize",
- now=new Date()):Promise<ErasureMarker>{
+ now=new Date(),eventId?:string):Promise<ErasureMarker>{
  const config=erasureLedgerConfig();
  if(!config)throw Error("erasure-ledger-unconfigured");
  const {ledger,anchor,key}=config,lock=join(anchor,".erasure-ledger.lock");
@@ -109,10 +109,15 @@ export async function appendCompletedErasure(operation:"erase"|"anonymize",
  try{
   const handle=await open(lock,"wx",0o600);await handle.close();locked=true;
   const state=await readErasureLedger();
+  const existing=state.markers.find(m=>m.eventId===eventId);
+  if(existing){
+   if(existing.operation!==operation)throw Error("erasure-ledger-event-conflict");
+   return existing;
+  }
   const last=state.markers.at(-1);
   if(now.toISOString()<state.coverageStart||
    last&&now.toISOString()<last.occurredAt)throw Error("erasure-ledger-time-reversal");
-  const marker=createErasureMarker(key,last?.mac??ERASURE_GENESIS_MAC,operation,now);
+  const marker=createErasureMarker(key,last?.mac??ERASURE_GENESIS_MAC,operation,now,eventId);
   const file=join(ledger,NAME);
   await appendFile(file,JSON.stringify(marker)+"\n",{encoding:"utf8"});
   const fd=await open(file,"r+");
