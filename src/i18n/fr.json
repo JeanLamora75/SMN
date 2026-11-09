@@ -765,7 +765,9 @@
       "isolated-restore-unverified": "Une reconstruction isolée et ses contrôles d'intégrité ne sont pas encore attestés.",
       "rollback-checkpoint-unverified": "Le point de reprise permettant un retour arrière n'est pas encore attesté.",
       "atomic-cutover-unverified": "La bascule cohérente de la base et des documents n'est pas encore attestée.",
-      "session-reset-unverified": "La révocation et la réévaluation des sessions ne sont pas encore attestées."
+      "session-reset-unverified": "La révocation et la réévaluation des sessions ne sont pas encore attestées.",
+      "privacy-erased-data": "La sauvegarde est antérieure à un effacement attesté : la réintroduction des informations est interdite.",
+      "privacy-coverage-gap": "L'historique des effacements ne couvre pas la date de la sauvegarde : restauration suspendue."
     }
   },
   "members": {
