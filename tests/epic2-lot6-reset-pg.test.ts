@@ -48,6 +48,22 @@ test("SMN-37 PG18 : une installation vierge indépendante conserve la source et 
    "SELECT name FROM public.smn_team WHERE id=$1",[team]);
   assert.equal(before.rows[0]?.name,"Team A");
   await sourceDb.end();sourceDb=null;
+  process.env.SMN_DATABASE_URL=dbUrl(source);
+  process.env.SMN_BACKUP_DIR=join(dir,"backups");
+  process.env.SMN_PRIVATE_DOCUMENTS_DIR=join(dir,"private");
+  process.env.SMN_PRIVATE_REPORT_ARCHIVE_DIR=join(dir,"pdf");
+  process.env.SMN_OFFICE_REPORTS_DIR=join(dir,"office");
+  process.env.SMN_OFFICE_TEMPLATES_DIR=join(dir,"templates");
+  for(const folder of ["backups","private","pdf","office","templates"])
+   await mkdir(join(dir,folder),{recursive:true});
+  const impact=await previewInstallationReset();
+  assert.equal(impact.database.estimatesOnly,false);
+  assert.equal(impact.database.complete,true);
+  assert.ok(impact.database.examples.some(t=>t.table==="smn_team"&&t.estimatedRows===1));
+  assert.equal(impact.archives.state,"verified");
+  assert.equal(impact.archives.reportPdfs,0);
+  assert.equal(impact.canExecute,false);
+
   await assert.rejects(provisionIndependentResetCandidate({
    sourceUri:dbUrl(source),candidateUri:dbUrl(source),
    administrator:{adminUsername:"fresh",adminEmail:"fresh@example.test",
