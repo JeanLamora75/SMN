@@ -10,6 +10,7 @@ import {createManualBackup} from "../src/server/backup/runner";
 import {inspectBackup} from "../src/server/backup/verification";
 import {rehearseBackupRestore} from "../src/server/backup/restore-sandbox";
 import {createDefaultDashboardLayout,saveDashboardLayout,readDashboardLayout} from "../src/server/dashboard-builder/layout";
+import {recalculateIndicatorResults} from "../src/server/indicators/recalculation";
 import {readIndicatorReporting} from "../src/server/indicators/reporting";
 import {extractOoxmlText} from "../src/server/backup/erasure-ooxml-text";
 import {validateFinalPdf} from "../src/server/reports/pdf-archive-contract";
@@ -248,6 +249,12 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
    assert.equal(restoredLayout.revision,1);
    const indicators=await readIndicatorReporting(restored,teamId,"reports","scrum",[sprintId]);
    assert.equal(indicators.cycles[0].values.lot3manual,"13");
+   const recalculated=await recalculateIndicatorResults(restored,{
+    teamId,cycles:[{teamId,cycleType:"scrum",cycleId:sprintId}]});
+   assert.ok(recalculated.results>=1,"Computed indicators must recalculate after restoration");
+   const computed=await restored.query<{value:string;result_state:string}>(
+    "SELECT value::text,result_state FROM public.smn_indicator_computed_result WHERE team_id=$1 AND cycle_id=$2 AND indicator_id='lot3computed'",[teamId,sprintId]);
+   assert.deepEqual(computed.rows,[{value:"26",result_state:"available"}]);
   }finally{await restored.end().catch(()=>undefined);}
   // Prove that rehearsing the restoration did not remove or rewrite the source.
   const unchanged=new Client({connectionString:url(source)});
