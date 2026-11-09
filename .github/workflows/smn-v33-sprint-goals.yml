@@ -1,0 +1,47 @@
+name: SMN — Objectifs de sprint v33 et isolation multiéquipes
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/server/sprints/goals.ts"
+      - "src/server/registries/team-access.ts"
+      - "src/app/api/admin/sprints/goals/route.ts"
+      - "src/app/app/admin/sprints/[sprintId]/sprint-goals-panel.tsx"
+      - "src/app/app/admin/sprints/[sprintId]/page.tsx"
+      - "tests/smn-v33-sprint-goals-*.test.ts"
+      - ".github/workflows/smn-v33-sprint-goals.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  postgres18:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: smn_ci
+          POSTGRES_PASSWORD: smn_ci_ephemeral_test
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U smn_ci -d postgres"
+          --health-interval 10s --health-timeout 5s --health-retries 8
+    env:
+      SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Contrats unitaires v33
+        run: pnpm exec tsx --test tests/smn-v33-sprint-goals-save.test.ts
+      - name: Vraie installation v33 isolée, sauvegarde des objectifs et audit
+        run: pnpm exec tsx --test tests/smn-v33-sprint-goals-pg.test.ts
