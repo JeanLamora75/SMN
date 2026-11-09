@@ -53,14 +53,16 @@ export async function managedBinaryScopeEmpty():Promise<boolean>{
 }
 
 /** Must be called again INSIDE the same serializable transaction as DELETE. */
-export async function inspectRestrictedMemberErasure(db:Client,memberId:string):
+export async function inspectRestrictedMemberErasure(db:Client,memberId:string,
+ options:Readonly<{lock?:boolean}>={}):
  Promise<RestrictedErasureVerdict>{
  if(!IDENT.test(memberId))return refuse("invalid-member");
  const member=await db.query<{
   id:string;display_name:string;email:string|null;
   is_provisional:boolean;revision:number;
  }>("SELECT id,display_name,email,is_provisional,revision FROM public.smn_member "+
- "WHERE installation_id='singleton' AND id=$1 FOR UPDATE",[memberId]);
+ "WHERE installation_id='singleton' AND id=$1"+
+ (options.lock===false?"":" FOR UPDATE"),[memberId]);
  if(member.rows.length!==1)return refuse("invalid-member");
  const subject=member.rows[0];
  // No earlier confirmed identity or historical change may survive outside
