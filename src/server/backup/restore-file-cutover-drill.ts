@@ -16,7 +16,7 @@ const MAX_FILES=2800,MAX_BYTES=600*1024*1024;
 export type FileSnapshot=Readonly<{sha256:string;count:number;bytes:number}>;
 export type FileCutoverInput=Readonly<{
  originalRoot:string;candidateRoot:string;rollbackRoot:string;
- injectFailureAfterPark?:boolean;
+ injectFailureAfterPark?:boolean;allowVerifiedEmptyCandidate?:boolean;
 }>;
 export function validateFileCutoverDrill(x:FileCutoverInput):boolean{
  const roots=[x.originalRoot,x.candidateRoot,x.rollbackRoot];
@@ -81,7 +81,8 @@ export async function rehearseOfflineFileCutover(x:FileCutoverInput):Promise<{
   const candidate=await inspectRestoreFileTree(x.candidateRoot);
   // A wholly empty candidate may be valid only if the protected manifest
   // proves zero documents. This utility cannot establish that: refuse.
-  if(candidate.count===0)throw Error("restore-file-empty-candidate");
+  if(candidate.count===0&&!x.allowVerifiedEmptyCandidate)
+   throw Error("restore-file-empty-candidate");
   await rename(x.originalRoot,x.rollbackRoot);parked=true;
   if(x.injectFailureAfterPark)throw Error("restore-file-fault-injected");
   await rename(x.candidateRoot,x.originalRoot);promoted=true;
