@@ -46,7 +46,7 @@ SELECT rel.relname AS table_name,
   SELECT 1 FROM pg_catalog.pg_trigger tr
   WHERE tr.tgrelid=rel.oid AND tr.tgname='smn35_archive_write_guard'
    AND tr.tgenabled IN ('O','A') AND NOT tr.tgisinternal
-   AND tr.tgfoid='public.smn35_reject_archive_mutation()'::regprocedure
+   AND tr.tgfoid=to_regprocedure('public.smn35_reject_archive_mutation()')
    AND (tr.tgtype & 2)=2 AND (tr.tgtype & 1)=1
    AND (tr.tgtype & 8)=8 AND (tr.tgtype & 16)=16
  ) AS protected
