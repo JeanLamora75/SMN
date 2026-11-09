@@ -63,3 +63,11 @@ Références :
 - https://lmn24.atlassian.net/browse/SMN-34
 - https://github.com/JeanLamora75/SMN/actions/workflows/epic2-lot5-cutover.yml
 - https://github.com/JeanLamora75/SMN/actions/workflows/smn-34-restore-sandbox.yml
+
+## Preuves CI vérifiées au 9 novembre 2026
+
+**Bascule et reprise :** https://github.com/JeanLamora75/SMN/actions/runs/42651152399 — commit 276700c1049f63ad42f47e0e2eadb614d3c6deed — trois jobs réussis : Windows (politique, sessions, maintenance, TypeScript et i18n), Linux (mêmes contrôles), PostgreSQL 18 (bascule réelle sur bases jetables, copie conservée, injection de panne et retour arrière coordonné avec les fichiers).
+
+**Sauvegarde v4 complète et fichiers :** https://github.com/JeanLamora75/SMN/actions/runs/42651636833 — commit b80323983b0b5f70026b425c7a99f84e18e5f82b — trois jobs réussis : contrats Windows/Linux et reconstruction PostgreSQL 18 d'un vrai paquet v4 avec fichiers PDF, Office et privés, contrôles d'empreintes et de références. La recette v4 a été relancée après les modifications du lot 5.
+
+**Traçabilité Jira :** SMN-34 reçoit un commentaire de réalisation vérifiée. Son statut reste En cours. Les critères AC1/AC4 nécessitent encore une activation réellement sûre et une recette sur installation Windows après levée des obligations SMN-40.
