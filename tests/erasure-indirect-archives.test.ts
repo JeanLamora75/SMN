@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import {describe,it} from "node:test";
-import {randomUUID,createHash} from "node:crypto";
+import {createHash} from "node:crypto";
 import {mkdtemp,writeFile,rm} from "node:fs/promises";
 import {join} from "node:path";
 import {tmpdir} from "node:os";
@@ -19,12 +19,12 @@ describe("SMN-38 — parcours des relations et archives du schéma v33",()=>{
    return {rows:[{n:"4"}],rowCount:1};
   if(sql.includes("smn_member_absence_history h"))
    return {rows:[{n:"3"}],rowCount:1};
-  if(sql.includes("smn_report_pdf_archive"))
-   return {rows:[{n:"2"}],rowCount:1};
   if(sql.includes("unnest($2::text[])")){
    assert.deepEqual(params[1],["alice","alice@example.org"]);
    return {rows:[{n:"1"}],rowCount:1};
   }
+  if(sql.includes("smn_report_pdf_archive"))
+   return {rows:[{n:"2"}],rowCount:1};
   return {rows:[{n:"0"}],rowCount:1};
  }} as unknown as Client;
  it("suit assignment_id et absence_id au lieu d'ignorer ces historiques",async()=>{
