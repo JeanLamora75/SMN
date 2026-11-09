@@ -10,7 +10,8 @@ export type ErasureEvidence =
  | Readonly<{state:"unavailable";reason:"ledger-not-implemented"|"ledger-unavailable"|"ledger-untrusted"}>
  | Readonly<{state:"verified";source:"external-append-only";coverageStart:string;
    checkedAt:string;latestErasureAt:string|null;entriesAfterBackup:number;
-   signatureVerified:true;completeHistory:boolean}>;
+   signatureVerified:true;completeHistory:boolean;
+   memberScopeVerified?:boolean}>;
 
 export type PrivacyDecision=Readonly<{
  permitted:boolean;
@@ -75,13 +76,13 @@ export async function currentErasureEvidence(
   // history of every possible personal-data deletion in this installation.
   const checked=db?
    await (await import("./erasure-completeness")).verifyErasureIntegrity(db):null;
-  const completeHistory=checked?.complete===true&&
+  const memberScopeVerified=checked?.complete===true&&
    checked.events===state.markers.length;
   return {state:"verified",source:"external-append-only",
    coverageStart:state.coverageStart,checkedAt:state.checkedAt,
    latestErasureAt:state.markers.at(-1)?.occurredAt??null,
    entriesAfterBackup:subsequent.length,
-   signatureVerified:true,completeHistory};
+   signatureVerified:true,completeHistory:false,memberScopeVerified};
  }catch{
   return {state:"unavailable",reason:"ledger-unavailable"};
  }
