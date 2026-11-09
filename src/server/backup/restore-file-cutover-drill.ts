@@ -1,5 +1,5 @@
 import {createHash} from "node:crypto";
-import {lstat,open,readdir,readFile,rename,rm} from "node:fs/promises";
+import {lstat,open,readdir,readFile,rename,rm,realpath} from "node:fs/promises";
 import {basename,dirname,isAbsolute,resolve,join,relative,sep} from "node:path";
 import {tmpdir} from "node:os";
 
@@ -63,7 +63,8 @@ export async function rehearseOfflineFileCutover(x:FileCutoverInput):Promise<{
  if(!validateFileCutoverDrill(x))throw Error("restore-file-disposable-only");
  const parent=dirname(x.originalRoot);
  const parentStat=await lstat(parent);
- if(!parentStat.isDirectory()||parentStat.isSymbolicLink())
+ if(!parentStat.isDirectory()||parentStat.isSymbolicLink()||
+  await realpath(parent)!==parent)
   throw Error("restore-file-parent-untrusted");
  const lockFile=join(parent,".smn-restore-file-drill.lock");
  let lock=false,parked=false,promoted=false;
