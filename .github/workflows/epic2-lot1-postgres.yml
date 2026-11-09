@@ -73,4 +73,4 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Real PostgreSQL 18 — immutable archives and audit
-        run: pnpm exec tsx --test tests/epic2-lot1-postgres.test.ts
+        run: pnpm exec tsx --test tests/epic2-lot1-postgres.test.ts tests/epic2-lot1-native-v33.test.ts
