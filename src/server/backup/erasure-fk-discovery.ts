@@ -1,4 +1,3 @@
-import "server-only";
 import type {Client} from "pg";
 import type {TableImpact} from "./erasure-impact-graph";
 import type {ImpactCategory} from "./exceptional-erasure-policy";
