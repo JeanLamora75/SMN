@@ -6,6 +6,8 @@ import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {Client} from "pg";
 import {rehearseCoordinatedOfflineCutover} from "../src/server/backup/restore-coordinated-drill";
+import {qualifyRecoveryDrill} from "../src/server/backup/recovery-drill-measurement";
+import {SessionStore} from "../src/server/auth/session-store";
 
 test("SMN-34 real PG18 and files: coordinated offline cutover with rollback",
  {timeout:120000},async()=>{
@@ -51,6 +53,7 @@ test("SMN-34 real PG18 and files: coordinated offline cutover with rollback",
   }
   await fileData(paths.originalRoot,"original");
   await fileData(paths.candidateRoot,"restored");
+  const trialStarted=new Date().toISOString();
   const result=await rehearseCoordinatedOfflineCutover({
    database:{maintenanceUri:maintenance,...names,journalDir:root,
     auditKeyHex:randomBytes(32).toString("hex")},
@@ -71,6 +74,23 @@ test("SMN-34 real PG18 and files: coordinated offline cutover with rollback",
    "restored");
   assert.equal(await readFile(join(paths.rollbackRoot,"documents","record.txt"),"utf8"),
    "original");
+  // Session revocation is demonstrated on an isolated ephemeral store;
+  // it cannot validate the persistent production session service.
+  const sessions=new SessionStore();
+  const token=sessions.issue("test-admin","fingerprint",1000,"admin");
+  assert.ok(sessions.get(token,1100));
+  assert.equal(sessions.revokeAll(),1);
+  assert.equal(sessions.get(token,1100),null);
+  const qualified=qualifyRecoveryDrill({
+   mode:"restore",startedAt:trialStarted,verifiedAt:new Date().toISOString(),
+   databaseMatchesExpected:true,filesMatchExpected:true,
+   rollbackDatabaseVerified:true,rollbackFilesVerified:true,
+   journalVerified:true,sessionRevocationVerified:true
+  });
+  assert.equal(qualified.status,"verified");
+  assert.ok(qualified.measuredCutoverMinutes!==null);
+  assert.equal(qualified.productionRtoMinutes,null);
+  assert.equal(qualified.productionRpoMinutes,null);
 
   // Inject a crash AFTER original DB has been parked. The two resources
   // must return to original state, retaining the candidate for inspection.
@@ -103,6 +123,31 @@ test("SMN-34 real PG18 and files: coordinated offline cutover with rollback",
   assert.equal(await checkDb(restoredCandidateDb),"candidate-failure");
   assert.equal(await readFile(join(paths.originalRoot,"documents","record.txt"),"utf8"),
    "restored");
+  // A failure AFTER candidate promotion must never trigger files-only undo.
+  const postRollbackDb="smn_restore_test_post_"+name;
+  const postCandidateFiles=join(root,"smn_restore_test_postfiles");
+  const postFileRollback=join(root,"smn_restore_test_postback");
+  await fileData(postCandidateFiles,"post-promotion-candidate");
+  await assert.rejects(rehearseCoordinatedOfflineCutover({
+   database:{
+    maintenanceUri:maintenance,original:names.original,
+    candidate:restoredCandidateDb,rollback:postRollbackDb,
+    journalDir:root,auditKeyHex:randomBytes(32).toString("hex"),
+    injectFailureAfterPromotion:true
+   },
+   files:{
+    originalRoot:paths.originalRoot,candidateRoot:postCandidateFiles,
+    rollbackRoot:postFileRollback
+   },
+   recoveredFilesRoot:join(root,"smn_restore_test_postrecovered")
+  }),/coordinated-manual-recovery-required/);
+  assert.equal(await checkDb(names.original),"candidate-failure");
+  assert.equal(await checkDb(postRollbackDb),"restored");
+  assert.equal(await readFile(join(paths.originalRoot,"documents","record.txt"),"utf8"),
+   "post-promotion-candidate");
+  assert.equal(await readFile(join(postFileRollback,"documents","record.txt"),"utf8"),
+   "restored");
+  owned.push(postRollbackDb);
   process.stdout.write("SMN34-COORDINATED: DB and files consistent; injected failure recovered\n");
  }finally{
   for(const n of [...owned,names.rollback]){

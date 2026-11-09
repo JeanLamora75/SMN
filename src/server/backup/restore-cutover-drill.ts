@@ -23,7 +23,7 @@ export type CutoverEvidence=Readonly<{
 }>;
 export type CutoverDrillInput=Readonly<{
  maintenanceUri:string;original:string;candidate:string;rollback:string;
- journalDir:string;auditKeyHex:string;injectFailureAfterPark?:boolean;
+ journalDir:string;auditKeyHex:string;injectFailureAfterPark?:boolean;injectFailureAfterPromotion?:boolean;
 }>;
 const HEX=/^[a-f0-9]{64}$/;
 const ZERO="0".repeat(64);
@@ -147,6 +147,7 @@ export async function rehearseOfflineDatabaseCutover(
   await client.query("ALTER DATABASE "+quote(input.candidate)+" RENAME TO "+quote(input.original));
   promoted=true;
   await event("candidate-promoted");
+  if(input.injectFailureAfterPromotion)throw Error("cutover-fault-injected-after-promotion");
   const after=await databaseList(client,[input.original,input.candidate,input.rollback]);
   if(!after.has(input.original)||!after.has(input.rollback)||after.has(input.candidate))
    throw Error("cutover-verification-failed");
@@ -166,7 +167,12 @@ export async function rehearseOfflineDatabaseCutover(
     throw Error("cutover-manual-recovery-required");
    }
   }
-  if(promoted)await event("incident").catch(()=>undefined);
+  if(promoted){
+   await event("incident").catch(()=>undefined);
+   // After promotion the outcome requires independent inspection.
+   // Never reverse only files while PostgreSQL might be active.
+   throw Error("cutover-manual-recovery-required");
+  }
   const reason=error instanceof Error?error.message:"unknown";
   const allow=new Set(["cutover-open-connections","cutover-database-state-invalid",
    "cutover-already-running","cutover-pg18-required","cutover-verification-failed",
