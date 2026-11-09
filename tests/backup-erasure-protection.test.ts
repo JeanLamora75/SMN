@@ -46,6 +46,17 @@ describe("SMN-40 — empêcher la réintroduction silencieuse de données effac�
   assert.equal(evaluateErasureProtection(backupDate,erased).code,"previously-erased-data");
   assert.ok(assessRestoreGate(preview,erased).blockers.includes("privacy-erased-data"));
  });
+ it("signale une réintroduction attestée même si le registre est encore incomplet",()=>{
+  const incomplete:ErasureEvidence={...evidence,completeHistory:false,
+   latestErasureAt:"2026-11-02T10:00:00.000Z",entriesAfterBackup:1};
+  assert.equal(evaluateErasureProtection(backupDate,incomplete).code,
+   "previously-erased-data");
+  assert.ok(assessRestoreGate(preview,incomplete).blockers.includes(
+   "privacy-erased-data"));
+  assert.equal(evaluateErasureProtection(backupDate,{
+   ...incomplete,entriesAfterBackup:0,latestErasureAt:null
+  }).code,"untrusted-erasure-history");
+ });
  it("refuse date absente, preuve contrefaite ou incohérence chronologique",()=>{
   assert.equal(evaluateErasureProtection(null,evidence).code,"missing-backup-date");
   assert.equal(evaluateErasureProtection(backupDate,{...evidence,signatureVerified:false} as unknown as ErasureEvidence).permitted,false);
