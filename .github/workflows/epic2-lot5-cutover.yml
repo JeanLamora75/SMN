@@ -75,4 +75,6 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: PostgreSQL 18 actual offline cutover, rollback and fault injection
-        run: pnpm exec tsx --test tests/epic2-lot5-cutover-pg.test.ts tests/epic2-lot5-coordinated-pg.test.ts
+        run: |
+          pnpm exec tsx --test tests/epic2-lot5-cutover-pg.test.ts
+          pnpm exec tsx --test tests/epic2-lot5-coordinated-pg.test.ts
