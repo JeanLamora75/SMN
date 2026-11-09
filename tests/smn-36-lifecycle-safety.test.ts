@@ -65,9 +65,9 @@ describe("SMN-36 — archives réversibles et suppressions protégées",()=>{
   assert.equal(preview.deletionImpact.tables.length,1);
   const result=await applyLifecycleAction(f.client,memberId,actorId,
    {action:"delete",revision:0,confirmation:"SUPPRIMER"});
-  assert.deepEqual(result,{ok:false,error:"historical-references"});
+  assert.deepEqual(result,{ok:false,error:"audit-not-ready"});
   assert.equal(f.state().member,true);
-  assert.equal(f.executed.at(-1),"ROLLBACK");
+  assert.ok(!f.executed.some(q=>q.includes("DELETE FROM")));
  });
  it("garde l'identifiant et l'historique lors de l'archive et réactivation",async()=>{
   const f=fixture();
@@ -81,24 +81,23 @@ describe("SMN-36 — archives réversibles et suppressions protégées",()=>{
   assert.equal(f.state().member,true);
   assert.equal(f.executed.filter(s=>s.includes("INSERT INTO public.smn_member_lifecycle_event")).length,2);
  });
- it("supprime uniquement un membre provisoire vide avec audit distinct et validation",async()=>{
+ it("bloque le chemin SUPPRIMER historique même pour une fiche vide",async()=>{
   const f=fixture();
-  assert.equal((await inspectMemberLifecycle(f.client,memberId)).canDelete,true);
+  assert.equal((await inspectMemberLifecycle(f.client,memberId)).canDelete,false);
   assert.equal(parseLifecycleAction({action:"delete",revision:0,confirmation:"non"}),null);
   const result=await applyLifecycleAction(f.client,memberId,actorId,
    {action:"delete",revision:0,confirmation:"SUPPRIMER"});
-  assert.equal(result.ok,true);
-  assert.deepEqual(f.state(),{member:false,removalAudit:true,archived:false,revision:0});
-  assert.equal(f.executed.at(-1),"COMMIT");
-  assert.ok(!f.executed.some(s=>s.includes("INSERT INTO public.smn_member_lifecycle_event")));
+  assert.deepEqual(result,{ok:false,error:"audit-not-ready"});
+  assert.deepEqual(f.state(),{member:true,removalAudit:false,archived:false,revision:0});
+  assert.ok(!f.executed.some(q=>q.includes("DELETE FROM public.smn_member")));
  });
- it("une panne d'audit annule la suppression métier sans résultat partiel",async()=>{
+ it("le journal SQL seul ne suffit plus sans reçu externe",async()=>{
   const f=fixture({auditFailure:true});
-  await assert.rejects(()=>applyLifecycleAction(f.client,memberId,actorId,
-   {action:"delete",revision:0,confirmation:"SUPPRIMER"}),/injected-audit-failure/);
+  const result=await applyLifecycleAction(f.client,memberId,actorId,
+   {action:"delete",revision:0,confirmation:"SUPPRIMER"});
+  assert.deepEqual(result,{ok:false,error:"audit-not-ready"});
   assert.equal(f.state().member,true);
   assert.equal(f.state().removalAudit,false);
-  assert.equal(f.executed.at(-1),"ROLLBACK");
  });
  it("si le journal autonome n'existe pas, refuse par défaut",async()=>{
   const f=fixture({auditReady:false});
