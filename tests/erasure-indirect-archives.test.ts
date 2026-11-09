@@ -37,6 +37,7 @@ describe("SMN-38 — parcours des relations et archives du schéma v33",()=>{
   const rows=await inspectArchiveCandidates(fake,"member-1");
   assert.equal(rows.find(x=>x.table==="smn_report_pdf_archive")?.count,2);
   assert.equal(rows.find(x=>x.table==="smn_report_pdf_archive")?.scope,"team-archive");
+  assert.ok(rows.some(x=>x.table==="smn_report_studio_archive_snapshot"));
  });
  it("recherche les correspondances littérales sans divulguer les textes",async()=>{
   const rows=await inspectTextCandidates(fake,"member-1",["Alice","alice@example.org"]);
