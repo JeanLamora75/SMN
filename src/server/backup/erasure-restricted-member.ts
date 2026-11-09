@@ -128,7 +128,7 @@ export async function eraseRestrictedMember(db:Client,input:{
  const preflight=await inspectRestrictedMemberErasure(db,input.memberId);
  if(!preflight.eligible)throw Error("privacy-restricted-scope-"+preflight.reason);
  const result=await withAuditedErasureTransaction(db,{
-  scopeRevision:input.scopeRevision,operation:"erase",expectedRows:1
+  scopeRevision:input.scopeRevision,operation:"erase",expectedRows:1,subjectId:input.memberId
  },async()=>{
   if(!await managedBinaryScopeEmpty())
    throw Error("privacy-files-changed");
