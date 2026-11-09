@@ -39,7 +39,7 @@ export async function updateBackupRetention(client:Client,actorId:string,
  raw:unknown):Promise<RetentionResult>{
  const input=parseRetentionInput(raw);
  if(!input||!actorId)return {ok:false,error:"invalid-input"};
- return withAtomicBusinessUnit(client,async()=>{
+ return withAtomicBusinessUnit<RetentionResult>(client,async()=>{
   await client.query("SELECT pg_advisory_xact_lock(20261021,30)");
   const existing=await client.query<Row>(select+" FOR UPDATE");
   if(existing.rowCount!==1)
