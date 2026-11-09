@@ -90,6 +90,12 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_report_history_options:r", "public.smn_report_logo:r",
   "public.smn_report_language:r", "public.smn_report_render_reference:r",
   "public.smn_report_pdf_archive:r",
+  // Privacy additive tables/functions are owned by SMN and do not invalidate v33.
+  "public.smn_privacy_erasure_receipt:r",
+  "public.smn_privacy_receipt_immutable:function",
+  "public.smn_privacy_archive_restriction:r",
+  "public.smn_privacy_archive_restriction_immutable:function",
+
   "public.smn_report_studio_archive_snapshot:r",
   "public.smn_reject_studio_archive_snapshot_mutation:function",
   "public.smn_report_section_options:r", "public.smn_report_section_options_audit:r",
