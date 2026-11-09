@@ -4357,5 +4357,51 @@
       "rollback-not-qualified": "Isolated reconstruction and rollback remain unqualified.",
       "external-copies": "Copies exported outside SMN cannot be automatically controlled."
     }
+  },
+  "protectionOperations": {
+    "title": "Operation status and recovery",
+    "intro": "Diagnostics based on actual package and journal evidence. An interruption is never treated as a successful restore.",
+    "loading": "Checking…",
+    "refresh": "Refresh",
+    "unavailable": "Diagnostics unavailable: operation outcomes cannot be confirmed.",
+    "objectives": "RPO 24 hours / RTO 60 minutes: indicative targets only. No measured or guaranteed recovery has been validated.",
+    "counts": "Confirmed: {done} · Remaining: {pending} · Failed or uncertain: {failed}",
+    "kinds": {
+      "backup": "Backup",
+      "retention-cleanup": "Backup cleanup",
+      "restore": "Restore",
+      "installation-reset": "Installation reset"
+    },
+    "statuses": {
+      "running": "Running",
+      "succeeded": "Succeeded (verified)",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "interrupted": "Interrupted",
+      "partial": "Partial — review required",
+      "blocked": "Blocked"
+    },
+    "reasons": {
+      "verified-package": "The encrypted package exists and its integrity was verified.",
+      "package-absent": "No complete package was found.",
+      "package-invalid": "The existing package was not validated.",
+      "operation-running": "An operation still holds an active lock.",
+      "interrupted-before-publication": "A previous operation was interrupted with no proof of complete publication.",
+      "partial-cleanup": "Some cleanup steps are recorded; consistency must be reviewed.",
+      "cleanup-complete": "All planned steps were recorded.",
+      "cleanup-failed": "The cleanup did not complete its objective.",
+      "restore-not-enabled": "Active restoration has not been qualified (SMN-34/40).",
+      "reset-not-enabled": "Active reset has not been qualified (SMN-37).",
+      "unverifiable-state": "Available evidence is insufficient.",
+      "cancelled-before-write": "The operation was cancelled before writing."
+    },
+    "recoveries": {
+      "recheck": "Recheck the inventory and evidence before taking further action.",
+      "wait-and-refresh": "Refresh after the process finishes.",
+      "start-new-operation": "A new operation may be requested after verification.",
+      "verify-and-retry-new-operation": "Examine the failure, then start a new backup if needed.",
+      "reinspect-inventory-before-retry": "Compare existing packages with audit records before another cleanup.",
+      "resolve-blockers": "Resolve the safety prerequisites before attempting execution."
+    }
   }
 }
