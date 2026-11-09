@@ -115,14 +115,14 @@ export async function appendCompletedErasure(operation:"erase"|"anonymize",
   const marker=createErasureMarker(key,last?.mac??ERASURE_GENESIS_MAC,operation,now);
   const file=join(ledger,NAME);
   await appendFile(file,JSON.stringify(marker)+"\n",{encoding:"utf8"});
-  const fd=await open(file,"r");
+  const fd=await open(file,"r+");
   try{await fd.sync();}finally{await fd.close();}
   const a=secureAnchor(key,{version:1,coverageStart:state.coverageStart,
    count:state.markers.length+1,headMac:marker.mac});
   const temp=join(anchor,".anchor-"+randomBytes(8).toString("hex"));
   try{
    await writeFile(temp,JSON.stringify(a),{flag:"wx",mode:0o600});
-   const f=await open(temp,"r");try{await f.sync();}finally{await f.close();}
+   const f=await open(temp,"r+");try{await f.sync();}finally{await f.close();}
    await rename(temp,join(anchor,ANCHOR));
   }finally{await rm(temp,{force:true});}
   return marker;
