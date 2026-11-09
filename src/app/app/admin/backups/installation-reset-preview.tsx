@@ -1,3 +1,4 @@
+import type {TranslationKey} from "@/i18n/catalog";
 "use client";
 import {useState} from "react";
 import {useTranslation} from "@/i18n/client";
@@ -68,7 +69,7 @@ export default function InstallationResetPreview(){
    <div className="alert alert-secondary mb-0">
     <strong>{t("installationReset.risksTitle")}</strong>
     <ul className="mb-0">{impact.risks.map(risk=><li key={risk}>
-     {t("installationReset.risks."+risk)}
+     {t(("installationReset.risks."+risk) as TranslationKey)}
     </li>)}</ul>
    </div>
    <p className="small text-secondary mb-0">{t("installationReset.backupAdvice")}</p>
