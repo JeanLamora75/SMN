@@ -43,3 +43,11 @@ L'AC3 de la Story **n'est pas achevé pour une installation active** : aucun end
 Le prérequis de couverture des suppressions de données personnelles du lot 4 et la validation des fichiers non inspectables restent ouverts. Tant que la restauration active n'est pas qualifiée, une réinitialisation de la base active serait un risque de perte irréversible de données : elle reste bloquée, même avec une confirmation.
 
 **Décision :** garder SMN-37 En cours. Ne pas considérer une CI verte sur bases jetables comme une autorisation d'effacement de données réelles.
+
+## Qualification finale — 9 novembre 2026
+
+**GitHub Actions :** https://github.com/JeanLamora75/SMN/actions/runs/42654491272 ; commit vérifié `367b5cd6e97c60e2466b9f044f5ac8b7eb23280d`. **Trois jobs réussis sur trois :** Windows (contrats, TypeScript et i18n), Linux (mêmes contrôles), PostgreSQL 18 (installation v33 indépendante, analyse de l'existant en lecture seule, compte Administrateur de la nouvelle installation, bascule de DB et répertoires vides jetables, conservation et vérification des anciens fichiers et de la base de rollback).
+
+La capacité technique de repartir avec une installation indépendante est démontrée **sans effacer l'origine**. Cette CI n'autorise pas de remise à zéro de l'installation personnelle ; le POST d'administration continue de retourner 409 et le statut de SMN-37 doit rester En cours jusqu'à la qualification des critères destructifs AC3 et du redémarrage opérationnel.
+
+**Sécurité :** la comparaison avant/après porte sur l'ensemble des lignes de chaque table source, sous une empreinte SHA-256. Les fichiers de l'ancienne installation sont conservés dans un répertoire de rollback distinct. Les bases et les dossiers manipulés dans les tests portent exclusivement des noms `smn_restore_test_*` et ne sont pas ceux de l'utilisateur.
