@@ -16,6 +16,7 @@ on:
       - "src/i18n/fr.json"
       - "src/i18n/en.json"
       - "src/server/installation/install.ts"
+      - "src/server/installation/contract.ts"
       - "prisma/migrations/20261109_smn39_privacy_receipt/migration.sql"
       - "src/server/backup/erasure-evidence-format.ts"
       - "src/server/backup/erasure-fk-discovery.ts"
