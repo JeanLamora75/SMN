@@ -4,6 +4,7 @@ import {inspectMemberForeignReferences} from "../members/removal-audit";
 import {pdfArchiveDirectory} from "./extra-archives";
 import {officeReportsDirectory} from "../reports/office-storage";
 import {officeTemplatesDirectory} from "../reports/office-catalog";
+import {inspectExtraArchives} from "./extra-archives";
 import {withAuditedErasureTransaction} from "./erasure-transaction";
 
 /**
@@ -42,7 +43,8 @@ async function emptyStore(path:string,mustExist=false):Promise<boolean>{
  * a scanned PDF, an image or an embedded Office object cannot be cleared by
  * finding zero literal names in its text layer.
  */
-export async function managedBinaryScopeEmpty():Promise<boolean>{
+export async function managedBinaryScopeEmpty(
+ db:Pick<Client,"query">):Promise<boolean>{
  if(!process.env.SMN_PRIVATE_DOCUMENTS_DIR)return false;
  try{
   const privateDir=process.env.SMN_PRIVATE_DOCUMENTS_DIR;
@@ -50,7 +52,10 @@ export async function managedBinaryScopeEmpty():Promise<boolean>{
   for(const path of [pdfArchiveDirectory(),officeReportsDirectory(),
    officeTemplatesDirectory()])
    if(!await emptyStore(path))return false;
-  return true;
+  // A dangling PostgreSQL reference is not proof of an empty archive store.
+  const inventory=await inspectExtraArchives(db);
+  return inventory.pdf.length===0&&inventory.office.length===0&&
+   inventory.templates.length===0;
  }catch{return false;}
 }
 
@@ -123,14 +128,14 @@ export async function eraseRestrictedMember(db:Client,input:{
 }):Promise<Readonly<{receiptId:string;affectedRows:1;recorded:true}>>{
  if(!IDENT.test(input.memberId)||!/^[a-f0-9]{64}$/.test(input.scopeRevision))
   throw Error("privacy-restricted-input-invalid");
- if(!await managedBinaryScopeEmpty())
+ if(!await managedBinaryScopeEmpty(db))
   throw Error("privacy-managed-files-unverifiable");
  const preflight=await inspectRestrictedMemberErasure(db,input.memberId);
  if(!preflight.eligible)throw Error("privacy-restricted-scope-"+preflight.reason);
  const result=await withAuditedErasureTransaction(db,{
   scopeRevision:input.scopeRevision,operation:"erase",expectedRows:1,subjectId:input.memberId
  },async()=>{
-  if(!await managedBinaryScopeEmpty())
+  if(!await managedBinaryScopeEmpty(db))
    throw Error("privacy-files-changed");
   const checked=await inspectRestrictedMemberErasure(db,input.memberId);
   if(!checked.eligible)throw Error("privacy-scope-changed");

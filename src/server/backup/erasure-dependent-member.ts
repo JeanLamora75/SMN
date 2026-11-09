@@ -92,7 +92,7 @@ export async function eraseDependentMember(db:Client,input:{
 }):Promise<{receiptId:string;affectedRows:number;recorded:true}>{
  if(!ID.test(input.memberId)||!/^[a-f0-9]{64}$/.test(input.scopeRevision))
   throw Error("dependent-erasure-invalid-input");
- if(!await managedBinaryScopeEmpty())throw Error("dependent-erasure-archives-unverifiable");
+ if(!await managedBinaryScopeEmpty(db))throw Error("dependent-erasure-archives-unverifiable");
  const initial=await inspectDependentMemberErasure(db,input.memberId);
  if(!initial.eligible)throw Error("dependent-erasure-blocked-"+initial.reason);
  return withAuditedErasureTransaction(db,{
@@ -100,7 +100,7 @@ export async function eraseDependentMember(db:Client,input:{
   expectedRows:1+initial.assignments+initial.versions,
   subjectId:input.memberId
  },async()=>{
-  if(!await managedBinaryScopeEmpty())throw Error("dependent-erasure-archives-changed");
+  if(!await managedBinaryScopeEmpty(db))throw Error("dependent-erasure-archives-changed");
   const current=await inspectDependentMemberErasure(db,input.memberId);
   if(!current.eligible||current.assignments!==initial.assignments||
    current.versions!==initial.versions)

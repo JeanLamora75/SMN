@@ -36,17 +36,16 @@ export async function POST(request:NextRequest){
   let restrictedEligible=false,dependentEligible=false;
   if(body.mode==="erase"&&issued){
    try{
-    if(await managedBinaryScopeEmpty()){
-     const verdict=await withSessionReadDb(async db=>{
-      const restricted=await inspectRestrictedMemberErasure(
-       db,preview.memberId,{lock:false});
-      const dependent=restricted.eligible?null:
-       await inspectDependentMemberErasure(db,preview.memberId,{lock:false});
-      return {restricted,dependent};
-     });
-     restrictedEligible=verdict.restricted.eligible;
-     dependentEligible=verdict.dependent?.eligible===true;
-    }
+    const verdict=await withSessionReadDb(async db=>{
+     if(!await managedBinaryScopeEmpty(db))return null;
+     const restricted=await inspectRestrictedMemberErasure(
+      db,preview.memberId,{lock:false});
+     const dependent=restricted.eligible?null:
+      await inspectDependentMemberErasure(db,preview.memberId,{lock:false});
+     return {restricted,dependent};
+    });
+    restrictedEligible=verdict?.restricted.eligible===true;
+    dependentEligible=verdict?.dependent?.eligible===true;
    }catch{/* An incomplete inspection can never grant permission. */}
   }
   const qualification=assessHistoricalPrivacyQualification({
