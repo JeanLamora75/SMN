@@ -55,5 +55,5 @@ export function verifyImpactReceipt(token:string,actorId:string,now=new Date()):
   Date.parse(r.expiresAt)-Date.parse(r.issuedAt)!==TIMEOUT||
   now.getTime()<Date.parse(r.issuedAt)||now.getTime()>=Date.parse(r.expiresAt))
   return null;
- return r as ImpactReceipt;
+ return r as unknown as ImpactReceipt;
 }
