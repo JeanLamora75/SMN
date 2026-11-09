@@ -153,6 +153,7 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
     "SELECT id,role,password_hash FROM public.smn_account WHERE username='smn34'");
    actor=account.rows[0];
    assert.ok(actor?.id);
+   await db.query("UPDATE public.smn_account SET must_change_password=false WHERE id=$1",[actor.id]);
    await db.query("INSERT INTO public.smn_team(id,installation_id,name,agile_mode) VALUES($1,'singleton','Restauration SMN 34','scrum')",[teamId]);
    await db.query(`INSERT INTO public.smn_sprint
     (id,team_id,number,name,start_at,end_at,time_zone,status)
