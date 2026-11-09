@@ -27,11 +27,11 @@ export type RestrictedErasureVerdict=Readonly<{
 const refuse=(reason:RestrictedErasureVerdict["reason"]):RestrictedErasureVerdict=>
  ({eligible:false,reason});
 
-async function emptyStore(path:string):Promise<boolean>{
+async function emptyStore(path:string,mustExist=false):Promise<boolean>{
  const stat=await lstat(path).catch((error:NodeJS.ErrnoException)=>{
   if(error.code==="ENOENT")return null;throw error;
  });
- if(!stat)return true;
+ if(!stat)return !mustExist;
  if(!stat.isDirectory()||stat.isSymbolicLink())return false;
  const items=await readdir(path);
  return items.length===0;
@@ -45,8 +45,10 @@ async function emptyStore(path:string):Promise<boolean>{
 export async function managedBinaryScopeEmpty():Promise<boolean>{
  if(!process.env.SMN_PRIVATE_DOCUMENTS_DIR)return false;
  try{
-  for(const path of [process.env.SMN_PRIVATE_DOCUMENTS_DIR,
-   pdfArchiveDirectory(),officeReportsDirectory(),officeTemplatesDirectory()])
+  const privateDir=process.env.SMN_PRIVATE_DOCUMENTS_DIR;
+  if(!await emptyStore(privateDir,true))return false;
+  for(const path of [pdfArchiveDirectory(),officeReportsDirectory(),
+   officeTemplatesDirectory()])
    if(!await emptyStore(path))return false;
   return true;
  }catch{return false;}
