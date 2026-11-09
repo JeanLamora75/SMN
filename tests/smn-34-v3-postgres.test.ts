@@ -9,6 +9,8 @@ import {installExpress} from "../src/server/installation/install";
 import {createManualBackup} from "../src/server/backup/runner";
 import {inspectBackup} from "../src/server/backup/verification";
 import {rehearseBackupRestore} from "../src/server/backup/restore-sandbox";
+import {createDefaultDashboardLayout,saveDashboardLayout,readDashboardLayout} from "../src/server/dashboard-builder/layout";
+import {readIndicatorReporting} from "../src/server/indicators/reporting";
 import {extractOoxmlText} from "../src/server/backup/erasure-ooxml-text";
 import {validateFinalPdf} from "../src/server/reports/pdf-archive-contract";
 
@@ -162,12 +164,17 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
    const member=randomUUID(),batch=randomUUID();
    await db.query("INSERT INTO public.smn_member_batch(id,installation_id,team_id,requested_count) VALUES($1,'singleton',$2,1)",[batch,teamId]);
    await db.query("INSERT INTO public.smn_member(id,installation_id,batch_id,member_number,display_name) VALUES($1,'singleton',$2,1,'Test member')",[member,batch]);
-   await db.query("INSERT INTO public.smn_indicator_definition(id,tag,name,indicator_type) VALUES('lot3manual','LOT3_MANUAL','Manual indicator','manual'),('lot3computed','LOT3_COMPUTED','Computed indicator','computed')".replace("('lot3computed','LOT3_COMPUTED','Computed indicator','computed')","('lot3computed','LOT3_COMPUTED','Computed indicator','computed')"));
-   await db.query("UPDATE public.smn_indicator_definition SET formula='LOT3_MANUAL*2' WHERE id='lot3computed'");
+   await db.query("INSERT INTO public.smn_indicator_definition(id,tag,name,indicator_type,formula) VALUES('lot3manual','LOT3_MANUAL','Manual indicator','manual',NULL),('lot3computed','LOT3_COMPUTED','Computed indicator','computed','LOT3_MANUAL*2')");
    await db.query("INSERT INTO public.smn_indicator_dependency(id,indicator_id,source_type,source_indicator_id) VALUES('lot3dep','lot3computed','indicator','lot3manual')");
    await db.query("INSERT INTO public.smn_indicator_team_selection(team_id,indicator_id) VALUES($1,'lot3manual'),($1,'lot3computed'),($2,'lot3manual')",[teamId,team2]);
    await db.query("INSERT INTO public.smn_indicator_display_preference(team_id,indicator_id,screen_key,is_visible,display_order,display_style) VALUES($1,'lot3manual','reports',true,1,'number')",[teamId]);
    await db.query("INSERT INTO public.smn_indicator_manual_value(team_id,cycle_type,cycle_id,indicator_id,value,updated_by) VALUES($1,'scrum',$2,'lot3manual',13,$3),($4,'scrum',$5,'lot3manual',5,$3)",[teamId,sprintId,actor.id,team2,sprint3]);
+   const assignment=randomUUID();
+   await db.query("INSERT INTO public.smn_member_assignment(id,member_id,team_id,start_on,agile_role) VALUES($1,$2,$3,'2026-09-01','developer')",[assignment,member,teamId]);
+   await db.query("INSERT INTO public.smn_member_assignment_version(id,assignment_id,revision,effective_from,allocation_percent,contract_percent,contribution_percent,scrum_master_percent,product_owner_percent,developer_percent) VALUES($1,$2,1,'2026-09-01',100,100,100,0,0,100)",[randomUUID(),assignment]);
+   const layout=createDefaultDashboardLayout("scrum");
+   assert.equal((await saveDashboardLayout(db,{installationId:"singleton",accountId:actor.id,teamId},layout,0)).revision,1);
+   assert.equal((await readDashboardLayout(db,{installationId:"singleton",accountId:actor.id,teamId})).persisted,true);
    const pdfHash=createHash("sha256").update(pdf).digest("hex");
    await writeFile(join(reports,pdfId+".pdf"),pdf,{flag:"wx"});
    await db.query(`INSERT INTO public.smn_report_pdf_archive
@@ -190,6 +197,8 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
    assert.equal(snapshot.smn_sprint.count,3);
    assert.equal(snapshot.smn_member.count,1);
    assert.equal(snapshot.smn_indicator_manual_value.count,2);
+   assert.equal(snapshot.smn_dashboard_layout.count,1);
+   assert.equal(snapshot.smn_member_assignment.count,1);
   }finally{await db.end().catch(()=>undefined);}
   const captured=await createManualBackup(actor!,"Phrase de récupération dédiée pour recette SMN 34!");
   assert.equal(captured.status,"success");
@@ -224,6 +233,11 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
     "Every public table must have identical rows after reconstruction");
    const values=await restored.query<{value:string}>("SELECT value::text FROM public.smn_indicator_manual_value WHERE team_id=$1 AND cycle_id=$2 AND indicator_id='lot3manual'",[teamId,sprintId]);
    assert.equal(values.rows[0].value,"13");
+   const restoredLayout=await readDashboardLayout(restored,{installationId:"singleton",accountId:actor.id,teamId});
+   assert.equal(restoredLayout.persisted,true);
+   assert.equal(restoredLayout.revision,1);
+   const indicators=await readIndicatorReporting(restored,teamId,"reports","scrum",[sprintId]);
+   assert.equal(indicators.cycles[0].values.lot3manual,"13");
   }finally{await restored.end().catch(()=>undefined);}
   // Prove that rehearsing the restoration did not remove or rewrite the source.
   const unchanged=new Client({connectionString:url(source)});
