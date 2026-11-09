@@ -111,6 +111,15 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
    assert.equal(refs.rows[0].stored_name,pdfId+".pdf");
    assert.equal(refs.rows[0].sha256,createHash("sha256").update(pdf).digest("hex"));
   }finally{await restored.end().catch(()=>undefined);}
+  // Prove that rehearsing the restoration did not remove or rewrite the source.
+  const unchanged=new Client({connectionString:url(source)});
+  try{
+   await unchanged.connect();
+   const original=await unchanged.query<{sha256:string}>(`
+    SELECT sha256 FROM public.smn_report_pdf_archive WHERE id=$1`,[pdfId]);
+   assert.equal(original.rows[0]?.sha256,
+    createHash("sha256").update(pdf).digest("hex"));
+  }finally{await unchanged.end().catch(()=>undefined);}
   process.stdout.write(JSON.stringify({
    evidence:"SMN-34-v3-PG18-sandbox",sandbox:true,
    pdfCount:rehearsal.verifiedReportPdfs,
