@@ -27,6 +27,11 @@ export default function ErasureImpactAdmin(){
  const [copiesAcknowledged,setCopiesAcknowledged]=useState(false);
  const [executing,setExecuting]=useState(false);
  const [executed,setExecuted]=useState(false);
+ const [archives,setArchives]=useState<{
+  inventorySha256:string;candidates:{filename?:string;kind:string;sha256:string;bytes:number}[]
+ }|null>(null);
+ const [archiveLoading,setArchiveLoading]=useState(false);
+ const [archiveError,setArchiveError]=useState(false);
  useEffect(()=>{
   let active=true;
   fetch("/api/admin/erasure/preview",{cache:"no-store"}).then(async response=>{
@@ -55,6 +60,23 @@ export default function ErasureImpactAdmin(){
     data.revisionVerified===true?"unchanged":"stale");
   }catch{setValidation("failed");}
   finally{setValidating(false);}
+ }
+ async function reviewManagedArchives(){
+  if(archiveLoading)return;
+  setArchiveLoading(true);setArchiveError(false);setArchives(null);
+  try{
+   const response=await fetch("/api/admin/erasure/archive-review",{
+    method:"GET",cache:"no-store"
+   });
+   if(!response.ok)throw Error("archive-review-failed");
+   const value=await response.json() as {
+    inventory?:{inventorySha256:string;
+     candidates:{filename?:string;kind:string;sha256:string;bytes:number}[]}
+   };
+   if(!Array.isArray(value.inventory?.candidates))throw Error("invalid-inventory");
+   setArchives(value.inventory);
+  }catch{setArchiveError(true);}
+  finally{setArchiveLoading(false);}
  }
  async function executeRestricted(){
   if(!result?.plan||!(result.restrictedEligible||result.dependentEligible)||
@@ -197,6 +219,34 @@ export default function ErasureImpactAdmin(){
       {executing?t("erasure.executing"):t("erasure.executeRestricted")}
      </button>
     </div>}
+   <section className="border rounded p-3 d-grid gap-2">
+    <h3 className="h6 mb-0">{t("erasure.archiveReviewTitle")}</h3>
+    <p className="small text-secondary mb-0">
+     {t("erasure.archiveReviewWarning")}
+    </p>
+    <button type="button" className="btn btn-outline-secondary btn-sm"
+     disabled={archiveLoading} onClick={reviewManagedArchives}>
+     {archiveLoading?t("erasure.archiveReviewLoading"):t("erasure.archiveReviewButton")}
+    </button>
+    {archiveError&&<p role="alert" className="small text-danger mb-0">
+     {t("erasure.archiveReviewUnavailable")}</p>}
+    {archives&&<div className="table-responsive">
+     <p className="small text-secondary">
+      {t("erasure.archiveReviewCount",{count:archives.candidates.length})}
+     </p>
+     <table className="table table-sm">
+      <thead><tr>
+       <th>{t("erasure.archiveName")}</th>
+       <th>{t("erasure.archiveType")}</th>
+       <th>SHA-256</th>
+      </tr></thead>
+      <tbody>{archives.candidates.map((item,i)=><tr key={item.sha256+"-"+i}>
+       <td>{item.filename??"—"}</td><td>{item.kind}</td>
+       <td><code className="small text-break">{item.sha256}</code></td>
+      </tr>)}</tbody>
+     </table>
+    </div>}
+   </section>
    <div className="d-flex flex-wrap gap-2 align-items-center">
     <button className="btn btn-outline-secondary" type="button"
      onClick={()=>{setResult(null);setValidation(null);}}>{t("erasure.close")}</button>
