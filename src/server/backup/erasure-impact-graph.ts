@@ -71,16 +71,57 @@ export async function inspectMemberRelations(db:Client,memberId:string):Promise<
  return result;
 }
 
-type TextSource=Readonly<{table:string;columns:readonly string[];teamColumn:string|null}>;
+type TextSource=Readonly<{table:string;columns:readonly string[];
+ teamColumn?:string;scopeSql?:string}>;
+const memberTeams="(SELECT team_id FROM public.smn_member_assignment WHERE member_id::text=$1)";
+const viaSprint=(sprintExpr:string)=>`
+ AND EXISTS(SELECT 1 FROM public.smn_sprint s
+ WHERE s.id=${sprintExpr} AND s.team_id IN ${memberTeams})`;
+const viaRegistryItem=(itemExpr:string)=>`
+ AND EXISTS(SELECT 1 FROM public.smn_registry_item i
+ WHERE i.id=${itemExpr} AND i.team_id IN ${memberTeams})`;
+const viaDashboardNote=(noteExpr:string)=>`
+ AND EXISTS(SELECT 1 FROM public.smn_dashboard_note n
+ WHERE n.id=${noteExpr} AND n.team_id IN ${memberTeams})`;
 const TEXT_SOURCES:readonly TextSource[]=[
  {table:"smn_registry_item",columns:["title","description","owner_name","comment"],teamColumn:"team_id"},
- {table:"smn_registry_comment",columns:["body","author_name","editor_name","withdrawn_by_name"],teamColumn:null},
+ {table:"smn_registry_comment",columns:["body","author_name","editor_name","withdrawn_by_name"],
+  scopeSql:viaRegistryItem("t.item_id")},
+ {table:"smn_registry_comment_revision",columns:["before_text","after_text"],
+  scopeSql:` AND EXISTS(SELECT 1 FROM public.smn_registry_comment c
+   JOIN public.smn_registry_item i ON i.id=c.item_id
+   WHERE c.id=t.comment_id AND i.team_id IN ${memberTeams})`},
+ {table:"smn_registry_item_audit",columns:["before_values","after_values"],
+  scopeSql:viaRegistryItem("t.item_id")},
  {table:"smn_dashboard_note",columns:["body"],teamColumn:"team_id"},
+ {table:"smn_dashboard_note_audit",columns:["details"],scopeSql:viaDashboardNote("t.note_id")},
+ {table:"smn_dashboard_note_edit_audit",columns:["before_values","after_values"],
+  scopeSql:viaDashboardNote("t.note_id")},
  {table:"smn_report_document",columns:["title","content"],teamColumn:"team_id"},
  {table:"smn_report_pdf_archive",columns:["manifest"],teamColumn:"team_id"},
- {table:"smn_report_studio_archive_snapshot",columns:["snapshot"],teamColumn:null},
- {table:"smn_sprint_review_analysis",columns:["body"],teamColumn:null},
- {table:"smn_sprint_goal",columns:["title","comment"],teamColumn:null}
+ {table:"smn_report_studio_archive_snapshot",columns:["snapshot"],scopeSql:`
+  AND EXISTS(SELECT 1 FROM public.smn_report_document d
+  WHERE d.id=t.document_id AND d.team_id IN ${memberTeams})`},
+ {table:"smn_report_draft",columns:["notes"],scopeSql:viaSprint("t.sprint_id")},
+ {table:"smn_report_draft_audit",columns:["before_values","after_values"],
+  scopeSql:viaSprint("t.sprint_id")},
+ {table:"smn_report_render_reference",columns:["payload"],scopeSql:viaSprint("t.sprint_id")},
+ {table:"smn_sprint_review_analysis",columns:["body"],scopeSql:viaSprint("t.sprint_id")},
+ {table:"smn_sprint_review_analysis_audit",columns:["previous_values","next_values"],
+  scopeSql:viaSprint("t.sprint_id")},
+ {table:"smn_sprint_goal",columns:["title","comment"],scopeSql:viaSprint("t.sprint_id")},
+ {table:"smn_sprint_goal_audit",columns:["previous_values","next_values"],
+  scopeSql:` AND EXISTS(SELECT 1 FROM public.smn_sprint_goal g
+   JOIN public.smn_sprint s ON s.id=g.sprint_id
+   WHERE g.id=t.goal_id AND s.team_id IN ${memberTeams})`},
+ {table:"smn_sprint_closure_snapshot",columns:["snapshot"],scopeSql:viaSprint("t.sprint_id")},
+ {table:"smn_member_calendar_exception",columns:["note"],scopeSql:" AND t.member_id::text=$1"},
+ {table:"smn_member_lifecycle_event",columns:["details"],scopeSql:" AND t.member_id::text=$1"},
+ {table:"smn_member_identity_history",columns:["previous_values","next_values"],
+  scopeSql:" AND t.member_id::text=$1"},
+ {table:"smn_member_absence_history",columns:["before_values","after_values"],
+  scopeSql:` AND EXISTS(SELECT 1 FROM public.smn_member_absence a
+   WHERE a.id::text=t.absence_id::text AND a.member_id::text=$1)`}
 ];
 /**
  * Heuristic positive matches; a zero means "no match in this inspected source",
@@ -102,16 +143,20 @@ export async function inspectTextCandidates(db:Client,memberId:string,
    continue;
   }
   const expressions=source.columns.map(c=>`coalesce(t."${c}"::text,'')`).join(" || ' ' || ");
-  const scoped=source.teamColumn
-   ? ` AND t."${source.teamColumn}" IN (SELECT team_id FROM public.smn_member_assignment WHERE member_id::text=$1)`
-   : "";
+  const scoped=source.scopeSql??(source.teamColumn?
+   ` AND t."${source.teamColumn}" IN ${memberTeams}`:"");
   // Do not claim scoping for tables without a reliable team path.
   const sql=`SELECT count(*)::text AS n FROM public."${source.table}" t
    WHERE EXISTS(SELECT 1 FROM unnest($2::text[]) AS terms(term)
     WHERE position(term IN lower(${expressions}))>0)${scoped}`;
-  const rows=await db.query<{n:string}>(sql,[memberId,meaningful]);
-  result.push({table:source.table,category:"free-text",scope:"text-match",
-   count:safeCount(rows.rows[0]?.n),state:"inspected"});
+  try{
+   const rows=await db.query<{n:string}>(sql,[memberId,meaningful]);
+   result.push({table:source.table,category:"free-text",scope:"text-match",
+    count:safeCount(rows.rows[0]?.n),state:"inspected"});
+  }catch{
+   result.push({table:source.table,category:"free-text",scope:"text-match",
+    count:null,state:"unknown"});
+  }
  }
  return result;
 }
