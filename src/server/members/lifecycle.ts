@@ -99,8 +99,10 @@ export async function inspectMemberLifecycle(client:Client,id:string):Promise<Li
   inspectMemberForeignReferences(client,id),
   client.query<{ready:boolean}>(MEMBER_REMOVAL_AUDIT_READY_SQL)
  ]);
- const canDelete=rows.length===0&&referenceCount===0&&foreign.count===0&&
-  !foreign.unknown&&auditReady.rows[0]?.ready===true&&isEmpty(state.member);
+ // Legacy deletion cannot generate an external SMN-40 tombstone or HMAC
+ // receipt. It must not offer a second, unaudited destruction path.
+ // Use the separately confirmed /api/admin/erasure/execute instead.
+ const canDelete=false;
  return {memberId:id,teamId:state.teamId,displayName:state.member.display_name,
   revision:state.member.revision,archived:state.member.archived_at!==null,
   archivedAt:state.member.archived_at,today:date,activeCount:count,
@@ -113,6 +115,8 @@ export async function inspectMemberLifecycle(client:Client,id:string):Promise<Li
 export async function applyLifecycleAction(client:Client,id:string,actorId:string,raw:unknown):Promise<LifecycleResult>{
  const input=parseLifecycleAction(raw);
  if(!input||!UUID.test(id)||!actorId)return {ok:false,error:"invalid-input"};
+ // Never allow the historical SUPPRIMER path to evade durable SMN-40 audit.
+ if(input.action==="delete")return {ok:false,error:"audit-not-ready"};
  await client.query("BEGIN");
  try{
   const stop=async(error:LifecycleError):Promise<LifecycleResult>=>{
