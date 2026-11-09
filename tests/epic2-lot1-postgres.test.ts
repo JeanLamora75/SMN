@@ -7,6 +7,7 @@ import {MEMBER_REMOVAL_AUDIT_SQL,MEMBER_REMOVAL_AUDIT_READY_SQL}
 import {SMN35_ARCHIVE_IMMUTABILITY_SQL,SMN35_ARCHIVE_GUARD_CHECK_SQL}
  from "../src/server/backup/archive-immutability";
 import {readAuditJournal} from "../src/server/audit/journal";
+import {updateBackupRetention} from "../src/server/backup/retention";
 
 test("Epic 2 lot 1 — vrais triggers PG18, rollback et journal Administrateur",
  {timeout:120000},async()=>{
@@ -35,6 +36,16 @@ test("Epic 2 lot 1 — vrais triggers PG18, rollback et journal Administrateur",
     CREATE TABLE public.smn_installation(id text PRIMARY KEY);
     CREATE TABLE public.smn_account(id text PRIMARY KEY);
     CREATE TABLE public.smn_member(id text PRIMARY KEY);
+    CREATE TABLE public.smn_backup_retention(
+      installation_id text PRIMARY KEY,days integer NOT NULL,
+      revision integer NOT NULL,updated_at timestamptz NOT NULL DEFAULT now(),
+      updated_by text);
+    CREATE TABLE public.smn_backup_retention_audit(
+      id text,occurred_at timestamptz NOT NULL DEFAULT now(),
+      actor_id text,action text,package_id text,installation_id text,
+      old_days integer,new_days integer);
+    INSERT INTO public.smn_backup_retention(installation_id,days,revision)
+      VALUES('singleton',30,0);
     CREATE TABLE public.smn_sprint_closure_snapshot(id text PRIMARY KEY);
     CREATE TABLE public.smn_report_pdf_archive(
       id text PRIMARY KEY,created_at timestamptz NOT NULL DEFAULT now(),
@@ -85,9 +96,6 @@ test("Epic 2 lot 1 — vrais triggers PG18, rollback et journal Administrateur",
       old_values jsonb,new_values jsonb);
     CREATE TABLE public.smn_auth_audit(
       id text,created_at timestamptz,account_id text,action text);
-    CREATE TABLE public.smn_backup_retention_audit(
-      id text,occurred_at timestamptz,actor_id text,action text,
-      package_id text,installation_id text);
     CREATE TABLE public.smn_sprint_audit(
       id text,occurred_at timestamptz,actor_id text,sprint_id text,action text);
     CREATE TABLE public.smn_member_lifecycle_event(
@@ -99,8 +107,6 @@ test("Epic 2 lot 1 — vrais triggers PG18, rollback et journal Administrateur",
     INSERT INTO public.smn_account_audit VALUES(
       'account-audit',now(),'admin','account_created','admin','singleton',
       'success','{}','{"role":"admin","password_hash":"NEVER_EXPOSE"}');
-    INSERT INTO public.smn_backup_retention_audit
-      VALUES('retention-audit',now(),'admin','policy_changed',NULL,'singleton');
     INSERT INTO public.smn_sprint_audit VALUES(
       'sprint-audit',now(),'admin','sprint','updated');
     INSERT INTO public.smn_member_lifecycle_event VALUES(
@@ -108,6 +114,30 @@ test("Epic 2 lot 1 — vrais triggers PG18, rollback et journal Administrateur",
     INSERT INTO public.smn_team_context_audit VALUES('team-audit',now(),'admin','team');
     INSERT INTO public.smn_registry_item_audit VALUES('registry-audit',now(),'admin','registry');
    `);
+   // Real business+audit transaction, followed by a failure injected into
+   // the audit write. Neither partial business data nor false audit survives.
+   const accepted=await updateBackupRetention(db,"admin",{days:45,revision:0});
+   assert.equal(accepted.ok,true);
+   await db.query(`
+    CREATE FUNCTION public.reject_policy_audit() RETURNS trigger
+     LANGUAGE plpgsql AS $audit_fault$
+    BEGIN RAISE EXCEPTION 'injected-retention-audit-failure'; END;
+    $audit_fault$;
+    CREATE TRIGGER block_policy_audit BEFORE INSERT
+     ON public.smn_backup_retention_audit
+     FOR EACH ROW EXECUTE FUNCTION public.reject_policy_audit();
+   `);
+   await assert.rejects(()=>updateBackupRetention(db,"admin",{days:50,revision:1}),
+    /injected-retention-audit-failure/);
+   const policyState=await db.query<{days:number;revision:number}>(`
+    SELECT days,revision FROM public.smn_backup_retention
+    WHERE installation_id='singleton'`);
+   assert.deepEqual({days:policyState.rows[0].days,revision:policyState.rows[0].revision},
+    {days:45,revision:1});
+   const auditCount=await db.query<{n:string}>(`
+    SELECT count(*)::text AS n FROM public.smn_backup_retention_audit
+    WHERE action='policy_changed'`);
+   assert.equal(auditCount.rows[0]?.n,"1");
    const entries=await readAuditJournal(db,100);
    for(const event of ["account_created","backup_policy_changed",
     "sprint_changed","member_archived","team_context_changed",
@@ -125,7 +155,7 @@ test("Epic 2 lot 1 — vrais triggers PG18, rollback et journal Administrateur",
    const rollback=await db.query<{n:string}>(
     "SELECT count(*)::text AS n FROM public.smn_member WHERE id='rollback-target'");
    assert.equal(rollback.rows[0]?.n,"0");
-   process.stdout.write("EPIC2-LOT1-PG18: triggers=3, immutableRows=3, crossDomainAudit=true, rollback=true\n");
+   process.stdout.write("EPIC2-LOT1-PG18: triggers=3, immutableRows=3, crossDomainAudit=true, businessAuditRollback=true\n");
   }finally{await db.end().catch(()=>undefined);}
  }finally{
   try{
