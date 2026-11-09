@@ -79,8 +79,11 @@ async function getOrCreateKey(root:string,phrase:string|undefined,passwordHash:s
 async function readLast(root:string):Promise<BackupState["last"]>{
  try{
   const data=JSON.parse((await readFile(join(root,"last-attempt.json"))).toString("utf8")) as Record<string,unknown>;
-  if(!["running","success","failed","cancelled"].includes(data.status)||typeof data.createdAt!=="string")return null;
-  return {status:data.status,id:typeof data.id==="string"?data.id:undefined,createdAt:data.createdAt};
+  if(typeof data.status!=="string"||
+   !["running","success","failed","cancelled"].includes(data.status)||
+   typeof data.createdAt!=="string")return null;
+  const status=data.status as "running"|"success"|"failed"|"cancelled";
+  return {status,id:typeof data.id==="string"?data.id:undefined,createdAt:data.createdAt};
  }catch{return null;}
 }
 export async function backupState():Promise<BackupState>{
