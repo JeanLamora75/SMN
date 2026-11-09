@@ -4357,5 +4357,51 @@
       "rollback-not-qualified": "La reconstruction isolée et le retour arrière restent non qualifiés.",
       "external-copies": "Les copies exportées hors de SMN ne sont pas contrôlées automatiquement."
     }
+  },
+  "protectionOperations": {
+    "title": "État des opérations et reprises",
+    "intro": "Diagnostic fondé sur les paquets et journaux réellement retrouvés. Une interruption n'est jamais assimilée à une restauration réussie.",
+    "loading": "Contrôle…",
+    "refresh": "Actualiser",
+    "unavailable": "Diagnostic indisponible : le résultat des opérations ne peut pas être confirmé.",
+    "objectives": "RPO 24 h / RTO 60 min : objectifs indicatifs uniquement. Aucune mesure ni garantie de reprise n'est validée.",
+    "counts": "Confirmés : {done} · Restants : {pending} · Échecs ou états incertains : {failed}",
+    "kinds": {
+      "backup": "Sauvegarde",
+      "retention-cleanup": "Purge des sauvegardes",
+      "restore": "Restauration",
+      "installation-reset": "Réinitialisation"
+    },
+    "statuses": {
+      "running": "En cours",
+      "succeeded": "Réussie (vérifiée)",
+      "failed": "Échec",
+      "cancelled": "Annulée",
+      "interrupted": "Interrompue",
+      "partial": "Partielle — contrôle requis",
+      "blocked": "Bloquée"
+    },
+    "reasons": {
+      "verified-package": "Le paquet chiffré est présent et son intégrité a été vérifiée.",
+      "package-absent": "Aucun paquet complet n'a été retrouvé.",
+      "package-invalid": "Le paquet présent n'a pas été validé.",
+      "operation-running": "Une opération possède encore un verrou actif.",
+      "interrupted-before-publication": "Une opération précédente a été interrompue sans preuve de publication complète.",
+      "partial-cleanup": "Une partie de la purge est enregistrée ; sa cohérence doit être vérifiée.",
+      "cleanup-complete": "Toutes les étapes prévues ont été enregistrées.",
+      "cleanup-failed": "La purge n'a pas atteint son objectif.",
+      "restore-not-enabled": "La restauration active n'est pas qualifiée (SMN-34/40).",
+      "reset-not-enabled": "La réinitialisation active n'est pas qualifiée (SMN-37).",
+      "unverifiable-state": "Les preuves disponibles sont insuffisantes.",
+      "cancelled-before-write": "L'opération a été annulée avant toute modification."
+    },
+    "recoveries": {
+      "recheck": "Revérifier l'inventaire et les preuves avant toute nouvelle action.",
+      "wait-and-refresh": "Actualiser après la fin du traitement.",
+      "start-new-operation": "Une nouvelle opération peut être demandée après vérification.",
+      "verify-and-retry-new-operation": "Examiner l'échec, puis lancer une nouvelle sauvegarde si nécessaire.",
+      "reinspect-inventory-before-retry": "Comparer les paquets réellement présents et les audits avant une nouvelle purge.",
+      "resolve-blockers": "Lever les prérequis de sécurité avant toute tentative d'exécution."
+    }
   }
 }
