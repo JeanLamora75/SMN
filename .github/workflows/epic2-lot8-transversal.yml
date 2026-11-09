@@ -1,0 +1,127 @@
+name: Epic 2 — Recette transversale v33 et sécurité des données
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/server/backup/**"
+      - "src/server/installation/**"
+      - "src/server/audit/**"
+      - "src/app/api/admin/backups/**"
+      - "src/app/api/admin/erasure/**"
+      - "src/app/api/admin/installation/**"
+      - "tests/epic2-*.test.ts"
+      - "tests/smn-34-*.test.ts"
+      - "tests/smn-37-*.test.ts"
+      - "tests/smn-41-*.test.ts"
+      - ".github/workflows/epic2-lot8-transversal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    name: Contrats et sécurité (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Contrats audit, immuabilité, sauvegardes et rétention
+        run: >-
+          pnpm exec tsx --test
+          tests/epic2-lot1-audit-coverage.test.ts
+          tests/epic2-lot1-native-v33.test.ts
+          tests/epic2-lot2-capture-fence.test.ts
+          tests/epic2-lot2-retention-safety.test.ts
+          tests/backup-verification.test.ts
+          tests/backup-retention.test.ts
+          tests/backup-restore-preview.test.ts
+          tests/backup-restore-readiness.test.ts
+          tests/manual-backup.test.ts
+      - name: Contrats données personnelles et archives
+        run: >-
+          pnpm exec tsx --test
+          tests/epic2-lot4-archive-review.test.ts
+          tests/epic2-lot4-erasure-intent.test.ts
+          tests/epic2-lot4-erasure-ledger.test.ts
+          tests/epic2-lot4-fk-coverage.test.ts
+          tests/epic2-lot4-pdf-restriction.test.ts
+          tests/backup-erasure-protection.test.ts
+          tests/erasure-impact-preview.test.ts
+          tests/erasure-impact-receipt.test.ts
+          tests/erasure-indirect-archives.test.ts
+          tests/erasure-ooxml-content.test.ts
+          tests/exceptional-erasure-policy.test.ts
+      - name: Contrats restauration, réinitialisation et interruptions
+        run: >-
+          pnpm exec tsx --test
+          tests/epic2-lot5-cutover-policy.test.ts
+          tests/epic2-lot5-file-cutover.test.ts
+          tests/epic2-lot5-maintenance.test.ts
+          tests/epic2-lot5-session-reset.test.ts
+          tests/smn-37-installation-reset-policy.test.ts
+          tests/epic2-lot7-operation-artifacts.test.ts
+          tests/smn-41-operation-diagnostics.test.ts
+      - name: Types
+        run: pnpm typecheck
+      - name: Traductions
+        run: pnpm i18n:check
+      - name: Lint
+        run: pnpm lint
+
+  postgres18:
+    name: Reconstruction, confidentialité et reprise (PostgreSQL 18)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: smn_ci
+          POSTGRES_PASSWORD: smn_ci_ephemeral_test
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U smn_ci -d postgres"
+          --health-interval 10s --health-timeout 5s --health-retries 8
+    env:
+      SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Migrations, historique et audit v33
+        run: pnpm exec tsx --test tests/epic2-lot1-postgres.test.ts
+      - name: Reconstruction chiffrée v4 de source native v33
+        run: pnpm exec tsx --test tests/smn-34-v3-postgres.test.ts
+      - name: Contrôle du périmètre et de l'effacement de membre
+        run: pnpm exec tsx --test tests/epic2-lot4-postgres.test.ts
+      - name: Copies avant/après effacement et barrière de réintroduction
+        run: pnpm exec tsx --test tests/epic2-lot4-privacy-restore-pg.test.ts
+      - name: Bascule PostgreSQL 18 jetable et récupération des fichiers
+        run: pnpm exec tsx --test tests/epic2-lot5-cutover-pg.test.ts tests/epic2-lot5-coordinated-pg.test.ts
+      - name: Installation indépendante, bascule et rollback jetables
+        run: pnpm exec tsx --test tests/epic2-lot6-reset-pg.test.ts
+      - name: Contrôle réel de purge interrompue
+        run: pnpm exec tsx --test tests/epic2-lot7-retention-pg.test.ts
