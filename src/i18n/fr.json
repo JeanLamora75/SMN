@@ -4367,18 +4367,18 @@
   },
   "installationReset": {
     "title": "Réinitialisation de l'installation",
-    "intro": "Examinez les impacts avant toute remise à zéro. Cette fonctionnalité reste désactivée tant que la récupération et la reprise sur erreur ne sont pas qualifiées.",
+    "intro": "Cette analyse indique les données et archives concernées. La réinitialisation destructive reste bloquée ; une installation indépendante peut être préparée hors ligne sans effacer l'existante.",
     "inspect": "Prévisualiser les impacts",
     "inspecting": "Analyse en cours…",
     "failed": "Impossible d'évaluer l'installation. Aucune modification n'a été effectuée.",
-    "blocked": "Réinitialisation indisponible : aucune donnée n'a été modifiée. Le mécanisme de retour arrière n'est pas encore qualifié.",
+    "blocked": "Réinitialisation active interdite : aucune donnée n'a été modifiée. La confidentialité globale et la bascule vers une installation neuve doivent être qualifiées.",
     "schema": "Version du schéma",
     "tables": "Tables SMN",
-    "estimatedRows": "Lignes estimées",
+    "estimatedRows": "Lignes comptées",
     "documents": "Documents privés contrôlés",
     "backups": "Paquets de sauvegarde gérés",
     "unknown": "Indéterminé",
-    "estimatesWarning": "Les nombres de lignes sont des estimations PostgreSQL, pas un inventaire exhaustif. Les sauvegardes recensées ne sont pas nécessairement restaurables.",
+    "estimatesWarning": "L'analyse SQL est en lecture seule. Un comptage n'est pas une preuve que tous les contenus externes ou archivés sont inspectables.",
     "tableDetails": "Consulter les tables les plus volumineuses",
     "table": "Table",
     "risksTitle": "Données et risques concernés",
@@ -4394,7 +4394,12 @@
       "backup-before-reset": "Une sauvegarde préalable vérifiée et réellement restaurable est requise.",
       "rollback-not-qualified": "La reconstruction isolée et le retour arrière restent non qualifiés.",
       "external-copies": "Les copies exportées hors de SMN ne sont pas contrôlées automatiquement."
-    }
+    },
+    "exactWarning": "Comptage exact des lignes dans toutes les tables SMN présentes au moment de l'analyse, en lecture seule. Les fichiers et copies externes doivent être contrôlés séparément.",
+    "archiveUnavailable": "Impossible de vérifier complètement les archives PDF/Office : le périmètre est inconnu et la réinitialisation reste bloquée.",
+    "pdfArchives": "PDF de rapports archivés",
+    "officeReports": "Rapports Office exportés",
+    "officeTemplates": "Modèles Office"
   },
   "protectionOperations": {
     "title": "État des opérations et reprises",
