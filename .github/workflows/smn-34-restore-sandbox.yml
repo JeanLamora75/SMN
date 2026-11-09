@@ -4,6 +4,12 @@ on:
     branches: [main]
     paths:
       - "src/server/backup/restore-sandbox.ts"
+      - "src/server/backup/extra-archives.ts"
+      - "src/server/backup/runner.ts"
+      - "src/server/backup/verification.ts"
+      - "src/server/backup/files.ts"
+      - "tests/smn-34-v3-postgres.test.ts"
+      - "tests/smn-34-extra-archives.test.ts"
       - "src/server/backup/restore-sandbox-policy.ts"
       - "src/server/backup/restore-readiness.ts"
       - "scripts/smn-34-restore-rehearsal.ts"
@@ -32,7 +38,7 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Contrats de non-écrasement des bases
-        run: pnpm exec tsx --test tests/smn-34-restore-sandbox.test.ts tests/backup-restore-readiness.test.ts tests/backup-erasure-protection.test.ts
+        run: pnpm exec tsx --test tests/smn-34-restore-sandbox.test.ts tests/smn-34-extra-archives.test.ts tests/backup-restore-readiness.test.ts tests/backup-erasure-protection.test.ts
       - name: TypeScript
         run: pnpm typecheck
       - name: Traductions
