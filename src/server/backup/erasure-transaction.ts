@@ -23,7 +23,7 @@ export async function withAuditedErasureTransaction(
  });
  let started=false,committed=false,affectedRows=0;
  try{
-  await db.query("BEGIN");started=true;
+  await db.query("BEGIN ISOLATION LEVEL SERIALIZABLE");started=true;
   await db.query("SELECT pg_advisory_xact_lock(20261109,39)");
   const schema=await db.query<{tablename:string}>(
    "SELECT tablename FROM pg_catalog.pg_tables"+
