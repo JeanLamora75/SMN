@@ -7,7 +7,7 @@ export type CurrentBackupState=Readonly<{
  applicationVersion:string;documentCount:number|null;
 }>;
 /** Pure policy: a preview cannot grant permission to restore. */
-export function evaluatePreview(archive:BackupInventoryEntry,current:RestorePreview["current"],
+export function evaluatePreview(archive:BackupInventoryEntry,current:CurrentBackupState,
  now=new Date()):PreviewIssue[]{
  const issues:PreviewIssue[]=[];
  if(archive.status!=="verified"||!archive.integrityVerified)issues.push("archive-not-verified");
