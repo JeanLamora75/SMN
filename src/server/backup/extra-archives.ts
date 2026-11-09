@@ -2,7 +2,7 @@ import {lstat,mkdir,readdir,readFile} from "node:fs/promises";
 import {join,resolve} from "node:path";
 import type {Client} from "pg";
 import {sealedFile,sha,type BackupComponent} from "./files";
-import {officeReportsDirectory} from "../reports/office-storage";
+import {officeReportsDirectory,safeOfficeReportName} from "../reports/office-storage";
 
 export type ExtraFile=BackupComponent&{sourceName:string};
 export type ExtraInventory={pdf:readonly {name:string;hash:string;size:number}[];
@@ -61,7 +61,7 @@ export async function inspectExtraArchives(db:Pick<Client,"query">):Promise<Extr
   pdf.push({name:r.stored_name,hash,size:bytes.length});
  }
  const officeNames=officeExists?(await readdir(officeRoot)).sort():[];
- if(officeNames.length>MAX||officeNames.some(n=>!OFFICE.test(n)))
+ if(officeNames.length>MAX||officeNames.some(n=>!validExtraName("office",n)))
   throw Error("extra-archive-office-unrecognized");
  const office:ExtraInventory["office"][number][]=[];
  for(const name of officeNames){
@@ -92,5 +92,9 @@ export async function encryptExtraArchives(inventory:ExtraInventory,key:Buffer,
  return result;
 }
 export function validExtraName(kind:"pdf"|"office",name:string){
- return (kind==="pdf"?PDF:OFFICE).test(name)&&name!=="."&&name!=="..";
+ if(kind==="pdf")return PDF.test(name);
+ if(!OFFICE.test(name))return false;
+ const format=name.toLowerCase().endsWith(".docx")?"docx":"pptx";
+ try{return safeOfficeReportName(name,format)===name;}
+ catch{return false;}
 }
