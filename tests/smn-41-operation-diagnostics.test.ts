@@ -11,6 +11,8 @@ describe("SMN-41 — preuves d'incidents et résultats",()=>{
  it("ne prend jamais une réussite persistée pour une preuve du paquet",()=>{
   assert.equal(backup().status,"failed");
   assert.equal(backup({packageExists:true}).status,"failed");
+  assert.equal(backup({packageVerified:true,packageExists:false}).status,"failed",
+   "A claimed verification without a materialized package is never success");
   assert.equal(backup({packageVerified:true,packageExists:true}).status,"succeeded");
  });
  it("distingue exécution réelle et interruption après redémarrage",()=>{
@@ -74,7 +76,7 @@ describe("SMN-41 — preuves d'incidents et résultats",()=>{
   assert.equal(OBJECTIVES.indicativeRpoHours,24);
   assert.equal(OBJECTIVES.indicativeRtoMinutes,60);
   assert.equal(OBJECTIVES.targetsValidated,false);
-  assert.equal(backup({packageVerified:true}).measuredRtoMinutes,null);
-  assert.equal(backup({packageVerified:true}).measuredRpoMinutes,null);
+  assert.equal(backup({packageVerified:true,packageExists:true}).measuredRtoMinutes,null);
+  assert.equal(backup({packageVerified:true,packageExists:true}).measuredRpoMinutes,null);
  });
 });

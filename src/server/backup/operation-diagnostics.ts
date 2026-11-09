@@ -32,7 +32,7 @@ export function classifyBackupEvidence(input:{
  marker:"running"|"success"|"failed"|"cancelled";
  running:boolean;packageVerified:boolean;packageExists:boolean;
 }):OperationEvidence{
- const status:OperationStatus=input.packageVerified?"succeeded":
+ const status:OperationStatus=input.packageVerified&&input.packageExists?"succeeded":
   input.running&&input.marker==="running"?"running":
   input.marker==="cancelled"&&!input.packageExists?"cancelled":
   input.marker==="running"?"interrupted":"failed";
