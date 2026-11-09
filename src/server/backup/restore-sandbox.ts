@@ -1,8 +1,8 @@
 import {createHash,createDecipheriv} from "node:crypto";
 import {createReadStream} from "node:fs";
-import {readFile,lstat,mkdtemp,mkdir,rm,writeFile} from "node:fs/promises";
+import {readFile,lstat,mkdtemp,mkdir,rm,writeFile,rename} from "node:fs/promises";
 import {tmpdir} from "node:os";
-import {join} from "node:path";
+import {join,resolve,relative,sep,basename} from "node:path";
 import {spawn} from "node:child_process";
 import {Transform} from "node:stream";
 import {pipeline} from "node:stream/promises";
@@ -12,6 +12,7 @@ import {unseal,recoverKey,type RecoveryEnvelope} from "./crypto";
 import {scanDocuments,type BackupComponent} from "./files";
 import {validateSandboxTarget} from "./restore-sandbox-policy";
 import {validExtraName} from "./extra-archives";
+import {inspectRestoreFileTree} from "./restore-file-cutover-drill";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 type DocumentPart=BackupComponent&{sourceName:string};
@@ -26,6 +27,7 @@ export type RehearsalResult={
  verifiedOfficeTemplates:number;
  missingDocumentReferences:number;archiveHashChecked:true;
  databaseAndDocumentsConsistent:boolean;activeInstallationModified:false;
+ fileStagingRetained:boolean;fileSnapshotSha256:string|null;
  fullRestoreQualified:false;
 };
 function executable():string{
@@ -83,10 +85,26 @@ function newPgRestore(target:string,timeout:AbortSignal){
  */
 export async function rehearseBackupRestore(options:{
  sourceUri:string;sandboxUri:string;backupRoot:string;archiveId:string;
+ stagingFilesOutput?:string;
 }):Promise<RehearsalResult>{
  const {sourceUri,sandboxUri,backupRoot,archiveId}=options;
  if(!validateSandboxTarget(sourceUri,sandboxUri)||!UUID.test(archiveId))
   throw Error("restore-sandbox-denied");
+ const stagingOutput=options.stagingFilesOutput;
+ if(stagingOutput){
+  const temp=resolve(tmpdir()),out=resolve(stagingOutput);
+  const diff=relative(temp,out);
+  if(out!==stagingOutput||!diff||diff===".."||
+   diff.startsWith(".."+sep)||diff.includes(".."+sep)||
+   !/^smn_restore_test_files_[a-z0-9]{6,40}$/.test(basename(out)))
+   throw Error("restore-file-staging-disposable-only");
+  const stat=await lstat(out).catch((e:NodeJS.ErrnoException)=>{
+   if(e.code==="ENOENT")return null;
+   throw e;
+  });
+  if(stat)throw Error("restore-file-staging-already-exists");
+ }
+
  const sandbox=new Client({connectionString:sandboxUri,
   application_name:"smn34-sandbox-only",connectionTimeoutMillis:3500,
   statement_timeout:20000});
@@ -222,6 +240,25 @@ export async function rehearseBackupRestore(options:{
    SELECT count(*)::text AS n FROM pg_catalog.pg_class c
    JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace
    WHERE ns.nspname='public' AND c.relkind='r'`);
+  let stagedFingerprint:string|null=null;
+  if(stagingOutput){
+   if(missing!==0)throw Error("restore-stage-incomplete");
+   // The candidate directory is never active. Keep the exact verified
+   // PDF/Office/private bytes for an offline cutover drill only.
+   await rename(staging!,stagingOutput);
+   staging=null;
+   try{
+    const inspected=await inspectRestoreFileTree(stagingOutput);
+    const expectedFiles=manifest.documents.length+files.pdf.length+
+     files.office.length+files.template.length;
+    if(inspected.count!==expectedFiles)
+     throw Error("restore-staged-files-missing");
+    stagedFingerprint=inspected.sha256;
+   }catch(error){
+    await rm(stagingOutput,{recursive:true,force:true}).catch(()=>undefined);
+    throw error;
+   }
+  }
   return {archiveId,status:missing===0?"reconstructed-in-sandbox":
    "incomplete-archive-scope",sandboxOnly:true,
    restoredTables:Number(count.rows[0]?.n),verifiedDocuments:inventory.length/2,
@@ -229,6 +266,7 @@ export async function rehearseBackupRestore(options:{
    verifiedOfficeTemplates:files.template.length,
    missingDocumentReferences:missing,archiveHashChecked:true,
    databaseAndDocumentsConsistent:missing===0,activeInstallationModified:false,
+   fileStagingRetained:stagedFingerprint!==null,fileSnapshotSha256:stagedFingerprint,
    fullRestoreQualified:false};
  }finally{
   key?.fill(0);
