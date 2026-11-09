@@ -20,7 +20,8 @@ export const REASONS=[
  "verified-package","package-absent","package-invalid","operation-running",
  "interrupted-before-publication","partial-cleanup","cleanup-complete",
  "cleanup-failed","restore-not-enabled","reset-not-enabled",
- "unverifiable-state","cancelled-before-write"
+ "unverifiable-state","cancelled-before-write",
+ "unpublished-backup-artifact","pending-retention-tombstone","invalid-operation-marker"
 ] as const;
 export function sanitizeOperationCode(code:unknown):string{
  return typeof code==="string"&&(REASONS as readonly string[]).includes(code)?
@@ -75,5 +76,19 @@ export function blockedOperation(kind:"restore"|"installation-reset",
  return {kind,operationId:"not-executed",startedAt:checkedAt,checkedAt,
   status:"blocked",reason:kind==="restore"?"restore-not-enabled":"reset-not-enabled",
   recovery:"resolve-blockers",processed:0,failed:0,unprocessed:0,
+  measuredRpoMinutes:null,measuredRtoMinutes:null,...OBJECTIVES};
+}
+
+/** No filename, exception message or secret may enter the presentation. */
+export function unresolvedOperation(
+ kind:"backup"|"retention-cleanup",checkedAt:string,reason:
+ "unpublished-backup-artifact"|"pending-retention-tombstone"|"invalid-operation-marker",
+ count:number
+):OperationEvidence{
+ if(!Number.isSafeInteger(count)||count<1||count>2500||
+  !Number.isFinite(Date.parse(checkedAt)))throw Error("operation-evidence-invalid");
+ return {kind,operationId:"unresolved",startedAt:checkedAt,checkedAt,
+  status:"interrupted",reason,recovery:"reinspect-inventory-before-retry",
+  processed:0,unprocessed:count,failed:0,
   measuredRpoMinutes:null,measuredRtoMinutes:null,...OBJECTIVES};
 }
