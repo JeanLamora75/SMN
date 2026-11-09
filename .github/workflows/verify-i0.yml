@@ -114,6 +114,8 @@ jobs:
           run_install: false
       - name: Installer les dépendances (Windows sans élévation)
         run: pnpm install --frozen-lockfile
+      - name: Préparer le POC raster PNG SMN-410 (dépendance isolée)
+        run: npm install --prefix .smn-410-poc --no-save --package-lock=false --ignore-scripts @resvg/resvg-js@2.6.2
       - name: Contrat de validation v33 sur Windows
         run: pnpm test:validate-version
       - name: Tests unitaires Windows sans base PostgreSQL (intégrations PG couvertes par linux-postgres)
