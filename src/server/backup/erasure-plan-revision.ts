@@ -61,6 +61,8 @@ export async function captureErasureRevision(db:Client,
    total+=pdf.length;if(total>MAX_BYTES)throw new Error("too-many-bytes");
    parts.push("report="+archive.id+":"+createHash("sha256").update(pdf).digest("hex"));
   }
+  const after=await db.query<{lsn:string}>("SELECT pg_current_wal_lsn()::text AS lsn");
+  if(after.rows[0]?.lsn!==lsnBefore)throw new Error("concurrent-write");
   return {revision:sha(parts.join("|")),reason:"verified-current-inputs"};
  }catch{return {revision:null,reason:"incomplete-revision-coverage"};}
 }
