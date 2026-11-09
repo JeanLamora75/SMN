@@ -175,6 +175,13 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
    const layout=createDefaultDashboardLayout("scrum");
    assert.equal((await saveDashboardLayout(db,{installationId:"singleton",accountId:actor.id,teamId},layout,0)).revision,1);
    assert.equal((await readDashboardLayout(db,{installationId:"singleton",accountId:actor.id,teamId})).persisted,true);
+
+   const category=randomUUID(),linkGlobal=randomUUID(),linkTeam=randomUUID(),risk=randomUUID();
+   await db.query("INSERT INTO public.smn_link_category(id,installation_id,name) VALUES($1,'singleton','Liens de recette')",[category]);
+   await db.query("INSERT INTO public.smn_link(id,installation_id,title,url,category_id,scope,created_by) VALUES($1,'singleton','Documentation transversale','https://example.test/global',$2,'TRANSVERSE',$3)",[linkGlobal,category,actor.id]);
+   await db.query("INSERT INTO public.smn_link(id,installation_id,title,url,category_id,scope,team_id,created_by) VALUES($1,'singleton','Documentation equipe','https://example.test/team',$2,'EQUIPE',$3,$4)",[linkTeam,category,teamId,actor.id]);
+   await db.query("INSERT INTO public.smn_registry_item(id,installation_id,team_id,type,title,occurred_on,status,created_by) VALUES($1,'singleton',$2,'risk','Risque sauvegarde','2026-11-09','open',$3)",[risk,teamId,actor.id]);
+   await db.query("INSERT INTO public.smn_registry_comment(id,item_id,body,author_name) VALUES($1,$2,'Historique du risque','test')",[randomUUID(),risk]);
    const pdfHash=createHash("sha256").update(pdf).digest("hex");
    await writeFile(join(reports,pdfId+".pdf"),pdf,{flag:"wx"});
    await db.query(`INSERT INTO public.smn_report_pdf_archive
@@ -199,6 +206,8 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
    assert.equal(snapshot.smn_indicator_manual_value.count,2);
    assert.equal(snapshot.smn_dashboard_layout.count,1);
    assert.equal(snapshot.smn_member_assignment.count,1);
+   assert.equal(snapshot.smn_link.count,2);
+   assert.equal(snapshot.smn_registry_item.count,1);
   }finally{await db.end().catch(()=>undefined);}
   const captured=await createManualBackup(actor!,"Phrase de récupération dédiée pour recette SMN 34!");
   assert.equal(captured.status,"success");
