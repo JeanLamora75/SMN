@@ -29,12 +29,18 @@ test("Epic 2 lot 4 — external journal, watermark, rollback and privacy restora
    "An enrollment cannot certify erasures before installation");
   const initially=await currentErasureEvidence(after);
   assert.equal(initially.state,"verified");
-  assert.equal(evaluateErasureProtection(after,initially).permitted,true);
+  assert.equal(evaluateErasureProtection(after,initially).permitted,false,
+   "Authentic ledger is not a complete erasure history until all deletion paths are instrumented");
   const marker=await appendCompletedErasure("erase",new Date("2026-11-09T10:02:00.000Z"));
   assert.equal((await readErasureLedger()).markers.length,1);
   assert.equal(JSON.stringify(marker).includes("memberId"),false);
   const evidence=await currentErasureEvidence(after);
-  assert.equal(evaluateErasureProtection(after,evidence).code,"previously-erased-data");
+  assert.equal(evidence.state,"verified");
+  if(evidence.state==="verified"){
+   assert.equal(evidence.entriesAfterBackup,1);
+   assert.equal(evaluateErasureProtection(after,{...evidence,completeHistory:true}).code,"previously-erased-data");
+  }
+  assert.equal(evaluateErasureProtection(after,evidence).permitted,false);
   await appendCompletedErasure("anonymize",new Date("2026-11-09T10:03:00.000Z"));
   assert.equal((await readErasureLedger()).markers.length,2);
   await assert.rejects(initializeErasureLedger(),/EEXIST/,
