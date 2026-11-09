@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths:
       - "src/server/backup/restore-sandbox.ts"
+      - "src/server/backup/restore-file-cutover-drill.ts"
+      - "src/server/backup/restore-activation-policy.ts"
+      - "src/server/backup/restore-maintenance.ts"
       - "src/server/backup/extra-archives.ts"
       - "src/server/backup/capture-fence.ts"
       - "tests/epic2-lot2-capture-fence.test.ts"
