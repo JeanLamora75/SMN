@@ -909,7 +909,11 @@
       "closeSaved": "Assignment closed; history preserved.",
       "archiveSaved": "Member archived; history preserved.",
       "reactivateSaved": "The same member was reactivated. A new assignment can be added separately after the previous end date.",
-      "deleteSaved": "Empty member record deleted after reference checks."
+      "deleteSaved": "Empty member record deleted after reference checks.",
+      "auditNotReady": "The secure deletion audit journal is not installed. Deletion is unavailable.",
+      "unknownReferences": "Some references could not be verified: deletion is blocked.",
+      "referenceDetails": "View historical relationships blocking deletion",
+      "permanentDeletionNotice": "This permanent deletion applies only to an empty provisional record without history. Archiving is reversible."
     },
     "calendar": {
       "manage": "Individual calendar",
