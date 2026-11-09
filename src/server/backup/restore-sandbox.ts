@@ -36,7 +36,8 @@ function metadata(value:unknown):Manifest{
  if(!value||typeof value!=="object")throw Error("manifest-invalid");
  const m=value as Partial<Manifest>;
  if(m.version!==2||!UUID.test(m.id??"")||!m.database||
-  !Array.isArray(m.documents)||m.documents.length>2000)
+  !Array.isArray(m.documents)||m.documents.length>200||
+  m.documents.reduce((sum,part)=>sum+(Number(part.size)||0),0)>512*1024*1024)
   throw Error("manifest-invalid");
  return m as Manifest;
 }
