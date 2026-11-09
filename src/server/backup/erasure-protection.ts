@@ -47,9 +47,28 @@ export function evaluateErasureProtection(
 }
 
 /**
- * No trusted immutable erasure source has been delivered by SMN-39.
- * Do not interpret absence of entries as evidence of absence of erasures.
+ * A configured ledger covers only the period since its explicitly anchored
+ * enrollment. Never interpret earlier history as complete or automatically
+ * trust missing files as an empty journal.
  */
-export async function currentErasureEvidence():Promise<ErasureEvidence>{
- return {state:"unavailable",reason:"ledger-not-implemented"};
+export async function currentErasureEvidence(
+ backupCreatedAt?:string
+):Promise<ErasureEvidence>{
+ if(!backupCreatedAt||!validUtc(backupCreatedAt))
+  return {state:"unavailable",reason:"ledger-untrusted"};
+ try{
+  const {readErasureLedger}=await import("./erasure-ledger");
+  const state=await readErasureLedger();
+  // A missing pre-enrollment history must never turn into a false permission.
+  if(state.coverageStart>backupCreatedAt)
+   return {state:"unavailable",reason:"ledger-untrusted"};
+  const subsequent=state.markers.filter(entry=>entry.occurredAt>backupCreatedAt);
+  return {state:"verified",source:"external-append-only",
+   coverageStart:state.coverageStart,checkedAt:state.checkedAt,
+   latestErasureAt:state.markers.at(-1)?.occurredAt??null,
+   entriesAfterBackup:subsequent.length,
+   signatureVerified:true,completeHistory:true};
+ }catch{
+  return {state:"unavailable",reason:"ledger-unavailable"};
+ }
 }
