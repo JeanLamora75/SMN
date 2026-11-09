@@ -1,3 +1,4 @@
+import type {TranslationKey} from "@/i18n/catalog";
 "use client";
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
@@ -45,15 +46,15 @@ export default function ProtectionOperations(){
    {items?.map(item=><article key={item.kind+"-"+item.operationId}
     className="border rounded p-3 d-grid gap-2">
     <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
-     <strong>{t("protectionOperations.kinds."+item.kind)}</strong>
+     <strong>{t(("protectionOperations.kinds."+item.kind) as TranslationKey)}</strong>
      <span className={"badge "+(item.status==="succeeded"?"text-bg-success":
       item.status==="running"?"text-bg-info":"text-bg-warning")}>
-      {t("protectionOperations.statuses."+item.status)}
+      {t(("protectionOperations.statuses."+item.status) as TranslationKey)}
      </span>
     </div>
-    <p className="small mb-0">{t("protectionOperations.reasons."+item.reason)}</p>
+    <p className="small mb-0">{t(("protectionOperations.reasons."+item.reason) as TranslationKey)}</p>
     <p className="small text-secondary mb-0">
-     {t("protectionOperations.recoveries."+item.recovery)}</p>
+     {t(("protectionOperations.recoveries."+item.recovery) as TranslationKey)}</p>
     {item.kind==="retention-cleanup"&&<p className="small mb-0">
      {t("protectionOperations.counts",{done:item.processed,
       pending:item.unprocessed,failed:item.failed})}</p>}
