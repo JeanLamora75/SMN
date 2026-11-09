@@ -127,11 +127,56 @@ const auditSql=`
       '{}'::jsonb AS old_values,'{}'::jsonb AS new_values
     FROM public.smn_report_pdf_archive
   ) e ORDER BY occurred_at DESC,id DESC LIMIT $1`;
+const auditTableOrder=[
+ "smn_account_audit","smn_general_settings_audit","smn_auth_audit",
+ "smn_backup_retention_audit","smn_sprint_audit",
+ "smn_member_lifecycle_event","smn_team_context_audit",
+ "smn_registry_item_audit","smn_report_pdf_archive"
+] as const;
+
+/**
+ * v1–v32 may legitimately lack newer audit producers. On a missing-relation
+ * error, re-build the read-only UNION from exactly the known SMN-owned tables.
+ * A native v33 installation is never allowed to silently lose a producer.
+ * No caller-controlled identifiers or SQL are interpolated.
+ */
+async function queryAvailableAuditRows(client:Client,limit:number):Promise<RawEvent[]>{
+ const version=await client.query<{schema_version:number}>(
+  "SELECT schema_version FROM public.smn_installation WHERE id='singleton'");
+ if(version.rows.length!==1||!Number.isSafeInteger(version.rows[0].schema_version)||
+    version.rows[0].schema_version<1||version.rows[0].schema_version>=33)
+  throw Error("audit-schema-not-qualified");
+ const relations=await client.query<{tablename:string}>(
+  "SELECT tablename FROM pg_catalog.pg_tables "+
+  "WHERE schemaname='public' AND tablename=ANY($1::text[])",[auditTableOrder]);
+ const available=new Set(relations.rows.map(row=>row.tablename));
+ const start=auditSql.indexOf("    SELECT id,occurred_at,actor_id,action,'account'");
+ const end=auditSql.lastIndexOf("\n  ) e ORDER");
+ if(start<0||end<start)throw Error("audit-source-contract-invalid");
+ const parts=auditSql.slice(start,end).split(/\n    UNION ALL\n/);
+ if(parts.length!==auditTableOrder.length)
+  throw Error("audit-source-contract-invalid");
+ const selected=parts.filter((_,index)=>available.has(auditTableOrder[index]));
+ if(selected.length===0)return [];
+ const sql="SELECT id,occurred_at,actor_id,action,object_type,object_id,"+
+  "scope,result,old_values,new_values FROM (\n"+
+  selected.join("\n UNION ALL\n")+
+  "\n) e ORDER BY occurred_at DESC,id DESC LIMIT $1";
+ const result=await client.query<RawEvent>(sql,[limit]);
+ return result.rows;
+}
 /** Relecture uniquement : aucun identifiant, e-mail ou secret arbitraire de colonnes non projetées. */
 export async function readAuditJournal(client:Client,limit=100):Promise<readonly AuditEntry[]>{
  const safeLimit=Number.isSafeInteger(limit)&&limit>=1&&limit<=200?limit:100;
- const query=await client.query<RawEvent>(auditSql,[safeLimit]);
- const entries=query.rows.map(projectAuditEvent)
+ let rows:RawEvent[];
+ try{rows=(await client.query<RawEvent>(auditSql,[safeLimit])).rows;}
+ catch(error){
+  // Only a missing SQL relation triggers the explicit compatibility read.
+  // Permission failures, bad columns and other corruption remain hard errors.
+  if((error as {code?:unknown})?.code!=="42P01")throw error;
+  rows=await queryAvailableAuditRows(client,safeLimit);
+ }
+ const entries=rows.map(projectAuditEvent)
   .filter((value):value is AuditEntry=>value!==null);
  // The removal ledger is additive, outside the immutable v33 baseline.
  const extra=await client.query<{present:boolean}>(`
