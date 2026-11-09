@@ -39,6 +39,35 @@ describe("SMN-29 — audit sécurisé et transactionnel",()=>{
   assert.match(calls[0].sql,/smn_general_settings_audit/);
   assert.doesNotMatch(JSON.stringify(events),/example.test|password_hash/);
  });
+ it("lit les producteurs présents dans une installation historique sans masquer une v33 incomplète",async()=>{
+  const queries:string[]=[];
+  const fixture=()=>({rows:[row]});
+  const client={query:async(sql:string)=>{
+   queries.push(sql);
+   if(sql.includes("FROM public.smn_installation"))return {rows:[{schema_version:7}]};
+   if(sql.includes("FROM pg_catalog.pg_tables"))return {rows:[
+    {tablename:"smn_account_audit"},{tablename:"smn_auth_audit"}]};
+   if(sql.includes("to_regclass("))return {rows:[{present:false}]};
+   if(sql.includes("FROM (")&&sql.includes("smn_sprint_audit"))
+    throw Object.assign(Error("missing relation"),{code:"42P01"});
+   if(sql.includes("FROM ("))return fixture();
+   throw Error("unexpected query "+sql);
+  }} as unknown as Client;
+  const entries=await readAuditJournal(client);
+  assert.equal(entries.length,1);
+  assert.equal(entries[0].action,"account_updated");
+  const fallback=queries.find(x=>x.includes("FROM (")&&
+   !x.includes("smn_sprint_audit"));
+  assert.ok(fallback?.includes("smn_account_audit"));
+  assert.ok(fallback?.includes("smn_auth_audit"));
+  assert.ok(!fallback?.includes("smn_registry_item_audit"));
+  const native={query:async(sql:string)=>{
+   if(sql.includes("FROM public.smn_installation"))
+    return {rows:[{schema_version:33}]};
+   throw Object.assign(Error("missing relation"),{code:"42P01"});
+  }} as unknown as Client;
+  await assert.rejects(()=>readAuditJournal(native),/audit-schema-not-qualified/);
+ });
  it("autorise la lecture du journal uniquement à l'administrateur actif",()=>{
   const resource={type:"audit",exists:true,inScope:true};
   assert.equal(canAccess(actor("admin"),"read",resource),true);
