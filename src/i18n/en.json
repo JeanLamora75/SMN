@@ -4312,7 +4312,7 @@
     "restrictedTitle": "Limited erasure — isolated provisional record",
     "restrictedNotice": "Only for a record without assignments, histories, detected references or managed documents. Execution is transactional and audited. Exported copies are outside SMN's control.",
     "externalCopiesAcknowledgment": "I understand that SMN cannot delete copies of data exported outside its managed folders.",
-    "confirmationLabel": "Type exactly "{expected}" to confirm:",
+    "confirmationLabel": "Type exactly {expected} to confirm:",
     "executeRestricted": "Permanently erase this record",
     "executing": "Erasing…",
     "executionFailed": "Erasure rejected or outcome uncertain. Review the logs before any other attempt.",
