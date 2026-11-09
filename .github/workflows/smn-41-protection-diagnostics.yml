@@ -1,0 +1,43 @@
+name: SMN-41 — Diagnostic des interruptions
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/server/backup/operation-diagnostics.ts"
+      - "src/server/backup/protection-diagnostics.ts"
+      - "src/server/backup/runner.ts"
+      - "src/server/backup/retention.ts"
+      - "src/app/api/admin/backups/**"
+      - "src/app/app/admin/backups/**"
+      - "src/i18n/fr.json"
+      - "src/i18n/en.json"
+      - "tests/smn-41-operation-diagnostics.test.ts"
+      - ".github/workflows/smn-41-protection-diagnostics.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  policy-and-types:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Test d'interruption et de refus des faux succès
+        run: pnpm exec tsx --test tests/smn-41-operation-diagnostics.test.ts tests/backup-retention.test.ts
+      - name: TypeScript
+        run: pnpm typecheck
+      - name: Traductions
+        run: pnpm i18n:check
