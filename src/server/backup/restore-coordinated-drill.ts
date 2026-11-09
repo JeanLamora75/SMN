@@ -24,7 +24,8 @@ export async function rehearseCoordinatedOfflineCutover(
  input:CoordinatedCutoverInput
 ):Promise<CoordinatedCutoverResult>{
  const prepared=await inspectRestoreFileTree(input.files.candidateRoot);
- if(prepared.count<1)throw Error("coordinated-restore-files-unavailable");
+ if(prepared.count<1&&!input.files.allowVerifiedEmptyCandidate)
+  throw Error("coordinated-restore-files-unavailable");
  const files=await rehearseOfflineFileCutover(input.files);
  if(files.status!=="verified")throw Error("coordinated-file-restore-rolled-back");
  const rollbackFiles=async()=>{
