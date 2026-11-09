@@ -43,12 +43,12 @@ export async function previewInstallationReset():Promise<ResetImpact>{
    const i=result.rows[0];
    installation={id:i.id,schemaVersion:i.schema_version,
     createdAt:new Date(i.created_at).toISOString(),postgresVersion:i.postgres_version};
-   const tables=await db.query<{name:string}>(String.raw\`
+   const tables=await db.query<{name:string}>(`
     SELECT c.relname AS name
     FROM pg_catalog.pg_class c
     JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
     WHERE n.nspname='public' AND c.relkind='r' AND c.relname LIKE 'smn_%'
-    ORDER BY c.relname\`);
+    ORDER BY c.relname`);
    if(tables.rows.length>400||tables.rows.some(t=>!/^[a-z][a-z0-9_]*$/.test(t.name)))
     throw Error("reset-schema-unverifiable");
    const examples:{table:string;estimatedRows:number}[]=[];
