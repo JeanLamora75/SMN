@@ -5,6 +5,7 @@ on:
     paths:
       - "src/server/backup/erasure-ledger.ts"
       - "src/server/backup/erasure-protection.ts"
+      - "src/app/api/admin/backups/restore/preflight/route.ts"
       - "src/server/backup/exceptional-erasure-policy.ts"
       - "tests/epic2-lot4-erasure-ledger.test.ts"
       - "tests/backup-erasure-protection.test.ts"
