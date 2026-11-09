@@ -7,6 +7,11 @@ on:
       - "src/server/backup/operation-diagnostics.ts"
       - "src/server/backup/protection-diagnostics.ts"
       - "src/server/backup/retention-evidence.ts"
+      - "src/server/backup/retention-interruptions.ts"
+      - "src/server/backup/retention.ts"
+      - "src/server/backup/runner.ts"
+      - "src/app/api/admin/backups/operations/route.ts"
+      - "src/app/app/admin/backups/protection-operations.tsx"
       - "src/i18n/fr.json"
       - "src/i18n/en.json"
       - "tests/smn-41-operation-diagnostics.test.ts"
@@ -35,7 +40,7 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Interruption and classification contracts
-        run: pnpm exec tsx --test tests/smn-41-operation-diagnostics.test.ts tests/epic2-lot7-operation-artifacts.test.ts tests/epic2-lot2-retention-safety.test.ts
+        run: pnpm exec tsx --test tests/smn-41-operation-diagnostics.test.ts tests/epic2-lot7-operation-artifacts.test.ts tests/epic2-lot2-retention-safety.test.ts tests/backup-retention.test.ts tests/manual-backup.test.ts
       - name: TypeScript
         run: pnpm typecheck
       - name: Translations
