@@ -95,6 +95,6 @@ export function validExtraName(kind:"pdf"|"office",name:string){
  if(kind==="pdf")return PDF.test(name);
  if(!OFFICE.test(name))return false;
  const format=name.toLowerCase().endsWith(".docx")?"docx":"pptx";
- try{return safeOfficeReportName(name,format)===name;}
+ try{return safeOfficeReportName(name,format).toLowerCase()===name.toLowerCase();}
  catch{return false;}
 }
