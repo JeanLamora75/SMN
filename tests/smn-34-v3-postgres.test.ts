@@ -9,6 +9,76 @@ import {installExpress} from "../src/server/installation/install";
 import {createManualBackup} from "../src/server/backup/runner";
 import {inspectBackup} from "../src/server/backup/verification";
 import {rehearseBackupRestore} from "../src/server/backup/restore-sandbox";
+import {extractOoxmlText} from "../src/server/backup/erasure-ooxml-text";
+import {validateFinalPdf} from "../src/server/reports/pdf-archive-contract";
+
+function makePdf():Buffer{
+ const pieces=["%PDF-1.4\n"];
+ const offsets:number[]=[0];let current=Buffer.byteLength(pieces[0]);
+ const objects=[
+  "<</Type/Catalog /Pages 2 0 R>>",
+  "<</Type/Pages /Kids[3 0 R] /Count 1>>",
+  "<</Type/Page /Parent 2 0 R /MediaBox[0 0 612 792] /Contents 4 0 R>>",
+  "<</Length 0>>\nstream\n\nendstream"
+ ];
+ for(const [index,content] of objects.entries()){
+  offsets.push(current);
+  const chunk=(index+1)+" 0 obj\n"+content+"\nendobj\n";
+  pieces.push(chunk);current+=Buffer.byteLength(chunk);
+ }
+ const xref=current;
+ pieces.push("xref\n0 5\n0000000000 65535 f \n");
+ for(const position of offsets.slice(1))
+  pieces.push(String(position).padStart(10,"0")+" 00000 n \n");
+ pieces.push("trailer\n<</Size 5 /Root 1 0 R>>\nstartxref\n"+xref+"\n%%EOF\n");
+ return Buffer.from(pieces.join(""));
+}
+function crc32(bytes:Buffer):number{
+ let c=0xffffffff;
+ for(const b of bytes){c^=b;for(let j=0;j<8;j++)
+  c=(c&1)?(c>>>1)^0xedb88320:c>>>1;}
+ return (c^0xffffffff)>>>0;
+}
+function makeDocx():Buffer{
+ const entries=[
+  {name:"[Content_Types].xml",body:`<?xml version="1.0"?>
+  <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml"
+   ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  </Types>`},
+  {name:"_rels/.rels",body:`<?xml version="1.0"?>
+  <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1"
+  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"
+  Target="word/document.xml"/></Relationships>`},
+  {name:"word/document.xml",body:`<?xml version="1.0"?>
+  <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body><w:p><w:r><w:t>Rapport SMN-34</w:t></w:r></w:p></w:body></w:document>`}
+ ];
+ const locals:Buffer[]=[],central:Buffer[]=[];let offset=0;
+ for(const item of entries){
+  const name=Buffer.from(item.name),body=Buffer.from(item.body),checksum=crc32(body);
+  const local=Buffer.alloc(30);local.writeUInt32LE(0x04034b50,0);
+  local.writeUInt16LE(20,4);local.writeUInt32LE(checksum,14);
+  local.writeUInt32LE(body.length,18);local.writeUInt32LE(body.length,22);
+  local.writeUInt16LE(name.length,26);
+  locals.push(local,name,body);
+  const cd=Buffer.alloc(46);cd.writeUInt32LE(0x02014b50,0);
+  cd.writeUInt16LE(20,4);cd.writeUInt16LE(20,6);
+  cd.writeUInt32LE(checksum,16);cd.writeUInt32LE(body.length,20);
+  cd.writeUInt32LE(body.length,24);cd.writeUInt16LE(name.length,28);
+  cd.writeUInt32LE(offset,42);central.push(cd,name);
+  offset+=local.length+name.length+body.length;
+ }
+ const bytes=Buffer.concat(central),eocd=Buffer.alloc(22);
+ eocd.writeUInt32LE(0x06054b50,0);
+ eocd.writeUInt16LE(entries.length,8);eocd.writeUInt16LE(entries.length,10);
+ eocd.writeUInt32LE(bytes.length,12);eocd.writeUInt32LE(offset,16);
+ return Buffer.concat([...locals,bytes,eocd]);
+}
+
 
 test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
  {timeout:240000},async()=>{
@@ -53,8 +123,10 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
   const db=new Client({connectionString:url(source)});
   let actor:{id:string;role:string;password_hash:string};
   const pdfId=randomUUID(),teamId=randomUUID(),sprintId=randomUUID();
-  const pdf=Buffer.from("%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\n%%EOF\n");
-  const officeBytes=Buffer.from("PK\u0003\u0004demo-office-report");
+  const pdf=makePdf();
+  const officeBytes=makeDocx();
+  assert.ok(validateFinalPdf(pdf));
+  assert.equal(extractOoxmlText(officeBytes).state,"extracted");
   try{
    await db.connect();
    const account=await db.query<{id:string;role:string;password_hash:string}>(
