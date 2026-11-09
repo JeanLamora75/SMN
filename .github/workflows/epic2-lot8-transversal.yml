@@ -68,6 +68,7 @@ jobs:
       - name: Contrats restauration, réinitialisation et interruptions
         run: >-
           pnpm exec tsx --test
+          tests/epic2-lot8-safety-gates.test.ts
           tests/epic2-lot5-cutover-policy.test.ts
           tests/epic2-lot5-file-cutover.test.ts
           tests/epic2-lot5-maintenance.test.ts
