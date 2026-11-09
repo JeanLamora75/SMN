@@ -155,6 +155,8 @@ export async function prepareManaged(onProgress: (step: string) => void, recover
   const existing = await existingManagedUri();
   if (existing) return existing;
   const root = managedStorageRoot();
+  // Validate the destination before inspecting or archiving any partial cluster.
+  await ensureStorageRoot();
   // Une ancienne tentative peut avoir créé le dossier data avant que le
   // manifeste de connexion ait été écrit (SMN-12). N'y toucher que sur
   // confirmation distincte ; l'ancien dossier est ARCHIVÉ, jamais supprimé.
@@ -178,7 +180,6 @@ export async function prepareManaged(onProgress: (step: string) => void, recover
     onProgress("Conservation de la tentative précédente dans une sauvegarde");
     await archiveIncompleteCluster(root);
   }
-  await ensureStorageRoot();
   const archive = path.join(root, PG_ARCHIVE);
   const bundle = path.join(process.cwd(), "runtime", "postgres", PG_ARCHIVE);
   onProgress("Préparation des composants PostgreSQL — le premier lancement peut prendre quelques minutes");
