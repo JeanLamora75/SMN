@@ -11,6 +11,12 @@ type InventoryEntry={
  schemaVersion:number|null;postgresVersion:string|null;components:Component[];
  documentCount:number;integrityVerified:boolean;restoreTested:false;
 };
+type RestorePreview={
+ id:string;checkedAt:string;archive:InventoryEntry;
+ current:{installationSource:string;schemaVersion:number;postgresVersion:string;
+  applicationVersion:string;documentCount:number|null};
+ issues:string[];blocked:boolean;canRestore:false;
+};
 type Retention={days:number;revision:number;updatedAt:string;eligibleIds:string[]};
 type State={needsRecoveryPhrase:boolean;last:Outcome|null;inventory:InventoryEntry[];retention:Retention};
 
@@ -18,6 +24,9 @@ export default function BackupsAdmin(){
  const t=useTranslation();
  const [state,setState]=useState<State|null>(null);
  const [phrase,setPhrase]=useState("");
+ const [preview,setPreview]=useState<RestorePreview|null>(null);
+ const [previewBusy,setPreviewBusy]=useState<string|null>(null);
+ const [previewError,setPreviewError]=useState("");
  const [busy,setBusy]=useState(false);
  const [checking,setChecking]=useState(false);
  const [retentionDays,setRetentionDays]=useState("30");
@@ -48,9 +57,21 @@ export default function BackupsAdmin(){
   }).catch(()=>{if(active)setError(t("backups.unavailable"));});
   return ()=>{active=false;};
  },[t]);
+ async function previewRestore(id:string){
+  if(previewBusy||busy||checking||cleaning||savingRetention)return;
+  setPreviewBusy(id);setPreview(null);setPreviewError("");
+  try{
+   const response=await fetch("/api/admin/backups/preview?id="+encodeURIComponent(id),{cache:"no-store"});
+   if(!response.ok)throw new Error("preview-unavailable");
+   const data=await response.json() as RestorePreview;
+   if(data.id!==id||!Array.isArray(data.issues))throw new Error("preview-invalid");
+   setPreview(data);
+  }catch{setPreviewError(t("backups.previewFailed"));}
+  finally{setPreviewBusy(null);}
+ }
  async function recheck(){
   if(busy||checking)return;
-  setChecking(true);setError("");
+  setChecking(true);setError("");setPreview(null);
   try{await refresh();}
   catch{setError(t("backups.unavailable"));}
   finally{setChecking(false);}
@@ -233,6 +254,47 @@ export default function BackupsAdmin(){
      </>:<p role="alert" className="small my-2">
       {t("backups.notVerified")}{item.reason&&<> ({t("backups.reason")}: <code>{item.reason}</code>)</>}
      </p>}
+     <div className="mt-3">
+      <button type="button" className="btn btn-outline-primary btn-sm"
+       disabled={!!previewBusy||busy||checking||cleaning||savingRetention}
+       onClick={()=>previewRestore(item.id)}>
+       {previewBusy===item.id?t("backups.previewRunning"):t("backups.previewStart")}
+      </button>
+     </div>
+     {preview?.id===item.id&&<section className="border rounded p-3 mt-3" aria-label={t("backups.previewTitle")}>
+      <h4 className="h6">{t("backups.previewTitle")}</h4>
+      <p className="small">{t("backups.previewNoWrite")}</p>
+      <dl className="row small">
+       <dt className="col-sm-5">{t("backups.created")}</dt>
+       <dd className="col-sm-7">{preview.archive.createdAt?new Date(preview.archive.createdAt).toLocaleString():"—"}</dd>
+       <dt className="col-sm-5">{t("backups.origin")}</dt>
+       <dd className="col-sm-7 text-break">{preview.archive.installationSource??"—"}</dd>
+       <dt className="col-sm-5">{t("backups.applicationVersion")}</dt>
+       <dd className="col-sm-7">{preview.archive.applicationVersion??"—"}</dd>
+       <dt className="col-sm-5">{t("backups.schemaVersion")}</dt>
+       <dd className="col-sm-7">{preview.archive.schemaVersion??"—"}</dd>
+       <dt className="col-sm-5">{t("backups.previewCurrentSchema")}</dt>
+       <dd className="col-sm-7">{preview.current.schemaVersion}</dd>
+       <dt className="col-sm-5">{t("backups.previewCurrentOrigin")}</dt>
+       <dd className="col-sm-7 text-break">{preview.current.installationSource}</dd>
+       <dt className="col-sm-5">{t("backups.previewFiles")}</dt>
+       <dd className="col-sm-7">{t("backups.previewFileImpact",{before:preview.current.documentCount===null?"?":preview.current.documentCount,
+        after:preview.archive.documentCount})}</dd>
+      </dl>
+      <p className="small">{t("backups.previewOverwrite")}</p>
+      <p className="small">{t("backups.previewComponents",{count:preview.archive.components.length})}</p>
+      {preview.issues.length>0&&<div role="alert" className="alert alert-warning">
+       <strong>{t("backups.previewRisks")}</strong>
+       <ul className="mb-0">{preview.issues.map(issue=><li key={issue}>
+        {t("backups.previewIssues."+issue)}
+       </li>)}</ul>
+      </div>}
+      <p className="small fw-semibold">{t("backups.previewNotRestorable")}</p>
+      <button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>setPreview(null)}>
+       {t("backups.previewClose")}
+      </button>
+     </section>}
+     {previewError&&<p role="alert" className="alert alert-warning mt-2">{previewError}</p>}
      <p className="small text-secondary mt-2 mb-0">
       {t("backups.checkedAt")}: <time dateTime={item.checkedAt}>{new Date(item.checkedAt).toLocaleString()}</time>
       {" · "}{t("backups.integrityOnly")}
