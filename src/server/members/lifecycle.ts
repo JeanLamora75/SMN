@@ -87,11 +87,6 @@ function isEmpty(member:MemberRow){
  member.contribution_percent===100&&member.revision===0&&/^Membre [1-9][0-9]*$/.test(member.display_name)&&
  member.archived_at===null;
 }
-async function hasCascadeRisk(client:Client){
- const result=await client.query<{refs:number}>(`SELECT count(*)::int AS refs FROM pg_constraint
- WHERE contype='f' AND confrelid='public.smn_member'::regclass AND confdeltype IN ('c','n','d')`);
- return (result.rows[0]?.refs??0)>0;
-}
 export async function inspectMemberLifecycle(client:Client,id:string):Promise<LifecycleImpact>{
  if(!UUID.test(id))throw new Error("member-id-invalid");
  const state=await load(client,id,false);
