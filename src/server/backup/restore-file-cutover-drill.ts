@@ -1,6 +1,7 @@
 import {createHash} from "node:crypto";
 import {lstat,open,readdir,readFile,rename,rm} from "node:fs/promises";
-import {basename,dirname,isAbsolute,resolve,join} from "node:path";
+import {basename,dirname,isAbsolute,resolve,join,relative,sep} from "node:path";
+import {tmpdir} from "node:os";
 
 /**
  * File cutover REHEARSAL only: all roots must be siblings named
@@ -19,7 +20,10 @@ export type FileCutoverInput=Readonly<{
 }>;
 export function validateFileCutoverDrill(x:FileCutoverInput):boolean{
  const roots=[x.originalRoot,x.candidateRoot,x.rollbackRoot];
- return roots.every(r=>isAbsolute(r)&&r===resolve(r)&&SAFE.test(basename(r)))&&
+ const parent=dirname(roots[0]),insideTemp=relative(resolve(tmpdir()),parent);
+ return insideTemp!==""&&insideTemp!==".."&&
+  !insideTemp.startsWith(".."+sep)&&
+  !isAbsolute(insideTemp)&&roots.every(r=>isAbsolute(r)&&r===resolve(r)&&SAFE.test(basename(r)))&&
   new Set(roots).size===3&&new Set(roots.map(dirname)).size===1;
 }
 export async function inspectRestoreFileTree(root:string):Promise<FileSnapshot>{
