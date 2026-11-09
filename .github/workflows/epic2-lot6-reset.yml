@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - "src/server/installation/reset-*"
+      - "src/server/backup/restore-file-cutover-drill.ts"
+      - "src/server/backup/restore-coordinated-drill.ts"
       - "src/app/api/admin/installation/reset/**"
       - "src/app/app/admin/backups/installation-reset-preview.tsx"
       - "src/i18n/fr.json"
