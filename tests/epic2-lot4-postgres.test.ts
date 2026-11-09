@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {randomUUID,randomBytes} from "node:crypto";
 import {readFileSync} from "node:fs";
 import {mkdtemp,mkdir,rm} from "node:fs/promises";
+import {inspectDependentMemberErasure,eraseDependentMember} from "../src/server/backup/erasure-dependent-member";
 import {inspectRestrictedMemberErasure,eraseRestrictedMember} from "../src/server/backup/erasure-restricted-member";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
@@ -124,6 +125,42 @@ test("Epic 2 lot 4 PG18 — read-only impact scan on isolated native v33",
     assert.equal((await readErasureLedger()).markers.length,2);
     assert.deepEqual(await inspectErasureCommit(db,deleted.receiptId),{
      state:"committed",affectedRows:1
+    });
+    // Qualified non-trivial dependency graph: member -> assignment -> version.
+    // No team cycle, report or other business reference may be affected.
+    const linkedMember=randomUUID(),linkedAssignment=randomUUID();
+    await db.query("INSERT INTO public.smn_member "+
+     "(id,installation_id,batch_id,member_number,display_name) "+
+     "VALUES($1,'singleton',$2,3,'Linked provisional member')",
+     [linkedMember,batch]);
+    await db.query("INSERT INTO public.smn_member_assignment "+
+     "(id,member_id,team_id,start_on,agile_role) "+
+     "VALUES($1,$2,$3,'2026-09-01','developer')",
+     [linkedAssignment,linkedMember,team]);
+    await db.query("INSERT INTO public.smn_member_assignment_version "+
+     "(id,assignment_id,revision,effective_from,allocation_percent,"+
+     "contract_percent,contribution_percent,scrum_master_percent,"+
+     "product_owner_percent,developer_percent) "+
+     "VALUES($1,$2,1,'2026-09-01',100,100,100,0,0,100)",
+     [randomUUID(),linkedAssignment]);
+    const dependent=await inspectDependentMemberErasure(db,linkedMember);
+    assert.deepEqual(dependent,{
+     eligible:true,reason:"eligible",assignments:1,versions:1
+    });
+    const linkedErased=await eraseDependentMember(db,{
+     memberId:linkedMember,scopeRevision:"e".repeat(64)
+    });
+    assert.equal(linkedErased.affectedRows,3);
+    assert.equal((await db.query(
+     "SELECT 1 FROM public.smn_member WHERE id=$1",[linkedMember])).rows.length,0);
+    assert.equal((await db.query(
+     "SELECT 1 FROM public.smn_member_assignment WHERE id=$1",[linkedAssignment])).rows.length,0);
+    assert.equal((await db.query(
+     "SELECT 1 FROM public.smn_member_assignment_version WHERE assignment_id=$1",
+     [linkedAssignment])).rows.length,0);
+    assert.equal((await readErasureLedger()).markers.length,3);
+    assert.deepEqual(await inspectErasureCommit(db,linkedErased.receiptId),{
+     state:"committed",affectedRows:3
     });
     await assert.rejects(withAuditedErasureTransaction(db,{
      scopeRevision:"b".repeat(64),operation:"erase"
