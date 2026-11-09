@@ -9,7 +9,7 @@ export type ErasureEvidence =
  | Readonly<{state:"unavailable";reason:"ledger-not-implemented"|"ledger-unavailable"|"ledger-untrusted"}>
  | Readonly<{state:"verified";source:"external-append-only";coverageStart:string;
    checkedAt:string;latestErasureAt:string|null;entriesAfterBackup:number;
-   signatureVerified:true;completeHistory:true}>;
+   signatureVerified:true;completeHistory:boolean}>;
 
 export type PrivacyDecision=Readonly<{
  permitted:boolean;
@@ -63,11 +63,14 @@ export async function currentErasureEvidence(
   if(state.coverageStart>backupCreatedAt)
    return {state:"unavailable",reason:"ledger-untrusted"};
   const subsequent=state.markers.filter(entry=>entry.occurredAt>backupCreatedAt);
+  // No destructive SMN-39 executor or SMN-36 audit bridge is wired yet.
+  // Therefore the cryptographic chain is authentic but NOT a complete
+  // history of every possible personal-data deletion in this installation.
   return {state:"verified",source:"external-append-only",
    coverageStart:state.coverageStart,checkedAt:state.checkedAt,
    latestErasureAt:state.markers.at(-1)?.occurredAt??null,
    entriesAfterBackup:subsequent.length,
-   signatureVerified:true,completeHistory:true};
+   signatureVerified:true,completeHistory:false};
  }catch{
   return {state:"unavailable",reason:"ledger-unavailable"};
  }
