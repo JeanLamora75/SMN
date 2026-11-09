@@ -1,3 +1,4 @@
+import type {TranslationKey} from "@/i18n/catalog";
 "use client";
 import {useCallback,useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
@@ -310,7 +311,7 @@ export default function BackupsAdmin(){
       {preview.issues.length>0&&<div role="alert" className="alert alert-warning">
        <strong>{t("backups.previewRisks")}</strong>
        <ul className="mb-0">{preview.issues.map(issue=><li key={issue}>
-        {t("backups.previewIssues."+issue)}
+        {t(("backups.previewIssues."+issue) as TranslationKey)}
        </li>)}</ul>
       </div>}
       <p className="small fw-semibold">{t("backups.previewNotRestorable")}</p>
@@ -321,7 +322,7 @@ export default function BackupsAdmin(){
       {restoreGate?.archiveId===item.id&&<div role="status" className="alert alert-warning">
        <strong>{t("backups.restorePreflightBlocked")}</strong>
        <ul className="mt-2 mb-0">{restoreGate.blockers.map(blocker=><li key={blocker}>
-        {t("backups.restoreGate."+blocker)}
+        {t(("backups.restoreGate."+blocker) as TranslationKey)}
        </li>)}</ul>
       </div>}
       <button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>{setPreview(null);setRestoreGate(null);}}>
