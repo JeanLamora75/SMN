@@ -1,0 +1,39 @@
+name: Epic 2 Lot 4 — Erasure evidence and restoration privacy
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/server/backup/erasure-ledger.ts"
+      - "src/server/backup/erasure-protection.ts"
+      - "src/server/backup/exceptional-erasure-policy.ts"
+      - "tests/epic2-lot4-erasure-ledger.test.ts"
+      - "tests/backup-erasure-protection.test.ts"
+      - ".github/workflows/epic2-lot4-erasure.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  privacy-contracts:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Privacy and erasure ledger contracts
+        run: pnpm exec tsx --test tests/epic2-lot4-erasure-ledger.test.ts tests/backup-erasure-protection.test.ts tests/exceptional-erasure-policy.test.ts
+      - name: TypeScript
+        run: pnpm typecheck
+      - name: Internationalization
+        run: pnpm i18n:check
