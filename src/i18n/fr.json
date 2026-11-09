@@ -4326,5 +4326,36 @@
       "stale": "Le reçu est périmé, invalide ou les données ont changé. Refaire une prévisualisation.",
       "failed": "La revérification est indisponible. Aucun effacement autorisé."
     }
+  },
+  "installationReset": {
+    "title": "Réinitialisation de l'installation",
+    "intro": "Examinez les impacts avant toute remise à zéro. Cette fonctionnalité reste désactivée tant que la récupération et la reprise sur erreur ne sont pas qualifiées.",
+    "inspect": "Prévisualiser les impacts",
+    "inspecting": "Analyse en cours…",
+    "failed": "Impossible d'évaluer l'installation. Aucune modification n'a été effectuée.",
+    "blocked": "Réinitialisation indisponible : aucune donnée n'a été modifiée. Le mécanisme de retour arrière n'est pas encore qualifié.",
+    "schema": "Version du schéma",
+    "tables": "Tables SMN",
+    "estimatedRows": "Lignes estimées",
+    "documents": "Documents privés contrôlés",
+    "backups": "Paquets de sauvegarde gérés",
+    "unknown": "Indéterminé",
+    "estimatesWarning": "Les nombres de lignes sont des estimations PostgreSQL, pas un inventaire exhaustif. Les sauvegardes recensées ne sont pas nécessairement restaurables.",
+    "tableDetails": "Consulter les tables les plus volumineuses",
+    "table": "Table",
+    "risksTitle": "Données et risques concernés",
+    "backupAdvice": "Avant toute future réinitialisation, créer une sauvegarde chiffrée, vérifier son intégrité et prouver sa restauration sur une installation isolée. La création d'une nouvelle installation ne doit jamais écraser l'installation existante.",
+    "close": "Fermer l'aperçu",
+    "risks": {
+      "database-overwrite": "La base PostgreSQL et les données métier pourraient être remplacées.",
+      "private-files": "Les documents privés et fichiers Office doivent être inclus dans le périmètre.",
+      "archives-and-snapshots": "Les archives historiques, PDF/TXT et snapshots immuables doivent être protégés.",
+      "accounts-and-sessions": "Comptes, droits d'accès et sessions doivent être revus et invalidés.",
+      "historical-links": "Les liens entre équipes, sprints, membres et documents seraient affectés.",
+      "erasure-ledger": "Les preuves d'effacement ne doivent jamais être supprimées ou réintroduites.",
+      "backup-before-reset": "Une sauvegarde préalable vérifiée et réellement restaurable est requise.",
+      "rollback-not-qualified": "La reconstruction isolée et le retour arrière restent non qualifiés.",
+      "external-copies": "Les copies exportées hors de SMN ne sont pas contrôlées automatiquement."
+    }
   }
 }
