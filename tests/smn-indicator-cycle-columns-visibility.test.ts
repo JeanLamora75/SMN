@@ -7,10 +7,11 @@ const cycles=read("src/app/app/admin/indicators/indicator-cycles.tsx");
 const catalog=read("src/app/app/admin/indicators/catalog-client.tsx");
 const css=read("src/app/app/admin/indicators/indicator-cockpit.css");
 const reporting=read("src/server/indicators/reporting.ts");
+const preferences=read("src/app/app/admin/indicators/preference-order-table.tsx");
 
 test("Le tableau des cycles fournit un accès aux préférences de colonnes",()=>{
- assert.match(cycles,/Gérer les colonnes/);
- assert.match(cycles,/href="#preferences"/);
+ assert.match(catalog,/Gérer les colonnes/);
+ assert.match(catalog,/#preferences/);
  assert.match(cycles,/smn-indicator-cycle-scroll/);
  assert.match(cycles,/aria-label="Tableau des indicateurs par cycle, défilement horizontal"/);
  assert.match(cycles,/smn-cycle-name-col/);
@@ -20,9 +21,9 @@ test("Le tableau des cycles fournit un accès aux préférences de colonnes",()=
 test("Les réglages Liste des cycles sont accessibles et utilisent la préférence existante",()=>{
  assert.match(catalog,/id:"preferences"/);
  assert.match(catalog,/screen==="cycle_list"/);
- assert.match(catalog,/action:"preference"/);
- assert.match(catalog,/visible:p\?\.is_visible\?\?true/);
- assert.match(catalog,/screenKey:screen/);
+ assert.match(preferences,/action:"preference"/);
+ assert.match(preferences,/visible:p\?\.is_visible\?\?true/);
+ assert.match(preferences,/screenKey:screen/);
  assert.match(reporting,/p\.screen_key=\$2/);
  assert.match(reporting,/COALESCE\(p\.is_visible,true\)=true/);
  assert.match(cycles,/screen:"cycle_list"/);

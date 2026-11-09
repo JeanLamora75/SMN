@@ -10,7 +10,7 @@ test("Création et modification partagent une modale Cockpit Agile, pas un formu
  assert.match(catalog,/createPortal\(<div className=\{ui\.overlay\}/);
  assert.match(catalog,/role="dialog" aria-modal="true"/);
  assert.match(catalog,/Cockpit Agile · Administration des indicateurs/);
- assert.match(catalog,/onClick=\{\(\)=>editor\(\)\}/);
+ assert.match(catalog,/window\.addEventListener\("smn:indicator-create",onCreate\)/);
  assert.equal((catalog.match(/onClick=\{\(\)=>editor\(d\)\}/g)??[]).length,2);
  assert.doesNotMatch(catalog,/<section className="smn-panel rounded-4 p-4 mt-4" aria-label=\{t\("indicators\.editor"\)\}/);
 });

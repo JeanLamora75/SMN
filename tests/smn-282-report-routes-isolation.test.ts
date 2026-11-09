@@ -98,7 +98,7 @@ test("Centre Rapports v28 : filtre teamId SQL, aucune archive ni ouverture Studi
  assert.match(ui,/resolveAdminTeam\(db,/);
  assert.match(ui,/readTeamCenter\(db,team\)/);
  assert.match(ui,/!scoped&&<NewReportForm/);
- assert.match(ui,/canManage=\{account.role==="admin"&&!scoped\}/);
+ assert.match(ui,/account\.role==="admin"&&!scoped&&<NewReportForm/);
  assert.match(ui,/account\.role==="admin"&&!scoped&&<NewReportForm/);
  const detail=source("src/app/app/reports/[documentId]/page.tsx");
  assert.match(detail,/await assertLegacyTeamApi\(db\)/);

@@ -18,7 +18,8 @@ test("team tabs use Cockpit variant without affecting Settings pages",()=>{
 });
 test("cycle table shows full names and tooltip tags",()=>{
  const cycles=read("src/app/app/admin/indicators/indicator-cycles.tsx");
- assert.match(cycles,/title=\{column\.tag\}/);
+ assert.match(cycles,/title=\{column\.name\}/);
+ assert.match(cycles,/indicatorHeaderInitials\(column\.name\)/);
  assert.match(cycles,/\{column\.name\}/);
  assert.match(cycles,/smn-indicator-cycle-table/);
  assert.doesNotMatch(cycles,/title=\{column\.name\} className="text-end">\{column\.tag\}/);

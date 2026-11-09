@@ -14,6 +14,6 @@ test("v33 reporting displays selected indicators without saved screen preference
 test("v33 explicit hidden preferences remain authoritative",()=>{
  const sql=read("src/server/indicators/reporting.ts");
  assert.doesNotMatch(sql,/JOIN public\.smn_indicator_display_preference p[^\n]*\n WHERE d\.archived_at IS NULL AND p\.screen_key/);
- const ui=read("src/app/app/admin/indicators/catalog-client.tsx");
+ const ui=read("src/app/app/admin/indicators/preference-order-table.tsx");
  assert.match(ui,/checked=\{p\?\.is_visible\?\?true\}/);
 });
