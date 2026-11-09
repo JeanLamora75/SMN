@@ -54,7 +54,7 @@ async function currentlyRunning(db:Client):Promise<{
    AND l.classid='20261021'::oid AND l.objid='30'::oid`);
  return {
   backup:result.rows.some(r=>r.application_name==="smn-manual-backup"),
-  cleanup:result.rows.some(r=>r.application_name==="smn-auth")
+  cleanup:result.rows.some(r=>r.application_name==="smn-retention-cleanup")
  };
 }
 /**
