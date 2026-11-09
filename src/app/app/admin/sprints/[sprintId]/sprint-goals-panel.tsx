@@ -15,8 +15,8 @@ const labels={
  not_achieved:"sprintGoals.not_achieved"
 } as const;
 
-export default function SprintGoalsPanel({sprintId,status,canManage,data}:{
- sprintId:string;status:string;canManage:boolean;data:SprintDetailGoals;
+export default function SprintGoalsPanel({sprintId,teamId,status,canManage,data}:{
+ sprintId:string;teamId:string;status:string;canManage:boolean;data:SprintDetailGoals;
 }){
  const t=useTranslation(),router=useRouter();
  const modal=useRef<HTMLDialogElement>(null);
@@ -81,7 +81,7 @@ export default function SprintGoalsPanel({sprintId,status,canManage,data}:{
     title:title.trim(),comment,evaluation};
   setBusy(true);setError("");
   try{
-   const response=await fetch("/api/admin/sprints/goals",{
+   const response=await fetch("/api/admin/sprints/goals?"+new URLSearchParams({teamId}).toString(),{
     method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify(payload)
    });

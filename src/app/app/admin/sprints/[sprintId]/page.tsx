@@ -146,7 +146,7 @@ export default async function SprintDetailPage({params,searchParams}:{
    <section role="tabpanel" tabIndex={0} id="smn-sprint-detail-panel"
     aria-labelledby={"smn-sprint-tab-"+active} className="pt-4">
     {active==="objectives"?<><SprintGoalsPanel
-      sprintId={cycle.id} status={cycle.status} canManage={canManage}
+      sprintId={cycle.id} teamId={teamId} status={cycle.status} canManage={canManage}
       data={goals??{state:"unavailable",reason:"read-failed"}}/>{canManage&&cycle.status==="finished"&&<HistoricalPartialForm sprintId={cycle.id}/>}</>:
      active==="indicators"?<>{canManageDynamicIndicators&&<UniversalIndicatorInput teamId={teamId} cycleType="scrum" cycleId={cycle.id}/>}{canManageDynamicIndicators&&<IndicatorReporting teamId={teamId} cycleType="scrum" screen="cycle_detail" cycleId={cycle.id} locale={locale}/>}</> :
      active==="ceremonies"?<><SprintCeremoniesPanel
