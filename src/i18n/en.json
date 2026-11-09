@@ -645,12 +645,28 @@
       "settings_updated": "Settings updated",
       "password_changed": "Password changed",
       "recovery_prepared": "Recovery phrase prepared",
-      "recovery_used": "Account recovered"
+      "recovery_used": "Account recovered",
+      "backup_policy_changed": "Retention policy updated",
+      "backup_package_deleted": "Managed backup deleted",
+      "sprint_changed": "Sprint updated",
+      "member_archived": "Member archived",
+      "member_reactivated": "Member reactivated",
+      "member_assignment_closed": "Member assignment closed",
+      "team_context_changed": "Team context updated",
+      "registry_item_changed": "Registry item updated",
+      "pdf_archive_recorded": "PDF archive recorded",
+      "member_removed": "Provisional member deleted"
     },
     "types": {
       "account": "Account",
       "settings": "General settings",
-      "authentication": "Authentication"
+      "authentication": "Authentication",
+      "backup": "Backup",
+      "sprint": "Sprint",
+      "member": "Member",
+      "team": "Team",
+      "registry": "Registry",
+      "report": "Report"
     },
     "fields": {
       "role": "Role",
