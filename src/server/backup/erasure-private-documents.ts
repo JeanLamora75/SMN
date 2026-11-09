@@ -4,7 +4,7 @@ import {privateFolder,scanDocuments} from "./files";
 import {extractPdfText} from "./erasure-pdf-text";
 import type {TableImpact} from "./erasure-impact-graph";
 
-const LIMIT=30;
+const LIMIT=12;
 const row=(table:string,count:number|null,state:"inspected"|"unknown",
  scope:"text-match"|"team-archive"):TableImpact=>({
  table,category:"private-files",scope,count,state
@@ -29,7 +29,8 @@ export async function inspectPrivateDocuments(
   if(listed.length>2000)return unknown();
   const tokens=[...new Set(terms.map(s=>s.trim().toLocaleLowerCase("fr"))
    .filter(x=>x.length>=3&&x.length<=254))];
-  let txtMatches=0,pdfCandidates=0,pdfMatches=0,allPdfExtracted=tokens.length>0;
+  let txtMatches=0,pdfCandidates=0,pdfMatches=0;
+  let allPdfExtracted=tokens.length>0&&!!process.env.SMN_PDFTOTEXT_PATH;
   for(const file of listed.filter(v=>v.name.endsWith(".meta.json"))){
    const descriptor=JSON.parse((await readFile(join(root,file.name))).toString("utf8"))
     as {format?:unknown;teamId?:unknown};
@@ -45,7 +46,7 @@ export async function inspectPrivateDocuments(
    if(descriptor.format!=="PDF")return unknown();
    pdfCandidates++;
    if(pdfCandidates>LIMIT){allPdfExtracted=false;continue;}
-   if(!tokens.length){allPdfExtracted=false;continue;}
+   if(!tokens.length||!process.env.SMN_PDFTOTEXT_PATH){allPdfExtracted=false;continue;}
    const bytes=await readFile(join(root,stem+".pdf"));
    const extracted=await extractPdfText(bytes);
    if(extracted.state!=="extracted"||!extracted.text){
