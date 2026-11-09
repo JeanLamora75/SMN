@@ -10,26 +10,39 @@ type Item={
  measuredRpoMinutes:null;measuredRtoMinutes:null;
  indicativeRpoHours:24;indicativeRtoMinutes:60;targetsValidated:false;
 };
+async function fetchOperations():Promise<Item[]>{
+ const response=await fetch("/api/admin/backups/operations",{cache:"no-store"});
+ if(!response.ok)throw Error("unavailable");
+ const data=await response.json() as {operations:Item[]};
+ if(!Array.isArray(data.operations)||data.operations.some(x=>
+  typeof x.reason!=="string"||typeof x.status!=="string"||
+  x.targetsValidated!==false))throw Error("invalid");
+ return data.operations;
+}
 export default function ProtectionOperations(){
  const t=useTranslation();
  const [items,setItems]=useState<Item[]|null>(null);
- const [loading,setLoading]=useState(false);
+ const [loading,setLoading]=useState(true);
  const [error,setError]=useState(false);
  async function load(){
   if(loading)return;
   setLoading(true);setError(false);
   try{
-   const response=await fetch("/api/admin/backups/operations",{cache:"no-store"});
-   if(!response.ok)throw Error("unavailable");
-   const data=await response.json() as {operations:Item[]};
-   if(!Array.isArray(data.operations)||data.operations.some(x=>
-    typeof x.reason!=="string"||typeof x.status!=="string"||
-    x.targetsValidated!==false))throw Error("invalid");
-   setItems(data.operations);
+   setItems(await fetchOperations());
   }catch{setError(true);}
   finally{setLoading(false);}
  }
- useEffect(()=>{void load();},[]);
+ useEffect(()=>{
+  let active=true;
+  void fetchOperations().then(operations=>{
+   if(active)setItems(operations);
+  }).catch(()=>{
+   if(active)setError(true);
+  }).finally(()=>{
+   if(active)setLoading(false);
+  });
+  return ()=>{active=false;};
+ },[]);
  return <section className="smn-panel p-4 d-grid gap-3" aria-labelledby="protection-operations-title">
   <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap">
    <div>
