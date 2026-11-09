@@ -20,7 +20,7 @@ export type LifecycleImpact={memberId:string;teamId:string;displayName:string;re
  archived:boolean;archivedAt:string|null;today:string;activeCount:number;
  assignments:LifecycleAssignment[];referenceCount:number;canDelete:boolean;
  deletionImpact:{foreignReferenceCount:number;unknown:boolean;tables:{name:string;count:number}[];
-  requiresConfirmation:true;permanent:true};};
+  requiresConfirmation:true;permanent:true;auditReady:boolean};};
 
 type MemberRow={id:string;revision:number;is_provisional:boolean;display_name:string;email:string|null;
  archived_at:string|null;contract_percent:number;contribution_percent:number};
@@ -106,7 +106,8 @@ export async function inspectMemberLifecycle(client:Client,id:string):Promise<Li
   assignments:rows.map(r=>({id:r.id,teamId:r.team_id,startOn:r.start_on,endOn:r.end_on})),
   referenceCount:referenceCount+foreign.count,canDelete,
   deletionImpact:{foreignReferenceCount:foreign.count,unknown:foreign.unknown,
-   tables:foreign.tables,requiresConfirmation:true,permanent:true}};
+   tables:foreign.tables,requiresConfirmation:true,permanent:true,
+   auditReady:auditReady.rows[0]?.present===true}};
 }
 export async function applyLifecycleAction(client:Client,id:string,actorId:string,raw:unknown):Promise<LifecycleResult>{
  const input=parseLifecycleAction(raw);
