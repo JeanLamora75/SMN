@@ -24,7 +24,7 @@ export type BackupInventoryEntry=Readonly<{
  checkedAt:string;installationSource:string|null;applicationVersion:string|null;
  schemaVersion:number|null;postgresVersion:string|null;
  components:readonly VerifiedComponent[];documentCount:number;
- integrityVerified:boolean;restoreTested:false;
+ integrityVerified:boolean;scopeComplete:boolean;restoreTested:false;
 }>;
 
 class VerificationProblem extends Error {
@@ -132,7 +132,7 @@ function publicFailure(id:string,checkedAt:string,status:VerificationStatus,
  reason:string,createdAt:string|null=null):BackupInventoryEntry{
  return {id,createdAt,status,reason,checkedAt,installationSource:null,applicationVersion:null,
   schemaVersion:null,postgresVersion:null,components:[],documentCount:0,
-  integrityVerified:false,restoreTested:false};
+  integrityVerified:false,scopeComplete:false,restoreTested:false};
 }
 
 /** Never trust a cached verification result. Each call rechecks on-disk ciphertext. */
@@ -299,7 +299,8 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
     installationSource:manifest.version!==1?manifest.installationSource as string:"singleton (legacy)",
    applicationVersion:manifest.version!==1?manifest.appVersion as string:null,
    schemaVersion:manifest.schemaVersion as number,postgresVersion:manifest.postgresVersion as string,
-   components,documentCount:documents.length/2,integrityVerified:true,restoreTested:false};
+   components,documentCount:documents.length/2,integrityVerified:true,
+   scopeComplete:manifest.version===4,restoreTested:false};
  }catch(error){
   if(error instanceof VerificationProblem)
    return publicFailure(id,checkedAt,error.status,error.code,createdAt);
