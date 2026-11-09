@@ -3,14 +3,14 @@ import assert from "node:assert/strict";
 import type {Client} from "pg";
 import {inspectMemberForeignKeys} from "../src/server/backup/erasure-fk-discovery";
 
-test("SMN-38: composite foreign keys are never silently treated as absent",async()=>{
+test("SMN-38: composite foreign keys are traversed and counted",async()=>{
  const fake={
   query:async(_sql:string,params:unknown[])=>{
    if(params[0]===251)return {rows:[
     {child_table:"smn_member_assignment",parent_table:"smn_member",
-     child_column:"member_id",parent_column:"id",multi_column:false},
+     child_columns:["member_id"],parent_columns:["id"]},
     {child_table:"smn_personal_composite",parent_table:"smn_member",
-     child_column:"member_id",parent_column:"id",multi_column:true}
+     child_columns:["member_id","installation_id"],parent_columns:["id","installation_id"]}
    ]};
    return {rows:[{n:"2"}]};
   }
@@ -19,7 +19,7 @@ test("SMN-38: composite foreign keys are never silently treated as absent",async
  assert.equal(actual.find(x=>x.table==="smn_member_assignment")?.count,2);
  assert.deepEqual(actual.find(x=>x.table==="smn_personal_composite"),{
   table:"smn_personal_composite",category:"associations",
-  scope:"indirect",count:null,state:"unknown"
+  scope:"direct",count:2,state:"inspected"
  });
 });
 test("SMN-38: FK chains beyond the explored depth produce an explicit gap",async()=>{
@@ -28,7 +28,7 @@ test("SMN-38: FK chains beyond the explored depth produce an explicit gap",async
   {child_table:"smn_assignment_detail",parent_table:"smn_member_assignment"},
   {child_table:"smn_assignment_revision",parent_table:"smn_assignment_detail"},
   {child_table:"smn_assignment_audit",parent_table:"smn_assignment_revision"}
- ].map(e=>({...e,child_column:"member_id",parent_column:"id",multi_column:false}));
+ ].map(e=>({...e,child_columns:["member_id"],parent_columns:["id"]}));
  const fake={query:async(_sql:string,params:unknown[])=>params[0]===251?
   {rows:edges}:{rows:[{n:"1"}]}} as unknown as Client;
  const actual=await inspectMemberForeignKeys(fake,"member-001");
