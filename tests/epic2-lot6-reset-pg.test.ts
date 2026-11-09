@@ -10,6 +10,8 @@ import {provisionIndependentResetCandidate} from "../src/server/installation/res
 import {previewInstallationReset} from "../src/server/installation/reset-preview";
 import {rehearseCoordinatedOfflineCutover} from "../src/server/backup/restore-coordinated-drill";
 import {inspectRestoreFileTree} from "../src/server/backup/restore-file-cutover-drill";
+import {qualifyRecoveryDrill} from "../src/server/backup/recovery-drill-measurement";
+import {SessionStore} from "../src/server/auth/session-store";
 
 test("SMN-37 PG18 : une installation vierge indépendante conserve la source et sa reprise",
  {timeout:180000},async()=>{
@@ -101,6 +103,7 @@ test("SMN-37 PG18 : une installation vierge indépendante conserve la source et 
     await mkdir(join(root,kind),{recursive:true});
   await writeFile(join(fileOld,"documents","private.txt"),"original-private-data");
   await writeFile(join(fileOld,"office-reports","report.docx"),"old-report");
+  const trialStarted=new Date().toISOString();
   const swapped=await rehearseCoordinatedOfflineCutover({
    database:{
     maintenanceUri:raw,original:source,candidate:fresh,rollback:previous,
@@ -128,6 +131,21 @@ test("SMN-37 PG18 : une installation vierge indépendante conserve la source et 
    assert.equal((await verifyRollback.query(
     "SELECT name FROM public.smn_team WHERE id=$1",[team])).rows[0].name,"Team A");
   }finally{await verifyNew.end();await verifyRollback.end();}
+  const sessions=new SessionStore();
+  const token=sessions.issue("original-admin","test-only-hash",1000,"admin");
+  assert.ok(sessions.get(token,1100));
+  assert.equal(sessions.revokeAll(),1);
+  assert.equal(sessions.get(token,1100),null);
+  const drill=qualifyRecoveryDrill({
+   mode:"reset",startedAt:trialStarted,verifiedAt:new Date().toISOString(),
+   databaseMatchesExpected:true,filesMatchExpected:true,
+   rollbackDatabaseVerified:true,rollbackFilesVerified:true,
+   journalVerified:true,sessionRevocationVerified:true
+  });
+  assert.equal(drill.status,"verified");
+  assert.ok(drill.measuredCutoverMinutes!==null);
+  assert.equal(drill.productionRtoMinutes,null);
+  assert.equal(drill.productionRpoMinutes,null);
   process.stdout.write("SMN37-PG18: native v33 reset candidate, source retained, rollback verified\n");
  }finally{
   for(const [index,key] of envNames.entries()){

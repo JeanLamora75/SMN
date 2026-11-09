@@ -81,6 +81,8 @@ jobs:
           tests/epic2-lot5-file-cutover.test.ts
           tests/epic2-lot5-maintenance.test.ts
           tests/epic2-lot5-session-reset.test.ts
+          tests/epic2-lot9-maintenance-reset.test.ts
+          tests/epic2-lot9-recovery-measurement.test.ts
           tests/smn-37-installation-reset-policy.test.ts
           tests/epic2-lot7-operation-artifacts.test.ts
           tests/smn-41-operation-diagnostics.test.ts
