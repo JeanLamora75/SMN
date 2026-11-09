@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { existsSync } from "node:fs";
-import { lstat, mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
+import { cp, lstat, mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
 import { Client } from "pg";
@@ -197,7 +197,19 @@ export async function prepareManaged(onProgress: (step: string) => void, recover
       const actual = dirs.includes("pgsql") ? path.join(tmp, "pgsql") : tmp;
       if (!existsSync(path.join(actual, "bin", "initdb.exe")) ||
           !existsSync(path.join(actual, "bin", "pg_ctl.exe"))) throw new Error("postgres-runtime-invalid");
-      await rename(actual, pgRoot);
+      // On Windows the TEMP volume can differ from the SMN installation
+      // volume (for example C: vs D: in CI). A direct rename then fails EXDEV.
+      // Keep the original extracted source until a complete copy succeeds.
+      try {
+        await rename(actual, pgRoot);
+      } catch (error) {
+        if (!(error && typeof error === "object" && "code" in error && error.code === "EXDEV"))
+          throw error;
+        await cp(actual, pgRoot, { recursive: true, errorOnExist: true, force: false });
+      }
+      if (!existsSync(path.join(pgRoot, "bin", "initdb.exe")) ||
+          !existsSync(path.join(pgRoot, "bin", "pg_ctl.exe")))
+        throw new Error("postgres-runtime-invalid");
     } finally { await rm(tmp, { recursive: true, force: true }); }
   }
   const password = randomBytes(32).toString("hex");
