@@ -2,7 +2,8 @@ import {test} from "node:test";
 import assert from "node:assert/strict";
 import {randomUUID,randomBytes} from "node:crypto";
 import {readFileSync} from "node:fs";
-import {mkdtemp,rm} from "node:fs/promises";
+import {mkdtemp,mkdir,rm} from "node:fs/promises";
+import {inspectRestrictedMemberErasure,eraseRestrictedMember} from "../src/server/backup/erasure-restricted-member";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {initializeErasureLedger,readErasureLedger} from "../src/server/backup/erasure-ledger";
@@ -67,13 +68,20 @@ test("Epic 2 lot 4 PG18 — read-only impact scan on isolated native v33",
    await db.query("INSERT INTO public.smn_lot4_probe(id,n) VALUES('probe',1)");
    const root=await mkdtemp(join(tmpdir(),"smn-lot4-pg-intent-"));
    const keys=["SMN_ERASURE_LEDGER_DIR","SMN_ERASURE_ANCHOR_DIR",
-    "SMN_ERASURE_LEDGER_KEY_HEX","SMN_BACKUP_DIR"] as const;
+    "SMN_ERASURE_LEDGER_KEY_HEX","SMN_BACKUP_DIR",
+    "SMN_PRIVATE_DOCUMENTS_DIR","SMN_PRIVATE_REPORT_ARCHIVE_DIR",
+    "SMN_OFFICE_REPORTS_DIR","SMN_OFFICE_TEMPLATES_DIR"] as const;
    const before=keys.map(k=>process.env[k]);
    try{
     process.env.SMN_ERASURE_LEDGER_DIR=join(root,"ledger");
     process.env.SMN_ERASURE_ANCHOR_DIR=join(root,"anchor");
     process.env.SMN_ERASURE_LEDGER_KEY_HEX=randomBytes(32).toString("hex");
     delete process.env.SMN_BACKUP_DIR;
+    process.env.SMN_PRIVATE_DOCUMENTS_DIR=join(root,"documents");
+    process.env.SMN_PRIVATE_REPORT_ARCHIVE_DIR=join(root,"pdf");
+    process.env.SMN_OFFICE_REPORTS_DIR=join(root,"office");
+    process.env.SMN_OFFICE_TEMPLATES_DIR=join(root,"templates");
+    await mkdir(process.env.SMN_PRIVATE_DOCUMENTS_DIR,{recursive:true});
     await initializeErasureLedger();
     const receipt=await withAuditedErasureTransaction(db,{
      scopeRevision:"a".repeat(64),operation:"erase"
@@ -92,6 +100,31 @@ test("Epic 2 lot 4 PG18 — read-only impact scan on isolated native v33",
     await assert.rejects(db.query(
      "DELETE FROM public.smn_privacy_erasure_receipt WHERE id=$1",
      [receipt.receiptId]),/privacy-receipt-immutable/);
+    // A real, unreferenced member may be removed after strict inspection.
+    // A member with an assignment/history must always be rejected.
+    assert.equal((await inspectRestrictedMemberErasure(db,member)).reason,
+     "references-present");
+    const isolatedMember=randomUUID();
+    await db.query("INSERT INTO public.smn_member "+
+     "(id,installation_id,batch_id,member_number,display_name) "+
+     "VALUES($1,'singleton',$2,2,'Unreferenced provisional member')",
+     [isolatedMember,batch]);
+    assert.deepEqual(await inspectRestrictedMemberErasure(db,isolatedMember),{
+     eligible:true,reason:"eligible"
+    });
+    await assert.rejects(eraseRestrictedMember(db,{
+     memberId:member,scopeRevision:"c".repeat(64)
+    }),/privacy-restricted-scope-references-present/);
+    const deleted=await eraseRestrictedMember(db,{
+     memberId:isolatedMember,scopeRevision:"d".repeat(64)
+    });
+    assert.equal(deleted.affectedRows,1);
+    assert.equal((await db.query(
+     "SELECT 1 FROM public.smn_member WHERE id=$1",[isolatedMember])).rows.length,0);
+    assert.equal((await readErasureLedger()).markers.length,2);
+    assert.deepEqual(await inspectErasureCommit(db,deleted.receiptId),{
+     state:"committed",affectedRows:1
+    });
     await assert.rejects(withAuditedErasureTransaction(db,{
      scopeRevision:"b".repeat(64),operation:"erase"
     },async()=>{
