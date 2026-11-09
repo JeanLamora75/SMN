@@ -58,10 +58,25 @@ jobs:
         run: node scripts/windows/package-portable.mjs
       - name: Contrôler le lancement autonome du paquet
         run: node scripts/windows/verify-package.mjs
+      - name: Construire le ZIP transmissible et vérifier son empreinte
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $source = '_package/SMN-Windows'
+          $destination = '_package/SMN-Setup-Windows-x64-v33.zip'
+          if (Test-Path "$source/data/postgres") { throw 'Cluster PostgreSQL de test présent dans la distribution' }
+          Compress-Archive -Path $source -DestinationPath $destination -CompressionLevel Optimal -Force
+          if (-not (Test-Path $destination)) { throw 'Archive de distribution absente' }
+          $hash = (Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  SMN-Setup-Windows-x64-v33.zip" | Set-Content -Encoding ascii '_package/SMN-Setup-Windows-x64-v33.zip.sha256'
+          Write-Host "ZIP bytes: $((Get-Item $destination).Length)"
+          Write-Host "SHA256: $hash"
       - uses: actions/upload-artifact@v4
         with:
-          name: SMN-Pilote-Windows-x64
-          path: "_package/SMN-Windows"
+          name: SMN-Distribution-Windows-x64-v33
+          path: |
+            _package/SMN-Setup-Windows-x64-v33.zip
+            _package/SMN-Setup-Windows-x64-v33.zip.sha256
           if-no-files-found: error
           retention-days: 14
           compression-level: 0
