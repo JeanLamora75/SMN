@@ -22,6 +22,7 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_member_identity_history:r",
   "public.smn_member_assignment_version:r", "public.smn_member_lifecycle_event:r",
   "public.smn_member_assignment_start_audit:r",
+  "public.smn_member_removal_audit:r",
   "public.smn_member_calendar_week:r", "public.smn_member_calendar_exception:r",
   "public.smn_member_location:r", "public.smn_country:r",
   "public.smn_national_holiday:r", "public.smn_national_calendar_coverage:r",
