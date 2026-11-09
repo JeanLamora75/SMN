@@ -43,7 +43,7 @@ function metadata(value:unknown):Manifest{
  if(![2,3,4].includes(m.version as number)||!UUID.test(m.id??"")||!m.database||
   !Array.isArray(m.documents)||m.documents.length>2000||
   m.documents.reduce((sum,part)=>sum+(Number(part.size)||0),0)>512*1024*1024||
-  (m.version>=3&&(!Array.isArray(m.reportPdfs)||
+  ((m.version??0)>=3&&(!Array.isArray(m.reportPdfs)||
    !Array.isArray(m.officeReports)||m.reportPdfs.length>200||
    m.officeReports.length>200))||
   (m.version===4&&(!Array.isArray(m.officeTemplates)||
