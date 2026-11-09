@@ -1,6 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {randomUUID} from "node:crypto";
+import {randomUUID,randomBytes} from "node:crypto";
 import {mkdtemp,rm} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
@@ -53,14 +53,14 @@ test("SMN-34 lot 5 — PostgreSQL 18 offline cutover and failure rollback",
   await populate(two,"before-failure");
   await populate(other,"candidate-failure");
   const base={maintenanceUri:url,original:orig,candidate:cand,
-   rollback:prev,journalDir:dir};
+   rollback:prev,journalDir:dir,auditKeyHex:randomBytes(32).toString("hex")};
   assert.equal(validateCutoverDrill(base),true);
   assert.equal(validateCutoverDrill({...base,original:"production"}),false);
   assert.equal(validateCutoverDrill({...base,rollback:orig}),false);
   const outcome=await rehearseOfflineDatabaseCutover(base);
   assert.equal(outcome.stage,"verified");
   assert.equal(outcome.rollbackPreserved,true);
-  assert.deepEqual((await readCutoverDrillJournal(outcome.journal))
+  assert.deepEqual((await readCutoverDrillJournal(outcome.journal,base.auditKeyHex))
    .map(e=>e.stage),["intent","source-parked","candidate-promoted","verified"]);
   assert.equal(await probe(orig),"restored");
   assert.equal(await probe(prev),"before");
@@ -75,7 +75,7 @@ test("SMN-34 lot 5 — PostgreSQL 18 offline cutover and failure rollback",
    injectFailureAfterPark:true
   });
   assert.equal(injected.stage,"rolled-back");
-  assert.deepEqual((await readCutoverDrillJournal(injected.journal))
+  assert.deepEqual((await readCutoverDrillJournal(injected.journal,base.auditKeyHex))
    .map(e=>e.stage),["intent","source-parked","rollback-started","rolled-back"]);
   assert.equal(await probe(two),"before-failure");
   assert.equal(await probe(other),"candidate-failure");
