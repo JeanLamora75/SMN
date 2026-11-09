@@ -1,4 +1,4 @@
-import {open,lstat,readFile,writeFile} from "node:fs/promises";
+import {open,lstat,readFile} from "node:fs/promises";
 import {isAbsolute,resolve,relative,sep} from "node:path";
 import {randomUUID} from "node:crypto";
 
