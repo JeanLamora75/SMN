@@ -32,8 +32,7 @@ export async function inspectPrivateDocuments(
   let txtMatches=0,pdfCandidates=0,pdfMatches=0;
   let allPdfExtracted=tokens.length>0&&!!process.env.SMN_PDFTOTEXT_PATH;
   for(const file of listed.filter(v=>v.name.endsWith(".meta.json"))){
-   const descriptor=JSON.parse((await readFile(join(root,file.name))).toString("utf8"))
-    as {format?:unknown;teamId?:unknown};
+   const descriptor=JSON.parse((await readFile(join(root,file.name))).toString("utf8")) as {format?:unknown;teamId?:unknown};
    if(typeof descriptor.teamId!=="string"||!teams.has(descriptor.teamId))continue;
    const stem=file.name.slice(0,-".meta.json".length);
    if(descriptor.format==="TXT"){
