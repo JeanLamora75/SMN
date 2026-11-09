@@ -68,7 +68,7 @@ async function previewOnClient(db:Client,memberId:string,mode:ErasureMode):Promi
  const findings:ImpactFinding[]=IMPACT_CLASSES.map(category=>{
   const total=counts.get(category);
   const fullyInspected=!unknown.has(category)&&
-   (category==="personal-records"||category==="associations"||category==="calendars");
+   category==="personal-records";
   // Other domain modules, indirect references and personal data in free text cannot
   // be proven absent by enumerating foreign-key columns.
   return {category,state:fullyInspected?"inspected":"unknown",
