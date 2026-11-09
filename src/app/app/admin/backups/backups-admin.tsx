@@ -17,6 +17,8 @@ type RestorePreview={
   applicationVersion:string;documentCount:number|null};
  issues:string[];blocked:boolean;canRestore:false;
 };
+type RestoreGate={decision:"blocked";archiveId:string;checkedAt:string;
+ blockers:string[];warnings:string[];approval:string;canExecute:false};
 type Retention={days:number;revision:number;updatedAt:string;eligibleIds:string[]};
 type State={needsRecoveryPhrase:boolean;last:Outcome|null;inventory:InventoryEntry[];retention:Retention};
 
@@ -27,6 +29,8 @@ export default function BackupsAdmin(){
  const [preview,setPreview]=useState<RestorePreview|null>(null);
  const [previewBusy,setPreviewBusy]=useState<string|null>(null);
  const [previewError,setPreviewError]=useState("");
+ const [restoreGate,setRestoreGate]=useState<RestoreGate|null>(null);
+ const [gateBusy,setGateBusy]=useState(false);
  const [busy,setBusy]=useState(false);
  const [checking,setChecking]=useState(false);
  const [retentionDays,setRetentionDays]=useState("30");
@@ -59,7 +63,7 @@ export default function BackupsAdmin(){
  },[t]);
  async function previewRestore(id:string){
   if(previewBusy||busy||checking||cleaning||savingRetention)return;
-  setPreviewBusy(id);setPreview(null);setPreviewError("");
+  setPreviewBusy(id);setPreview(null);setRestoreGate(null);setPreviewError("");
   try{
    const response=await fetch("/api/admin/backups/preview?id="+encodeURIComponent(id),{cache:"no-store"});
    if(!response.ok)throw new Error("preview-unavailable");
@@ -69,9 +73,25 @@ export default function BackupsAdmin(){
   }catch{setPreviewError(t("backups.previewFailed"));}
   finally{setPreviewBusy(null);}
  }
+ async function runRestorePreflight(id:string){
+  if(gateBusy||busy||checking||cleaning||savingRetention)return;
+  setGateBusy(true);setRestoreGate(null);setPreviewError("");
+  try{
+   const response=await fetch("/api/admin/backups/restore/preflight",{
+    method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id}),
+    cache:"no-store"
+   });
+   if(response.status!==409)throw new Error("unexpected-preflight-state");
+   const data=await response.json() as {gate:RestoreGate};
+   if(data.gate?.archiveId!==id||data.gate.canExecute!==false||
+    !Array.isArray(data.gate.blockers))throw new Error("invalid-preflight");
+   setRestoreGate(data.gate);
+  }catch{setPreviewError(t("backups.restorePreflightFailed"));}
+  finally{setGateBusy(false);}
+ }
  async function recheck(){
   if(busy||checking)return;
-  setChecking(true);setError("");setPreview(null);
+  setChecking(true);setError("");setPreview(null);setRestoreGate(null);
   try{await refresh();}
   catch{setError(t("backups.unavailable"));}
   finally{setChecking(false);}
@@ -290,7 +310,17 @@ export default function BackupsAdmin(){
        </li>)}</ul>
       </div>}
       <p className="small fw-semibold">{t("backups.previewNotRestorable")}</p>
-      <button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>setPreview(null)}>
+      <button type="button" className="btn btn-outline-primary btn-sm mb-2" disabled={gateBusy}
+       onClick={()=>runRestorePreflight(item.id)}>
+       {gateBusy?t("backups.restorePreflightRunning"):t("backups.restorePreflightStart")}
+      </button>
+      {restoreGate?.archiveId===item.id&&<div role="status" className="alert alert-warning">
+       <strong>{t("backups.restorePreflightBlocked")}</strong>
+       <ul className="mt-2 mb-0">{restoreGate.blockers.map(blocker=><li key={blocker}>
+        {t("backups.restoreGate."+blocker)}
+       </li>)}</ul>
+      </div>}
+      <button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>{setPreview(null);setRestoreGate(null);}}>
        {t("backups.previewClose")}
       </button>
      </section>}
