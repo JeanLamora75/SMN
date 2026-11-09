@@ -63,11 +63,6 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
     typeof pg?.position==="string"?pg.position:"no-position");
    throw error;
   }
-  // The privacy receipt is an additive table, never a baseline v33 rewrite.
-  // Fresh installations receive it within the same atomic transaction.
-  const erasureReceiptSql=readFileSync(resolve(process.cwd(),"prisma","migrations",
-   "20261109_smn39_privacy_receipt","migration.sql"),"utf8");
-  await client.query(erasureReceiptSql);
   await client.query("COMMIT");transaction=false;
   // L'installation est acceptée uniquement après diagnostic physique v33.
   const after=classifySnapshot(await probePostgres(uri.toString()));
