@@ -152,7 +152,7 @@ export async function rehearseOfflineDatabaseCutover(
    throw Error("cutover-verification-failed");
   await event("verified");
   return {journal:path,stage:"verified",rollbackPreserved:true};
- }catch{
+ }catch(error){
   if(parked&&!promoted){
    // Fail safe when only the original has been parked.
    try{
@@ -167,6 +167,12 @@ export async function rehearseOfflineDatabaseCutover(
    }
   }
   if(promoted)await event("incident").catch(()=>undefined);
+  const reason=error instanceof Error?error.message:"unknown";
+  const allow=new Set(["cutover-open-connections","cutover-database-state-invalid",
+   "cutover-already-running","cutover-pg18-required","cutover-verification-failed",
+   "cutover-journal-signature-invalid","cutover-journal-transition-invalid"]);
+  if(process.env.SMN_CUTOVER_TEST_DIAGNOSTIC==="1"&&allow.has(reason))
+   throw Error("cutover-denied:"+reason);
   throw Error("cutover-denied");
  }finally{
   if(locked)await client.query("SELECT pg_advisory_unlock(20261109,34)")
