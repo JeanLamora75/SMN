@@ -22,18 +22,11 @@ BEGIN
   IF to_regclass('public.' || tbl) IS NULL THEN
    RAISE EXCEPTION 'smn35-archive-table-missing-%',tbl;
   END IF;
-  IF NOT EXISTS(
-   SELECT 1 FROM pg_catalog.pg_trigger tr
-   JOIN pg_catalog.pg_class rel ON rel.oid=tr.tgrelid
-   JOIN pg_catalog.pg_namespace ns ON ns.oid=rel.relnamespace
-   WHERE ns.nspname='public' AND rel.relname=tbl
-    AND tr.tgname='smn35_archive_write_guard'
-    AND tr.tgenabled<>'D'
-  ) THEN
-   EXECUTE format('CREATE TRIGGER smn35_archive_write_guard
+  -- The previous name-only check missed disabled and misconfigured triggers.
+  -- PostgreSQL 18 supports CREATE OR REPLACE TRIGGER: safe repeated install.
+  EXECUTE format('CREATE OR REPLACE TRIGGER smn35_archive_write_guard
     BEFORE UPDATE OR DELETE ON public.%I FOR EACH ROW
     EXECUTE FUNCTION public.smn35_reject_archive_mutation()',tbl);
-  END IF;
  END LOOP;
 END
 $smn35$;
