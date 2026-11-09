@@ -9,6 +9,14 @@ import {inspectVerifiedPdfArchiveText,inspectAiBriefText,inspectOfficeReportText
  from "./erasure-report-binaries";
 import {captureErasureRevision} from "./erasure-plan-revision";
 
+function identityAliases(value:unknown):string[]{
+ if(!value||typeof value!=="object"||Array.isArray(value))return [];
+ const record=value as Record<string,unknown>;
+ const values=["display_name","displayName","name","email"]
+  .map(k=>record[k]).filter((x):x is string=>typeof x==="string"&&
+   x.trim().length>=3&&x.trim().length<=254);
+ return values;
+}
 const ID=/^[a-zA-Z0-9_-]{1,120}$/;
 export const IMPACT_CLASSES=[
  "personal-records","associations","calendars","history","free-text",
@@ -47,17 +55,26 @@ export async function previewMemberErasure(memberId:string,mode:ErasureMode):Pro
    WHERE id=$1 AND installation_id='singleton'`,[memberId]);
   const member=found.rows[0];
   if(found.rowCount!==1||!member)throw new Error("target-unavailable");
+  // Search historical identity aliases: old names can survive in snapshots.
+  const identity=await db.query<{previous_values:unknown;next_values:unknown}>(`
+   SELECT previous_values,next_values FROM public.smn_member_identity_history
+   WHERE member_id::text=$1 ORDER BY changed_at DESC LIMIT 101`,[memberId]);
+  const historyTooLarge=identity.rows.length>100;
+  const names=[...new Set([member.display_name,member.email??"",
+   ...identity.rows.flatMap(r=>[
+    ...identityAliases(r.previous_values),...identityAliases(r.next_values)
+   ])].map(x=>x.trim()).filter(x=>x.length>=3&&x.length<=254))];
   const [relations,textCandidates,archiveCandidates]=await Promise.all([
    inspectMemberRelations(db,memberId),
-   inspectTextCandidates(db,memberId,[member.display_name,member.email??""]),
+   inspectTextCandidates(db,memberId,names),
    inspectArchiveCandidates(db,memberId)
   ]);
   const assigned=await db.query<{team_id:string}>(`
    SELECT DISTINCT team_id FROM public.smn_member_assignment WHERE member_id::text=$1`,[memberId]);
   const privateFiles=await inspectPrivateDocuments(process.env.SMN_PRIVATE_DOCUMENTS_DIR,
-   [member.display_name,member.email??""],new Set(assigned.rows.map(r=>r.team_id)));
+   names,new Set(assigned.rows.map(r=>r.team_id)));
   const teams=assigned.rows.map(r=>r.team_id);
-  const tokens=[member.display_name,member.email??""]
+  const tokens=names
    .map(v=>v.trim().toLocaleLowerCase("fr")).filter(v=>v.length>=3);
   const [additionalFks,officialPdfTexts,aiBriefTexts,officeTexts]=await Promise.all([
    inspectMemberForeignKeys(db,memberId),
@@ -81,7 +98,8 @@ export async function previewMemberErasure(memberId:string,mode:ErasureMode):Pro
   });
   return {memberId,memberLabel:member.display_name,mode,capturedAt:new Date().toISOString(),
    complete:false,canExecute:false,findings,observedTables:observed,
-   scopeRevision:revision.revision,revisionReason:revision.reason,
+   scopeRevision:historyTooLarge?null:revision.revision,
+   revisionReason:historyTooLarge?"identity-history-truncated":revision.reason,
    warnings:["indirect-links-unchecked","free-text-unchecked","archived-files-unchecked",
     "indicators-unchecked","managed-backups-may-contain-data",
     "external-copies-not-controlled","no-erasure-ledger"]};
