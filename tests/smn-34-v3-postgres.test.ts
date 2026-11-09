@@ -162,7 +162,7 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
    await db.query("INSERT INTO public.smn_team(id,installation_id,name,agile_mode) VALUES($1,'singleton','Equipe B','scrum')",[team2]);
    await db.query("INSERT INTO public.smn_sprint(id,team_id,number,name,start_at,end_at,time_zone,status) VALUES($1,$3,2,'Sprint 2',now()+interval '2 days',now()+interval '16 days','Europe/Paris','planned'),($2,$4,1,'Sprint B1',now()-interval '10 days',now()-interval '2 days','Europe/Paris','finished')",[sprint2,sprint3,teamId,team2]);
    const member=randomUUID(),batch=randomUUID();
-   await db.query("INSERT INTO public.smn_member_batch(id,installation_id,team_id,requested_count) VALUES($1,'singleton',$2,1)",[batch,teamId]);
+   await db.query("INSERT INTO public.smn_member_batch(id,installation_id,team_id,requested_count) VALUES($1,'singleton',$2,3)",[batch,teamId]);
    await db.query("INSERT INTO public.smn_member(id,installation_id,batch_id,member_number,display_name) VALUES($1,'singleton',$2,1,'Test member')",[member,batch]);
    await db.query("INSERT INTO public.smn_indicator_definition(id,tag,name,indicator_type,formula) VALUES('lot3manual','LOT3_MANUAL','Manual indicator','manual',NULL),('lot3computed','LOT3_COMPUTED','Computed indicator','computed','LOT3_MANUAL*2')");
    await db.query("INSERT INTO public.smn_indicator_dependency(id,indicator_id,source_type,source_indicator_id) VALUES('lot3dep','lot3computed','indicator','lot3manual')");
