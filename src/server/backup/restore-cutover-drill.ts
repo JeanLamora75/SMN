@@ -1,6 +1,6 @@
 import {open,readFile,lstat,rm,writeFile} from "node:fs/promises";
 import {dirname,join,resolve,isAbsolute} from "node:path";
-import {randomUUID} from "node:crypto";
+import {createHmac,randomUUID,timingSafeEqual} from "node:crypto";
 import {Client} from "pg";
 
 /**
@@ -19,12 +19,19 @@ export type CutoverStage="intent"|"source-parked"|"candidate-promoted"|
  "verified"|"rollback-started"|"rolled-back"|"incident";
 export type CutoverEvidence=Readonly<{
  id:string;original:string;candidate:string;rollback:string;
- stage:CutoverStage;at:string;reason:string;
+ stage:CutoverStage;at:string;reason:string;previousMac:string;mac:string;
 }>;
 export type CutoverDrillInput=Readonly<{
  maintenanceUri:string;original:string;candidate:string;rollback:string;
- journalDir:string;injectFailureAfterPark?:boolean;
+ journalDir:string;auditKeyHex:string;injectFailureAfterPark?:boolean;
 }>;
+const HEX=/^[a-f0-9]{64}$/;
+const ZERO="0".repeat(64);
+const sign=(key:string,e:Omit<CutoverEvidence,"mac">)=>
+ createHmac("sha256",Buffer.from(key,"hex")).update([
+  "smn34-cutover-v1",e.id,e.original,e.candidate,e.rollback,
+  e.stage,e.at,e.reason,e.previousMac
+ ].join("|")).digest("hex");
 const quote=(name:string)=>'"'+name+'"';
 export function validateCutoverDrill(input:CutoverDrillInput):boolean{
  try{
@@ -34,7 +41,8 @@ export function validateCutoverDrill(input:CutoverDrillInput):boolean{
    !uri.searchParams.has("options")&&!!uri.username&&!!uri.password&&
    [input.original,input.candidate,input.rollback].every(n=>DB.test(n))&&
    new Set([input.original,input.candidate,input.rollback]).size===3&&
-   isAbsolute(input.journalDir)&&resolve(input.journalDir)===input.journalDir;
+   isAbsolute(input.journalDir)&&resolve(input.journalDir)===input.journalDir&&
+   HEX.test(input.auditKeyHex);
  }catch{return false;}
 }
 async function safeJournal(dir:string){
@@ -44,7 +52,8 @@ async function safeJournal(dir:string){
 function serializable(e:CutoverEvidence):boolean{
  return !!e&&/^[a-f0-9-]{36}$/i.test(e.id)&&
   [e.original,e.candidate,e.rollback].every(n=>DB.test(n))&&
-  STAGES.has(e.stage)&&Number.isFinite(Date.parse(e.at));
+  STAGES.has(e.stage)&&Number.isFinite(Date.parse(e.at))&&
+  HEX.test(e.previousMac)&&HEX.test(e.mac);
 }
 async function saveEvidence(path:string,e:CutoverEvidence):Promise<void>{
  if(!serializable(e))throw Error("cutover-evidence-invalid");
@@ -52,7 +61,8 @@ async function saveEvidence(path:string,e:CutoverEvidence):Promise<void>{
  try{await fd.writeFile(JSON.stringify(e)+"\n");await fd.sync();}
  finally{await fd.close();}
 }
-export async function readCutoverDrillJournal(file:string):Promise<CutoverEvidence[]>{
+export async function readCutoverDrillJournal(file:string,auditKeyHex:string):Promise<CutoverEvidence[]>{
+ if(!HEX.test(auditKeyHex))throw Error("cutover-audit-key-invalid");
  const stat=await lstat(file);
  if(!stat.isFile()||stat.isSymbolicLink()||stat.size>1024*1024)
   throw Error("cutover-journal-untrusted");
@@ -60,6 +70,21 @@ export async function readCutoverDrillJournal(file:string):Promise<CutoverEviden
  if(!raw.endsWith("\n"))throw Error("cutover-journal-torn");
  const events=raw.trimEnd().split("\n").map(s=>JSON.parse(s) as CutoverEvidence);
  if(!events.length||events.some(e=>!serializable(e)))throw Error("cutover-journal-invalid");
+ let previous=ZERO;
+ const allowed:Record<CutoverStage,readonly CutoverStage[]>={
+  intent:["source-parked"],"source-parked":["candidate-promoted","rollback-started"],
+  "candidate-promoted":["verified","incident"],verified:[],
+  "rollback-started":["rolled-back","incident"],"rolled-back":[],incident:[]
+ };
+ for(let i=0;i<events.length;i++){
+  const e=events[i];
+  const expected=Buffer.from(sign(auditKeyHex,e),"hex");
+  if(e.previousMac!==previous||!timingSafeEqual(expected,Buffer.from(e.mac,"hex")))
+   throw Error("cutover-journal-signature-invalid");
+  if(i>0&&!allowed[events[i-1].stage].includes(e.stage))
+   throw Error("cutover-journal-transition-invalid");
+  previous=e.mac;
+ }
  const first=events[0];
  if(first.stage!=="intent"||events.some(e=>e.id!==first.id||
   e.original!==first.original||e.candidate!==first.candidate||
@@ -91,10 +116,14 @@ export async function rehearseOfflineDatabaseCutover(
   connectionTimeoutMillis:3500,statement_timeout:10000,
   application_name:"smn34-disposable-offline-cutover"});
  const id=randomUUID(),path=join(input.journalDir,id+".jsonl");
- let locked=false,parked=false,promoted=false;
- const event=async(stage:CutoverStage,reason="checked")=>
-  saveEvidence(path,{id,original:input.original,candidate:input.candidate,
-   rollback:input.rollback,stage,at:new Date().toISOString(),reason});
+ let locked=false,parked=false,promoted=false,previousMac=ZERO;
+ const event=async(stage:CutoverStage,reason="checked")=>{
+  const unsigned={id,original:input.original,candidate:input.candidate,
+   rollback:input.rollback,stage,at:new Date().toISOString(),reason,previousMac};
+  const mac=sign(input.auditKeyHex,unsigned);
+  await saveEvidence(path,{...unsigned,mac});
+  previousMac=mac;
+ };
  try{
   // Persist intent BEFORE the first PostgreSQL ALTER DATABASE.
   await writeFile(path,"",{flag:"wx",mode:0o600});
