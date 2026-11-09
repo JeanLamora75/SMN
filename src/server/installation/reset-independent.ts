@@ -85,14 +85,18 @@ export async function provisionIndependentResetCandidate(input:{
     const names=await reread.query<{name:string}>(
      "SELECT tablename AS name FROM pg_catalog.pg_tables "+
      "WHERE schemaname='public' AND tablename LIKE 'smn_%' ORDER BY tablename");
-    const counts:string[]=[];
+    const counts:string[]=[];const digest=createHash("sha256");
     for(const {name} of names.rows){
      if(!/^[a-z][a-z0-9_]*$/.test(name))throw Error("reset-source-schema-unverifiable");
      const row=await reread.query<{n:string}>(
       'SELECT count(*)::text AS n FROM public."'+name+'"');
      counts.push(name+":"+row.rows[0]?.n);
+     const content=await reread.query<{v:string}>(
+      'SELECT to_jsonb(t)::text AS v FROM public."'+name+'" t');
+     digest.update(name+"|");
+     for(const v of content.rows.map(x=>x.v).sort())digest.update(v.length+":"+v+"|");
     }
-    return counts.join("|");
+    return counts.join("|")+"|"+digest.digest("hex");
    })();
    if(after!==expected.signature)throw Error("reset-source-changed");
    await reread.query("COMMIT");
