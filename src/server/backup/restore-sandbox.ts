@@ -15,13 +15,15 @@ import {validExtraName} from "./extra-archives";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 type DocumentPart=BackupComponent&{sourceName:string};
-type Manifest={version:2|3;id:string;schemaVersion:number;postgresVersion:string;
+type Manifest={version:2|3|4;id:string;schemaVersion:number;postgresVersion:string;
  database:BackupComponent;documents:DocumentPart[];
- reportPdfs?:DocumentPart[];officeReports?:DocumentPart[]};
+ reportPdfs?:DocumentPart[];officeReports?:DocumentPart[];
+ officeTemplates?:DocumentPart[];consistency?:{method:string;walLsn:string}};
 export type RehearsalResult={
  archiveId:string;status:"reconstructed-in-sandbox"|"incomplete-archive-scope";
  sandboxOnly:true;restoredTables:number;verifiedDocuments:number;
  verifiedReportPdfs:number;verifiedOfficeReports:number;
+ verifiedOfficeTemplates:number;
  missingDocumentReferences:number;archiveHashChecked:true;
  databaseAndDocumentsConsistent:boolean;activeInstallationModified:false;
  fullRestoreQualified:false;
@@ -38,12 +40,15 @@ function executable():string{
 function metadata(value:unknown):Manifest{
  if(!value||typeof value!=="object")throw Error("manifest-invalid");
  const m=value as Partial<Manifest>;
- if(![2,3].includes(m.version as number)||!UUID.test(m.id??"")||!m.database||
+ if(![2,3,4].includes(m.version as number)||!UUID.test(m.id??"")||!m.database||
   !Array.isArray(m.documents)||m.documents.length>2000||
   m.documents.reduce((sum,part)=>sum+(Number(part.size)||0),0)>512*1024*1024||
-  (m.version===3&&(!Array.isArray(m.reportPdfs)||
+  (m.version>=3&&(!Array.isArray(m.reportPdfs)||
    !Array.isArray(m.officeReports)||m.reportPdfs.length>200||
-   m.officeReports.length>200)))
+   m.officeReports.length>200))||
+  (m.version===4&&(!Array.isArray(m.officeTemplates)||
+   m.officeTemplates.length>200||m.consistency?.method!=="wal-fence-v1"||
+   !/^[a-f0-9]+\/[a-f0-9]+$/i.test(m.consistency.walLsn))))
   throw Error("manifest-invalid");
  return m as Manifest;
 }
@@ -132,15 +137,18 @@ export async function rehearseBackupRestore(options:{
    try{await writeFile(join(docs,part.sourceName),bytes,{flag:"wx",mode:0o600});}
    finally{bytes.fill(0);}
   }
-  const files={pdf:manifest.reportPdfs??[],office:manifest.officeReports??[]};
-  for(const kind of ["pdf","office"] as const){
+  const files={pdf:manifest.reportPdfs??[],office:manifest.officeReports??[],
+   template:manifest.officeTemplates??[]};
+  for(const kind of ["pdf","office","template"] as const){
    const parts=files[kind];
    if(!parts.length)continue;
-   const dir=join(staging,kind==="pdf"?"report-pdfs":"office-reports");
+   const dir=join(staging,kind==="pdf"?"report-pdfs":
+    kind==="office"?"office-reports":"office-templates");
    await mkdir(dir,{mode:0o700});
    const seen=new Set<string>();
    for(const [i,part] of parts.entries()){
-    const expected=(kind==="pdf"?"report-pdfs/":"office-reports/")+
+    const expected=(kind==="pdf"?"report-pdfs/":
+     kind==="office"?"office-reports/":"office-templates/")+
      String(i).padStart(5,"0")+".enc";
     if(!validExtraName(kind,part.sourceName)||seen.has(part.sourceName)||
      part.path!==expected)throw Error("restore-extra-archive-invalid");
@@ -209,7 +217,7 @@ export async function rehearseBackupRestore(options:{
     file.size!==ref.byte_length)
     throw Error("restore-pdf-references-missing");
   }
-  const missing=manifest.version===3?0:Math.max(1,pdfRefs.rows.length);
+  const missing=manifest.version===4?0:Math.max(1,pdfRefs.rows.length);
   const count=await sandbox.query<{n:string}>(`
    SELECT count(*)::text AS n FROM pg_catalog.pg_class c
    JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace
@@ -218,6 +226,7 @@ export async function rehearseBackupRestore(options:{
    "incomplete-archive-scope",sandboxOnly:true,
    restoredTables:Number(count.rows[0]?.n),verifiedDocuments:inventory.length/2,
    verifiedReportPdfs:files.pdf.length,verifiedOfficeReports:files.office.length,
+   verifiedOfficeTemplates:files.template.length,
    missingDocumentReferences:missing,archiveHashChecked:true,
    databaseAndDocumentsConsistent:missing===0,activeInstallationModified:false,
    fullRestoreQualified:false};
