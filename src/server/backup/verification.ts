@@ -24,7 +24,7 @@ export type BackupInventoryEntry=Readonly<{
  checkedAt:string;installationSource:string|null;applicationVersion:string|null;
  schemaVersion:number|null;postgresVersion:string|null;
  components:readonly VerifiedComponent[];documentCount:number;
- integrityVerified:boolean;scopeComplete:boolean;restoreTested:false;
+ integrityVerified:boolean;scopeComplete?:boolean;restoreTested:false;
 }>;
 
 class VerificationProblem extends Error {
