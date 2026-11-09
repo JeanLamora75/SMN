@@ -518,9 +518,13 @@ try {
     });
     assert.equal(ended.status,200);
     assert.equal((await ended.json()).activeCount,4);
-    assert.equal((await lifecycleWrite(memberWithRoles.id,{
+    // SMN-40: the legacy deletion route is deliberately closed, even for
+    // a member with historical links. Only the audited erasure path is allowed.
+    const legacyDelete=await lifecycleWrite(memberWithRoles.id,{
      action:"delete",confirmation:"SUPPRIMER",revision:1
-    })).status,409);
+    });
+    assert.equal(legacyDelete.status,503);
+    assert.deepEqual(await legacyDelete.json(),{error:"audit-not-ready"});
     const archived=await lifecycleWrite(memberWithRoles.id,{action:"archive",revision:1});
     assert.equal(archived.status,200);
     const rosterArchived=await (await get("/api/admin/members",{
