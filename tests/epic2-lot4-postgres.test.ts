@@ -50,7 +50,6 @@ test("Epic 2 lot 4 PG18 — read-only impact scan on isolated native v33",
     assert.equal(rows.find(r=>r.table==="smn_member_assignment")?.count,1);
     assert.equal(rows.find(r=>r.table==="smn_member_assignment_version")?.count,1);
     const discovered=await inspectMemberForeignKeys(db,member);
-    console.log("SMN_LOT4_FK_TABLES",JSON.stringify(discovered.map(r=>({table:r.table,state:r.state,count:r.count}))));
     assert.equal(discovered.find(r=>r.table==="smn_member_assignment")?.count,1);
     assert.equal(discovered.find(r=>r.table==="smn_member_assignment_version")?.count,1);
     await assert.rejects(
