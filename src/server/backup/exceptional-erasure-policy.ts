@@ -27,7 +27,7 @@ export type ErasureImpactPlan=Readonly<{
 export type ErasureGuard=Readonly<{
  decision:"blocked"|"eligible-for-confirmation";
  blockers:readonly string[];
- requiresDistinctConfirmation:true;
+ requiresDistinctConfirmation:true;canExecute:false;requiresServerReceipt:true;
 }>;
 const iso=(x:string)=>typeof x==="string"&&!Number.isNaN(Date.parse(x))&&
  new Date(x).toISOString()===x;
@@ -69,7 +69,8 @@ export function assessErasurePlan(plan:ErasureImpactPlan,now=new Date()):Erasure
   }
  }
  return {decision:blockers.size?"blocked":"eligible-for-confirmation",
-  blockers:[...blockers],requiresDistinctConfirmation:true};
+  blockers:[...blockers],requiresDistinctConfirmation:true,
+  canExecute:false,requiresServerReceipt:true};
 }
 export type ErasureConfirmation=Readonly<{
  planId:string;scopeRevision:string;confirmedText:string;
