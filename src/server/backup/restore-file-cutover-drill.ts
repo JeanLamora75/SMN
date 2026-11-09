@@ -63,8 +63,12 @@ export async function rehearseOfflineFileCutover(x:FileCutoverInput):Promise<{
  if(!validateFileCutoverDrill(x))throw Error("restore-file-disposable-only");
  const parent=dirname(x.originalRoot);
  const parentStat=await lstat(parent);
+ const physicalTemp=await realpath(resolve(tmpdir()));
+ const physicalParent=await realpath(parent);
+ const inside=relative(physicalTemp,physicalParent);
  if(!parentStat.isDirectory()||parentStat.isSymbolicLink()||
-  await realpath(parent)!==parent)
+  inside===""||inside===".."||inside.startsWith(".."+sep)||
+  isAbsolute(inside))
   throw Error("restore-file-parent-untrusted");
  const lockFile=join(parent,".smn-restore-file-drill.lock");
  let lock=false,parked=false,promoted=false;
