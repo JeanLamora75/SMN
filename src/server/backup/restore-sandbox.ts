@@ -11,11 +11,13 @@ import {inspectBackup} from "./verification";
 import {unseal,recoverKey,type RecoveryEnvelope} from "./crypto";
 import {scanDocuments,type BackupComponent} from "./files";
 import {validateSandboxTarget} from "./restore-sandbox-policy";
+import {validExtraName} from "./extra-archives";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 type DocumentPart=BackupComponent&{sourceName:string};
-type Manifest={version:2;id:string;schemaVersion:number;postgresVersion:string;
- database:BackupComponent;documents:DocumentPart[]};
+type Manifest={version:2|3;id:string;schemaVersion:number;postgresVersion:string;
+ database:BackupComponent;documents:DocumentPart[];
+ reportPdfs?:DocumentPart[];officeReports?:DocumentPart[]};
 export type RehearsalResult={
  archiveId:string;status:"reconstructed-in-sandbox"|"incomplete-archive-scope";
  sandboxOnly:true;restoredTables:number;verifiedDocuments:number;
@@ -35,9 +37,12 @@ function executable():string{
 function metadata(value:unknown):Manifest{
  if(!value||typeof value!=="object")throw Error("manifest-invalid");
  const m=value as Partial<Manifest>;
- if(m.version!==2||!UUID.test(m.id??"")||!m.database||
+ if(![2,3].includes(m.version as number)||!UUID.test(m.id??"")||!m.database||
   !Array.isArray(m.documents)||m.documents.length>200||
-  m.documents.reduce((sum,part)=>sum+(Number(part.size)||0),0)>512*1024*1024)
+  m.documents.reduce((sum,part)=>sum+(Number(part.size)||0),0)>512*1024*1024||
+  (m.version===3&&(!Array.isArray(m.reportPdfs)||
+   !Array.isArray(m.officeReports)||m.reportPdfs.length>200||
+   m.officeReports.length>200)))
   throw Error("manifest-invalid");
  return m as Manifest;
 }
@@ -125,6 +130,26 @@ export async function rehearseBackupRestore(options:{
    try{await writeFile(join(docs,part.sourceName),bytes,{flag:"wx",mode:0o600});}
    finally{bytes.fill(0);}
   }
+  const files={pdf:manifest.reportPdfs??[],office:manifest.officeReports??[]};
+  let restoredExtras=0;
+  for(const kind of ["pdf","office"] as const){
+   const parts=files[kind];
+   if(!parts.length)continue;
+   const dir=join(staging,kind==="pdf"?"report-pdfs":"office-reports");
+   await mkdir(dir,{mode:0o700});
+   const seen=new Set<string>();
+   for(const [i,part] of parts.entries()){
+    const expected=(kind==="pdf"?"report-pdfs/":"office-reports/")+
+     String(i).padStart(5,"0")+".enc";
+    if(!validExtraName(kind,part.sourceName)||seen.has(part.sourceName)||
+     part.path!==expected)throw Error("restore-extra-archive-invalid");
+    seen.add(part.sourceName);
+    const bytes=await decryptComponent(join(packageDir,part.path),part,key);
+    try{await writeFile(join(dir,part.sourceName),bytes,{flag:"wx",mode:0o600});}
+    finally{bytes.fill(0);}
+    restoredExtras++;
+   }
+  }
   const inventory=await scanDocuments(docs);
   if(inventory.length!==manifest.documents.length)
    throw Error("restore-document-inventory-mismatch");
@@ -173,11 +198,18 @@ export async function rehearseBackupRestore(options:{
   // Current backup format includes SMN_PRIVATE_DOCUMENTS_DIR only.
   // Generated PDF archives are stored elsewhere and are NOT in this package.
   // Therefore any archived PDF reference makes a "complete restore" claim false.
-  const missingRefs=await sandbox.query<{n:string}>(`
-   SELECT count(*)::text AS n FROM public.smn_report_pdf_archive`);
-  const missing=Number(missingRefs.rows[0]?.n);
-  if(!Number.isSafeInteger(missing)||missing<0)
-   throw Error("restore-document-references-unverified");
+  const pdfRefs=await sandbox.query<{id:string;sha256:string;
+   byte_length:number;stored_name:string}>(`
+   SELECT id,sha256,byte_length,stored_name FROM public.smn_report_pdf_archive`);
+  const expected=new Map(files.pdf.map(p=>[p.sourceName,p]));
+  if(pdfRefs.rows.length!==expected.size)throw Error("restore-pdf-references-missing");
+  for(const ref of pdfRefs.rows){
+   const file=expected.get(ref.stored_name);
+   if(!file||ref.stored_name!==ref.id+".pdf"||file.sha256!==ref.sha256||
+    file.size!==ref.byte_length)
+    throw Error("restore-pdf-references-missing");
+  }
+  const missing=manifest.version===3?0:pdfRefs.rows.length;
   const count=await sandbox.query<{n:string}>(`
    SELECT count(*)::text AS n FROM pg_catalog.pg_class c
    JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace
