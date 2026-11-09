@@ -16,7 +16,7 @@ import {officeReportsDirectory} from "../reports/office-storage";
 
 type Admin=Readonly<{id:string;role:string;password_hash:string}>;
 export type BackupState=Readonly<{
- needsRecoveryPhrase:boolean;last:Readonly<{status:"success"|"failed";id?:string;createdAt:string}>|null;
+ needsRecoveryPhrase:boolean;last:Readonly<{status:"running"|"success"|"failed"|"cancelled";id?:string;createdAt:string}>|null;
 }>;
 export function backupRootPath():string{
  const custom=process.env.SMN_BACKUP_DIR;
@@ -79,7 +79,7 @@ async function getOrCreateKey(root:string,phrase:string|undefined,passwordHash:s
 async function readLast(root:string):Promise<BackupState["last"]>{
  try{
   const data=JSON.parse((await readFile(join(root,"last-attempt.json"))).toString("utf8")) as Record<string,unknown>;
-  if((data.status!=="success"&&data.status!=="failed")||typeof data.createdAt!=="string")return null;
+  if(!["running","success","failed","cancelled"].includes(data.status)||typeof data.createdAt!=="string")return null;
   return {status:data.status,id:typeof data.id==="string"?data.id:undefined,createdAt:data.createdAt};
  }catch{return null;}
 }
@@ -112,6 +112,11 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    "SELECT pg_try_advisory_lock(20261021,30) AS acquired");
   if(acquired.rows[0]?.acquired!==true)throw new Error("backup-already-running");
   locked=true;
+  // Persist intent before touching any component; a crash leaves 'running',
+  // reconciled on the next read using the actual advisory lock and package.
+  await safeAtomicJson(join(root,"last-attempt.json"),{
+   status:"running",id,createdAt
+  });
   const {key,recovery}=await getOrCreateKey(root,phrase,actor.password_hash);
   try{
    const inventory=await scanDocuments(source);
@@ -157,7 +162,7 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    return {id,createdAt,status:"success",documentCount:inventory.length/2};
   }finally{key.fill(0);}
  }catch{
-  await safeAtomicJson(join(root,"last-attempt.json"),{status:"failed",createdAt})
+  await safeAtomicJson(join(root,"last-attempt.json"),{status:"failed",id,createdAt})
    .catch(()=>undefined);
   throw new Error("backup-failed");
  }finally{
