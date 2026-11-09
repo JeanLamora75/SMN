@@ -114,27 +114,32 @@ export async function executeBackupRetention(client:Client,root:string,actorId:s
    return {ok:false,error:"conflict"};
   const deleted:string[]=[];
   const operationId=randomUUID(),startedAt=new Date().toISOString();
+  let inFlight:string|null=null;
   const log=async(status:"running"|"success"|"partial"|"failed",failed:number)=>
    safeAtomicJson(join(root,"last-cleanup.json"),{
     operationId,startedAt,status,planned:eligible.length,
-    processed:deleted.length,failed,checkedAt:new Date().toISOString()
+    processed:deleted.length,failed,inFlight,checkedAt:new Date().toISOString()
    });
   await log("running",0);
   try{
    for(const item of eligible){
+    inFlight=item.id;
+    await log("running",0);
     await deleteVerifiedManagedPackage(root,item.id);
     await client.query(`INSERT INTO public.smn_backup_retention_audit
       (id,installation_id,actor_id,action,old_days,new_days,package_id)
       VALUES($1,'singleton',$2,'package_deleted',$3,$3,$4)`,
       [randomUUID(),actorId,policy.days,item.id]);
     deleted.push(item.id);
+    inFlight=null;
     await log("running",0);
    }
    await log("success",0);
   }catch{
    // The package may have been removed before an audit write failed.
    // No success claim: reconciliation requires inspection of inventory/audit.
-   await log(deleted.length>0?"partial":"failed",1).catch(()=>undefined);
+   await log(deleted.length>0||inFlight?"partial":"failed",inFlight?1:0)
+    .catch(()=>undefined);
    throw new Error("cleanup-interrupted-review-required");
   }
   return {ok:true,deleted,days:policy.days,checkedAt:new Date().toISOString()};
