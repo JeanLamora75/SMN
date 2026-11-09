@@ -6,6 +6,7 @@ import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import BackupsAdmin from "./backups-admin";
 import ErasureImpactAdmin from "./erasure-impact-admin";
+import InstallationResetPreview from "./installation-reset-preview";
 export const dynamic="force-dynamic";
 export default async function BackupsPage(){
  const account=await currentAccount();
@@ -22,5 +23,6 @@ export default async function BackupsPage(){
   </header>
   <BackupsAdmin/>
   <div className="mt-4"><ErasureImpactAdmin/></div>
+  <div className="mt-4"><InstallationResetPreview/></div>
  </div>;
 }
