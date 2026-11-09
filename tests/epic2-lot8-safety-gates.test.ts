@@ -69,7 +69,7 @@ test("Lot 8 / SMN-37 — aucune phrase de confirmation ne réinitialise l'instal
 test("Lot 8 — les routes publiques restent fail-closed sans exécuteur actif",()=>{
  const preflight=readFileSync(
   "src/app/api/admin/backups/restore/preflight/route.ts","utf8")
-  .replace(/\\/\\*[\\s\\S]*?\\*\\//g,"");
+  .replace(/\/\*[\s\S]*?\*\//g,"");
  assert.match(preflight,/assessRestoreGate/);
  assert.match(preflight,/\},409\)/);
  assert.doesNotMatch(preflight,/rehearseCoordinatedOfflineCutover|pg_restore/);
