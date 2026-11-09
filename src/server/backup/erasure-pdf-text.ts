@@ -27,7 +27,8 @@ export async function extractPdfText(bytes:Buffer):Promise<BinaryExtraction>{
    const child=spawn(executable,["-enc","UTF-8","-nopgbrk","-","-"],{
     windowsHide:true,stdio:["pipe","pipe","ignore"],
     signal:AbortSignal.timeout(7000),
-    env:{...process.env,PATH:process.env.PATH??"",SystemRoot:process.env.SystemRoot??""}
+    env:{NODE_ENV:process.env.NODE_ENV??"production",
+     PATH:process.env.PATH??"",SystemRoot:process.env.SystemRoot??""}
    });
    child.once("error",reject);
    child.stdout.on("data",(chunk:Buffer)=>{
