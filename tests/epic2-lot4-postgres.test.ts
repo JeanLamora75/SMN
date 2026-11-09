@@ -131,6 +131,16 @@ test("Epic 2 lot 4 PG18 — read-only impact scan on isolated native v33",
     assert.deepEqual(await inspectErasureCommit(db,deleted.receiptId),{
      state:"committed",affectedRows:1
     });
+    // A signed receipt from an EARLIER transaction must not grant another DELETE.
+    await db.query("BEGIN");
+    try{
+     await db.query("SELECT set_config('smn.privacy_receipt_id',$1,true)",
+      [deleted.receiptId]);
+     await assert.rejects(db.query(
+      "DELETE FROM public.smn_member WHERE id=$1",[member]),
+      /smn40-member-delete-requires-audited-intent/);
+    }finally{await db.query("ROLLBACK");}
+
     // Qualified non-trivial dependency graph: member -> assignment -> version.
     // No team cycle, report or other business reference may be affected.
     const linkedMember=randomUUID(),linkedAssignment=randomUUID();
