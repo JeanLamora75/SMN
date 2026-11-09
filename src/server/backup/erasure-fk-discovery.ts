@@ -5,6 +5,7 @@ import type {ImpactCategory} from "./exceptional-erasure-policy";
 
 type ForeignKey=Readonly<{
  child_table:string;parent_table:string;child_column:string;parent_column:string;
+ multi_column:boolean;
 }>;
 const IDENT=/^smn_[a-z][a-z0-9_]*$/;
 const COL=/^[a-z_][a-z0-9_]*$/;
@@ -21,7 +22,8 @@ const category=(name:string):ImpactCategory=>
 export async function inspectMemberForeignKeys(db:Client,memberId:string):Promise<TableImpact[]>{
  const response=await db.query<ForeignKey>(`
   SELECT child.relname AS child_table,parent.relname AS parent_table,
-   ca.attname AS child_column,pa.attname AS parent_column
+   ca.attname AS child_column,pa.attname AS parent_column,
+   (array_length(c.conkey,1)<>1 OR array_length(c.confkey,1)<>1) AS multi_column
   FROM pg_catalog.pg_constraint c
   JOIN pg_catalog.pg_class child ON child.oid=c.conrelid
   JOIN pg_catalog.pg_namespace nc ON nc.oid=child.relnamespace
@@ -32,7 +34,6 @@ export async function inspectMemberForeignKeys(db:Client,memberId:string):Promis
   JOIN pg_catalog.pg_attribute pa ON pa.attrelid=c.confrelid
     AND pa.attnum=c.confkey[1]
   WHERE c.contype='f' AND nc.nspname='public' AND np.nspname='public'
-    AND array_length(c.conkey,1)=1 AND array_length(c.confkey,1)=1
     AND child.relname LIKE 'smn_%' AND parent.relname LIKE 'smn_%'
   ORDER BY child.relname,parent.relname,ca.attname
   LIMIT $1`,[MAX_EDGES+1]);
@@ -43,12 +44,24 @@ export async function inspectMemberForeignKeys(db:Client,memberId:string):Promis
    category:"associations",scope:"indirect"}];
  type Path=Readonly<{node:string;edges:readonly ForeignKey[];visited:readonly string[]}>;
  const pending:Path[]=[{node:"smn_member",edges:[],visited:["smn_member"]}];
+ const unresolved:TableImpact[]=[];
+ // A composite FK cannot be traversed by the single-column path builder.
+ // Surface its presence explicitly instead of silently excluding it.
+ const walkable=response.rows.filter(r=>!r.multi_column);
+ for(const relation of response.rows.filter(r=>r.multi_column))
+  unresolved.push({table:relation.child_table,scope:"indirect",
+   category:category(relation.child_table),count:null,state:"unknown"});
  const results:TableImpact[]=[];
  let expanded=0;
  while(pending.length){
   const parent=pending.shift()!;
-  if(parent.edges.length>=MAX_DEPTH)continue;
-  const children=response.rows.filter(edge=>edge.parent_table===parent.node);
+  if(parent.edges.length>=MAX_DEPTH){
+   if(walkable.some(edge=>edge.parent_table===parent.node))
+    unresolved.push({table:"foreign-key-depth-limit",scope:"indirect",
+     category:"associations",count:null,state:"unknown"});
+   continue;
+  }
+  const children=walkable.filter(edge=>edge.parent_table===parent.node);
   for(const edge of children){
    if(parent.visited.includes(edge.child_table))continue;
    expanded++;
@@ -76,5 +89,5 @@ export async function inspectMemberForeignKeys(db:Client,memberId:string):Promis
     visited:[...parent.visited,edge.child_table]});
   }
  }
- return results;
+ return [...results,...unresolved];
 }
