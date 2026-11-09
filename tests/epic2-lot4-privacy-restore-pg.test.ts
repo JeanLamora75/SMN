@@ -111,8 +111,12 @@ test("SMN-40 PG18 — old clone refused, post-erasure clone verified, external l
    const postCapture=new Date().toISOString();
    const evidence=await currentErasureEvidence(postCapture,restored);
    assert.equal(evidence.state,"verified");
-   if(evidence.state==="verified")assert.equal(evidence.completeHistory,true);
-   assert.equal(evaluateErasureProtection(postCapture,evidence).permitted,true);
+   if(evidence.state==="verified"){
+    assert.equal(evidence.memberScopeVerified,true);
+    assert.equal(evidence.completeHistory,false,
+     "No global restoration until all personal-data deletions are journaled");
+   }
+   assert.equal(evaluateErasureProtection(postCapture,evidence).permitted,false);
    await restored.query("COMMIT");
   }finally{await restored.end();}
   const obsoleteDb=new Client({connectionString:uri(beforeDb)});
