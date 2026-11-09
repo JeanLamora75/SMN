@@ -92,3 +92,42 @@ export function unresolvedOperation(
   processed:0,unprocessed:count,failed:0,
   measuredRpoMinutes:null,measuredRtoMinutes:null,...OBJECTIVES};
 }
+
+/**
+ * Counts are mutually exclusive: confirmed, failed/uncertain and untouched.
+ * A recorded SQL audit without file absence (or vice versa) is not success.
+ */
+export function reconcileCleanupEvidence(input:{
+ operationId:string;startedAt:string;checkedAt:string;
+ status:"running"|"success"|"partial"|"failed";
+ planned:number;recordedProcessed:number;recordedFailed:number;
+ verifiedRemoved:number;inFlight:boolean;currentlyRunning:boolean;
+ unresolvedTombstones:number;
+}):OperationEvidence{
+ const {planned,recordedProcessed,recordedFailed,verifiedRemoved,
+  unresolvedTombstones}=input;
+ if(![planned,recordedProcessed,recordedFailed,verifiedRemoved,
+  unresolvedTombstones].every(Number.isSafeInteger)||
+  [planned,recordedProcessed,recordedFailed,verifiedRemoved,
+  unresolvedTombstones].some(x=>x<0)||
+  recordedProcessed+recordedFailed>planned||
+  verifiedRemoved>recordedProcessed)
+  throw Error("cleanup-reconciliation-invalid");
+ const failed=recordedFailed+(recordedProcessed-verifiedRemoved);
+ const unprocessed=planned-verifiedRemoved-failed;
+ const running=input.currentlyRunning&&input.status==="running";
+ const succeeded=input.status==="success"&&verifiedRemoved===planned&&
+  failed===0&&!input.inFlight&&unresolvedTombstones===0;
+ const status:OperationStatus=succeeded?"succeeded":running?"running":
+  verifiedRemoved>0||failed>0||input.inFlight||unresolvedTombstones>0?
+   "partial":"interrupted";
+ return {kind:"retention-cleanup",operationId:input.operationId,
+  startedAt:input.startedAt,checkedAt:input.checkedAt,status,
+  reason:succeeded?"cleanup-complete":
+   status==="running"?"operation-running":
+   status==="partial"?"partial-cleanup":"unverifiable-state",
+  recovery:succeeded?"recheck":running?"wait-and-refresh":
+   "reinspect-inventory-before-retry",
+  processed:verifiedRemoved,failed,unprocessed,
+  measuredRpoMinutes:null,measuredRtoMinutes:null,...OBJECTIVES};
+}
