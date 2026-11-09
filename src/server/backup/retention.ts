@@ -2,7 +2,7 @@ import {randomUUID} from "node:crypto";
 import {lstat,rename,rm} from "node:fs/promises";
 import {join} from "node:path";
 import type {Client} from "pg";
-import {privateFolder} from "./files";
+import {privateFolder,safeAtomicJson} from "./files";
 import type {BackupInventoryEntry} from "./verification";
 import {withAtomicBusinessUnit,atomicCommit,atomicAbort} from "./atomic-unit";
 
@@ -113,13 +113,29 @@ export async function executeBackupRetention(client:Client,root:string,actorId:s
   if(JSON.stringify(eligible.map(e=>e.id).sort())!==JSON.stringify(expected))
    return {ok:false,error:"conflict"};
   const deleted:string[]=[];
-  for(const item of eligible){
-   await deleteVerifiedManagedPackage(root,item.id);
-   await client.query(`INSERT INTO public.smn_backup_retention_audit
-     (id,installation_id,actor_id,action,old_days,new_days,package_id)
-     VALUES($1,'singleton',$2,'package_deleted',$3,$3,$4)`,
-     [randomUUID(),actorId,policy.days,item.id]);
-   deleted.push(item.id);
+  const operationId=randomUUID(),startedAt=new Date().toISOString();
+  const log=async(status:"running"|"success"|"partial"|"failed",failed:number)=>
+   safeAtomicJson(join(root,"last-cleanup.json"),{
+    operationId,startedAt,status,planned:eligible.length,
+    processed:deleted.length,failed,checkedAt:new Date().toISOString()
+   });
+  await log("running",0);
+  try{
+   for(const item of eligible){
+    await deleteVerifiedManagedPackage(root,item.id);
+    await client.query(`INSERT INTO public.smn_backup_retention_audit
+      (id,installation_id,actor_id,action,old_days,new_days,package_id)
+      VALUES($1,'singleton',$2,'package_deleted',$3,$3,$4)`,
+      [randomUUID(),actorId,policy.days,item.id]);
+    deleted.push(item.id);
+    await log("running",0);
+   }
+   await log("success",0);
+  }catch{
+   // The package may have been removed before an audit write failed.
+   // No success claim: reconciliation requires inspection of inventory/audit.
+   await log(deleted.length>0?"partial":"failed",1).catch(()=>undefined);
+   throw new Error("cleanup-interrupted-review-required");
   }
   return {ok:true,deleted,days:policy.days,checkedAt:new Date().toISOString()};
  }finally{
