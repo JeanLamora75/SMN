@@ -6,12 +6,15 @@ import {installedDatabaseUri} from "../auth/database";
 import {backupRootPath,backupState} from "../backup/runner";
 import {scanDocuments} from "../backup/files";
 import {RESET_RISKS,RESET_CONFIRMATION} from "./reset-policy";
+import {inspectExtraArchives} from "../backup/extra-archives";
 
 export type ResetImpact=Readonly<{
  inspectedAt:string;
  installation:{id:string;schemaVersion:number;createdAt:string;postgresVersion:string};
  database:{tables:number;estimatedRows:number;examples:{table:string;estimatedRows:number}[];
-  estimatesOnly:true};
+  estimatesOnly:boolean;complete:boolean};
+ archives:{reportPdfs:number|null;officeReports:number|null;officeTemplates:number|null;
+  state:"verified"|"unavailable"};
  privateDocuments:{count:number|null;state:"verified"|"unavailable"};
  backups:{count:number|null;lastSuccessfulAt:string|null;state:"available"|"unavailable"};
  risks:readonly string[];
@@ -25,6 +28,8 @@ export async function previewInstallationReset():Promise<ResetImpact>{
   application_name:"smn37-reset-impact",connectionTimeoutMillis:3500,
   statement_timeout:7000,query_timeout:7000});
  let installation:ResetImpact["installation"],database:ResetImpact["database"];
+ let archives:ResetImpact["archives"]={reportPdfs:null,officeReports:null,
+  officeTemplates:null,state:"unavailable"};
  try{
   await db.connect();
   await db.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
@@ -38,20 +43,35 @@ export async function previewInstallationReset():Promise<ResetImpact>{
    const i=result.rows[0];
    installation={id:i.id,schemaVersion:i.schema_version,
     createdAt:new Date(i.created_at).toISOString(),postgresVersion:i.postgres_version};
-   const rows=await db.query<{name:string;estimated_rows:string}>(`
-    SELECT c.relname AS name,greatest(c.reltuples,0)::bigint::text AS estimated_rows
+   const tables=await db.query<{name:string}>(String.raw\`
+    SELECT c.relname AS name
     FROM pg_catalog.pg_class c
     JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
     WHERE n.nspname='public' AND c.relkind='r' AND c.relname LIKE 'smn_%'
-    ORDER BY c.relname`);
-   const examples=rows.rows.map(r=>({table:r.name,estimatedRows:Number(r.estimated_rows)}));
-   if(examples.some(x=>!Number.isSafeInteger(x.estimatedRows)||x.estimatedRows<0))
-    throw Error("invalid-estimates");
-   database={tables:examples.length,
-    estimatedRows:examples.reduce((sum,r)=>sum+r.estimatedRows,0),
-    examples:examples.filter(x=>x.estimatedRows>0)
-     .sort((a,b)=>b.estimatedRows-a.estimatedRows).slice(0,15),
-    estimatesOnly:true};
+    ORDER BY c.relname\`);
+   if(tables.rows.length>400||tables.rows.some(t=>!/^[a-z][a-z0-9_]*$/.test(t.name)))
+    throw Error("reset-schema-unverifiable");
+   const examples:{table:string;estimatedRows:number}[]=[];
+   for(const row of tables.rows){
+    const count=await db.query<{n:string}>(
+     'SELECT count(*)::text AS n FROM public."'+row.name+'"');
+    const n=Number(count.rows[0]?.n);
+    if(!Number.isSafeInteger(n)||n<0)throw Error("reset-count-unverifiable");
+    examples.push({table:row.name,estimatedRows:n});
+   }
+   const estimatedRows=examples.reduce((sum,row)=>sum+row.estimatedRows,0);
+   if(!Number.isSafeInteger(estimatedRows))throw Error("reset-count-unverifiable");
+   database={tables:examples.length,estimatedRows,
+    examples:examples.filter(row=>row.estimatedRows>0)
+     .sort((x,y)=>y.estimatedRows-x.estimatedRows).slice(0,15),
+    estimatesOnly:false,complete:true};
+   // The archive scan verifies every PDF DB reference and Office binary,
+   // so unknown stores never appear as an empty installation.
+   try{
+    const files=await inspectExtraArchives(db);
+    archives={reportPdfs:files.pdf.length,officeReports:files.office.length,
+     officeTemplates:files.templates.length,state:"verified"};
+   }catch{/* Missing or damaged archives must not grant reset safety. */}
    await db.query("COMMIT");
   }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
  }finally{await db.end().catch(()=>undefined);}
@@ -78,7 +98,7 @@ export async function previewInstallationReset():Promise<ResetImpact>{
    state:"available"};
  }catch{/* Unavailable backup inventory blocks operation. */}
  return {inspectedAt:new Date().toISOString(),installation,database,
-  privateDocuments,backups,
+  privateDocuments,backups,archives,
   risks:RESET_RISKS,
   confirmationRequired:RESET_CONFIRMATION,
   canExecute:false,blocked:true};
