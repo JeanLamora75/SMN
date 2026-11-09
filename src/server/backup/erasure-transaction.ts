@@ -43,7 +43,7 @@ export async function withAuditedErasureTransaction(
   // can make the transaction outcome unknowable to this process.
   throw Error("privacy-erasure-outcome-unresolved");
  }
- try{await finalizeErasureIntent(pending);}
+ try{await finalizeErasureIntent(pending,db);}
  catch{throw Error("privacy-erasure-external-audit-incomplete");}
  return {receiptId:pending.id,affectedRows,recorded:true};
 }
