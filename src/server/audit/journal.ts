@@ -4,7 +4,7 @@ export type AuditAction="account_created"|"account_updated"|"settings_updated"|
   "password_changed"|"recovery_prepared"|"recovery_used"|
   "backup_policy_changed"|"backup_package_deleted"|
   "sprint_changed"|"member_archived"|"member_reactivated"|"member_assignment_closed"|
-  "team_context_changed"|"registry_item_changed"|"pdf_archive_recorded";
+  "team_context_changed"|"registry_item_changed"|"pdf_archive_recorded"|"member_removed";
 export type AuditEntry=Readonly<{
  id:string;occurredAt:string;actorId:string|null;action:AuditAction;
  objectType:"account"|"settings"|"authentication"|"backup"|"sprint"|"member"|"team"|"registry"|"report";objectId:string;scope:"singleton";
@@ -18,7 +18,7 @@ const actions=new Set<AuditAction>([
  "account_created","account_updated","settings_updated","password_changed","recovery_prepared","recovery_used",
  "backup_policy_changed","backup_package_deleted","sprint_changed","member_archived",
  "member_reactivated","member_assignment_closed","team_context_changed",
- "registry_item_changed","pdf_archive_recorded"
+ "registry_item_changed","pdf_archive_recorded","member_removed"
 ]);
 /** Whitelist de seules préférences et états non sensibles, y compris pour des JSONB malformés. */
 export function sanitizeAuditValues(action:AuditAction,value:unknown):Record<string,string|boolean>{
@@ -53,7 +53,7 @@ export function projectAuditEvent(row:RawEvent):AuditEntry|null{
   backup_policy_changed:"backup",backup_package_deleted:"backup",
   sprint_changed:"sprint",member_archived:"member",member_reactivated:"member",
   member_assignment_closed:"member",team_context_changed:"team",
-  registry_item_changed:"registry",pdf_archive_recorded:"report"
+  registry_item_changed:"registry",pdf_archive_recorded:"report",member_removed:"member"
  };
  if(expectedType[action]!==row.object_type)return null;
  return {
@@ -120,7 +120,7 @@ const auditSql=`
       '{}'::jsonb AS old_values,'{}'::jsonb AS new_values
     FROM public.smn_registry_item_audit
     UNION ALL
-    SELECT COALESCE(operation_id,id) AS id,created_at AS occurred_at,
+    SELECT id,created_at AS occurred_at,
       author_id AS actor_id,'pdf_archive_recorded'::text AS action,
       'report'::text AS object_type,id AS object_id,
       'singleton'::text AS scope,'success'::text AS result,
@@ -131,5 +131,23 @@ const auditSql=`
 export async function readAuditJournal(client:Client,limit=100):Promise<readonly AuditEntry[]>{
  const safeLimit=Number.isSafeInteger(limit)&&limit>=1&&limit<=200?limit:100;
  const query=await client.query<RawEvent>(auditSql,[safeLimit]);
- return query.rows.map(projectAuditEvent).filter((value):value is AuditEntry=>value!==null);
+ const entries=query.rows.map(projectAuditEvent)
+  .filter((value):value is AuditEntry=>value!==null);
+ // The removal ledger is additive, outside the immutable v33 baseline.
+ const extra=await client.query<{present:boolean}>(`
+  SELECT to_regclass('public.smn_member_removal_audit') IS NOT NULL AS present`);
+ if(extra.rows[0]?.present===true){
+  const deleted=await client.query<RawEvent>(`
+   SELECT id,removed_at AS occurred_at,actor_id,
+    'member_removed'::text AS action,'member'::text AS object_type,
+    member_id AS object_id,installation_id AS scope,
+    'success'::text AS result,'{}'::jsonb AS old_values,
+    '{}'::jsonb AS new_values
+   FROM public.smn_member_removal_audit WHERE installation_id='singleton'
+   ORDER BY removed_at DESC,id DESC LIMIT $1`,[safeLimit]);
+  entries.push(...deleted.rows.map(projectAuditEvent)
+   .filter((value):value is AuditEntry=>value!==null));
+ }
+ return entries.sort((a,b)=>b.occurredAt.localeCompare(a.occurredAt)||
+  b.id.localeCompare(a.id)).slice(0,safeLimit);
 }
