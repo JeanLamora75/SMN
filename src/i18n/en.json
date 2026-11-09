@@ -4292,14 +4292,14 @@
       "history": "Histories",
       "free-text": "Free text",
       "private-files": "Private documents",
-      "archived-pdf-txt": "Archived PDF/TXT",
+      "archived-pdf-txt": "PDF/TXT/Office archives",
       "collective-indicators": "Collective metrics",
       "managed-backups": "Managed backups"
     },
     "warnings": {
       "indirect-links-unchecked": "Assignment and absence histories are inspected; additional transitive business references may remain.",
       "free-text-unchecked": "Free-text fields are not fully inspected; names may remain present.",
-      "archived-files-unchecked": "Private TXT files are searched, PDF manifests and team archives are inventoried; PDF text and other binaries are not fully inspected. Originals remain immutable.",
+      "archived-files-unchecked": "SMN examines PDF text layers when an extractor is configured and DOCX/PPTX text. Images, scanned PDFs, external documents and non-text attachments require additional review.",
       "indicators-unchecked": "Retaining statistics must be justified against reidentification risk.",
       "managed-backups-may-contain-data": "Backups may contain previously erased data and require SMN-40 checks.",
       "external-copies-not-controlled": "Exported copies outside SMN storage cannot automatically be monitored or deleted.",
@@ -4310,6 +4310,17 @@
       "indirect": "Verified indirect link",
       "text-match": "Potential text match",
       "team-archive": "Candidate archive from the same team"
+    },
+    "stablePlanTitle": "Impact plan stability check",
+    "stablePlanExpires": "Receipt valid until {time}",
+    "stablePlanNotice": "This signed receipt is not permission to erase data. SMN must recheck data and archives before any action.",
+    "revalidatePlan": "Recheck plan",
+    "revalidatingPlan": "Rechecking…",
+    "planUnavailable": "A stable receipt cannot be issued: some data sources or archives could not be verified.",
+    "planStatuses": {
+      "unchanged": "The inspected state has not changed. The analysis remains incomplete and cannot authorize erasure.",
+      "stale": "The receipt is expired, invalid or the data changed. Run a new preview.",
+      "failed": "Revalidation is unavailable. Erasure is not authorized."
     }
   }
 }
