@@ -119,20 +119,26 @@ export async function inspectTextCandidates(db:Client,memberId:string,
 /** Team-wide archives are potentially affected, not proven to contain a person. */
 export async function inspectArchiveCandidates(db:Client,memberId:string):Promise<TableImpact[]>{
  const tables=[
-  {table:"smn_report_pdf_archive",teamColumn:"team_id"},
-  {table:"smn_ai_brief_archive",teamColumn:"team_id"},
-  {table:"smn_report_document",teamColumn:"team_id"}
+  {table:"smn_report_pdf_archive",columns:["team_id"],sql:`
+   SELECT count(*)::text AS n FROM public.smn_report_pdf_archive t
+   WHERE t.team_id IN (SELECT team_id FROM public.smn_member_assignment WHERE member_id::text=$1)`},
+  {table:"smn_ai_brief_archive",columns:["team_id"],sql:`
+   SELECT count(*)::text AS n FROM public.smn_ai_brief_archive t
+   WHERE t.team_id IN (SELECT team_id FROM public.smn_member_assignment WHERE member_id::text=$1)`},
+  {table:"smn_report_studio_archive_snapshot",columns:["document_id"],sql:`
+   SELECT count(*)::text AS n FROM public.smn_report_studio_archive_snapshot t
+   JOIN public.smn_report_document d ON d.id=t.document_id
+   WHERE d.team_id IN (SELECT team_id FROM public.smn_member_assignment WHERE member_id::text=$1)`}
  ] as const;
  const result:TableImpact[]=[];
  for(const item of tables){
-  if(!await available(db,item.table,[item.teamColumn])){
+  const parentReady=item.table!=="smn_report_studio_archive_snapshot"||
+   await available(db,"smn_report_document",["id","team_id"]);
+  if(!parentReady||!await available(db,item.table,item.columns)){
    result.push({table:item.table,category:"archived-pdf-txt",scope:"team-archive",
     count:null,state:"unknown"});continue;
   }
-  const rows=await db.query<{n:string}>(`
-   SELECT count(*)::text AS n FROM public."${item.table}" t
-   WHERE t."${item.teamColumn}" IN
-    (SELECT team_id FROM public.smn_member_assignment WHERE member_id::text=$1)`,[memberId]);
+  const rows=await db.query<{n:string}>(item.sql,[memberId]);
   result.push({table:item.table,category:"archived-pdf-txt",scope:"team-archive",
    count:safeCount(rows.rows[0]?.n),state:"inspected"});
  }
