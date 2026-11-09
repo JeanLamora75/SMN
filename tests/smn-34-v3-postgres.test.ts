@@ -58,7 +58,7 @@ function makeDocx():Buffer{
   Target="word/document.xml"/></Relationships>`},
   {name:"word/document.xml",body:`<?xml version="1.0"?>
   <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:body><w:p><w:r><w:t>Rapport SMN-34</w:t></w:r></w:p></w:body></w:document>`}
+  <w:body><w:p><w:r><w:t>Rapport {{TEAM_NAME}} : {{INDICATOR_LOT3_MANUAL}}</w:t></w:r></w:p></w:body></w:document>`}
  ];
  const locals:Buffer[]=[],central:Buffer[]=[];let offset=0;
  for(const item of entries){
@@ -255,6 +255,24 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
    const computed=await restored.query<{value:string;result_state:string}>(
     "SELECT value::text,result_state FROM public.smn_indicator_computed_result WHERE team_id=$1 AND cycle_id=$2 AND indicator_id='lot3computed'",[teamId,sprintId]);
    assert.deepEqual(computed.rows,[{value:"26",result_state:"available"}]);
+   // Regenerate an actual DOCX from the backed-up template and restored v33 data.
+   const officeGenerator=await import(new URL("../scripts/smn-399-office-scalars.mjs",import.meta.url).href) as {
+    buildScalarValues:(v:unknown)=>Record<string,string|null>;
+    generateScalarOffice:(input:Buffer,format:string,values:unknown)=>{bytes:Buffer;changes:unknown[]};
+   };
+   const teamRow=await restored.query<{name:string}>("SELECT name FROM public.smn_team WHERE id=$1",[teamId]);
+   const replaced=officeGenerator.generateScalarOffice(officeBytes,"docx",
+    officeGenerator.buildScalarValues({
+     TEAM_NAME:teamRow.rows[0].name,
+     indicators:[{tag:"LOT3_MANUAL",available:true,value:values.rows[0].value}]
+    }));
+   assert.equal(replaced.changes.length,1);
+   const regenerated=extractOoxmlText(replaced.bytes);
+   assert.equal(regenerated.state,"extracted");
+   assert.match(regenerated.text??"",/Restauration SMN 34/);
+   assert.match(regenerated.text??"",/13/);
+   assert.doesNotMatch(regenerated.text??"",/\{\{TEAM_NAME\}\}/);
+
   }finally{await restored.end().catch(()=>undefined);}
   // Prove that rehearsing the restoration did not remove or rewrite the source.
   const unchanged=new Client({connectionString:url(source)});
