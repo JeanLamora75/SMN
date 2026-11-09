@@ -34,6 +34,17 @@ Tests nouveaux :
 
 Tests régressifs : backup-erasure-protection, exceptional-erasure-policy, erasure-impact-preview, erasure-impact-receipt, erasure-indirect-archives et erasure-ooxml-content. CI Windows/Linux, typecheck et i18n. La preuve d'exécution est le résultat réel des jobs GitHub Actions, pas la présence des fichiers.
 
+
+## Preuve CI confirmée — 9 novembre 2026
+
+**GitHub Actions : https://github.com/JeanLamora75/SMN/actions/runs/42625895661** ; commit testé 424dc1ee4bfcc2d70b096199c760afd8d2c7650b.
+
+- privacy-contracts (windows-latest) : **success**, y compris tests du registre, contrats SMN-38/39/40, TypeScript et traductions.
+- privacy-contracts (ubuntu-latest) : **success**, mêmes vérifications.
+- postgres-18-impact : **success** ; installation native v33 et contrôle READ ONLY sur une base jetable.
+
+**Jira :** commentaires de qualification ajoutés à SMN-38, SMN-39 et SMN-40. Stories conservées en cours ; la CI ne prouve ni effacement/destruction métier, ni absence de réidentification dans des archives non inspectées.
+
 ## Critères d'acceptation restant bloqués
 
 - **SMN-38 :** revue manuelle des données sémantiques et binaires non inspectables ; arbitrage de conservation des indicateurs collectifs sans réidentification.
