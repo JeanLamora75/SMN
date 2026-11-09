@@ -4326,5 +4326,36 @@
       "stale": "The receipt is expired, invalid or the data changed. Run a new preview.",
       "failed": "Revalidation is unavailable. Erasure is not authorized."
     }
+  },
+  "installationReset": {
+    "title": "Reset installation",
+    "intro": "Review the impact before any reset. This feature remains disabled until recovery and rollback have been qualified.",
+    "inspect": "Preview reset impact",
+    "inspecting": "Inspecting…",
+    "failed": "Unable to assess this installation. No changes were made.",
+    "blocked": "Reset is unavailable: no data were changed. The recovery process has not been qualified.",
+    "schema": "Schema version",
+    "tables": "SMN tables",
+    "estimatedRows": "Estimated rows",
+    "documents": "Verified private documents",
+    "backups": "Managed backup packages",
+    "unknown": "Unknown",
+    "estimatesWarning": "Row counts are PostgreSQL estimates, not a comprehensive inventory. Listed backups are not necessarily restorable.",
+    "tableDetails": "View largest tables",
+    "table": "Table",
+    "risksTitle": "Affected data and risks",
+    "backupAdvice": "Before any future reset, create an encrypted backup, verify its integrity and demonstrate restoration on an isolated installation. Creating a new installation must never overwrite the existing one.",
+    "close": "Close preview",
+    "risks": {
+      "database-overwrite": "The PostgreSQL database and business data may be replaced.",
+      "private-files": "Private documents and Office files must be included in scope.",
+      "archives-and-snapshots": "Historical archives, PDF/TXT and immutable snapshots must be protected.",
+      "accounts-and-sessions": "Accounts, permissions and sessions must be reassessed and revoked.",
+      "historical-links": "Links between teams, sprints, members and documents would be affected.",
+      "erasure-ledger": "Evidence of erasure must never be removed or reintroduced.",
+      "backup-before-reset": "A verified, demonstrably restorable backup is required.",
+      "rollback-not-qualified": "Isolated reconstruction and rollback remain unqualified.",
+      "external-copies": "Copies exported outside SMN cannot be automatically controlled."
+    }
   }
 }
