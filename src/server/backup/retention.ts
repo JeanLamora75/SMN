@@ -4,6 +4,7 @@ import {join} from "node:path";
 import type {Client} from "pg";
 import {privateFolder} from "./files";
 import type {BackupInventoryEntry} from "./verification";
+import {withAtomicBusinessUnit,atomicCommit,atomicAbort} from "./atomic-unit";
 
 const MAX_DAYS=3650;
 const DAY_MS=86400_000;
@@ -38,23 +39,16 @@ export async function updateBackupRetention(client:Client,actorId:string,
  raw:unknown):Promise<RetentionResult>{
  const input=parseRetentionInput(raw);
  if(!input||!actorId)return {ok:false,error:"invalid-input"};
- await client.query("BEGIN");
- try{
+ return withAtomicBusinessUnit(client,async()=>{
   await client.query("SELECT pg_advisory_xact_lock(20261021,30)");
   const existing=await client.query<Row>(select+" FOR UPDATE");
-  if(existing.rowCount!==1){
-   await client.query("ROLLBACK");
-   return {ok:false,error:"unavailable"};
-  }
+  if(existing.rowCount!==1)
+   return atomicAbort({ok:false as const,error:"unavailable" as const});
   const previous=project(existing.rows[0]);
-  if(previous.revision!==input.revision){
-   await client.query("ROLLBACK");
-   return {ok:false,error:"conflict"};
-  }
-  if(previous.days===input.days){
-   await client.query("COMMIT");
-   return {ok:true,policy:previous,changed:false};
-  }
+  if(previous.revision!==input.revision)
+   return atomicAbort({ok:false as const,error:"conflict" as const});
+  if(previous.days===input.days)
+   return atomicCommit({ok:true as const,policy:previous,changed:false});
   const updated=await client.query<Row>(`UPDATE public.smn_backup_retention
     SET days=$1,revision=revision+1,updated_at=now(),updated_by=$2
     WHERE installation_id='singleton' AND revision=$3
@@ -64,12 +58,8 @@ export async function updateBackupRetention(client:Client,actorId:string,
     (id,installation_id,actor_id,action,old_days,new_days)
     VALUES ($1,'singleton',$2,'policy_changed',$3,$4)`,
     [randomUUID(),actorId,previous.days,input.days]);
-  await client.query("COMMIT");
-  return {ok:true,policy:project(updated.rows[0]),changed:true};
- }catch(error){
-  await client.query("ROLLBACK").catch(()=>undefined);
-  throw error;
- }
+  return atomicCommit({ok:true as const,policy:project(updated.rows[0]),changed:true});
+ });
 }
 
 /** Age counted in elapsed UTC days, never from timestamps or paths supplied by the browser. */
