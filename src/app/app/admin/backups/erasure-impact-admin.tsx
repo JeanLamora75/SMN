@@ -1,3 +1,4 @@
+import type {TranslationKey} from "@/i18n/catalog";
 "use client";
 import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
@@ -106,7 +107,7 @@ export default function ErasureImpactAdmin(){
      <thead><tr><th scope="col">{t("erasure.category")}</th>
       <th scope="col">{t("erasure.count")}</th><th scope="col">{t("erasure.coverage")}</th></tr></thead>
      <tbody>{result.findings.map(item=><tr key={item.category}>
-      <th scope="row">{t("erasure.categories."+item.category)}</th>
+      <th scope="row">{t(("erasure.categories."+item.category) as TranslationKey)}</th>
       <td>{item.affectedCount??t("erasure.unknown")}</td>
       <td>{t(item.state==="inspected"?"erasure.inspected":"erasure.notExhaustive")}</td>
      </tr>)}</tbody>
@@ -119,14 +120,14 @@ export default function ErasureImpactAdmin(){
      <tbody>{result.observedTables.map((row,i)=><tr key={row.table+"-"+row.scope+"-"+i}>
       <td><code>{row.table}</code></td>
       <td>{row.state==="inspected"?row.count:t("erasure.unknown")}</td>
-      <td>{t(row.state==="inspected"?"erasure.scopes."+row.scope:"erasure.notExhaustive")}</td>
+      <td>{t(row.state==="inspected"?("erasure.scopes."+row.scope) as TranslationKey:"erasure.notExhaustive")}</td>
      </tr>)}</tbody>
     </table></div>
    </details>
    <div className="alert alert-secondary">
     <strong>{t("erasure.warningsTitle")}</strong>
     <ul className="mb-0">{result.warnings.map(w=><li key={w}>
-     {t("erasure.warnings."+w)}
+     {t(("erasure.warnings."+w) as TranslationKey)}
     </li>)}</ul>
    </div>
    <div className="border rounded p-3 d-grid gap-2">
@@ -140,7 +141,7 @@ export default function ErasureImpactAdmin(){
      </button>
     </div>:<p className="small text-secondary mb-0">{t("erasure.planUnavailable")}</p>}
     {validation&&<p role="status" className="small mb-0">
-     {t("erasure.planStatuses."+validation)}
+     {t(("erasure.planStatuses."+validation) as TranslationKey)}
     </p>}
    </div>
    <div className="d-flex flex-wrap gap-2 align-items-center">
