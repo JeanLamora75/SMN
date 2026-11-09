@@ -15,7 +15,7 @@ import {beginErasureIntent,finalizeErasureIntent,
  */
 export async function withAuditedErasureTransaction(
  db:Pick<Client,"query">,
- input:Readonly<{scopeRevision:string;operation:"erase"|"anonymize"}>,
+ input:Readonly<{scopeRevision:string;operation:"erase"|"anonymize";expectedRows?:number}>,
  apply:()=>Promise<number>
 ):Promise<Readonly<{receiptId:string;affectedRows:number;recorded:true}>>{
  const pending:IntentHandle=await beginErasureIntent({
@@ -29,13 +29,29 @@ export async function withAuditedErasureTransaction(
    "SELECT tablename FROM pg_catalog.pg_tables"+
    " WHERE schemaname='public' AND tablename='smn_privacy_erasure_receipt'");
   if(schema.rows.length!==1)throw Error("privacy-receipt-schema-unavailable");
+  const predicted=input.expectedRows;
+  if(predicted!==undefined){
+   if(!Number.isSafeInteger(predicted)||predicted<1)
+    throw Error("privacy-erasure-expected-rows-invalid");
+   // Immutable receipt is inserted BEFORE guarded DELETE, but in the
+   // very same transaction. A rollback removes both receipt and deletion.
+   await db.query("SELECT set_config('smn.privacy_receipt_id',$1,true)",[pending.id]);
+   await db.query(
+    "INSERT INTO public.smn_privacy_erasure_receipt"+
+    "(id,scope_revision,operation,affected_rows) VALUES($1,$2,$3,$4)",
+    [pending.id,input.scopeRevision,input.operation,predicted]);
+  }
   affectedRows=await apply();
   if(!Number.isSafeInteger(affectedRows)||affectedRows<0)
    throw Error("privacy-erasure-count-invalid");
-  await db.query(
-   "INSERT INTO public.smn_privacy_erasure_receipt"+
-   "(id,scope_revision,operation,affected_rows) VALUES($1,$2,$3,$4)",
-   [pending.id,input.scopeRevision,input.operation,affectedRows]);
+  if(predicted!==undefined){
+   if(affectedRows!==predicted)throw Error("privacy-erasure-affected-row-mismatch");
+  }else{
+   await db.query(
+    "INSERT INTO public.smn_privacy_erasure_receipt"+
+    "(id,scope_revision,operation,affected_rows) VALUES($1,$2,$3,$4)",
+    [pending.id,input.scopeRevision,input.operation,affectedRows]);
+  }
   await db.query("COMMIT");committed=true;
  }catch{
   if(started&&!committed)await db.query("ROLLBACK").catch(()=>undefined);
