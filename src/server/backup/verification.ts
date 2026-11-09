@@ -17,7 +17,7 @@ const MAX_DATABASE=8*1024*1024*1024;
 
 export type VerificationStatus="verified"|"invalid"|"incomplete"|"unverifiable";
 export type VerifiedComponent=Readonly<{
- path:string;kind:"database"|"document"|"report-pdf"|"office-report";size:number;encryptedSize:number;encryptedSha256:string;
+ path:string;kind:"database"|"document"|"report-pdf"|"office-report"|"office-template";size:number;encryptedSize:number;encryptedSha256:string;
 }>;
 export type BackupInventoryEntry=Readonly<{
  id:string;createdAt:string|null;status:VerificationStatus;reason:string|null;
@@ -169,14 +169,14 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
   try{parsedManifest=JSON.parse(clear.toString("utf8"));}catch{invalid("manifest-json-invalid");}
   finally{clear.fill(0);}
   const manifest=record(parsedManifest);
-  if(!manifest||![1,2,3].includes(manifest.version as number)||
+  if(!manifest||![1,2,3,4].includes(manifest.version as number)||
    manifest.id!==id||manifest.createdAt!==createdAt||
    manifest.installation!=="singleton"||!Number.isSafeInteger(manifest.schemaVersion)||
    (manifest.schemaVersion as number)<1||
    typeof manifest.postgresVersion!=="string"||
    !/^18(?:\.|$)/.test(manifest.postgresVersion)||
    !Array.isArray(manifest.documents))invalid("manifest-invalid");
-  if((manifest.version===2||manifest.version===3)&&
+  if((manifest.version===2||manifest.version===3||manifest.version===4)&&
    (typeof manifest.appVersion!=="string"||manifest.appVersion.length>80||
     !/^[0-9]+\.[0-9]+\.[0-9]+/.test(manifest.appVersion)||
     typeof manifest.installationSource!=="string"||
@@ -201,17 +201,27 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
    names.add(documentMeta.sourceName);
    documents.push(documentMeta);
   }
+  if(manifest.version===4){
+   const consistency=record(manifest.consistency);
+   if(!consistency||consistency.method!=="wal-fence-v1"||
+    typeof consistency.walLsn!=="string"||
+    !/^[a-f0-9]+\/[a-f0-9]+$/i.test(consistency.walLsn))
+    invalid("manifest-consistency-invalid");
+  }
   const additional:{pdf:({sourceName:string}&BackupComponent)[];
-   office:({sourceName:string}&BackupComponent)[]}={pdf:[],office:[]};
+   office:({sourceName:string}&BackupComponent)[];
+   templates:({sourceName:string}&BackupComponent)[]}={pdf:[],office:[],templates:[]};
   for(const [field,kind,dir] of [
-   ["reportPdfs","pdf","report-pdfs"],["officeReports","office","office-reports"]
+   ["reportPdfs","pdf","report-pdfs"],["officeReports","office","office-reports"],
+   ["officeTemplates","template","office-templates"]
   ] as const){
    const items=manifest[field];
-   if(manifest.version===3&&!Array.isArray(items))invalid("extra-archive-inventory-missing");
-   if(manifest.version!==3)continue;
+   if((manifest.version===4||(manifest.version===3&&kind!=="template"))&&
+    !Array.isArray(items))invalid("extra-archive-inventory-missing");
+   if(manifest.version!==4&&!(manifest.version===3&&kind!=="template"))continue;
    const files=items as unknown[];
    if(files.length>200)invalid("extra-archive-inventory-limit");
-   const entries=kind==="pdf"?additional.pdf:additional.office;
+   const entries=kind==="pdf"?additional.pdf:kind==="office"?additional.office:additional.templates;
    const used=new Set<string>();
    for(const [i,item] of files.entries()){
     const v=record(item),expected=dir+"/"+String(i).padStart(5,"0")+".enc";
@@ -227,6 +237,7 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
   if(documents.length)expectedTop.add("documents");
   if(additional.pdf.length)expectedTop.add("report-pdfs");
   if(additional.office.length)expectedTop.add("office-reports");
+  if(additional.templates.length)expectedTop.add("office-templates");
   const top=await readdir(folder);
   if(top.length!==expectedTop.size||top.some(name=>!expectedTop.has(name)))
    invalid("package-components-unexpected");
@@ -239,8 +250,9 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
    if(documentFiles.length>documents.length||
     documentFiles.some(name=>!/^\d{5}\.enc$/.test(name)))invalid("documents-directory-unexpected");
   }
-  for(const [kind,dir] of [["pdf","report-pdfs"],["office","office-reports"]] as const){
-   const entries=kind==="pdf"?additional.pdf:additional.office;
+  for(const [kind,dir] of [["pdf","report-pdfs"],["office","office-reports"],
+   ["template","office-templates"]] as const){
+   const entries=kind==="pdf"?additional.pdf:kind==="office"?additional.office:additional.templates;
    if(!entries.length)continue;
    const archiveDir=join(folder,dir),stat=await lstat(archiveDir);
    if(!stat.isDirectory()||stat.isSymbolicLink())invalid("extra-archive-folder-invalid");
@@ -275,11 +287,12 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
     invalid("document-link-invalid");
   }
   if(metadata.size!==contentHash.size)invalid("document-link-invalid");
-  const components=[database,...documents,...additional.pdf,...additional.office]
+  const components=[database,...documents,...additional.pdf,...additional.office,...additional.templates]
    .map((item):VerifiedComponent=>({
    path:item.path,kind:item.path==="database.pgcustom.enc"?"database":
     item.path.startsWith("report-pdfs/")?"report-pdf":
-    item.path.startsWith("office-reports/")?"office-report":"document",
+    item.path.startsWith("office-reports/")?"office-report":
+    item.path.startsWith("office-templates/")?"office-template":"document",
    size:item.size,encryptedSize:item.encryptedSize,encryptedSha256:item.encryptedSha256
   }));
   return {id,createdAt,status:"verified",reason:null,checkedAt,
