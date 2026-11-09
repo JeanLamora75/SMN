@@ -7,6 +7,9 @@ type Target={id:string;label:string};
 type Impact={
  memberId:string;memberLabel:string;mode:"erase"|"anonymize";capturedAt:string;
  complete:false;canExecute:false;restrictedEligible?:boolean;dependentEligible?:boolean;scopeRevision:string|null;revisionReason:string;
+ qualification?:{scope:"bounded-provisional"|"historical-or-unqualified";
+  historicalErasurePermitted:false;historicalAnonymizationPermitted:false;
+  unknownSources:number;positiveReferenceSources:number;pending:string[]};
  plan:{planId:string;token:string;expiresAt:string;executionPermitted:false}|null;
  findings:{category:string;state:string;affectedCount:number|null}[];
  observedTables:{table:string;count:number|null;state:"inspected"|"unknown";
