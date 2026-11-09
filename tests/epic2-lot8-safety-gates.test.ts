@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
+import {tmpdir} from "node:os";
+import {join} from "node:path";
 import {test} from "node:test";
 import {evaluateErasureProtection,type ErasureEvidence}
  from "../src/server/backup/erasure-protection";
@@ -50,7 +52,7 @@ test("Lot 8 / SMN-34 — la répétition de bascule refuse des bases réelles",(
  const base={maintenanceUri:"postgresql://ci:password@127.0.0.1:5432/postgres",
   original:"smn_restore_test_orig_123456",candidate:"smn_restore_test_cand_123456",
   rollback:"smn_restore_test_back_123456",
-  journalDir:"/tmp/smn-restore-drill",auditKeyHex:"c".repeat(64)};
+  journalDir:join(tmpdir(),"smn-restore-drill"),auditKeyHex:"c".repeat(64)};
  assert.equal(validateCutoverDrill(base),true);
  assert.equal(validateCutoverDrill({...base,original:"smn"}),false);
  assert.equal(validateCutoverDrill({...base,candidate:"smn_production"}),false);
