@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {test} from "node:test";
 import {randomUUID,createHash} from "node:crypto";
-import {mkdtemp,rm,mkdir,writeFile} from "node:fs/promises";
+import {mkdtemp,rm,mkdir,writeFile,readFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {Client} from "pg";
@@ -9,6 +9,7 @@ import {installExpress} from "../src/server/installation/install";
 import {createManualBackup} from "../src/server/backup/runner";
 import {inspectBackup} from "../src/server/backup/verification";
 import {rehearseBackupRestore} from "../src/server/backup/restore-sandbox";
+import {inspectRestoreFileTree} from "../src/server/backup/restore-file-cutover-drill";
 import {createDefaultDashboardLayout,saveDashboardLayout,readDashboardLayout} from "../src/server/dashboard-builder/layout";
 import {recalculateIndicatorResults} from "../src/server/indicators/recalculation";
 import {readIndicatorReporting} from "../src/server/indicators/reporting";
@@ -221,8 +222,10 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
    assert.ok(check.components.some(c=>c.kind==="office-report"));
     assert.ok(check.components.some(c=>c.kind==="office-template"));
   }finally{key.fill(0);}
+  const stagedFileRoot=join(root,"smn_restore_test_files_"+suffix);
   const rehearsal=await rehearseBackupRestore({sourceUri:url(source),
-   sandboxUri:url(target),backupRoot:backup,archiveId:captured.id});
+   sandboxUri:url(target),backupRoot:backup,archiveId:captured.id,
+   stagingFilesOutput:stagedFileRoot});
   assert.equal(rehearsal.status,"reconstructed-in-sandbox");
   assert.equal(rehearsal.verifiedReportPdfs,1);
   assert.equal(rehearsal.verifiedOfficeReports,1);
