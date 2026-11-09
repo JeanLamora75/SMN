@@ -1,10 +1,16 @@
-name: SMN-34 — Restauration isolée et gardes
+name: Epic 2 Lot 2 — Sauvegardes complètes et cohérence v4
 on:
   push:
     branches: [main]
     paths:
       - "src/server/backup/restore-sandbox.ts"
       - "src/server/backup/extra-archives.ts"
+      - "src/server/backup/retention.ts"
+      - "src/server/backup/retention-interruptions.ts"
+      - "src/app/app/admin/backups/backups-admin.tsx"
+      - "src/i18n/fr.json"
+      - "src/i18n/en.json"
+      - "tests/epic2-lot2-retention-safety.test.ts"
       - "src/server/backup/runner.ts"
       - "src/server/backup/verification.ts"
       - "src/server/backup/files.ts"
@@ -38,13 +44,13 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Contrats de non-écrasement des bases
-        run: pnpm exec tsx --test tests/smn-34-restore-sandbox.test.ts tests/smn-34-extra-archives.test.ts tests/backup-restore-readiness.test.ts tests/backup-erasure-protection.test.ts
+        run: pnpm exec tsx --test tests/smn-34-restore-sandbox.test.ts tests/smn-34-extra-archives.test.ts tests/epic2-lot2-retention-safety.test.ts tests/backup-retention.test.ts tests/backup-restore-readiness.test.ts tests/backup-erasure-protection.test.ts
       - name: TypeScript
         run: pnpm typecheck
       - name: Traductions
         run: pnpm i18n:check
 
-  postgres-18-v3-reconstruction:
+  postgres-18-v4-reconstruction:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -86,7 +92,7 @@ jobs:
           sudo apt-get install -y postgresql-client-18
           /usr/lib/postgresql/18/bin/pg_dump --version
           /usr/lib/postgresql/18/bin/pg_restore --version
-      - name: Recette réelle de reconstruction isolée PostgreSQL 18
+      - name: Recette réelle paquet v4 + modèles Office + reconstruction PostgreSQL 18
         run: pnpm exec tsx --test tests/smn-34-v3-postgres.test.ts
       - name: Vérifier le typage et les contrats de sécurité
         run: |
