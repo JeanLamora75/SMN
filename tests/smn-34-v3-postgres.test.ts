@@ -242,7 +242,8 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
   assert.deepEqual(await readFile(join(stagedFileRoot,"report-pdfs",pdfId+".pdf")),pdf);
   assert.deepEqual(await readFile(join(stagedFileRoot,"office-reports","Rapport-SMN34.docx")),officeBytes);
   assert.deepEqual(await readFile(join(stagedFileRoot,"office-templates","Modele-SMN34.docx")),officeBytes);
-  assert.deepEqual(await readFile(join(stagedFileRoot,"documents","smn34-document.txt")),note);
+  assert.deepEqual(await readFile(join(stagedFileRoot,"documents","smn34-document.txt")),
+   await readFile(join(documents,"smn34-document.txt")));
 
   const restored=new Client({connectionString:url(target)});
   try{
