@@ -6,7 +6,7 @@ import {useTranslation} from "@/i18n/client";
 type Target={id:string;label:string};
 type Impact={
  memberId:string;memberLabel:string;mode:"erase"|"anonymize";capturedAt:string;
- complete:false;canExecute:false;restrictedEligible?:boolean;scopeRevision:string|null;revisionReason:string;
+ complete:false;canExecute:false;restrictedEligible?:boolean;dependentEligible?:boolean;scopeRevision:string|null;revisionReason:string;
  plan:{planId:string;token:string;expiresAt:string;executionPermitted:false}|null;
  findings:{category:string;state:string;affectedCount:number|null}[];
  observedTables:{table:string;count:number|null;state:"inspected"|"unknown";
@@ -57,7 +57,8 @@ export default function ErasureImpactAdmin(){
   finally{setValidating(false);}
  }
  async function executeRestricted(){
-  if(!result?.plan||!result.restrictedEligible||validation!=="unchanged"||
+  if(!result?.plan||!(result.restrictedEligible||result.dependentEligible)||
+   validation!=="unchanged"||
    !copiesAcknowledged||confirmation!=="EFFACER "+result.plan.planId||executing)return;
   setExecuting(true);setError("");
   try{
@@ -67,7 +68,8 @@ export default function ErasureImpactAdmin(){
      acknowledgeExternalCopies:true}),cache:"no-store"
    });
    const data=await response.json() as {status?:string;affectedRows?:number};
-   if(!response.ok||data.status!=="erased"||data.affectedRows!==1)
+   if(!response.ok||data.status!=="erased"||
+    typeof data.affectedRows!=="number"||data.affectedRows<1)
     throw new Error("execution-blocked");
    setExecuted(true);setResult(null);setValidation(null);
    setTargets(list=>list.filter(item=>item.id!==memberId));
@@ -169,10 +171,12 @@ export default function ErasureImpactAdmin(){
      {t(("erasure.planStatuses."+validation) as TranslationKey)}
     </p>}
    </div>
-   {result.restrictedEligible&&result.plan&&mode==="erase"&&
+   {(result.restrictedEligible||result.dependentEligible)&&result.plan&&mode==="erase"&&
     <div className="border rounded p-3 d-grid gap-2">
-     <h3 className="h6 mb-0">{t("erasure.restrictedTitle")}</h3>
-     <p className="small text-secondary mb-0">{t("erasure.restrictedNotice")}</p>
+     <h3 className="h6 mb-0">{t(result.dependentEligible?
+      "erasure.dependentTitle":"erasure.restrictedTitle")}</h3>
+     <p className="small text-secondary mb-0">{t(result.dependentEligible?
+      "erasure.dependentNotice":"erasure.restrictedNotice")}</p>
      <label className="form-check">
       <input className="form-check-input" type="checkbox"
        checked={copiesAcknowledged}
