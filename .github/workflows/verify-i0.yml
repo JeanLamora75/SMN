@@ -71,8 +71,10 @@ jobs:
         run: pnpm test:smn-348
       - name: Contrats de retry SMN-346
         run: pnpm test:smn-346
-      - name: Tests unitaires et intégration PG réelle
-        run: pnpm test
+      - name: Préparer le POC raster PNG SMN-410 (Linux)
+        run: npm install --prefix .smn-410-poc --no-save --package-lock=false --ignore-scripts @resvg/resvg-js@2.6.2
+      - name: Suite unitaire Linux (PG18 testé séparément)
+        run: node scripts/run-ci-unit-tests.mjs --run
       - name: Matrice traçabilité BMAD — preuves de tests exécutés
         run: pnpm test:coverage-matrix
       - name: Archiver la matrice de couverture
@@ -118,27 +120,8 @@ jobs:
         run: npm install --prefix .smn-410-poc --no-save --package-lock=false --ignore-scripts @resvg/resvg-js@2.6.2
       - name: Contrat de validation v33 sur Windows
         run: pnpm test:validate-version
-      - name: Tests unitaires Windows sans base PostgreSQL (intégrations PG couvertes par linux-postgres)
-        shell: pwsh
-        run: |
-          $pgPattern = "(?i)(postgres|(?:^|-)pg\.test|smn-338-(native|real|v33-upgrade)|smn-dashboard-bmad-pg|smn-333-v31-v32|smn-355-dashboard-layout)"
-          $files = @(Get-ChildItem -Path tests -File | Where-Object { $_.Name -match "\.test\.(ts|mjs)$" -and $_.Name -notmatch $pgPattern } | ForEach-Object { "tests/$($_.Name)" })
-          if ($files.Count -eq 0) { throw "Aucun test Windows sélectionné" }
-          Write-Host "Tests Windows sans PG: $($files.Count) fichiers"
-          # Windows imposes a short command-line limit; execute every selected test in bounded batches.
-          $failedBatches = @()
-          for ($offset = 0; $offset -lt $files.Count; $offset += 40) {
-            $batch = @($files | Select-Object -Skip $offset -First 40)
-            Write-Host "Exécution Windows: fichiers $($offset + 1) à $($offset + $batch.Count) / $($files.Count)"
-            pnpm exec tsx --test @batch
-            if ($LASTEXITCODE -ne 0) { $failedBatches += "$($offset + 1)-$($offset + $batch.Count)" }
-          }
-          if ($failedBatches.Count -gt 0) {
-            Write-Error ("Lots Windows en échec : " + ($failedBatches -join ', '))
-            exit 1
-          }
-        env:
-          CI: "false"
+      - name: Suite unitaire Windows (PG18 testé séparément)
+        run: node scripts/run-ci-unit-tests.mjs --run
       - name: Typecheck et build Windows
         run: |
           pnpm typecheck
