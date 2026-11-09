@@ -6,7 +6,7 @@ import {backupInventory} from "./verification";
 import {backupRootPath} from "./runner";
 import {classifyBackupEvidence,classifyCleanupEvidence,blockedOperation,
  type OperationEvidence,unresolvedOperation} from "./operation-diagnostics";
-import {inspectUnfinishedBackupArtifacts} from "./operation-artifacts";
+import {inspectUnfinishedBackupArtifacts,unresolvedArtifactCounts} from "./operation-artifacts";
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 type Marker={id:string;createdAt:string;status:"running"|"success"|"failed"|"cancelled"};
 async function marker(root:string):Promise<Marker|null>{
@@ -88,17 +88,17 @@ export async function readProtectionDiagnostics(db:Client):Promise<{
  }
  if(!previous&&await hasMarker("last-attempt.json"))
   operations.push(unresolvedOperation("backup",checkedAt,"invalid-operation-marker",1));
- const unpublished=artifacts.stagingBackupIds.filter(id=>
-  !(running.backup&&previous?.status==="running"&&previous.id===id)).length+
-  artifacts.unknownBackupArtifacts;
+ const unresolved=unresolvedArtifactCounts(artifacts,{
+  backupId:running.backup&&previous?.status==="running"?previous.id:null,
+  cleanupId:running.cleanup&&cleanup?.status==="running"?cleanup.inFlight:null
+ });
+ const unpublished=unresolved.backup;
  if(unpublished>0)operations.push(unresolvedOperation(
   "backup",checkedAt,"unpublished-backup-artifact",unpublished));
  if(!cleanup&&await hasMarker("last-cleanup.json"))
   operations.push(unresolvedOperation("retention-cleanup",checkedAt,
    "invalid-operation-marker",1));
- const pending=artifacts.retentionPendingIds.filter(id=>
-  !(running.cleanup&&cleanup?.status==="running"&&cleanup.inFlight===id)).length+
-  artifacts.unknownRetentionArtifacts;
+ const pending=unresolved.cleanup;
  if(pending>0)operations.push(unresolvedOperation("retention-cleanup",checkedAt,
   "pending-retention-tombstone",pending));
  if(cleanup){
