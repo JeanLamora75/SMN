@@ -17,6 +17,8 @@ export function issueSession(account: Account): string {
 }
 export function revokeSession(token: string | undefined): void { state().sessions.revoke(token); }
 export function revokeAccountSessions(accountId: string): void { state().sessions.revokeAccount(accountId); }
+/** Only an offline restore supervisor may call this after validated cutover. */
+export function invalidateAllSessionsAfterRestore(): number { return state().sessions.revokeAll(); }
 export async function sessionAccount(token: string | undefined): Promise<Account | null> {
   const session = state().sessions.get(token);
   if (!session) { if (token) console.warn("smn-session-invalid", "not-in-server-store"); return null; }
