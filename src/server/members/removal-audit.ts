@@ -21,6 +21,24 @@ CREATE TABLE IF NOT EXISTS public.smn_member_removal_audit (
 );
 CREATE INDEX IF NOT EXISTS smn_member_removal_audit_member_idx
  ON public.smn_member_removal_audit(installation_id,member_id,removed_at DESC);
+CREATE OR REPLACE FUNCTION public.smn36_refuse_removal_audit_mutation()
+RETURNS trigger LANGUAGE plpgsql AS $
+BEGIN
+ RAISE EXCEPTION 'smn36-removal-audit-is-immutable'
+ USING ERRCODE='P0001';
+END;
+$;
+DO $smn36$
+BEGIN
+ IF NOT EXISTS(SELECT 1 FROM pg_catalog.pg_trigger
+  WHERE tgrelid='public.smn_member_removal_audit'::regclass
+   AND tgname='smn36_removal_audit_immutable') THEN
+  CREATE TRIGGER smn36_removal_audit_immutable
+   BEFORE UPDATE OR DELETE ON public.smn_member_removal_audit
+   FOR EACH ROW EXECUTE FUNCTION public.smn36_refuse_removal_audit_mutation();
+ END IF;
+END
+$smn36$;
 `;
 export async function requireMemberRemovalAudit(db:Pick<Client,"query">){
  const check=await db.query<{present:boolean}>(`
