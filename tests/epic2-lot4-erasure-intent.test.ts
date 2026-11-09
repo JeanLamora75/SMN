@@ -34,7 +34,13 @@ test("SMN-39/40: pending operation blocks restore and completion is idempotent",
   const marker=await appendCompletedErasure("erase",
    new Date("2026-11-09T10:03:00.000Z"),handle.id);
   assert.equal((await currentErasureEvidence(snapshotAt)).state,"unavailable");
-  await finalizeErasureIntent(handle);
+  const verifiedDb={query:async(_sql:string,params:unknown[])=>({
+   rows:params[0]===handle.id?[{scope_revision:handle.planRevision,operation:"erase"}]:[]
+  })} as unknown as import("pg").Client;
+  const deniedDb={query:async()=>({rows:[]})} as unknown as import("pg").Client;
+  await assert.rejects(finalizeErasureIntent(handle,deniedDb),/commit-unverified/);
+  assert.equal(await hasUnresolvedErasureIntent(),true);
+  await finalizeErasureIntent(handle,verifiedDb);
   assert.equal(await hasUnresolvedErasureIntent(),false);
   const state=await readErasureLedger();
   assert.equal(state.markers.length,1,"replay must never duplicate a marker");
@@ -48,7 +54,7 @@ test("SMN-39/40: pending operation blocks restore and completion is idempotent",
   }
   assert.equal(evaluateErasureProtection(snapshotAt,evidence).permitted,false,
    "A valid journal is not complete until every deletion path is wired");
-  await assert.rejects(finalizeErasureIntent(handle),/mismatch/);
+  await assert.rejects(finalizeErasureIntent(handle,verifiedDb),/mismatch/);
  }finally{
   for(let i=0;i<keys.length;i++){
    const value=old[i];if(value===undefined)delete process.env[keys[i]];
