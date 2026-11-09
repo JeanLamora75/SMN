@@ -10,7 +10,7 @@ type InventoryEntry={
  id:string;createdAt:string|null;status:"verified"|"invalid"|"incomplete"|"unverifiable";
  reason:string|null;checkedAt:string;installationSource:string|null;applicationVersion:string|null;
  schemaVersion:number|null;postgresVersion:string|null;components:Component[];
- documentCount:number;integrityVerified:boolean;restoreTested:false;
+ documentCount:number;integrityVerified:boolean;scopeComplete:boolean;restoreTested:false;
 };
 type RestorePreview={
  id:string;checkedAt:string;archive:InventoryEntry;
@@ -258,6 +258,11 @@ export default function BackupsAdmin(){
        <dd className="col-sm-7">{item.postgresVersion}</dd>
        <dt className="col-sm-5">{t("backups.scope")}</dt>
        <dd className="col-sm-7">{t("backups.scopeText",{count:item.documentCount})}</dd>
+       <dt className="col-sm-5">{t("backups.scopeCompleteness")}</dt>
+       <dd className="col-sm-7">{item.scopeComplete?
+        t("backups.scopeV4"):t("backups.scopeLegacy")}</dd>
+       <dt className="col-sm-5">{t("backups.officeModelCount")}</dt>
+       <dd className="col-sm-7">{item.components.filter(x=>x.kind==="office-template").length}</dd>
       </dl>
       <details>
        <summary>{t("backups.componentDetails")}</summary>
