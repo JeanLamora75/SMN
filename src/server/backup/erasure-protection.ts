@@ -32,7 +32,7 @@ export function evaluateErasureProtection(
  });
  if(!backupCreatedAt||!validUtc(backupCreatedAt))return deny("missing-backup-date");
  if(evidence.state!=="verified"||evidence.source!=="external-append-only"||
-  evidence.signatureVerified!==true||evidence.completeHistory!==true||
+  evidence.signatureVerified!==true||
   !validUtc(evidence.coverageStart)||!validUtc(evidence.checkedAt)||
   (evidence.latestErasureAt!==null&&!validUtc(evidence.latestErasureAt))||
   !Number.isSafeInteger(evidence.entriesAfterBackup)||evidence.entriesAfterBackup<0)
@@ -43,6 +43,9 @@ export function evaluateErasureProtection(
  if(evidence.entriesAfterBackup>0||
   (evidence.latestErasureAt!==null&&evidence.latestErasureAt>backupCreatedAt))
   return deny("previously-erased-data");
+ // A valid chain proves its contents, not the absence of unjournaled deletions.
+ // Keep approval blocked until coverage is attested independently.
+ if(evidence.completeHistory!==true)return deny("untrusted-erasure-history");
  return {permitted:true,code:"privacy-check-passed",note:"external-copies-not-controlled"};
 }
 
