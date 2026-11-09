@@ -59,13 +59,14 @@ export async function previewMemberErasure(memberId:string,mode:ErasureMode):Pro
   const teams=assigned.rows.map(r=>r.team_id);
   const tokens=[member.display_name,member.email??""]
    .map(v=>v.trim().toLocaleLowerCase("fr")).filter(v=>v.length>=3);
-  const [additionalFks,officialPdfTexts,aiBriefTexts,officeTexts,revision]=await Promise.all([
+  const [additionalFks,officialPdfTexts,aiBriefTexts,officeTexts]=await Promise.all([
    inspectMemberForeignKeys(db,memberId),
    inspectVerifiedPdfArchiveText(db,teams,tokens),
    inspectAiBriefText(db,teams,tokens),
-   inspectOfficeReportText(tokens),
-   captureErasureRevision(db,teams,walBefore.rows[0]?.lsn??"")
+   inspectOfficeReportText(tokens)
   ]);
+  // Capture the final revision only AFTER all related data and file reads.
+  const revision=await captureErasureRevision(db,teams,walBefore.rows[0]?.lsn??"");
   const observed=[...relations,...additionalFks,...textCandidates,
    ...archiveCandidates,...privateFiles,officialPdfTexts,aiBriefTexts,...officeTexts];
   // A positive text match is a candidate, not a verified link. The absence of
