@@ -10,32 +10,9 @@ import {Client} from "pg";
 import {inspectBackup} from "./verification";
 import {unseal} from "./crypto";
 import {scanDocuments,type BackupComponent} from "./files";
+import {validateSandboxTarget} from "./restore-sandbox-policy";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const DB=/^smn_restore_test_[a-z0-9_]{6,40}$/;
-const LOCAL=new Set(["localhost","127.0.0.1","::1","[::1]"]);
-type DocumentPart=BackupComponent&{sourceName:string};
-type Manifest={version:2;id:string;schemaVersion:number;postgresVersion:string;
- database:BackupComponent;documents:DocumentPart[]};
-export type RehearsalResult={
- archiveId:string;status:"reconstructed-in-sandbox"|"incomplete-archive-scope";sandboxOnly:true;
- restoredTables:number;verifiedDocuments:number;missingDocumentReferences:number;
- archiveHashChecked:true;databaseAndDocumentsConsistent:boolean;
- activeInstallationModified:false;
-};
-export function validateSandboxTarget(source:string,target:string):boolean{
- try{
-  const a=new URL(source),b=new URL(target);
-  return (a.protocol==="postgres:"||a.protocol==="postgresql:")&&
-   (b.protocol==="postgres:"||b.protocol==="postgresql:")&&
-   LOCAL.has(a.hostname)&&LOCAL.has(b.hostname)&&
-   DB.test(decodeURIComponent(b.pathname.slice(1)))&&
-   a.pathname!==b.pathname&&
-   a.hostname===b.hostname&&(a.port||"5432")===(b.port||"5432")&&
-   a.username===b.username&&b.password.length>0&&
-   !b.searchParams.has("options");
- }catch{return false;}
-}
 function executable():string{
  if(process.env.SMN_PG_RESTORE_PATH)return process.env.SMN_PG_RESTORE_PATH;
  if(process.platform==="win32"){
