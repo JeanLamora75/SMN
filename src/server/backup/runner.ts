@@ -174,10 +174,23 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
     .catch(()=>undefined);
    return {id,createdAt,status:"success",documentCount:inventory.length/2};
   }finally{key.fill(0);}
- }catch{
+ }catch(error){
   if(locked)await safeAtomicJson(join(root,"last-attempt.json"),{
    status:"failed",id,createdAt
   }).catch(()=>undefined);
+  // Diagnostic opt-in for disposable CI only. Never leak arbitrary SQL,
+  // paths, exception messages, credentials or user content.
+  if(process.env.SMN_BACKUP_TEST_DIAGNOSTIC==="1"){
+   const code=error instanceof Error?error.message:"unknown";
+   const allowed=new Set(["backup-db-changed-during-capture",
+    "extra-archive-template-invalid","extra-archive-template-unrecognized",
+    "extra-archive-office-unrecognized","extra-archive-pdf-integrity",
+    "extra-archive-pdf-orphan-or-missing","extra-archive-pdf-mismatch",
+    "backup-document-invalid","backup-document-inconsistent",
+    "backup-pg-dump-failed","backup-extra-archives-changed",
+    "backup-documents-changed","backup-wal-unavailable"]);
+   throw new Error("backup-failed:"+(allowed.has(code)?code:"unclassified"));
+  }
   throw new Error("backup-failed");
  }finally{
   if(staging)await rm(staging,{recursive:true,force:true}).catch(()=>undefined);
