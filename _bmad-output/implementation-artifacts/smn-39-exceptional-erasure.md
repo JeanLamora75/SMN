@@ -41,3 +41,11 @@ Contrôle statique GitHub à réaliser ; `pnpm exec tsx --test tests/exceptional
 
 ## Adaptation BMAD
 Le script `uv` prévu par `.agents/skills/bmad-build/SKILL.md` n'est pas exécutable directement sur GitHub. Ce lot a utilisé les connecteurs GitHub et Jira ; aucune exécution de workflow `uv` ni de test automatisé n'est revendiquée.
+
+
+## Liaison avec SMN-38 enrichi — 09/11/2026
+La prévisualisation SMN-38 sait rechercher des références transitives, des mentions dans les historiques et rapports, des couches textuelles PDF (extracteur local facultatif) et DOCX/PPTX, puis produire un **reçu de plan signé** de dix minutes. La route de revérification `/api/admin/erasure/preview/validate` compare de nouveau les empreintes des entrées à l'état courant. Le plan expiré, altéré, appartenant à un autre Administrateur ou périmé est refusé.
+
+**La signature n'est pas un consentement ni une autorisation destructive** : `assessErasurePlan` expose `canExecute:false` et `requiresServerReceipt:true`. Le contenu PDF image-only, les copies externes, les identifiants indirects et les effets juridiques/statistiques doivent encore être qualifiés. La procédure SMN-39 de confirmation et d'effacement transactionnel et le registre d'effacements opposable demeurent absents ; SMN-40 reste bloquant. Aucun endpoint d'effacement n'a été publié.
+
+Tests de ces nouveaux contrats rédigés mais **non exécutés**. La Story ne doit pas être déclarée terminée sans recette Windows et revue d'effacement sur base isolée.
