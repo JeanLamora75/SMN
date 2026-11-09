@@ -1,5 +1,6 @@
 import {Client} from "pg";
-import {MEMBER_REMOVAL_AUDIT_SQL} from "../src/server/members/removal-audit";
+import {MEMBER_REMOVAL_AUDIT_SQL,MEMBER_REMOVAL_AUDIT_READY_SQL}
+ from "../src/server/members/removal-audit";
 
 const check=process.argv.includes("--check"),apply=process.argv.includes("--apply");
 const confirmed=process.argv.includes("--confirm=INSTALL_MEMBER_REMOVAL_AUDIT");
@@ -37,8 +38,7 @@ if(check===apply||apply&&!confirmed||process.argv.some(s=>s.startsWith("--")&&
      await db.query("ROLLBACK").catch(()=>undefined);throw error;
     }
    }
-   const status=await db.query<{ready:boolean}>(`
-    SELECT to_regclass('public.smn_member_removal_audit') IS NOT NULL AS ready`);
+   const status=await db.query<{ready:boolean}>(MEMBER_REMOVAL_AUDIT_READY_SQL);
    if(status.rows[0]?.ready!==true){
     process.stdout.write("SMN-36 removal audit: NOT INSTALLED\n");process.exitCode=1;
    }else process.stdout.write("SMN-36 removal audit: INSTALLED\n");
