@@ -1,4 +1,5 @@
 import {createHmac,randomUUID,timingSafeEqual} from "node:crypto";
+import type {Client} from "pg";
 import {lstat,open,readFile,rm,writeFile} from "node:fs/promises";
 import {join} from "node:path";
 import {erasureLedgerConfig,readErasureLedger,appendCompletedErasure} from "./erasure-ledger";
@@ -70,7 +71,8 @@ export async function beginErasureIntent(input:{
  * Called only AFTER a successful database COMMIT and verified file actions.
  * If any step fails the pending intent remains, blocking all restorations.
  */
-export async function finalizeErasureIntent(handle:IntentHandle):Promise<void>{
+export async function finalizeErasureIntent(handle:IntentHandle,
+ db:Pick<Client,"query">):Promise<void>{
  if(!UUID.test(handle.id)||!SHA.test(handle.planRevision))
   throw Error("erasure-intent-invalid");
  const config=erasureLedgerConfig();
@@ -82,6 +84,13 @@ export async function finalizeErasureIntent(handle:IntentHandle):Promise<void>{
   const pending=await parseIntent(config.anchor,config.key);
   if(!pending||pending.id!==handle.id||pending.planRevision!==handle.planRevision)
    throw Error("erasure-intent-mismatch");
+  const receipt=await db.query<{scope_revision:string;operation:string}>(
+   "SELECT scope_revision,operation FROM public.smn_privacy_erasure_receipt"+
+   " WHERE id=$1",[pending.id]);
+  if(receipt.rows.length!==1||
+   receipt.rows[0].scope_revision!==pending.planRevision||
+   receipt.rows[0].operation!==pending.operation)
+   throw Error("erasure-intent-commit-unverified");
   await appendCompletedErasure(pending.operation,new Date(),pending.id);
   await rm(join(config.anchor,FILENAME));
  }finally{
