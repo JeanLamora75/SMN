@@ -18,7 +18,7 @@ type DocumentPart=BackupComponent&{sourceName:string};
 type Manifest={version:2;id:string;schemaVersion:number;postgresVersion:string;
  database:BackupComponent;documents:DocumentPart[]};
 export type RehearsalResult={
- archiveId:string;status:"qualified-in-sandbox";sandboxOnly:true;
+ archiveId:string;status:"reconstructed-in-sandbox"|"incomplete-archive-scope";sandboxOnly:true;
  restoredTables:number;verifiedDocuments:number;missingDocumentReferences:number;
  archiveHashChecked:true;databaseAndDocumentsConsistent:boolean;
  activeInstallationModified:false;
@@ -173,22 +173,23 @@ export async function rehearseBackupRestore(options:{
    SELECT count(*)::text AS n FROM pg_catalog.pg_constraint
    WHERE contype='f' AND convalidated=false`);
   if(foreign.rows[0]?.n!=="0")throw Error("restore-constraints-unvalidated");
-  // Only SMN-private documents captured in the manifest are claimed restored.
-  // Never create placeholder PDFs/TXT for database-only references.
-  const documentRefs=await sandbox.query<{n:string}>(`
-   SELECT count(*)::text AS n FROM public.smn_report_document
-   WHERE content IS NULL`).catch(()=>({rows:[{n:"-1"}]}));
-  const missing=Number(documentRefs.rows[0]?.n);
+  // Current backup format includes SMN_PRIVATE_DOCUMENTS_DIR only.
+  // Generated PDF archives are stored elsewhere and are NOT in this package.
+  // Therefore any archived PDF reference makes a "complete restore" claim false.
+  const missingRefs=await sandbox.query<{n:string}>(`
+   SELECT count(*)::text AS n FROM public.smn_report_pdf_archive`);
+  const missing=Number(missingRefs.rows[0]?.n);
   if(!Number.isSafeInteger(missing)||missing<0)
    throw Error("restore-document-references-unverified");
   const count=await sandbox.query<{n:string}>(`
    SELECT count(*)::text AS n FROM pg_catalog.pg_class c
    JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace
    WHERE ns.nspname='public' AND c.relkind='r'`);
-  return {archiveId,status:"qualified-in-sandbox",sandboxOnly:true,
+  return {archiveId,status:missing===0?"reconstructed-in-sandbox":
+   "incomplete-archive-scope",sandboxOnly:true,
    restoredTables:Number(count.rows[0]?.n),verifiedDocuments:inventory.length/2,
    missingDocumentReferences:missing,archiveHashChecked:true,
-   databaseAndDocumentsConsistent:true,activeInstallationModified:false};
+   databaseAndDocumentsConsistent:missing===0,activeInstallationModified:false};
  }finally{
   key?.fill(0);
   await sandbox.end().catch(()=>undefined);
