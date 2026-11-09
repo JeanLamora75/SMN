@@ -13,6 +13,7 @@ on:
       - "src/server/backup/erasure-restricted-member.ts"
       - "src/server/backup/erasure-dependent-member.ts"
       - "src/server/backup/erasure-archive-review.ts"
+      - "src/app/api/admin/erasure/archive-review/route.ts"
       - "src/server/backup/erasure-completeness.ts"
       - "tests/epic2-lot4-archive-review.test.ts"
       - "src/server/reports/pdf-archive-store.ts"
