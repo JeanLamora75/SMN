@@ -748,6 +748,24 @@
       "snapshot-older": "Backup predates the current state: recent changes would be lost.",
       "current-documents-unavailable": "Current private documents could not be inventoried.",
       "current-unavailable": "Current installation state unavailable."
+    },
+    "restorePreflightStart": "Check restore prerequisites",
+    "restorePreflightRunning": "Checking prerequisites…",
+    "restorePreflightFailed": "Unable to verify restore prerequisites. No changes were made.",
+    "restorePreflightBlocked": "Restore suspended: these checks must be completed.",
+    "restoreGate": {
+      "archive-not-verified": "The backup has not been verified.",
+      "different-installation": "The backup and current installation do not match.",
+      "schema-incompatible": "Schema versions do not match.",
+      "postgres-incompatible": "PostgreSQL major versions are incompatible.",
+      "application-incompatible": "Application versions are incompatible.",
+      "current-documents-unavailable": "The current document inventory is unavailable.",
+      "archive-date-unavailable": "Backup creation date is unknown.",
+      "privacy-erasures-unverified": "Previously erased personal data have not been checked (SMN-40).",
+      "isolated-restore-unverified": "An isolated restore and integrity checks have not been demonstrated.",
+      "rollback-checkpoint-unverified": "A recoverable rollback checkpoint has not been demonstrated.",
+      "atomic-cutover-unverified": "A consistent database and document cutover has not been demonstrated.",
+      "session-reset-unverified": "Session revocation and re-evaluation have not been demonstrated."
     }
   },
   "members": {
