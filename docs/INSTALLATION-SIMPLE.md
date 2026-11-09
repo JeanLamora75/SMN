@@ -12,7 +12,7 @@ Dès qu'un paquet a **réussi ses contrôles Windows**, le télécharger depuis 
 4. Confirmer la création et cliquer **Installer SMN**. Une barre de progression décrit les étapes franchies ; avec PostgreSQL existant, vérifier d'abord qu'il fonctionne et que le compte peut créer une base. Avec l'option portable, la préparation des composants peut prendre plusieurs minutes.
 5. Vérifier le message de réussite. L'accès au tableau de bord reste désactivé jusqu'à la Story [SMN-14](https://lmn24.atlassian.net/browse/SMN-14).
 
-L'archive doit contenir **Node.js 24 et les binaires PostgreSQL 18.6 vérifiés**, sans ajout de service Windows. Les paramètres de connexion SMN sont enregistrés dans `%LOCALAPPDATA%\ScrumMasterNotebook\postgres-connection.json` avec un mot de passe chiffré pour le mode PostgreSQL existant ; la clé locale est aussi conservée dans le profil Windows. Les fichiers de la base portable sont conservés sous `%LOCALAPPDATA%\ScrumMasterNotebook`, hors du dossier de l'application. Ne pas supprimer ce répertoire pour « réinstaller » : il contient les données et la configuration.
+L'archive doit contenir **Node.js 24 et les binaires PostgreSQL 18.6 vérifiés**, sans ajout de service Windows. Les paramètres de connexion SMN sont enregistrés dans `%LOCALAPPDATA%\ScrumMasterNotebook\postgres-connection.json` avec un mot de passe chiffré pour le mode PostgreSQL existant ; la clé locale est aussi conservée dans le profil Windows. **Nouvelles installations :** PostgreSQL portable est installé dans `SMN/data/postgres/` (binaires `pgsql`, cluster `data`, archive et journal). Les paramètres privés, le manifeste `runtime.json` et la clé de chiffrement restent dans `%LOCALAPPDATA%\ScrumMasterNotebook`. **Installations existantes :** l'ancien cluster dans `%LOCALAPPDATA%\ScrumMasterNotebook` reste utilisable, sans déplacement ni réinitialisation. L'option PostgreSQL externe reste inchangée. Ne jamais écraser `SMN/data/postgres` lors d'une mise à jour de l'application : ce dossier contient les données. Effectuer une sauvegarde vérifiée avant une réinstallation ou un déplacement.
 
 **Sécurité et limites :** aucune opération n'est appliquée au PostgreSQL d'un autre projet, en particulier LMN24. Les ports 3000–3002 restent réservés, SMN utilise 3003 et son propre PostgreSQL utilise 55432. Une politique de sécurité Windows peut empêcher l'exécution de binaires portables ; SMN doit alors signaler la restriction, sans réclamer de droits administrateur. L'archive elle-même et la procédure complète **restent en cours de qualification** tant que le workflow Windows de packaging et l'installation sur un poste utilisateur standard n'ont pas réussi.
 
@@ -22,19 +22,19 @@ L'initialisation du dossier PostgreSQL peut avoir réussi alors que le démarrag
 
 Depuis le correctif SMN-12, l'application lit uniquement les nouvelles lignes de son propre `postgres.log` et distingue, quand les messages sont explicites : port 55432 déjà utilisé, répertoire verrouillé, accès refusé, bibliothèque Windows absente, mémoire partagée ou configuration incompatible. Le serveur fournit un **code diagnostique**, jamais le journal brut.
 
-Pour investiguer un poste pilote, ouvrir dans l'Explorateur de fichiers Windows le chemin `%LOCALAPPDATA%\\ScrumMasterNotebook\\postgres.log`, puis examiner les **15 à 20 dernières lignes** avec le Bloc-notes. Les copier pour support seulement après avoir masqué les chemins d'utilisateur, noms personnels et toute donnée sensible. Si ce fichier n'existe pas, le signaler : il peut indiquer un blocage Windows avant le démarrage de PostgreSQL.
+Pour investiguer un poste pilote, ouvrir dans l'Explorateur de fichiers Windows le chemin `SMN/data/postgres/postgres.log` pour les nouvelles installations, ou `%LOCALAPPDATA%\\ScrumMasterNotebook\\postgres.log` pour les anciennes, puis examiner les **15 à 20 dernières lignes** avec le Bloc-notes. Les copier pour support seulement après avoir masqué les chemins d'utilisateur, noms personnels et toute donnée sensible. Si ce fichier n'existe pas, le signaler : il peut indiquer un blocage Windows avant le démarrage de PostgreSQL.
 
 L'existence d'un `runtime.json` peut permettre une reprise du démarrage avec la nouvelle version du code ; **ne pas demander une seconde récupération ni déplacer les données**. Le test complet sur Windows utilisateur reste distinct de la CI.
 
 ## Reprendre une installation PostgreSQL portable interrompue
 
-Si l'assistant affiche « Une ancienne installation partielle existe », SMN a trouvé un dossier `%LOCALAPPDATA%\\ScrumMasterNotebook\\data` sans configuration portable valide. C'est possible après l'échec d'une préparation précédente. **Ne supprimez pas ce dossier, ne réinitialisez pas votre PostgreSQL personnel.**
+Si l'assistant affiche « Une ancienne installation partielle existe », SMN a trouvé un dossier `SMN/data/postgres/data` sans configuration portable valide. C'est possible après l'échec d'une préparation précédente. **Ne supprimez pas ce dossier, ne réinitialisez pas votre PostgreSQL personnel.**
 
 Depuis la version corrigée disponible sur `main` :
 
 1. Garder `Installer un PostgreSQL dédié à SMN` sélectionné. Après le premier diagnostic d'échec, une confirmation de récupération est affichée dans le formulaire.
 2. Lire la proposition, puis cocher **« J'autorise SMN à mettre de côté son ancienne tentative d'installation et à recommencer. »**
-3. Cliquer **« Conserver l'ancienne tentative et reprendre »**, puis suivre la progression. SMN déplace uniquement son propre dossier `data` vers `%LOCALAPPDATA%\\ScrumMasterNotebook\\recovery\\data-partial-...` avant de recommencer : **aucun fichier n'est effacé**.
+3. Cliquer **« Conserver l'ancienne tentative et reprendre »**, puis suivre la progression. SMN déplace uniquement son propre dossier `data` vers `SMN/data/postgres/recovery/data-partial-...` avant de recommencer : **aucun fichier n'est effacé**.
 4. En cas de refus lié à un cluster encore actif, à un `postmaster.pid` ou à un dossier symbolique, **ne pas forcer la reprise**. Le dossier est préservé pour diagnostic.
 
 La récupération ne s'active que **si l'utilisateur a d'abord reçu l'erreur**, avec un accord distinct. L'instance de LMN24 n'est jamais ciblée. Une nouvelle installation fonctionnelle ne supprime pas les archives précédentes ; les conserver tant que la situation n'est pas clarifiée.
