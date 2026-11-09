@@ -79,3 +79,61 @@ Le `uv run ... render_skill.py` du skill `bmad-build` n'est pas exécutable depu
 
 ### Qualification encore nécessaire
 `pnpm exec tsx --test tests/erasure-indirect-archives.test.ts tests/erasure-impact-preview.test.ts`, `pnpm i18n:check`, `pnpm typecheck`, `pnpm test`, `pnpm build`, puis essais Windows/PostgreSQL 18 sur une base de test avec archives réelles. **Aucune commande n'est réputée exécutée ni réussie par une simple publication GitHub.**
+
+
+## Lot SMN-38 — Inspection binaire, références étendues et plan revérifiable (09/11/2026)
+
+### Résultat exact
+**Publié sur `main` ; implémentation de l'inspection enrichie et du reçu de plan, non équivalente à une autorisation d'effacement.** L'analyse est toujours `complete:false`, `canExecute:false` et toute action future SMN-39 doit exiger une preuve indépendante d'exécution sûre. Ce lot ne supprime aucune donnée.
+
+### 1. Exploration des relations
+- Parcours des dépendances métier explicites, notamment affectations→révisions, absences→historiques, identité, localisation, calendrier et cycle de vie.
+- Découverte des **clés étrangères entrantes** directement dans `pg_catalog.pg_constraint` : racine `smn_member`, profondeur maximale de trois relations et limites d'exploration ; les chemins SQL utilisent des identifiants autorisés et des paramètres liés.
+- L'exploration ne remonte **pas** de la fiche vers le parent `smn_team` ou `smn_account`, pour ne pas considérer tous les membres de l'équipe comme dépendants.
+- Les sources sans FK explicite sont examinées **heuristiquement** dans un ensemble élargi : registres et audits, commentaires et révisions, notes et audits, brouillons et documents, snapshots Studio, objectifs et audits, analyses de sprint, rendus de rapport, historiques de membre.
+- Les anciens noms et courriels connus dans `smn_member_identity_history` alimentent les recherches. Un historique trop volumineux empêche de signer le plan. Une absence de correspondance textuelle n'établit jamais une absence de donnée personnelle.
+
+### 2. Archives et autres binaires
+- Les PDF archivés de rapport sont relus par le lecteur officiel `readVerifiedPdfArchive`, avec contrôle de l'empreinte du fichier avant inspection ; les TXT de briefs IA sont contrôlés contre leurs empreintes SHA-256.
+- Les PDF privés SMN-26 sont contrôlés par leur manifeste et leur somme de contrôle, puis leur couche texte peut être examinée **uniquement** si un exécutable Poppler `pdftotext` existant et sûr est configuré par une **variable absolue** `SMN_PDFTOTEXT_PATH`. Aucune installation automatique ou téléchargement n'est déclenché ; l'absence du binaire, une erreur d'extraction ou un PDF sans texte entraîne **inconnu**, jamais zéro.
+- Les fichiers `.docx` et `.pptx` du répertoire `SMN_OFFICE_REPORTS_DIR` sont analysés avec un lecteur ZIP/OOXML borné intégré (sans exécuter les documents), contrôlant le CRC des parties XML textuelles reconnues. Les images, médias intégrés, notes non standard et objets binaires ne sont pas prétendus analysés.
+- Les archives PDF/Office et TXT sont **candidates** en fonction du périmètre ou de correspondances ; une archive de l'équipe n'est pas automatiquement un document concernant le membre. Les copies externes hors des répertoires gérés restent hors contrôle.
+- Limites explicites : au plus 12 PDF par collection pour extraction automatique, 40 archives de rapports pour lecture, 40 documents Office dans le dossier géré et limites sur le volume mémoire. Si une limite est dépassée, le résultat passe à « indéterminé ». Une reconnaissance visuelle ou OCR n'est pas disponible.
+
+### 3. Reçu de plan stable
+- L'API `POST /api/admin/erasure/preview` peut désormais émettre un **reçu signé HMAC-SHA-256** lorsque toutes les sources requises pour la révision sont inspectables. Il contient le membre, le mode, l'identifiant Administrateur, une empreinte de révision, la date et une expiration à **10 minutes**. Le reçu n'inclut ni nom, ni email, ni texte libre.
+- La révision combine le point WAL PostgreSQL, l'inventaire/les empreintes des documents privés, le contenu des rapports Office gérés et les archives PDF vérifiées de l'équipe. Le WAL est relu avant et après l'analyse : toute écriture concurrente invalide le reçu, même si elle concerne une autre fiche.
+- L'API `POST /api/admin/erasure/preview/validate` contrôle la signature, l'identité de l'Administrateur et l'expiration, puis **refait l'analyse** et compare l'empreinte aux données courantes. Une divergence, une panne ou une source illisible invalide la qualification.
+- La clé de signature est **éphémère en mémoire** : un redémarrage de l'application ou un changement de worker peut invalider un reçu, ce qui est une protection volontaire. Aucune clé n'est envoyée au navigateur ou enregistrée dans les sauvegardes.
+- L'écran Cockpit présente un bouton de revérification, l'expiration et l'avertissement « ce reçu n'autorise pas l'effacement ».
+- Le contrat SMN-39 a été renforcé avec `canExecute:false` et `requiresServerReceipt:true`. Un plan présent dans une requête client n'est jamais considéré comme preuve d'exécution autorisée.
+
+### 4. Points **toujours bloquants** pour l'exécution SMN-39
+1. Les informations dans les images scannées, PDF sans couche texte, pièces jointes et objets incorporés aux documents Office nécessitent un contrôle OCR/visuel et une décision explicite ; l'absence d'extracteur PDF configuré bloque le contrôle automatisé.
+2. Les correspondances de noms/emails ne couvrent pas les surnoms, pseudonymes, identifiants indirects ou références sémantiques et ne garantissent pas une anonymisation irréversible.
+3. Une *analyse exhaustive et justifiée* des effets sur les données collectives, les historiques immuables et les copies exportées reste nécessaire ; le cas des archives hors répertoire SMN doit être traité.
+4. La mise en œuvre destructrice de SMN-39 doit encore gérer les transactions et verrous DB, les fichiers privés, le journal d'effacement durable et les échecs partiels. SMN-40 reste en refus `ledger-not-implemented`.
+5. **Le reçu signé contrôle la fraîcheur**, pas la complétude, la légitimité juridique ni la sécurité d'un effacement. Aucune route destructive n'a été ajoutée.
+
+### 5. Code et tests
+- `src/server/backup/erasure-fk-discovery.ts`
+- `src/server/backup/erasure-pdf-text.ts`
+- `src/server/backup/erasure-ooxml-text.ts`
+- `src/server/backup/erasure-report-binaries.ts`
+- `src/server/backup/erasure-plan-revision.ts`
+- `src/server/backup/erasure-plan-token.ts`
+- `src/app/api/admin/erasure/preview/validate/route.ts`
+- `src/server/backup/erasure-preview.ts`, `erasure-impact-graph.ts`, `erasure-private-documents.ts`, interface, langues FR/EN, et contrat SMN-39.
+- Tests rédigés : `tests/erasure-impact-receipt.test.ts`, `tests/erasure-ooxml-content.test.ts`, `tests/erasure-indirect-archives.test.ts` et tests antérieurs.
+
+Commandes de qualification à lancer sur l'installation de développement Windows :
+```powershell
+pnpm exec tsx --test tests/erasure-impact-receipt.test.ts tests/erasure-ooxml-content.test.ts tests/erasure-indirect-archives.test.ts
+pnpm typecheck
+pnpm i18n:check
+pnpm test
+pnpm build
+```
+Puis recette PostgreSQL v33 avec membre aux noms modifiés, affectations/absences historisées, TXT/PDF vérifiés, PDF image-only, DOCX/PPTX avec images, fichier corrompu, fichier modifié entre prévisualisation et vérification, et sessions Administrateur concurrentes. **Tests et recette non exécutés depuis le connecteur GitHub ; aucun résultat vert revendiqué.**
+
+La configuration `SMN_PDFTOTEXT_PATH` est **facultative** et ne doit jamais être un prérequis à l'installation SMN : sans elle, la restitution « non vérifiable » est le comportement sûr.
