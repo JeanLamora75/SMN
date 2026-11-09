@@ -65,7 +65,12 @@ export async function inspectMemberForeignKeys(db:Client,memberId:string):Promis
    continue;
   }
   for(const edge of children){
-   if(parent.visited.includes(edge.child_table))continue;
+   // Cyclic/self-referential dependencies cannot be dismissed as zero.
+   // The bounded walker deliberately refuses to certify such a graph.
+   if(parent.visited.includes(edge.child_table)){
+    unresolved.push(unknown("foreign-key-cycle"));
+    continue;
+   }
    expanded++;
    if(expanded>MAX_PATHS)return [...result,...unresolved,unknown("foreign-key-path-limit")];
    const chain=[...parent.edges,edge];

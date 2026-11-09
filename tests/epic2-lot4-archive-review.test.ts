@@ -46,3 +46,29 @@ test("SMN-38: no archive can be silently declared inspected",()=>{
   {kind:"pdf",sha256:sha,bytes:1024}
  ]),/duplicate/);
 });
+
+test("SMN-38: forged, stale or reordered review inventories never authorize access decisions",()=>{
+ const inventory=assembleArchiveReview([
+  {kind:"office-template",sha256:"c".repeat(64),bytes:1300},
+  {kind:"pdf",sha256:"d".repeat(64),bytes:2200}
+ ],"2026-11-09T12:00:00.000Z");
+ const decisions:ArchiveReviewDecision[]=inventory.candidates.map(c=>({
+  fingerprint:c.fingerprint,originalSha256:c.sha256,action:"restrict-original",
+  reviewedBy:"independent-reviewer",reviewedAt:"2026-11-09T12:01:00.000Z",
+  verifiedAccessRestriction:true,verifiedReplacement:false,
+  riskOfReidentification:"excluded"
+ }));
+ const validAt=new Date("2026-11-09T12:05:00.000Z");
+ assert.equal(assessArchiveReview(inventory,decisions,validAt).permitted,true);
+ const mutated={...inventory,inventorySha256:"f".repeat(64)};
+ assert.deepEqual(assessArchiveReview(mutated,decisions,validAt).unresolved,["review-incomplete"]);
+ const altered={...inventory,candidates:inventory.candidates.map((c,i)=>
+  i===0?{...c,bytes:c.bytes+1}:c)};
+ assert.equal(assessArchiveReview(altered,decisions,validAt).permitted,false);
+ const reversed={...inventory,candidates:[...inventory.candidates].reverse()};
+ assert.equal(assessArchiveReview(reversed,decisions,validAt).permitted,false);
+ const stale=new Date("2026-11-10T12:00:01.000Z");
+ assert.equal(assessArchiveReview(inventory,decisions,stale).permitted,false);
+ const future=new Date("2026-11-09T11:59:59.000Z");
+ assert.equal(assessArchiveReview(inventory,decisions,future).permitted,false);
+});

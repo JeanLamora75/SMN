@@ -79,13 +79,39 @@ export type ArchiveReviewOutcome=Readonly<{
  * or that a distinct redacted version replaced it AND old access is revoked.
  * Human approval by itself never proves archive safety.
  */
+/** Recalculate the inventory fingerprint, never trust a caller-supplied "complete". */
+export function verifyArchiveReviewInventory(inventory:ArchiveReviewInventory,
+ now=new Date()):boolean{
+ if(!inventory||inventory.complete!==true||!Array.isArray(inventory.candidates)||
+  !Number.isFinite(now.getTime())||!Number.isFinite(Date.parse(inventory.capturedAt))||
+  new Date(inventory.capturedAt).toISOString()!==inventory.capturedAt||
+  Date.parse(inventory.capturedAt)>now.getTime()||
+  now.getTime()-Date.parse(inventory.capturedAt)>24*60*60*1000||
+  inventory.candidates.length>MAX||!SHA.test(inventory.inventorySha256))
+  return false;
+ const ordered=[...inventory.candidates];
+ if(ordered.some(c=>
+  !["pdf","office-report","office-template","private-file"].includes(c.kind)||
+  !SHA.test(c.sha256)||!Number.isSafeInteger(c.bytes)||c.bytes<1||
+  c.inspection!=="human-review-required"||
+  (c.filename!==undefined&&
+   (typeof c.filename!=="string"||c.filename.length>220||
+    /[\\\\/\\x00-\\x1f]/.test(c.filename)))||
+  c.fingerprint!==hash(c.kind+"|"+c.sha256+"|"+c.bytes+"|"+(c.filename??""))))
+  return false;
+ const fingerprints=ordered.map(c=>c.fingerprint);
+ if(new Set(fingerprints).size!==fingerprints.length||
+  fingerprints.some((f,i)=>i>0&&fingerprints[i-1]>f))
+  return false;
+ return hash(fingerprints.join("|"))===inventory.inventorySha256;
+}
 export function assessArchiveReview(inventory:ArchiveReviewInventory,
  decisions:readonly ArchiveReviewDecision[],now=new Date()):ArchiveReviewOutcome{
  const unresolved:string[]=[];
  const byId=new Map(decisions.map(d=>[d.fingerprint,d]));
- if(!inventory.complete||decisions.length!==inventory.candidates.length||
-  byId.size!==decisions.length||!Number.isFinite(now.getTime())||
-  inventory.candidates.length>MAX)
+ if(!verifyArchiveReviewInventory(inventory,now)||
+  decisions.length!==inventory.candidates.length||
+  byId.size!==decisions.length)
   return {permitted:false,unresolved:["review-incomplete"],inventorySha256:inventory.inventorySha256};
  for(const item of inventory.candidates){
   const decision=byId.get(item.fingerprint);

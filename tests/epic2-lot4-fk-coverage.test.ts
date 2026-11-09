@@ -34,3 +34,13 @@ test("SMN-38: FK chains beyond the explored depth produce an explicit gap",async
  const actual=await inspectMemberForeignKeys(fake,"member-001");
  assert.equal(actual.find(x=>x.table==="foreign-key-depth-limit")?.state,"unknown");
 });
+
+test("SMN-38: cycle in an FK graph must remain unknown, not be silently skipped",async()=>{
+ const fake={query:async(_sql:string,params:unknown[])=>params[0]===1501?
+  {rows:[{child_table:"smn_member",parent_table:"smn_member",
+    child_columns:["parent_id"],parent_columns:["id"]}]}:
+  {rows:[{n:"0"}]}} as unknown as Client;
+ const result=await inspectMemberForeignKeys(fake,"member-001");
+ assert.equal(result.some(row=>row.table==="foreign-key-cycle"&&
+  row.state==="unknown"&&row.count===null),true);
+});
