@@ -4280,7 +4280,7 @@
     "unknown": "Unknown",
     "inspected": "Direct links inspected",
     "notExhaustive": "Further review required",
-    "directReferences": "View inspected database tables",
+    "directReferences": "View direct and indirect links and candidate contents and archives",
     "table": "PostgreSQL table",
     "warningsTitle": "Limitations and precautions",
     "close": "Close preview",
@@ -4297,13 +4297,19 @@
       "managed-backups": "Managed backups"
     },
     "warnings": {
-      "indirect-links-unchecked": "Indirect relationships and historical versions may still contain data linked to this member.",
+      "indirect-links-unchecked": "Assignment and absence histories are inspected; additional transitive business references may remain.",
       "free-text-unchecked": "Free-text fields are not fully inspected; names may remain present.",
-      "archived-files-unchecked": "Immutable PDF/TXT files require access restriction or a separate redacted version; originals must not be silently rewritten.",
+      "archived-files-unchecked": "Private TXT files are searched, PDF manifests and team archives are inventoried; PDF text and other binaries are not fully inspected. Originals remain immutable.",
       "indicators-unchecked": "Retaining statistics must be justified against reidentification risk.",
       "managed-backups-may-contain-data": "Backups may contain previously erased data and require SMN-40 checks.",
       "external-copies-not-controlled": "Exported copies outside SMN storage cannot automatically be monitored or deleted.",
       "no-erasure-ledger": "The authoritative erasure ledger is not operational; restoring remains blocked."
+    },
+    "scopes": {
+      "direct": "Verified direct link",
+      "indirect": "Verified indirect link",
+      "text-match": "Potential text match",
+      "team-archive": "Candidate archive from the same team"
     }
   }
 }
