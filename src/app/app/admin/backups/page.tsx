@@ -5,6 +5,7 @@ import {canAccess} from "@/server/access-policy";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import BackupsAdmin from "./backups-admin";
+import ErasureImpactAdmin from "./erasure-impact-admin";
 export const dynamic="force-dynamic";
 export default async function BackupsPage(){
  const account=await currentAccount();
@@ -20,5 +21,6 @@ export default async function BackupsPage(){
    <Link href="/app" className="btn btn-outline-secondary">{translate(locale,"backups.back")}</Link>
   </header>
   <BackupsAdmin/>
+  <div className="mt-4"><ErasureImpactAdmin/></div>
  </div>;
 }
