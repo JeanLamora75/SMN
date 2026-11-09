@@ -36,6 +36,7 @@ on:
       - "tests/epic2-lot4-erasure-intent.test.ts"
       - "tests/epic2-lot4-fk-coverage.test.ts"
       - "tests/epic2-lot4-postgres.test.ts"
+      - "tests/epic2-lot4-privacy-restore-pg.test.ts"
       - "tests/backup-erasure-protection.test.ts"
       - ".github/workflows/epic2-lot4-erasure.yml"
   workflow_dispatch:
@@ -96,4 +97,4 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Verify real native v33 read-only impact on PostgreSQL 18
-        run: pnpm exec tsx --test tests/epic2-lot4-postgres.test.ts
+        run: pnpm exec tsx --test tests/epic2-lot4-postgres.test.ts tests/epic2-lot4-privacy-restore-pg.test.ts
