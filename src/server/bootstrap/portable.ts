@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { existsSync } from "node:fs";
-import { mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
+import { lstat, mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
 import { Client } from "pg";
@@ -10,27 +10,33 @@ import { archiveIncompleteCluster } from "./recovery";
 import { classifyPostgresStartupLog } from "./postgres-startup";
 import { canBindLoopback, selectLoopbackPort } from "./managed-port";
 import { runManagedProcess as run } from "./managed-process";
+import { managedStorageRoot, legacyManagedStorageRoot, managedRuntimeManifestPath } from "./managed-paths";
 
 // SMN gère UNIQUEMENT son propre cluster sous LocalAppData. Le système ou
 // l'autre application ne sont jamais interrogés, adoptés ou arrêtés.
 const PORT = 55432;
-const VERSION = 1;
+const VERSION = 2;
 type ManagedConfig = { version: number; pgBin: string; cluster: string; port: number; user: string; encryptedPassword: string };
-function privateRoot(): string {
-  const base = process.env.LOCALAPPDATA;
-  if (process.platform !== "win32" || !base) throw new Error("windows-required");
-  return path.join(base, "ScrumMasterNotebook");
+function configPath(): string { return managedRuntimeManifestPath(); }
+async function ensureStorageRoot(): Promise<void> {
+  const root=managedStorageRoot();
+  for (const dir of [path.dirname(root), root]) {
+    if (existsSync(dir)) {
+      const info=await lstat(dir);
+      if (!info.isDirectory() || info.isSymbolicLink()) throw Error("managed-cluster-unsafe");
+    } else await mkdir(dir, { recursive:false, mode:0o700 });
+  }
 }
-function configPath(): string { return path.join(privateRoot(), "runtime.json"); }
 
 async function loadManaged(): Promise<ManagedConfig | null> {
   try {
     const privateBytes=await readPrivateFile("runtime.json");
     if (!privateBytes) return null;
     const parsed = JSON.parse(privateBytes.toString("utf8")) as ManagedConfig;
-    const root = privateRoot();
+    const root = parsed.version === 1 ? legacyManagedStorageRoot() :
+      parsed.version === VERSION ? managedStorageRoot() : null;
     // Aucune valeur provenant d'une base, d'une URL ou de l'utilisateur.
-    if (parsed.version !== VERSION || !Number.isInteger(parsed.port) || parsed.port < 1024 || parsed.port > 65535 || parsed.user !== "smn_owner" ||
+    if (!root || !Number.isInteger(parsed.port) || parsed.port < 1024 || parsed.port > 65535 || parsed.user !== "smn_owner" ||
         parsed.pgBin !== path.join(root, "pgsql", "bin") ||
         parsed.cluster !== path.join(root, "data") ||
         typeof parsed.encryptedPassword !== "string") throw new Error("managed-config-invalid");
@@ -54,7 +60,7 @@ async function saveManagedRuntime(config: ManagedConfig): Promise<void> {
 
 async function ensureRunning(config: ManagedConfig): Promise<ManagedConfig> {
   if (await statusIsOwned(config)) return config;
-  const logfile = path.join(privateRoot(), "postgres.log");
+  const logfile = path.join(path.dirname(config.cluster), "postgres.log");
   let lastPortFailure = "managed-pg-no-bindable-port";
   // Un port inaccessible sous Windows n'est pas nécessairement "occupé" :
   // Hyper-V, WSL ou une règle du poste peuvent le réserver sans listener.
@@ -148,7 +154,7 @@ export async function prepareManaged(onProgress: (step: string) => void, recover
   onProgress("Recherche d'une installation SMN existante");
   const existing = await existingManagedUri();
   if (existing) return existing;
-  const root = privateRoot();
+  const root = managedStorageRoot();
   // Une ancienne tentative peut avoir créé le dossier data avant que le
   // manifeste de connexion ait été écrit (SMN-12). N'y toucher que sur
   // confirmation distincte ; l'ancien dossier est ARCHIVÉ, jamais supprimé.
@@ -172,7 +178,7 @@ export async function prepareManaged(onProgress: (step: string) => void, recover
     onProgress("Conservation de la tentative précédente dans une sauvegarde");
     await archiveIncompleteCluster(root);
   }
-  await mkdir(root, { recursive: true, mode: 0o700 });
+  await ensureStorageRoot();
   const archive = path.join(root, PG_ARCHIVE);
   const bundle = path.join(process.cwd(), "runtime", "postgres", PG_ARCHIVE);
   onProgress("Préparation des composants PostgreSQL — le premier lancement peut prendre quelques minutes");
@@ -208,6 +214,7 @@ export async function prepareManaged(onProgress: (step: string) => void, recover
     version: VERSION, pgBin: path.join(pgRoot, "bin"), cluster: path.join(root, "data"),
     port: PORT, user: "smn_owner", encryptedPassword: await encryptSetting(password),
   };
+  await mkdir(legacyManagedStorageRoot(), { recursive: true, mode: 0o700 });
   const pending = configPath() + ".new-" + randomBytes(8).toString("hex");
   try {
     await writeFile(pending, JSON.stringify(cfg), { mode: 0o600, flag: "wx" });
