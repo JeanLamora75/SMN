@@ -246,7 +246,7 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
    if(!stat.isDirectory()||stat.isSymbolicLink())invalid("extra-archive-folder-invalid");
    const names=await readdir(archiveDir);
    if(names.length!==entries.length||
-    names.some(name=>!/^\\d{5}\\.enc$/.test(name)))
+    names.some(name=>!/^\d{5}\.enc$/.test(name)))
     invalid("extra-archive-folder-unexpected");
    for(const part of entries)
     await verifyEncrypted(join(folder,part.path),part,key,20*1024*1024,false);
