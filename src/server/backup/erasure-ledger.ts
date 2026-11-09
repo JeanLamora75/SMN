@@ -1,4 +1,3 @@
-import "server-only";
 import {createHmac,randomBytes,timingSafeEqual} from "node:crypto";
 import {appendFile,lstat,mkdir,open,readFile,rename,rm,writeFile} from "node:fs/promises";
 import {isAbsolute,join,resolve,sep} from "node:path";
