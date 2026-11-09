@@ -18,7 +18,9 @@ export async function withAuditedErasureTransaction(
  input:Readonly<{scopeRevision:string;operation:"erase"|"anonymize"}>,
  apply:()=>Promise<number>
 ):Promise<Readonly<{receiptId:string;affectedRows:number;recorded:true}>>{
- const pending:IntentHandle=await beginErasureIntent(input);
+ const pending:IntentHandle=await beginErasureIntent({
+  planRevision:input.scopeRevision,operation:input.operation
+ });
  let started=false,committed=false,affectedRows=0;
  try{
   await db.query("BEGIN");started=true;
