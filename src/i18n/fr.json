@@ -748,6 +748,24 @@
       "snapshot-older": "Le contenu sauvegardé est antérieur à l'état actuel : des modifications récentes seraient perdues.",
       "current-documents-unavailable": "Impossible d'inventorier les documents privés actuels.",
       "current-unavailable": "État de l'installation actuelle indisponible."
+    },
+    "restorePreflightStart": "Contrôler les prérequis de restauration",
+    "restorePreflightRunning": "Contrôle des prérequis…",
+    "restorePreflightFailed": "Impossible de confirmer les prérequis de restauration. Aucune modification effectuée.",
+    "restorePreflightBlocked": "Restauration suspendue : les contrôles suivants restent nécessaires.",
+    "restoreGate": {
+      "archive-not-verified": "La sauvegarde n'est pas vérifiée.",
+      "different-installation": "La sauvegarde et l'installation courante ne correspondent pas.",
+      "schema-incompatible": "Les versions du schéma ne correspondent pas.",
+      "postgres-incompatible": "Les versions majeures de PostgreSQL sont incompatibles.",
+      "application-incompatible": "Les versions applicatives sont incompatibles.",
+      "current-documents-unavailable": "L'inventaire des documents actuels est indisponible.",
+      "archive-date-unavailable": "La date de la sauvegarde n'est pas connue.",
+      "privacy-erasures-unverified": "Les éventuels effacements de données personnelles ne sont pas contrôlés (SMN-40).",
+      "isolated-restore-unverified": "Une reconstruction isolée et ses contrôles d'intégrité ne sont pas encore attestés.",
+      "rollback-checkpoint-unverified": "Le point de reprise permettant un retour arrière n'est pas encore attesté.",
+      "atomic-cutover-unverified": "La bascule cohérente de la base et des documents n'est pas encore attestée.",
+      "session-reset-unverified": "La révocation et la réévaluation des sessions ne sont pas encore attestées."
     }
   },
   "members": {
