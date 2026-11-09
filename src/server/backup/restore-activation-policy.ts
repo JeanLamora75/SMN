@@ -27,7 +27,7 @@ export function assessOfflineRestoreActivation(
 ):OfflineRestoreDecision{
  const blockers:string[]=[];
  if(preview.archive.status!=="verified"||!preview.archive.integrityVerified||
-  preview.archive.components.some(c=>c.status!=="verified"))
+  preview.archive.scopeComplete!==true)
   blockers.push("package-integrity-unverified");
  if(preview.archive.installationSource!==preview.current.installationSource)
   blockers.push("installation-identity-mismatch");
