@@ -43,11 +43,18 @@ async function cleanupMarker(root:string):Promise<CleanupMarker|null>{
   return x as CleanupMarker;
  }catch{return null;}
 }
-async function currentlyRunning(db:Client):Promise<boolean>{
- const result=await db.query<{n:string}>(`
-  SELECT count(*)::text AS n FROM pg_catalog.pg_locks
-  WHERE locktype='advisory' AND granted AND classid=20261021 AND objid=30`);
- return Number(result.rows[0]?.n)>0;
+async function currentlyRunning(db:Client):Promise<{
+ backup:boolean;cleanup:boolean
+}>{
+ const result=await db.query<{application_name:string}>(`
+  SELECT a.application_name FROM pg_catalog.pg_locks l
+  JOIN pg_catalog.pg_stat_activity a ON a.pid=l.pid
+  WHERE l.locktype='advisory' AND l.granted
+   AND l.classid='20261021'::oid AND l.objid='30'::oid`);
+ return {
+  backup:result.rows.some(r=>r.application_name==="smn-manual-backup"),
+  cleanup:result.rows.some(r=>r.application_name==="smn-auth")
+ };
 }
 /**
  * Only the latest manual backup is claimed. Purge and restore are separately
@@ -66,7 +73,7 @@ export async function readProtectionDiagnostics(db:Client):Promise<{
   const item=inventory.find(x=>x.id===previous.id);
   operations.push(classifyBackupEvidence({
    operationId:previous.id,startedAt:previous.createdAt,checkedAt,
-   marker:previous.status,running,
+   marker:previous.status,running:running.backup,
    packageVerified:item?.status==="verified"&&item.integrityVerified===true,
    packageExists:!!item
   }));
@@ -75,7 +82,7 @@ export async function readProtectionDiagnostics(db:Client):Promise<{
   const recorded=classifyCleanupEvidence({
    operationId:cleanup.operationId,startedAt:cleanup.startedAt,checkedAt,
    planned:cleanup.planned,processed:cleanup.processed,failed:cleanup.failed,
-   running:running&&cleanup.status==="running"
+   running:running.cleanup&&cleanup.status==="running"
   });
   // Verify each recorded successful removal through *both* its audit row
   // and absence of the managed package. No success from the journal alone.
@@ -97,7 +104,7 @@ export async function readProtectionDiagnostics(db:Client):Promise<{
    verified===cleanup.planned&&cleanup.failed===0&&cleanup.inFlight===null;
   operations.push({...recorded,
    status:fullyVerified?"succeeded":
-    running&&cleanup.status==="running"?"running":
+    running.cleanup&&cleanup.status==="running"?"running":
     verified>0||uncertain>0||cleanup.inFlight?"partial":"interrupted",
    reason:fullyVerified?"cleanup-complete":
     verified>0||uncertain>0||cleanup.inFlight?"partial-cleanup":"unverifiable-state",
