@@ -1,12 +1,13 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {randomBytes,randomUUID} from "node:crypto";
-import {mkdtemp,rm} from "node:fs/promises";
+import {mkdtemp,rm,mkdir} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {Client} from "pg";
 import {installExpress} from "../src/server/installation/install";
 import {provisionIndependentResetCandidate} from "../src/server/installation/reset-independent";
+import {previewInstallationReset} from "../src/server/installation/reset-preview";
 import {rehearseOfflineDatabaseCutover} from "../src/server/backup/restore-cutover-drill";
 
 test("SMN-37 PG18 : une installation vierge indépendante conserve la source et sa reprise",
@@ -23,6 +24,10 @@ test("SMN-37 PG18 : une installation vierge indépendante conserve la source et 
  const dbUrl=(n:string)=>{const u=new URL(raw);u.pathname="/"+n;return u.toString();};
  const admin=new Client({connectionString:raw});
  const dir=await mkdtemp(join(tmpdir(),"smn37-independence-"));
+ const envNames=["SMN_DATABASE_URL","SMN_BACKUP_DIR","SMN_PRIVATE_DOCUMENTS_DIR",
+  "SMN_PRIVATE_REPORT_ARCHIVE_DIR","SMN_OFFICE_REPORTS_DIR",
+  "SMN_OFFICE_TEMPLATES_DIR"] as const;
+ const previousEnvironment=envNames.map(n=>process.env[n]);
  let sourceDb:Client|null=null;
  try{
   await admin.connect();
