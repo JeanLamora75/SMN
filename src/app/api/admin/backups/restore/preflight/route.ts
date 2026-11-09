@@ -4,6 +4,7 @@ import {readJsonObject,jsonResult} from "@/server/auth/request";
 import {previewBackup} from "@/server/backup/preview";
 import {assessRestoreGate} from "@/server/backup/restore-readiness";
 import {currentErasureEvidence} from "@/server/backup/erasure-protection";
+import {withSessionReadDb} from "@/server/auth/database";
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -16,7 +17,8 @@ export async function POST(request:NextRequest){
   !uuid.test(payload.id))return jsonResult({error:"invalid-input"},400);
  try{
   const preview=await previewBackup(payload.id);
-  const evidence=await currentErasureEvidence(preview.archive.createdAt??undefined);
+  const evidence=await withSessionReadDb(db=>
+   currentErasureEvidence(preview.archive.createdAt??undefined,db));
   return jsonResult({preview,gate:assessRestoreGate(preview,evidence)},409);
  }catch{return jsonResult({error:"restore-preflight-unavailable"},503);}
 }
