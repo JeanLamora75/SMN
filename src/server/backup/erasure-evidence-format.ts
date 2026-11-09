@@ -20,7 +20,7 @@ function macFor(key:Buffer,marker:Omit<ErasureMarker,"mac">):string{
  return createHmac("sha256",key).update(payload(marker)).digest("hex");
 }
 export function createErasureMarker(key:Buffer,previousMac:string,
- operation:"erase"|"anonymize",now=new Date(),eventId=randomUUID()):ErasureMarker{
+ operation:"erase"|"anonymize",now=new Date(),eventId:string=randomUUID()):ErasureMarker{
  if(!HEX.test(previousMac)||!["erase","anonymize"].includes(operation)||
   !Number.isFinite(now.getTime())||
   !/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(eventId))throw new Error("erasure-journal-invalid-input");
