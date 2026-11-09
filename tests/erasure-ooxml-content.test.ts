@@ -63,7 +63,7 @@ describe("SMN-38 — lecture Office non destructive sans dépendance externe",()
  it("refuse un ZIP falsifié et n'infère jamais un texte absent",()=>{
   const bytes=makeZip([{name:"word/document.xml",body:"<w:t>Alice</w:t>"}]);
   const corrupted=Buffer.from(bytes);
-  corrupted[40]^=0xff;
+  corrupted[30+Buffer.byteLength("word/document.xml")]^=0xff;
   assert.equal(extractOoxmlText(corrupted).state,"unsupported");
   const noText=makeZip([{name:"word/media/image1.png",body:"image"}]);
   assert.equal(extractOoxmlText(noText).state,"unsupported");
