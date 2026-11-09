@@ -43,3 +43,16 @@ export async function inspectUnfinishedBackupArtifacts(root:string):Promise<Unfi
   retentionPendingIds:retentionPendingIds.sort(),
   unknownBackupArtifacts,unknownRetentionArtifacts};
 }
+
+/** Staging is not interrupted if the exact operation still holds its lock. */
+export function unresolvedArtifactCounts(
+ artifacts:UnfinishedArtifacts,active:{
+  backupId:string|null;cleanupId:string|null
+ }):Readonly<{backup:number;cleanup:number}>{
+ return {
+  backup:artifacts.stagingBackupIds.filter(id=>id!==active.backupId).length+
+   artifacts.unknownBackupArtifacts,
+  cleanup:artifacts.retentionPendingIds.filter(id=>id!==active.cleanupId).length+
+   artifacts.unknownRetentionArtifacts
+ };
+}
