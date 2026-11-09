@@ -784,7 +784,11 @@
       "session-reset-unverified": "Session revocation and re-evaluation have not been demonstrated.",
       "privacy-erased-data": "The backup predates a verified erasure: restoring the erased data is prohibited.",
       "privacy-coverage-gap": "The erasure audit history does not cover the backup date: restore suspended."
-    }
+    },
+    "scopeCompleteness": "Backup scope",
+    "scopeV4": "v4 — managed files included, consistency fence enabled",
+    "scopeLegacy": "Legacy format — verified integrity, incomplete scope",
+    "officeModelCount": "Custom Office templates"
   },
   "members": {
     "title": "Team members",
