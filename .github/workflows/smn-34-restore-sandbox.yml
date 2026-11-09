@@ -62,6 +62,7 @@ jobs:
       SMN_PG_DUMP_PATH: /usr/lib/postgresql/18/bin/pg_dump
       SMN_PG_RESTORE_PATH: /usr/lib/postgresql/18/bin/pg_restore
       NEXT_TELEMETRY_DISABLED: "1"
+      SMN_BACKUP_TEST_DIAGNOSTIC: "1"
     steps:
       - uses: actions/checkout@v4
         with:
