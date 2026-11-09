@@ -118,7 +118,7 @@ export async function readProtectionDiagnostics(db:Client):Promise<{
    recordedProcessed:cleanup.processed,recordedFailed:cleanup.failed,
    verifiedRemoved:verified,inFlight:cleanup.inFlight!==null,
    currentlyRunning:running.cleanup,unresolvedTombstones:pending
-  });
+  }));
  }
  operations.push(blockedOperation("restore",checkedAt));
  operations.push(blockedOperation("installation-reset",checkedAt));
