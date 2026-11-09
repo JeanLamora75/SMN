@@ -66,6 +66,17 @@ export async function readVerifiedPdfArchive(db:Client,id:string):Promise<Buffer
  if(!/^[a-f0-9-]{36}$/i.test(id))return null;
  const exists=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_report_pdf_archive') IS NOT NULL AS present`);
  if(!exists.rows[0]?.present)return null;
+ // A privacy restriction revokes application access, not the immutable bytes.
+ // Older installations without the additive table preserve legacy behavior
+ // until migration; no erasure may be declared before the table is present.
+ const restrictionReady=await db.query<{present:boolean}>(
+  "SELECT to_regclass('public.smn_privacy_archive_restriction') IS NOT NULL AS present");
+ if(restrictionReady.rows[0]?.present){
+  const restricted=await db.query(
+   "SELECT 1 FROM public.smn_privacy_archive_restriction WHERE archive_id=$1",
+   [id]);
+  if(restricted.rows.length!==0)return null;
+ }
  const r=await db.query<{sha256:string;byte_length:number;stored_name:string;team_id:string;cycle_id:string;manifest:PdfArchiveManifest}>(`SELECT sha256,byte_length,stored_name,team_id,cycle_id,manifest FROM public.smn_report_pdf_archive WHERE id=$1`,[id]);
  const record=r.rows[0];if(!record||record.stored_name!==id+".pdf")return null;
  // Reject inconsistent metadata before reading any stored PDF bytes.
