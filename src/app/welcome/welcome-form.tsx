@@ -9,7 +9,7 @@ const init: Status = { status: "idle", step: "", progress: 0, error: null };
 export default function SetupWelcome() {
   const t=useTranslation();
   const locale=useLocale();
-  const [dbMode, setDbMode] = useState<"existing"|"portable">("existing");
+  const [dbMode, setDbMode] = useState<"existing"|"portable">("portable");
   const [postgresUser, setPostgresUser] = useState("postgres");
   const [postgresPassword, setPostgresPassword] = useState("");
   const [postgresPort, setPostgresPort] = useState("5432");
