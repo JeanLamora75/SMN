@@ -99,7 +99,7 @@ export default function ErasureImpactAdmin(){
      <tbody>{result.observedTables.map(row=><tr key={row.table+"-"+row.scope}>
       <td><code>{row.table}</code></td>
       <td>{row.state==="inspected"?row.count:t("erasure.unknown")}</td>
-      <td>{t(row.state==="inspected"?"erasure.inspected":"erasure.notExhaustive")}</td>
+      <td>{t(row.state==="inspected"?"erasure.scopes."+row.scope:"erasure.notExhaustive")}</td>
      </tr>)}</tbody>
     </table></div>
    </details>
