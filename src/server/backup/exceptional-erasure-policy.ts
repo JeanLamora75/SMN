@@ -31,7 +31,6 @@ export type ErasureGuard=Readonly<{
 }>;
 const iso=(x:string)=>typeof x==="string"&&!Number.isNaN(Date.parse(x))&&
  new Date(x).toISOString()===x;
-const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 // Uses accepted UUID form, not an arbitrary client-provided path.
 const safeId=(value:string)=>/^[a-zA-Z0-9_-]{8,120}$/.test(value);
 export function assessErasurePlan(plan:ErasureImpactPlan,now=new Date()):ErasureGuard{
