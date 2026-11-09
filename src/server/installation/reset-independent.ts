@@ -1,3 +1,4 @@
+import {createHash} from "node:crypto";
 import {Client} from "pg";
 import {validateSandboxTarget} from "../backup/restore-sandbox-policy";
 import {installExpress} from "./install";
@@ -28,14 +29,19 @@ export async function provisionIndependentResetCandidate(input:{
   if(read.rows.length>400||read.rows.some(r=>!/^[a-z][a-z0-9_]*$/.test(r.name)))
    throw Error("reset-source-schema-unverifiable");
   const counts:string[]=[];let rows=0;
+  const digest=createHash("sha256");
   for(const {name} of read.rows){
    const result=await source.query<{n:string}>(
     'SELECT count(*)::text AS n FROM public."'+name+'"');
    const n=Number(result.rows[0]?.n);
    if(!Number.isSafeInteger(n))throw Error("reset-source-count-unverifiable");
    rows+=n;counts.push(name+":"+n);
+   const content=await source.query<{v:string}>(
+    'SELECT to_jsonb(t)::text AS v FROM public."'+name+'" t');
+   digest.update(name+"|");
+   for(const v of content.rows.map(x=>x.v).sort())digest.update(v.length+":"+v+"|");
   }
-  return {signature:counts.join("|"),rows,tables:read.rows.length};
+  return {signature:counts.join("|")+"|"+digest.digest("hex"),rows,tables:read.rows.length};
  }
  try{
   await source.connect();
