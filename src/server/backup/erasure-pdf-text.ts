@@ -1,4 +1,3 @@
-import "server-only";
 import {spawn} from "node:child_process";
 import {lstat} from "node:fs/promises";
 import {isAbsolute} from "node:path";
