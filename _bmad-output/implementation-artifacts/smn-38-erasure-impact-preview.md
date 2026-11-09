@@ -44,3 +44,38 @@ Le résultat affiche les neuf catégories SMN-39, les comptages de relations **d
 
 ## Adaptation BMAD
 Le `uv run ... render_skill.py` du skill `bmad-build` n'est pas exécutable depuis GitHub. Adaptation via connecteurs GitHub/Jira, sans prétendre à l'exécution officielle du workflow.
+
+
+## Complément SMN-38 — Relations indirectes et archives (09/11/2026)
+
+**État : publié sur `main` ; revue statique et tests unitaires ajoutés, sans exécution PostgreSQL attestée.** Ce lot améliore l'analyse mais ne lève pas le verrou destructif de SMN-39.
+
+### Chemins de références contrôlés
+- `smn_member_assignment` et `smn_member_assignment_version` via `assignment_id`.
+- `smn_member_absence` et `smn_member_absence_history` via `absence_id`.
+- `smn_member_assignment_start_audit`, `smn_member_lifecycle_event`, identité, localisation, semaines et exceptions de calendrier.
+- Chaque lien suit une requête SQL à **identifiants de table/colonne fixés dans le code**, avec paramètre lié pour le membre. Une colonne ou table manquante est « inconnue », jamais « aucun impact ».
+- Les comptages sont effectués dans une transaction PostgreSQL `REPEATABLE READ READ ONLY`, sans modification du schéma ni données.
+
+### Contenus et archives évalués
+- Recherche exploratoire des valeurs nominatives du membre (nom affiché, adresse électronique lorsqu'elle existe) dans certains champs libres : registres, commentaires, notes du dashboard, brouillons de rapports, snapshots Studio, analyses de revue, objectifs et manifestes PDF.
+- Comptage **des archives candidates de l'équipe** : archives PDF, briefs IA, snapshots Studio. Un document de l'équipe n'est pas automatiquement une preuve de présence du membre.
+- Inspection des **TXT du stockage privé SMN-26** après vérification de leur inventaire et filtrage sur l'équipe ; les correspondances sont comptées sans exposer les contenus ni noms privés.
+- Les **PDF du stockage privé** sont inventoriés parmi les candidats de l'équipe, mais leur contenu binaire n'est pas lu comme texte. Les archives PDF provenant d'autres répertoires non couverts ne sont pas prétendues contrôlées.
+- L'écran distingue « lien direct », « relation indirecte », « correspondance textuelle potentielle » et « archive candidate », chacun avec son nombre ou « indéterminé ».
+
+### Contrat destiné à SMN-39
+- Les neuf `findings` utilisent directement le type `ImpactFinding` de `exceptional-erasure-policy.ts`. La liste `observedTables` apporte la **provenance de chaque comptage**, sans données personnelles en clair.
+- **Aucun résultat de recherche heuristique n'est une preuve d'absence.** Le résultat conserve `complete:false`, `canExecute:false` et `action:"review"`.
+- Il faudra avant toute opération de SMN-39 : compléter les sources métier non parcourues, vérifier les PDF/Office binaires et archives sur disque, produire un identifiant de plan serveur lié à un état/révision stables, traiter les effets sur les statistiques et revalider les preuves au moment de la confirmation. Un plan forgé depuis le navigateur n'est pas recevable.
+- SMN-40 reste sur `ledger-not-implemented` tant qu'un journal opposable alimenté par l'exécution d'effacement n'existe pas.
+
+### Fichiers concernés
+- `src/server/backup/erasure-impact-graph.ts` (graphes relationnels, textes, archives DB).
+- `src/server/backup/erasure-private-documents.ts` (fichiers SMN-26 TXT/PDF).
+- `src/server/backup/erasure-preview.ts` (agrégation transactionnelle).
+- `src/app/app/admin/backups/erasure-impact-admin.tsx`, `src/i18n/fr.json`, `src/i18n/en.json` (affichage et traductions).
+- `tests/erasure-indirect-archives.test.ts` (unitaires avec client PostgreSQL simulé et fichiers temporaires).
+
+### Qualification encore nécessaire
+`pnpm exec tsx --test tests/erasure-indirect-archives.test.ts tests/erasure-impact-preview.test.ts`, `pnpm i18n:check`, `pnpm typecheck`, `pnpm test`, `pnpm build`, puis essais Windows/PostgreSQL 18 sur une base de test avec archives réelles. **Aucune commande n'est réputée exécutée ni réussie par une simple publication GitHub.**
