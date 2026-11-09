@@ -93,6 +93,7 @@ export const INSTALLATION_RELATIONS = [
   // Privacy additive tables/functions are owned by SMN and do not invalidate v33.
   "public.smn_privacy_erasure_receipt:r",
   "public.smn_privacy_receipt_immutable:function",
+  "public.smn40_guard_member_delete:function",
   "public.smn_privacy_archive_restriction:r",
   "public.smn_privacy_archive_restriction_immutable:function",
 
