@@ -1,5 +1,6 @@
 import type {ErasureMode} from "./exceptional-erasure-policy";
 import type {TableImpact} from "./erasure-impact-graph";
+import {COLLECTIVE_FAMILIES} from "./collective-retention-policy";
 
 /**
  * SMN-38/39 qualification is a read-only explanation, never an authorization
@@ -18,6 +19,8 @@ export type HistoricalPrivacyQualification=Readonly<{
  historicalAnonymizationPermitted:false;
  unknownSources:number;
  positiveReferenceSources:number;
+ collectiveRetention:Readonly<{decision:"blocked-pending-review";
+  families:readonly (typeof COLLECTIVE_FAMILIES)[number][]}>;
  pending:readonly HistoricalReviewStep[];
 }>;
 
@@ -33,7 +36,7 @@ export function assessHistoricalPrivacyQualification(input:Readonly<{
  if(input.boundedProvisionalEligible&&input.mode==="erase")
   return {scope:"bounded-provisional",historicalErasurePermitted:false,
    historicalAnonymizationPermitted:false,unknownSources,
-   positiveReferenceSources,pending:[]};
+   positiveReferenceSources,collectiveRetention:{decision:"blocked-pending-review",families:COLLECTIVE_FAMILIES},pending:[]};
  const pending:HistoricalReviewStep[]=["business-history"];
  if(unknownSources)pending.push("unverified-relations");
  if(input.observedTables.some(x=>x.category==="free-text"&&
@@ -44,5 +47,6 @@ export function assessHistoricalPrivacyQualification(input:Readonly<{
  if(input.mode==="anonymize")pending.push("anonymization-risk");
  return {scope:"historical-or-unqualified",
   historicalErasurePermitted:false,historicalAnonymizationPermitted:false,
-  unknownSources,positiveReferenceSources,pending};
+  unknownSources,positiveReferenceSources,
+  collectiveRetention:{decision:"blocked-pending-review",families:COLLECTIVE_FAMILIES},pending};
 }

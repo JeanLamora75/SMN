@@ -58,3 +58,15 @@ Workflows : [Lot 4](../../.github/workflows/epic2-lot4-erasure.yml) et [Epic 2 t
 Le contrôle `managedBinaryScopeEmpty(db)` ne se contente plus de vérifier des dossiers vides. Il exige désormais que l'inventaire PDF référencé en PostgreSQL et les fichiers des répertoires gérés concordent via `inspectExtraArchives(db)`. Un PDF attendu en base mais absent du disque, un fichier non géré ou une erreur d'inventaire bloquent la suppression même d'un membre provisoire. Le précontrôle de l'interface et l'exécution effective réutilisent ce garde-fou. Régression `tests/epic2-step2-archive-db-integrity.test.ts` exécutée dans les jobs Windows/Linux des workflows de confidentialité et transversal.
 
 Cette qualification des chemins gérés ne démontre pas que les copies externes et les archives non inspectables sont exemptes de données personnelles. Aucune autorisation générale d'effacement historique n'est introduite.
+
+## 5. Décision fonctionnelle validée — Option A
+
+**Décision utilisateur du 9 novembre 2026, applicable à SMN-38, SMN-39 et SMN-40 :** conserver les indicateurs collectifs historiques uniquement si la **non-réidentification** est démontrée. À défaut, **bloquer le traitement** jusqu'à expurgation vérifiée ou suppression des éléments concernés. Ne jamais recalculer silencieusement les sprints clos. Ne jamais présenter un zéro de correspondance textuelle ou un effectif arbitraire comme une preuve d'anonymat.
+
+Périmètre explicite : vélocité, capacité, story points/jour-homme, bilans de sprint, indicateurs dynamiques v33, Dashboard Builder et snapshots historiques figés. Vérification obligatoire de l'identification directe et indirecte, de l'inférence sur petits effectifs, des rapprochements entre rapports et des archives historiques. La revue doit être justifiée, attribuée à un responsable et liée à une révision du contenu. Une révision modifiée invalide la précédente qualification.
+
+**Contrôle implémenté :** `collective-retention-policy.ts` / `tests/epic2-step2-collective-retention.test.ts`. Le résultat `preserve-with-justification` exige toutes les preuves de non-réidentification pour chaque famille ; `redact` et `remove` ne sont que des actions à réaliser et **non** des suppressions attestées. Le résultat reste `canAuthorizeErasure:false` : les garde-fous globaux de SMN-39/40 ne sont pas levés. La prévisualisation affiche la règle et les familles restant à vérifier.
+
+**Conséquence pratique :** les agrégats non réidentifiants pourront être conservés sans altérer les valeurs historiques ; en présence de risque ou de doute, la demande est suspendue et le plan d'expurgation/suppression est instruit. La conservation de copies externes reste distincte du périmètre de contrôle SMN.
+
+**Réserves :** preuves personnelles réelles, revue de données sémantiques, moteur d'expurgation historique et restauration v4 après effacement restent non qualifiés. Pas de clôture Jira avant les preuves requises.

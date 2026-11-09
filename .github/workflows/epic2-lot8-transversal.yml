@@ -65,6 +65,7 @@ jobs:
           tests/epic2-step2-office-fingerprint.test.ts
           tests/epic2-step2-archive-db-integrity.test.ts
           tests/epic2-step2-historical-qualification.test.ts
+          tests/epic2-step2-collective-retention.test.ts
           tests/epic2-lot4-pdf-restriction.test.ts
           tests/backup-erasure-protection.test.ts
           tests/erasure-impact-preview.test.ts

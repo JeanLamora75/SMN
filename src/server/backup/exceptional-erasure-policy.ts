@@ -53,16 +53,20 @@ export function assessErasurePlan(plan:ErasureImpactPlan,now=new Date()):Erasure
   if(!IMPACT_CATEGORIES.includes(finding.category)||finding.state!=="inspected"||
    !Number.isSafeInteger(finding.affectedCount)||finding.affectedCount===null||
    finding.affectedCount<0)blockers.add("impact-incomplete");
+  // Retention is never justified by a zero heuristic or a hidden cohort.
+  // Even a zero detected match requires proof against indirect inference.
+  if(finding.category==="collective-indicators"&&
+   finding.action==="preserve-with-justification"&&
+   (finding.reidentificationRisk!=="excluded"||
+    finding.justificationRecorded!==true))
+   blockers.add("collective-reidentification-risk");
   if(finding.affectedCount!==null&&finding.affectedCount>0){
    if(finding.action==="review"||!finding.justificationRecorded)
     blockers.add("action-unjustified");
    if(finding.category==="archived-pdf-txt"&&
     !["restrict-access","redact-as-new-version"].includes(finding.action))
     blockers.add("immutable-archive");
-   if(finding.category==="collective-indicators"&&
-    finding.action==="preserve-with-justification"&&
-    finding.reidentificationRisk!=="excluded")
-    blockers.add("collective-reidentification-risk");
+
    if(plan.mode==="anonymize"&&finding.reidentificationRisk!=="excluded")
     blockers.add("anonymization-unproven");
   }

@@ -9,7 +9,8 @@ type Impact={
  complete:false;canExecute:false;restrictedEligible?:boolean;dependentEligible?:boolean;scopeRevision:string|null;revisionReason:string;
  qualification?:{scope:"bounded-provisional"|"historical-or-unqualified";
   historicalErasurePermitted:false;historicalAnonymizationPermitted:false;
-  unknownSources:number;positiveReferenceSources:number;pending:string[]};
+  unknownSources:number;positiveReferenceSources:number;pending:string[];
+  collectiveRetention?:{decision:"blocked-pending-review";families:string[]}};
  plan:{planId:string;token:string;expiresAt:string;executionPermitted:false}|null;
  findings:{category:string;state:string;affectedCount:number|null}[];
  observedTables:{table:string;count:number|null;state:"inspected"|"unknown";
@@ -226,6 +227,8 @@ export default function ErasureImpactAdmin(){
     <section className="border rounded p-3 d-grid gap-2">
      <h3 className="h6 mb-0">{t("erasure.historicalReviewTitle")}</h3>
      <p className="small text-secondary mb-0">{t("erasure.historicalReviewNotice")}</p>
+     <p className="small mb-0">{t("erasure.collectiveRetentionPolicy")}</p>
+     <p className="small text-secondary mb-0">{t("erasure.collectiveRetentionPending")}</p>
      <ul className="mb-0">{result.qualification.pending.map(step=><li key={step}>
       {t(("erasure.historicalReviewSteps."+step) as TranslationKey)}
      </li>)}</ul>

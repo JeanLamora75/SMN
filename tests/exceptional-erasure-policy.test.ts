@@ -47,6 +47,13 @@ describe("SMN-39 — gardes d'effacement exceptionnel",()=>{
     {...f,affectedCount:1,reidentificationRisk:"possible" as const}:f)};
   assert.ok(assessErasurePlan(invalid,now).blockers.includes("anonymization-unproven"));
  });
+ it("refuse la conservation même lorsque le comptage détecté est zéro",()=>{
+  const invalid={...plan,findings:plan.findings.map(f=>
+   f.category==="collective-indicators"?{
+    ...f,affectedCount:0,action:"preserve-with-justification" as const,
+    reidentificationRisk:"unknown" as const}:f)};
+  assert.ok(assessErasurePlan(invalid,now).blockers.includes("collective-reidentification-risk"));
+ });
  it("refuse la conservation de statistiques réidentifiables",()=>{
   const invalid={...plan,findings:plan.findings.map(f=>
    f.category==="collective-indicators"?{
