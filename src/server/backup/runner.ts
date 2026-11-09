@@ -10,6 +10,9 @@ import {seal,wrapRecoveryKey,recoverKey,type RecoveryEnvelope} from "./crypto";
 import {privateFolder,scanDocuments,encryptDocuments,sha,safeAtomicJson,
  type PublicBackupResult,type BackupIndex,type BackupComponent} from "./files";
 import {encryptedPgDump} from "./postgres";
+import {inspectExtraArchives,encryptExtraArchives,pdfArchiveDirectory}
+ from "./extra-archives";
+import {officeReportsDirectory} from "../reports/office-storage";
 
 type Admin=Readonly<{id:string;role:string;password_hash:string}>;
 export type BackupState=Readonly<{
@@ -94,6 +97,9 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
  await privateFolder(root,true);
  const source=process.env.SMN_PRIVATE_DOCUMENTS_DIR;
  if(source&&sameOrNested(root,source))throw new Error("backup-root-overlaps-documents");
+ for(const folder of [pdfArchiveDirectory(),officeReportsDirectory()])
+  if(sameOrNested(root,folder)||source&&sameOrNested(source,folder))
+   throw new Error("backup-root-overlaps-extra-archives");
  const uri=await installedDatabaseUri();
  const client=new Client({connectionString:uri,application_name:"smn-manual-backup",
   connectionTimeoutMillis:3500,statement_timeout:10000,query_timeout:10000});
@@ -109,6 +115,7 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
   const {key,recovery}=await getOrCreateKey(root,phrase,actor.password_hash);
   try{
    const inventory=await scanDocuments(source);
+   const extras=await inspectExtraArchives(client);
    await privateFolder(packages,true);
    staging=join(packages,"."+id+".partial");
    await mkdir(staging,{mode:0o700});
@@ -119,16 +126,19 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    if(meta.rowCount!==1)throw new Error("backup-installation-invalid");
    const database=await encryptedPgDump(uri,key,join(staging,"database.pgcustom.enc"));
    const documents=await encryptDocuments(source,inventory,join(staging,"documents"),key);
+   const archiveFiles=await encryptExtraArchives(extras,key,staging);
    const after=await scanDocuments(source);
    if(JSON.stringify(inventory)!==JSON.stringify(after))
     throw new Error("backup-documents-changed");
-   const manifest={version:2,id,createdAt,installation:"singleton",
+   if(JSON.stringify(extras)!==JSON.stringify(await inspectExtraArchives(client)))
+    throw new Error("backup-extra-archives-changed");
+   const manifest={version:3,id,createdAt,installation:"singleton",
     installationSource:"singleton:"+new Date(meta.rows[0].installation_created_at).toISOString(),
     appVersion:appPackage.version,
     schemaVersion:meta.rows[0].schema_version,postgresVersion:meta.rows[0].pg_version,
     database,documents:inventory.map((document,index)=>({
      sourceName:document.name,...documents[index],
-    }))};
+    })),reportPdfs:archiveFiles.pdf,officeReports:archiveFiles.office};
    const sealed=seal(key,Buffer.from(JSON.stringify(manifest),"utf8"));
    await writeFile(join(staging,"manifest.enc"),sealed.ciphertext,{flag:"wx",mode:0o600});
    const encryptedManifest:Omit<BackupComponent,"path">={
