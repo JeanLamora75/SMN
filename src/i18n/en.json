@@ -765,7 +765,9 @@
       "isolated-restore-unverified": "An isolated restore and integrity checks have not been demonstrated.",
       "rollback-checkpoint-unverified": "A recoverable rollback checkpoint has not been demonstrated.",
       "atomic-cutover-unverified": "A consistent database and document cutover has not been demonstrated.",
-      "session-reset-unverified": "Session revocation and re-evaluation have not been demonstrated."
+      "session-reset-unverified": "Session revocation and re-evaluation have not been demonstrated.",
+      "privacy-erased-data": "The backup predates a verified erasure: restoring the erased data is prohibited.",
+      "privacy-coverage-gap": "The erasure audit history does not cover the backup date: restore suspended."
     }
   },
   "members": {
