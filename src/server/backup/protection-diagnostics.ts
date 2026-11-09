@@ -24,7 +24,7 @@ type CleanupMarker={operationId:string;startedAt:string;status:string;
 async function cleanupMarker(root:string):Promise<CleanupMarker|null>{
  try{
   const file=join(root,"last-cleanup.json"),stat=await lstat(file);
-  if(!stat.isFile()||stat.isSymbolicLink()||stat.size>1200)return null;
+  if(!stat.isFile()||stat.isSymbolicLink()||stat.size>25000)return null;
   const x=JSON.parse(await readFile(file,"utf8")) as Partial<CleanupMarker>;
   if(!UUID.test(x.operationId??"")||typeof x.startedAt!=="string"||
    !Number.isFinite(Date.parse(x.startedAt))||
@@ -34,6 +34,7 @@ async function cleanupMarker(root:string):Promise<CleanupMarker|null>{
    x.processed!+x.failed!>x.planned!||
    !Array.isArray(x.plannedIds)||!Array.isArray(x.processedIds)||
    x.plannedIds.length!==x.planned||x.processedIds.length!==x.processed||
+   x.plannedIds.length>200||x.processedIds.length>200||
    x.plannedIds.some(id=>typeof id!=="string"||!UUID.test(id))||
    x.processedIds.some(id=>typeof id!=="string"||!UUID.test(id))||
    x.inFlight!==null&&(typeof x.inFlight!=="string"||!UUID.test(x.inFlight))||
