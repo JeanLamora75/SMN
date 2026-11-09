@@ -5,6 +5,7 @@ import {join} from "node:path";
 import {installedDatabaseUri} from "../auth/database";
 import {backupRootPath,backupState} from "../backup/runner";
 import {scanDocuments} from "../backup/files";
+import {RESET_RISKS,RESET_CONFIRMATION} from "./reset-policy";
 
 export type ResetImpact=Readonly<{
  inspectedAt:string;
@@ -78,9 +79,7 @@ export async function previewInstallationReset():Promise<ResetImpact>{
  }catch{/* Unavailable backup inventory blocks operation. */}
  return {inspectedAt:new Date().toISOString(),installation,database,
   privateDocuments,backups,
-  risks:["database-overwrite","private-files","archives-and-snapshots",
-   "accounts-and-sessions","historical-links","erasure-ledger",
-   "backup-before-reset","rollback-not-qualified","external-copies"],
-  confirmationRequired:"REINITIALISER MON INSTALLATION",
+  risks:RESET_RISKS,
+  confirmationRequired:RESET_CONFIRMATION,
   canExecute:false,blocked:true};
 }
