@@ -17,11 +17,12 @@ export type RevisionCapture=Readonly<{revision:string|null;reason:string}>;
  * An unrelated PostgreSQL write can invalidate a plan (intentionally safe).
  */
 export async function captureErasureRevision(db:Client,
- teamIds:readonly string[]):Promise<RevisionCapture>{
+ teamIds:readonly string[],lsnBefore:string):Promise<RevisionCapture>{
  try{
   const wal=await db.query<{lsn:string}>(`
    SELECT pg_current_wal_lsn()::text AS lsn`);
-  if(!/^[A-F0-9]+\/[A-F0-9]+$/i.test(wal.rows[0]?.lsn??""))
+  if(!/^[A-F0-9]+\/[A-F0-9]+$/i.test(wal.rows[0]?.lsn??"")||
+   wal.rows[0].lsn!==lsnBefore)
    throw new Error("wal-unavailable");
   const parts:string[]=["wal="+wal.rows[0].lsn];
   const privateDir=process.env.SMN_PRIVATE_DOCUMENTS_DIR;
