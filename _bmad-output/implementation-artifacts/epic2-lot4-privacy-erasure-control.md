@@ -86,3 +86,16 @@ BMAD : les commandes uv du skill bmad-build n'ont pas été exécutées, faute d
 - La reprise d'une installation reconstruite et expurgée, puis sa bascule active, doivent être démontrées au lot 5.
 
 **Décision de sécurité :** ne pas déclarer les trois blocages résolus ni clôturer les Stories concernées tant que les vérifications ci-dessus manquent. Un test d'atomicité sur données factices n'est pas une recette d'effacement réel.
+
+
+## Dernière qualification automatisée — 9 novembre 2026
+
+**GitHub Actions : https://github.com/JeanLamora75/SMN/actions/runs/42634089907** (commit de code 2078a2bc2f0b700463e66b5e73ad4f38006f0d09). Résultat : **3 jobs sur 3 réussis**.
+
+- Windows : contrats de confidentialité, intentions durables, signatures, contrôle de révision, TypeScript et traductions.
+- Linux : mêmes contrôles, tous réussis.
+- PostgreSQL 18 : installation native v33 isolée, inspection des FK directes et indirectes, transaction READ ONLY, migration additive de reçus sur base jetable, mutation sur table factice, COMMIT avec reçu, rejet de DELETE du reçu, panne injectée avec ROLLBACK, intention externe conservée et refus de restauration.
+
+Les migrations restent séparées de la baseline native v33. Les opérations de test ne portent sur aucune donnée personnelle réelle.
+
+**Qualification :** les mécanismes d'infrastructure sont testés. Le chantier demandé ne peut pas être certifié intégralement terminé à ce stade : aucune suppression de membre ou révocation d'archive en situation métier, ni vérification visuelle de tous les binaires, ni restauration active expurgée ne figure dans ces preuves.
