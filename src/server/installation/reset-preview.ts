@@ -1,4 +1,3 @@
-import "server-only";
 import {Client} from "pg";
 import {lstat,readdir} from "node:fs/promises";
 import {join} from "node:path";
