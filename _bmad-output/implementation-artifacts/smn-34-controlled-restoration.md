@@ -111,3 +111,14 @@ pnpm exec tsx --test tests/smn-34-v3-postgres.test.ts
 
 ### Clôture
 Ne pas clôturer SMN-34 tant que les tests n'ont pas une preuve **exécutée** (dont Windows), que la restauration isolée ne couvre pas les stockages métier requis et que le moteur de bascule sûre, de retour arrière, de gestion des sessions et le registre d'effacements SMN-40 ne sont pas qualifiés. Aucune affirmation « restauration active réussie » n'est justifiée par ce lot.
+
+
+## Dépendance Epic 2 lot 2 — sauvegardes v4 (09/11/2026)
+
+Le format v4 inclut désormais les archives PDF, les rapports Office **et les modèles Office personnalisés**, avec contrôle conservateur de cohérence entre le dump PostgreSQL 18 et les inventaires de fichiers. Les anciennes versions v1–v3 restent vérifiables mais leurs périmètres ne sont pas assimilés à la version v4.
+
+La reconstruction isolée a été **réellement exécutée et validée** par GitHub Actions [#42618124959](https://github.com/JeanLamora75/SMN/actions/runs/42618124959) : 1 PDF, 1 rapport Office, 1 modèle personnalisé et 1 document privé ; contrôles SQL et fichiers cohérents dans ce scénario, sans modification de l'installation source. Windows/Linux : tests, typage et traductions verts.
+
+**SMN-34 reste ouverte :** ce test ne prouve ni la coordination atomique absolue des écritures DB/fichiers, ni la restauration active, ni les effets d'un crash pendant la bascule, ni l'intégrité du registre d'effacement SMN-40. Aucune activation de restauration sur l'installation de travail.
+
+Référence : https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/implementation-artifacts/epic2-lot2-complete-backups.md
