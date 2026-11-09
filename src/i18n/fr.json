@@ -4280,7 +4280,7 @@
     "unknown": "Indéterminé",
     "inspected": "Liens directs contrôlés",
     "notExhaustive": "À approfondir",
-    "directReferences": "Voir le détail des tables examinées",
+    "directReferences": "Voir les liens directs et indirects, les contenus et archives candidats",
     "table": "Table PostgreSQL",
     "warningsTitle": "Limites et précautions",
     "close": "Fermer l'analyse",
@@ -4297,13 +4297,19 @@
       "managed-backups": "Sauvegardes gérées"
     },
     "warnings": {
-      "indirect-links-unchecked": "Les relations indirectes et les anciennes versions peuvent encore contenir des données liées au membre.",
+      "indirect-links-unchecked": "Les historiques liés aux affectations et absences sont contrôlés ; d'autres relations transitives ou références métier peuvent subsister.",
       "free-text-unchecked": "Les champs libres ne sont pas inspectés exhaustivement ; un nom peut y subsister.",
-      "archived-files-unchecked": "Les PDF/TXT immuables nécessitent un contrôle d'accès ou une nouvelle version expurgée ; aucun original ne doit être réécrit silencieusement.",
+      "archived-files-unchecked": "Les TXT privés sont recherchés, les manifestes PDF et archives d'équipe sont recensés ; le texte des PDF et autres binaires n'est pas vérifié. Les originaux restent immuables.",
       "indicators-unchecked": "La conservation des statistiques doit être justifiée au regard du risque de réidentification.",
       "managed-backups-may-contain-data": "Les sauvegardes peuvent contenir des données antérieures à un effacement et devront être soumises au contrôle SMN-40.",
       "external-copies-not-controlled": "Les copies exportées hors du dossier SMN ne peuvent être ni suivies ni supprimées automatiquement.",
       "no-erasure-ledger": "Le registre opposable des effacements n'est pas encore opérationnel ; toute restauration reste bloquée."
+    },
+    "scopes": {
+      "direct": "Lien direct vérifié",
+      "indirect": "Relation indirecte vérifiée",
+      "text-match": "Correspondance textuelle potentielle",
+      "team-archive": "Archive candidate de la même équipe"
     }
   }
 }
