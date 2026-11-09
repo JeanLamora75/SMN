@@ -784,7 +784,11 @@
       "session-reset-unverified": "La révocation et la réévaluation des sessions ne sont pas encore attestées.",
       "privacy-erased-data": "La sauvegarde est antérieure à un effacement attesté : la réintroduction des informations est interdite.",
       "privacy-coverage-gap": "L'historique des effacements ne couvre pas la date de la sauvegarde : restauration suspendue."
-    }
+    },
+    "scopeCompleteness": "Périmètre de sauvegarde",
+    "scopeV4": "v4 — fichiers gérés inclus et contrôle de cohérence activé",
+    "scopeLegacy": "Ancien format — intégrité vérifiée, périmètre non exhaustif",
+    "officeModelCount": "Modèles Office personnalisés"
   },
   "members": {
     "title": "Membres de l'équipe",
