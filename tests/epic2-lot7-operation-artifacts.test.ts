@@ -4,7 +4,7 @@ import {mkdtemp,mkdir,rm,symlink,writeFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {randomUUID} from "node:crypto";
-import {inspectUnfinishedBackupArtifacts} from "../src/server/backup/operation-artifacts";
+import {inspectUnfinishedBackupArtifacts,unresolvedArtifactCounts} from "../src/server/backup/operation-artifacts";
 test("orphan partial backup, torn purge and suspicious files remain unresolved",async()=>{
  const root=await mkdtemp(join(tmpdir(),"smn41-artifacts-"));
  const backup=randomUUID(),purge=randomUUID();
@@ -19,6 +19,12 @@ test("orphan partial backup, torn purge and suspicious files remain unresolved",
   assert.deepEqual(data.retentionPendingIds,[purge]);
   assert.equal(data.unknownBackupArtifacts,1);
   assert.equal(data.unknownRetentionArtifacts,1);
+  assert.deepEqual(unresolvedArtifactCounts(data,{backupId:backup,cleanupId:purge}),{
+   backup:1,cleanup:1
+  });
+  assert.deepEqual(unresolvedArtifactCounts(data,{backupId:null,cleanupId:null}),{
+   backup:2,cleanup:2
+  });
   assert.equal(JSON.stringify(data).includes("unsafe"),false);
   assert.equal(JSON.stringify(data).includes("broken"),false);
   if(process.platform!=="win32"){
