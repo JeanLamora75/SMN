@@ -33,7 +33,7 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Privacy and erasure ledger contracts
-        run: pnpm exec tsx --test tests/epic2-lot4-erasure-ledger.test.ts tests/backup-erasure-protection.test.ts tests/exceptional-erasure-policy.test.ts
+        run: pnpm exec tsx --test tests/epic2-lot4-erasure-ledger.test.ts tests/backup-erasure-protection.test.ts tests/exceptional-erasure-policy.test.ts tests/erasure-impact-preview.test.ts tests/erasure-impact-receipt.test.ts tests/erasure-indirect-archives.test.ts tests/erasure-ooxml-content.test.ts
       - name: TypeScript
         run: pnpm typecheck
       - name: Internationalization
