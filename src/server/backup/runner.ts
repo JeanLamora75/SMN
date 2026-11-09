@@ -162,8 +162,9 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    return {id,createdAt,status:"success",documentCount:inventory.length/2};
   }finally{key.fill(0);}
  }catch{
-  await safeAtomicJson(join(root,"last-attempt.json"),{status:"failed",id,createdAt})
-   .catch(()=>undefined);
+  if(locked)await safeAtomicJson(join(root,"last-attempt.json"),{
+   status:"failed",id,createdAt
+  }).catch(()=>undefined);
   throw new Error("backup-failed");
  }finally{
   if(staging)await rm(staging,{recursive:true,force:true}).catch(()=>undefined);
