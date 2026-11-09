@@ -7,6 +7,7 @@ import {backupRootPath} from "./runner";
 import {classifyBackupEvidence,reconcileCleanupEvidence,blockedOperation,
  type OperationEvidence,unresolvedOperation} from "./operation-diagnostics";
 import {inspectUnfinishedBackupArtifacts,unresolvedArtifactCounts} from "./operation-artifacts";
+import {verifyRemovedRetentionPackage} from "./retention-evidence";
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 type Marker={id:string;createdAt:string;status:"running"|"success"|"failed"|"cancelled"};
 async function marker(root:string):Promise<Marker|null>{
@@ -108,12 +109,7 @@ export async function readProtectionDiagnostics(db:Client):Promise<{
   try{
    verified=0;
    for(const id of cleanup.processedIds){
-    const audit=await db.query<{n:string}>(`
-     SELECT count(*)::text AS n FROM public.smn_backup_retention_audit
-     WHERE package_id=$1 AND action='package_deleted'`,[id]);
-    const exists=await lstat(join(root,"packages",id)).then(()=>true,
-     (error:NodeJS.ErrnoException)=>{if(error.code==="ENOENT")return false;throw error;});
-    if(!exists&&Number(audit.rows[0]?.n)>=1)verified++;
+    if(await verifyRemovedRetentionPackage(db,root,id))verified++;
    }
   }catch{verified=0;}
   operations.push(reconcileCleanupEvidence({
