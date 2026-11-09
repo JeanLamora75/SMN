@@ -9,7 +9,7 @@ type ForeignKey=Readonly<{
 const TABLE=/^smn_[a-z][a-z0-9_]*$/;
 const COLUMN=/^[a-z_][a-z0-9_]*$/;
 const quote=(s:string)=>'"'+s+'"';
-const MAX_EDGES=250,MAX_PATHS=100,MAX_DEPTH=3,MAX_COLUMNS=8;
+const MAX_EDGES=1500,MAX_PATHS=100,MAX_DEPTH=3,MAX_COLUMNS=8;
 const category=(name:string):ImpactCategory=>
  /absence|calendar/.test(name)?"calendars":
  /history|audit|revision|version|event|snapshot/.test(name)?"history":"associations";
