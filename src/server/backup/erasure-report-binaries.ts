@@ -9,7 +9,7 @@ import {officeReportsDirectory} from "../reports/office-storage";
 import {extractPdfText} from "./erasure-pdf-text";
 import {extractOoxmlText} from "./erasure-ooxml-text";
 
-const LIMIT=40;
+const LIMIT=40,PDF_LIMIT=12;
 const row=(table:string,count:number|null,
  state:"inspected"|"unknown"):TableImpact=>({
   table,category:"archived-pdf-txt",scope:"text-match",count,state
@@ -28,10 +28,11 @@ export async function inspectVerifiedPdfArchiveText(db:Client,
  try{
   const result=await db.query<{id:string}>(`
    SELECT id FROM public.smn_report_pdf_archive
-   WHERE team_id=ANY($1::text[]) ORDER BY id LIMIT $2`,[teams,LIMIT+1]);
-  if(result.rows.length>LIMIT)return row("report-pdf-text-matches",null,"unknown");
+   WHERE team_id=ANY($1::text[]) ORDER BY id LIMIT $2`,[teams,PDF_LIMIT+1]);
+  if(result.rows.length>PDF_LIMIT)return row("report-pdf-text-matches",null,"unknown");
   if(!result.rows.length)return row("report-pdf-text-matches",0,"inspected");
-  if(!terms.length)return row("report-pdf-text-matches",null,"unknown");
+  if(!terms.length||!process.env.SMN_PDFTOTEXT_PATH)
+   return row("report-pdf-text-matches",null,"unknown");
   let matched=0;
   for(const item of result.rows){
    const bytes=await readVerifiedPdfArchive(db,item.id);
