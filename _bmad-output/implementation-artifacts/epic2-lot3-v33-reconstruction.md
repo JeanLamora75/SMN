@@ -24,6 +24,22 @@ La recette est intégrée à `tests/smn-34-v3-postgres.test.ts` et lancée dans 
 - Le protocole WAL/fichiers reste conservateur et ne remplace pas un snapshot global strict de producteurs externes.
 - Les scripts `uv` BMAD ne sont pas exécutés sur GitHub.
 
+## Qualification CI confirmée — 9 novembre 2026
+
+**SUCCÈS** : [GitHub Actions #42621798424](https://github.com/JeanLamora75/SMN/actions/runs/42621798424), commit `daf44305a4d3bec0237ac34abc57e27599e2fe34`.
+
+| Job | Résultat |
+|---|---|
+| `sandbox-policy (ubuntu-latest)` | **Success** |
+| `sandbox-policy (windows-latest)` | **Success** |
+| `postgres-18-v4-reconstruction` | **Success** |
+| Test de reconstruction PostgreSQL 18 et comparaison exhaustive | **1 réussite, 0 échec** |
+| Typage et contrôles de sécurité dans le job PostgreSQL | **3 réussites, 0 échec** |
+
+Le test confirme la restitution des deux équipes, trois sprints, membre et version d'affectation, liens de deux portées, risque et commentaire, indicateurs v33, layout Dashboard Builder, PDF final, document privé, rapport et modèle Word. Les nombres et empreintes SHA-256 des représentations JSONB ont été comparés pour **toutes les tables publiques**. Le test recalcule l'indicateur calculé à **26** à partir de la valeur sauvegardée **13** et vérifie que la base source est conservée.
+
+**Portée exacte :** qualification automatisée de la reconstruction **en quarantaine**, sur PostgreSQL 18 isolé dans GitHub Actions. Ni la base Windows de travail ni les archives réelles de l'utilisateur n'ont été utilisées. La régénération effective des fichiers Office/PDF, leur ouverture dans Office et la recette graphique du Dashboard Builder ne sont **pas** attestées par ce job. La restauration active demeure interdite tant que les lots 4 et 5 ne sont pas validés.
+
 ## Vérifications complémentaires attendues avant clôture du lot
 
 - Confronter les jobs GitHub Actions Windows/Linux/PostgreSQL 18 au commit de référence et enregistrer les logs d'exécution.
