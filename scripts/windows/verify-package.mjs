@@ -32,6 +32,8 @@ if(existsSync(manifestPath)) {
  console.log("Routes du proxy standalone : "+JSON.stringify(Object.keys(manifest.middleware??{})));
 } else console.log("ATTENTION : manifeste proxy absent du paquet standalone");
 const isolatedHome = await mkdtemp(path.join(os.tmpdir(), "smn-portable-ci-"));
+const newStorage=path.join(root, "data", "postgres");
+assert.equal(existsSync(newStorage), false, "Le paquet de distribution ne doit contenir aucune base PostgreSQL préinitialisée");
 const recoveryProbe=spawnSync(path.join(root,"node.exe"),[path.join(root,"recover-admin.mjs")],{
   cwd:root,windowsHide:true,encoding:"utf8",stdio:["pipe","pipe","pipe"],
   env:{...process.env,SMN_DATABASE_URL:""},
@@ -83,7 +85,7 @@ try {
     // Simuler une tentative précédente interrompue après création du dossier,
     // exactement comme le retour de recette SMN-12.
     const testRecovery = process.env.SMN_RECOVERY_TEST === "true";
-    const initialData = path.join(isolatedHome, "ScrumMasterNotebook", "data");
+    const initialData = path.join(newStorage, "data");
     if (testRecovery) {
       await mkdir(initialData, { recursive: true });
       await writeFile(path.join(initialData, "PG_VERSION"), "18");
@@ -148,11 +150,13 @@ try {
     if (portFallback) {
       const cfg = JSON.parse(await readFile(
         path.join(isolatedHome, "ScrumMasterNotebook", "runtime.json"), "utf8"));
+      assert.equal(cfg.version, 2, "Les nouvelles installations doivent enregistrer un manifeste v2");
+      assert.equal(cfg.cluster, path.join(newStorage, "data"));
       assert.notEqual(cfg.port, 55432, "SMN doit utiliser un autre port PostgreSQL si 55432 est interdit");
       console.log("PASS : port PostgreSQL automatiquement remplacé et persisté : " + cfg.port);
     }
     if (testRecovery) {
-      const backups = path.join(isolatedHome, "ScrumMasterNotebook", "recovery");
+      const backups = path.join(newStorage, "recovery");
       const entries = await readdir(backups);
       assert.equal(entries.length, 1, "Une seule archive est attendue");
       assert.equal(await readFile(path.join(backups, entries[0], "ancien-essai.txt"), "utf8"), "donnees-preservees");
@@ -190,9 +194,9 @@ try {
     await new Promise(resolve => blockedPostgresPort.close(resolve));
   }
   const smnRoot = path.join(isolatedHome, "ScrumMasterNotebook");
-  const ctl = path.join(smnRoot, "pgsql", "bin", "pg_ctl.exe");
-  if (existsSync(ctl) && existsSync(path.join(smnRoot, "data"))) {
-    spawnSync(ctl, ["-D", path.join(smnRoot, "data"), "-m", "fast", "-w", "stop"], {
+  const ctl = path.join(newStorage, "pgsql", "bin", "pg_ctl.exe");
+  if (existsSync(ctl) && existsSync(path.join(newStorage, "data"))) {
+    spawnSync(ctl, ["-D", path.join(newStorage, "data"), "-m", "fast", "-w", "stop"], {
       windowsHide: true, stdio: "ignore",
     });
   }
@@ -200,5 +204,8 @@ try {
     const taskkill = spawnSync("taskkill", ["/PID", String(server.pid), "/T", "/F"], { windowsHide: true, stdio: "ignore" });
     if (taskkill.status !== 0) server.kill();
   }
+  // The test deliberately creates a disposable cluster in the distribution tree.
+  // Remove it before upload; never ship a test database or its secrets.
+  await rm(newStorage, { recursive: true, force: true, maxRetries: 8, retryDelay: 600 });
   await rm(isolatedHome, { recursive: true, force: true, maxRetries: 8, retryDelay: 600 });
 }
