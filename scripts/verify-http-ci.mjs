@@ -9,7 +9,6 @@ import { randomBytes, randomUUID, scryptSync, createHash } from "node:crypto";
 import { readFile,mkdtemp,rm,readdir } from "node:fs/promises";
 import {join} from "node:path";
 import {tmpdir} from "node:os";
-import {execFileSync} from "node:child_process";
 
 const uri = process.env.SMN_TEST_DATABASE_URL;
 if (process.env.CI !== "true" || process.env.GITHUB_ACTIONS !== "true" || !uri || !/^postgresql:\/\/smn_ci:[^@]+@127\.0\.0\.1:5432\/smn_ci$/.test(uri)) {
@@ -585,34 +584,25 @@ try {
     const tooShort=await backupRequest({recoveryPhrase:"short"});
     assert.equal(tooShort.status,503);
     assert.equal((await tooShort.json()).status,"failed");
-    let backupToolReady=false;
-    try{
-      backupToolReady=/\b18\.\d+\b/.test(execFileSync("pg_dump",["--version"],
-        {encoding:"utf8",timeout:3000}));
-    }catch{ /* la qualification positive exige pg_dump 18 */ }
-    if(backupToolReady){
-      const recoveryPhrase="Une phrase de récupération longue pour la recette 2026 !";
-      const created=await backupRequest({recoveryPhrase});
-      assert.equal(created.status,201);
-      const payload=await created.json();
-      assert.equal(payload.status,"success");
-      assert.equal(payload.documentCount,0);
-      const folder=join(backupRoot,"packages",payload.id);
-      const index=JSON.parse(await readFile(join(folder,"index.json"),"utf8"));
-      assert.equal(index.version,1);
-      assert.equal(index.id,payload.id);
-      assert.equal(index.recovery.kdf,"scrypt");
-      assert.equal(JSON.stringify(index).includes(recoveryPhrase),false);
-      const database=await readFile(join(folder,"database.pgcustom.enc"));
-      assert.ok(database.length>0);
-      assert.doesNotMatch(database.toString("utf8"),/password_hash|admin@localhot.com/);
-      assert.equal((await get("/api/admin/backups",{headers:{Cookie:replacement}})).status,200);
-      const again=await backupRequest({});
-      assert.equal(again.status,201,"La phrase initiale n'est pas redemandée");
-      assert.notEqual((await again.json()).id,payload.id);
-    }else{
-      console.log("SMN-30 : vérification du chemin d'échec sans pg_dump 18 ; sauvegarde réelle non attestée dans ce runner.");
-    }
+    // An I0 legacy v26 fixture is deliberately NOT eligible for a complete
+    // native v33/v4 backup. Verify a closed failure rather than publishing a
+    // misleading "successful" partial archive. Positive PG18 v4 recovery is
+    // covered independently in the Epic 2 disposable reconstruction workflow.
+    const packageIds=async()=>(await readdir(join(backupRoot,"packages"))
+      .catch(error=>{
+       if(error?.code==="ENOENT")return [];
+       throw error;
+      })).filter(name=>/^[a-f0-9]{8}-[a-f0-9-]{27,}$/.test(name)).sort();
+    const beforePackages=await packageIds();
+    const createdBackup=await backupRequest({
+      recoveryPhrase:"Une phrase de récupération longue pour la recette 2026 !"
+    });
+    assert.equal(createdBackup.status,503);
+    assert.deepEqual(await createdBackup.json(),{
+      status:"failed",error:"backup-failed"
+    });
+    assert.deepEqual(await packageIds(),beforePackages,
+      "Aucune archive v4 ne doit être publiée sur un ancien schéma incomplet");
     const settingsInitialResponse=await get("/api/admin/settings",{headers:{Cookie:replacement}});
     assert.equal(settingsInitialResponse.status,200);
     const settingsInitial=(await settingsInitialResponse.json()).settings;
