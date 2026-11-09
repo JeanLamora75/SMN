@@ -37,7 +37,9 @@ export function evaluateErasureProtection(
   (evidence.latestErasureAt!==null&&!validUtc(evidence.latestErasureAt))||
   !Number.isSafeInteger(evidence.entriesAfterBackup)||evidence.entriesAfterBackup<0)
   return deny("untrusted-erasure-history");
- if(evidence.coverageStart>backupCreatedAt)return deny("coverage-gap");
+ if(evidence.coverageStart>backupCreatedAt||evidence.checkedAt<backupCreatedAt||
+  (evidence.latestErasureAt!==null&&evidence.latestErasureAt>evidence.checkedAt))
+  return deny("coverage-gap");
  if(evidence.entriesAfterBackup>0||
   (evidence.latestErasureAt!==null&&evidence.latestErasureAt>backupCreatedAt))
   return deny("previously-erased-data");
