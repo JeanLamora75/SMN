@@ -20,7 +20,7 @@ async function marker(root:string):Promise<Marker|null>{
   return x as Marker;
  }catch{return null;}
 }
-type CleanupMarker={operationId:string;startedAt:string;status:string;
+type CleanupMarker={operationId:string;startedAt:string;status:"running"|"success"|"partial"|"failed";
  planned:number;processed:number;failed:number;inFlight:string|null;
  plannedIds:string[];processedIds:string[]};
 async function cleanupMarker(root:string):Promise<CleanupMarker|null>{
