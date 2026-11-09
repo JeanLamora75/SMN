@@ -219,7 +219,7 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
      used.has(v.sourceName)||!component(v)||v.path!==expected||
      v.size>20*1024*1024||v.encryptedSize>20*1024*1024)
      invalid("extra-archive-component-invalid");
-    used.add(v.sourceName);
+    used.add(v.sourceName as string);
     entries.push(v as {sourceName:string}&BackupComponent);
    }
   }
