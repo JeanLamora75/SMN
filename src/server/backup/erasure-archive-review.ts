@@ -12,7 +12,7 @@ import {scanDocuments} from "./files";
  */
 export type ArchiveCandidate=Readonly<{
  fingerprint:string;kind:"pdf"|"office-report"|"office-template"|"private-file";
- sha256:string;bytes:number;
+ sha256:string;bytes:number;filename?:string;
  inspection:"human-review-required";
 }>;
 export type ArchiveReviewInventory=Readonly<{
@@ -23,16 +23,18 @@ const SHA=/^[0-9a-f]{64}$/;
 const hash=(value:string)=>createHash("sha256").update(value).digest("hex");
 const MAX=1200;
 export function assembleArchiveReview(
- records:readonly {kind:ArchiveCandidate["kind"];sha256:string;bytes:number}[],
+ records:readonly {kind:ArchiveCandidate["kind"];sha256:string;bytes:number;filename?:string}[],
  capturedAt=new Date().toISOString()
 ):ArchiveReviewInventory{
  if(!Number.isFinite(Date.parse(capturedAt))||
   new Date(capturedAt).toISOString()!==capturedAt||
   records.length>MAX||records.some(r=>!SHA.test(r.sha256)||
-   !Number.isSafeInteger(r.bytes)||r.bytes<1))
+   !Number.isSafeInteger(r.bytes)||r.bytes<1||
+   (r.filename!==undefined&&(r.filename.length>220||
+    /[\\/\x00-\x1f]/.test(r.filename)))))
   throw Error("privacy-review-inventory-invalid");
  const candidates=records.map(r=>({
-  ...r,fingerprint:hash(r.kind+"|"+r.sha256+"|"+r.bytes),
+  ...r,fingerprint:hash(r.kind+"|"+r.sha256+"|"+r.bytes+"|"+(r.filename??"")),
   inspection:"human-review-required" as const
  })).sort((a,b)=>a.fingerprint.localeCompare(b.fingerprint));
  if(new Set(candidates.map(c=>c.fingerprint)).size!==candidates.length)
@@ -53,10 +55,10 @@ export async function collectArchiveReviewInventory(
  const extra=await inspectExtraArchives(db);
  const privateFiles=await scanDocuments(privateRoot);
  return assembleArchiveReview([
-  ...extra.pdf.map(v=>({kind:"pdf" as const,sha256:v.hash,bytes:v.size})),
-  ...extra.office.map(v=>({kind:"office-report" as const,sha256:v.hash,bytes:v.size})),
-  ...extra.templates.map(v=>({kind:"office-template" as const,sha256:v.hash,bytes:v.size})),
-  ...privateFiles.map(v=>({kind:"private-file" as const,sha256:v.hash,bytes:v.length}))
+  ...extra.pdf.map(v=>({kind:"pdf" as const,sha256:v.hash,bytes:v.size,filename:v.name})),
+  ...extra.office.map(v=>({kind:"office-report" as const,sha256:v.hash,bytes:v.size,filename:v.name})),
+  ...extra.templates.map(v=>({kind:"office-template" as const,sha256:v.hash,bytes:v.size,filename:v.name})),
+  ...privateFiles.map(v=>({kind:"private-file" as const,sha256:v.hash,bytes:v.length,filename:v.name}))
  ]);
 }
 export type ArchiveReviewDecision=Readonly<{
