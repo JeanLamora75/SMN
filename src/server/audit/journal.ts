@@ -1,10 +1,13 @@
 import type {Client} from "pg";
 
 export type AuditAction="account_created"|"account_updated"|"settings_updated"|
-  "password_changed"|"recovery_prepared"|"recovery_used";
+  "password_changed"|"recovery_prepared"|"recovery_used"|
+  "backup_policy_changed"|"backup_package_deleted"|
+  "sprint_changed"|"member_archived"|"member_reactivated"|"member_assignment_closed"|
+  "team_context_changed"|"registry_item_changed"|"pdf_archive_recorded";
 export type AuditEntry=Readonly<{
  id:string;occurredAt:string;actorId:string|null;action:AuditAction;
- objectType:"account"|"settings"|"authentication";objectId:string;scope:"singleton";
+ objectType:"account"|"settings"|"authentication"|"backup"|"sprint"|"member"|"team"|"registry"|"report";objectId:string;scope:"singleton";
  result:"success";changes:Readonly<{before:Record<string,string|boolean>;after:Record<string,string|boolean>}>;
 }>;
 
@@ -12,7 +15,10 @@ type RawEvent={id:string;occurred_at:Date;actor_id:string|null;action:string;
  object_type:string;object_id:string;scope:string;result:string;
  old_values:unknown;new_values:unknown};
 const actions=new Set<AuditAction>([
- "account_created","account_updated","settings_updated","password_changed","recovery_prepared","recovery_used"
+ "account_created","account_updated","settings_updated","password_changed","recovery_prepared","recovery_used",
+ "backup_policy_changed","backup_package_deleted","sprint_changed","member_archived",
+ "member_reactivated","member_assignment_closed","team_context_changed",
+ "registry_item_changed","pdf_archive_recorded"
 ]);
 /** Whitelist de seules préférences et états non sensibles, y compris pour des JSONB malformés. */
 export function sanitizeAuditValues(action:AuditAction,value:unknown):Record<string,string|boolean>{
@@ -36,14 +42,20 @@ export function projectAuditEvent(row:RawEvent):AuditEntry|null{
  if(!row||typeof row.id!=="string"||!row.id||!row.occurred_at||
   !(row.occurred_at instanceof Date)||Number.isNaN(row.occurred_at.getTime())||
   !actions.has(row.action as AuditAction)||
-  !["account","settings","authentication"].includes(row.object_type)||
+  !["account","settings","authentication","backup","sprint","member","team","registry","report"].includes(row.object_type)||
   row.scope!=="singleton"||row.result!=="success"||
   typeof row.object_id!=="string"||!row.object_id||
   !(row.actor_id===null||typeof row.actor_id==="string"))return null;
  const action=row.action as AuditAction;
- if ((action.startsWith("account_")&&row.object_type!=="account")||
-  (action==="settings_updated"&&row.object_type!=="settings")||
-  (action!=="settings_updated"&&!action.startsWith("account_")&&row.object_type!=="authentication"))return null;
+ const expectedType:Record<AuditAction,AuditEntry["objectType"]>={
+  account_created:"account",account_updated:"account",settings_updated:"settings",
+  password_changed:"authentication",recovery_prepared:"authentication",recovery_used:"authentication",
+  backup_policy_changed:"backup",backup_package_deleted:"backup",
+  sprint_changed:"sprint",member_archived:"member",member_reactivated:"member",
+  member_assignment_closed:"member",team_context_changed:"team",
+  registry_item_changed:"registry",pdf_archive_recorded:"report"
+ };
+ if(expectedType[action]!==row.object_type)return null;
  return {
   id:row.id,occurredAt:row.occurred_at.toISOString(),actorId:row.actor_id,action,
   objectType:row.object_type as AuditEntry["objectType"],objectId:row.object_id,
@@ -69,6 +81,51 @@ const auditSql=`
       'singleton'::text AS scope,'success'::text AS result,
       '{}'::jsonb AS old_values,'{}'::jsonb AS new_values
     FROM public.smn_auth_audit
+    UNION ALL
+    SELECT id,occurred_at,actor_id,
+      CASE action WHEN 'policy_changed' THEN 'backup_policy_changed'
+       ELSE 'backup_package_deleted' END AS action,
+      'backup'::text AS object_type,
+      COALESCE(package_id,installation_id) AS object_id,
+      installation_id AS scope,'success'::text AS result,
+      '{}'::jsonb AS old_values,'{}'::jsonb AS new_values
+    FROM public.smn_backup_retention_audit WHERE installation_id='singleton'
+      AND action IN ('policy_changed','package_deleted')
+    UNION ALL
+    SELECT id,occurred_at,actor_id,'sprint_changed'::text AS action,
+      'sprint'::text AS object_type,sprint_id AS object_id,
+      'singleton'::text AS scope,'success'::text AS result,
+      '{}'::jsonb AS old_values,'{}'::jsonb AS new_values
+    FROM public.smn_sprint_audit
+    UNION ALL
+    SELECT id,occurred_at,performed_by AS actor_id,
+      CASE action WHEN 'archive' THEN 'member_archived'
+       WHEN 'reactivate' THEN 'member_reactivated'
+       ELSE 'member_assignment_closed' END AS action,
+      'member'::text AS object_type,member_id AS object_id,
+      'singleton'::text AS scope,'success'::text AS result,
+      '{}'::jsonb AS old_values,'{}'::jsonb AS new_values
+    FROM public.smn_member_lifecycle_event
+    WHERE action IN ('archive','reactivate','close')
+    UNION ALL
+    SELECT id,changed_at AS occurred_at,actor_id,'team_context_changed'::text AS action,
+      'team'::text AS object_type,team_id AS object_id,
+      'singleton'::text AS scope,'success'::text AS result,
+      '{}'::jsonb AS old_values,'{}'::jsonb AS new_values
+    FROM public.smn_team_context_audit
+    UNION ALL
+    SELECT id,changed_at AS occurred_at,actor_id,'registry_item_changed'::text AS action,
+      'registry'::text AS object_type,item_id AS object_id,
+      'singleton'::text AS scope,'success'::text AS result,
+      '{}'::jsonb AS old_values,'{}'::jsonb AS new_values
+    FROM public.smn_registry_item_audit
+    UNION ALL
+    SELECT COALESCE(operation_id,id) AS id,created_at AS occurred_at,
+      author_id AS actor_id,'pdf_archive_recorded'::text AS action,
+      'report'::text AS object_type,id AS object_id,
+      'singleton'::text AS scope,'success'::text AS result,
+      '{}'::jsonb AS old_values,'{}'::jsonb AS new_values
+    FROM public.smn_report_pdf_archive
   ) e ORDER BY occurred_at DESC,id DESC LIMIT $1`;
 /** Relecture uniquement : aucun identifiant, e-mail ou secret arbitraire de colonnes non projetées. */
 export async function readAuditJournal(client:Client,limit=100):Promise<readonly AuditEntry[]>{
