@@ -40,10 +40,19 @@ BEGIN
 END
 $smn36$;
 `;
+export const MEMBER_REMOVAL_AUDIT_READY_SQL=`
+ SELECT to_regclass('public.smn_member_removal_audit') IS NOT NULL
+ AND EXISTS(SELECT 1 FROM pg_catalog.pg_trigger tr
+  WHERE tr.tgrelid=to_regclass('public.smn_member_removal_audit')
+   AND tr.tgname='smn36_removal_audit_immutable'
+   AND tr.tgenabled IN ('O','A')
+   AND tr.tgfoid=to_regprocedure('public.smn36_refuse_removal_audit_mutation()')
+   AND (tr.tgtype & 2)=2 AND (tr.tgtype & 1)=1
+   AND (tr.tgtype & 8)=8 AND (tr.tgtype & 16)=16) AS ready
+`;
 export async function requireMemberRemovalAudit(db:Pick<Client,"query">){
- const check=await db.query<{present:boolean}>(`
-  SELECT to_regclass('public.smn_member_removal_audit') IS NOT NULL AS present`);
- if(check.rows[0]?.present!==true)throw new Error("member-removal-audit-not-ready");
+ const check=await db.query<{ready:boolean}>(MEMBER_REMOVAL_AUDIT_READY_SQL);
+ if(check.rows[0]?.ready!==true)throw new Error("member-removal-audit-not-ready");
 }
 
 /** Inspect actual rows in any single-column FK referring to this member.
