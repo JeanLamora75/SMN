@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import {test} from "node:test";
 import {spawnSync} from "node:child_process";
+import {mkdtemp,mkdir,rm,writeFile} from "node:fs/promises";
+import {tmpdir} from "node:os";
+import {join} from "node:path";
 import {fileURLToPath} from "node:url";
 import {inspectDisposableOfflineScope,validateDisposableOfflineScope}
  from "../src/server/backup/restore-offline-operator-preflight";
@@ -41,4 +44,30 @@ test("SMN-34: CLI opérateur refuse arguments incomplets et n'affiche aucun secr
  assert.equal(result.stdout,"");
  assert.match(result.stderr,/no restore performed/);
  assert.doesNotMatch(result.stderr,/postgresql:|password|Error:|at .+\.ts:\d+/i);
+});
+
+test("SMN-34: un répertoire rollback occupé interdit le préflight jetable",async()=>{
+ const base=await mkdtemp(join(tmpdir(),"smn34-preflight-files-"));
+ const files={
+  originalRoot:join(base,"smn_restore_test_original"),
+  candidateRoot:join(base,"smn_restore_test_candidate"),
+  rollbackRoot:join(base,"smn_restore_test_rollback")
+ };
+ try{
+  for(const root of Object.values(files)){
+   await mkdir(join(root,"documents"),{recursive:true});
+   await writeFile(join(root,"documents","item.txt"),"synthetic");
+  }
+  const report=await inspectDisposableOfflineScope({
+   maintenanceUri:"postgresql://example:password@127.0.0.1:5432/postgres",
+   original:"smn_restore_test_original",candidate:"smn_restore_test_candidate",
+   rollback:"smn_restore_test_rollback",files
+  });
+  assert.equal(report.canActivate,false);
+  assert.equal(report.files.status,"unverifiable");
+  assert.ok(report.blockers.includes("rollback-files-occupied"));
+  assert.ok(report.blockers.includes("candidate-files-unverified"));
+  assert.equal(report.files.originalFingerprint,null);
+  assert.equal(report.files.candidateFingerprint,null);
+ }finally{await rm(base,{recursive:true,force:true});}
 });
