@@ -16,6 +16,7 @@ on:
       - "tests/epic2-lot5-file-cutover.test.ts"
       - "tests/epic2-lot5-session-reset.test.ts"
       - "src/server/backup/restore-readiness.ts"
+      - "src/app/api/admin/sprints/[sprintId]/ceremonies-bulk/route.ts"
       - "tests/epic2-lot5-cutover-pg.test.ts"
       - "tests/epic2-lot5-cutover-policy.test.ts"
       - "tests/backup-restore-readiness.test.ts"
