@@ -5,6 +5,7 @@ import {readFile,writeFile,mkdir,cp,rename,rm,lstat,readdir} from "node:fs/promi
 import {randomUUID,createHash} from "node:crypto";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
+import {beginCutover,finishCutover,recoverCutover} from "./update-transaction.mjs";
 import {enumerateUpdateableFiles,verifySignedManifest,
   requireCompatibleBase,verifyUpdatePayload} from "./update-contract.mjs";
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
@@ -32,6 +33,11 @@ async function verifyStage(id){
 }
 async function run(){
  if(process.platform!=="win32")throw Error("update-windows-only");
+ if(process.argv.includes("--recover")){
+  await recoverCutover(root);
+  return;
+ }
+ if(await recoverCutover(root)==="recovered")throw Error("update-recovery-performed-retry-required");
  for(const name of ["data","runtime","updates"]){
   const st=await lstat(path.join(root,name));
   if(!st.isDirectory()||st.isSymbolicLink())throw Error("update-protected-root-unsafe");
@@ -97,6 +103,7 @@ async function run(){
  if(!rollbackInfo.isDirectory()||rollbackInfo.isSymbolicLink()||
     (await readdir(rollback)).length!==0)
   throw Error("update-rollback-not-empty");
+ const transaction=await beginCutover(root,approval.id,manifest.toVersion);
  const moved=[];
  try{
   await status("applying",manifest.toVersion);
@@ -111,6 +118,7 @@ async function run(){
    catch(e){if(e?.code!=="ENOENT")throw e;}
    moved[moved.length-1].newer=newer;
   }
+  await finishCutover(root,transaction,"committed");
   await status("succeeded",manifest.toVersion);
  }catch(error){
   for(const item of moved.reverse()){
@@ -118,6 +126,7 @@ async function run(){
    if(item.newer)await rename(live,path.join(prepared,item.name));
    if(item.old)await rename(back,live);
   }
+  await finishCutover(root,transaction,"recovered");
   await status("failed",current.version).catch(()=>{});
   throw error;
  }
