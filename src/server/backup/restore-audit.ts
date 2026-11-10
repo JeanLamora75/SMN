@@ -27,8 +27,7 @@ export type RestoreAuditReport=Readonly<{
  privacy:Readonly<{status:"blocked";ledgerState:"verified"|"unavailable";
   integrityComplete:boolean;integrityReason:string;coverageComplete:false}>;
  archives:Readonly<{status:"unverified"|"human-review-required"|"inventory-empty-not-cleared";
-  inspectionComplete:false;counts:RestoreAuditInput["archiveInventory"] extends infer T
-   ?Readonly<{pdf:number;officeReports:number;officeTemplates:number;privateFiles:number}>|null:null}>;
+  inspectionComplete:false;counts:Readonly<{pdf:number;officeReports:number;officeTemplates:number;privateFiles:number}>|null}>;
  execution:Readonly<{status:"not-qualified";productionCutover:false;
   persistentSessionsProven:false;writersStoppedProven:false}>;
  windowsRecette:Readonly<{status:"not-performed";actualWindowsHost:boolean;
