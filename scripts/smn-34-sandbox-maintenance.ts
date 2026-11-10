@@ -2,7 +2,7 @@
  * SMN-34 — Independent maintenance-fence probe for TEMPORARY test instances.
  *
  * --begin <absolute TEMP/<répertoire-test>/maintenance.lock>
- * --inspect <absolute TEMP/smn_restore_test_*/maintenance.lock>
+ * --inspect <absolute TEMP/<test-directory>/maintenance.lock>
  *
  * This script NEVER stops the server, removes the fence or enables restoration.
  * An operator must independently attest quiescence and close the maintenance
