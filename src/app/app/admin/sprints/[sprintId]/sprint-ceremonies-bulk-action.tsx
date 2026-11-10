@@ -74,8 +74,8 @@ export default function SprintCeremoniesBulkAction({sprintId,teamId,total}:{
    onClick={()=>void (create?submit():openSelection())}>
    {busy?tr("working"):tr(create?"create":"deleteAll")}
   </button>
-  {open&&counts&&<div className="card shadow-sm p-3 mt-2" role="dialog"
-   aria-modal="true" aria-label={tr("chooseTypes")}>
+  {open&&counts&&<div className="card shadow-sm p-3 mt-2" role="group"
+   aria-label={tr("chooseTypes")}>
    <h3 className="h6 mb-2">{tr("chooseTypes")}</h3>
    <p className="small text-secondary">{tr("chooseTypesHelp")}</p>
    <div className="d-flex flex-column gap-2 mb-3">
