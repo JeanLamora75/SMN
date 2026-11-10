@@ -6,7 +6,7 @@ La distribution `SMN-Setup-Windows-x64-v33.zip` permet d'installer Scrum Master 
 
 **Source :** `.github/workflows/portable-package.yml`. La fabrication nécessite un runner Windows GitHub Actions disponible ; une modification du code seule n'est pas une preuve que l'archive a été générée.
 
-Le paquet contient le build Next.js standalone, Node.js embarqué, PostgreSQL 18 portable (archive EnterpriseDB dont le SHA-256 est vérifié au packaging), les schémas/migrations requis et les ressources applicatives. Aucun cluster PostgreSQL personnel ou mot de passe ne doit être embarqué.
+Le paquet contient le build Next.js standalone, Node.js embarqué, PostgreSQL 18 portable (archive EnterpriseDB dont le SHA-256 est vérifié au packaging), les schémas/migrations requis et les ressources applicatives. Aucun cluster PostgreSQL personnel ou mot de passe ne doit être embarqué.\n\nDisposition des nouveaux paquets : `SMN-Windows/app/` (serveur et modules), `SMN-Windows/runtime/node/node.exe` (Node.js), `SMN-Windows/runtime/postgres/` (archive PostgreSQL), `SMN-Windows/data/` (données persistantes créées au premier lancement). Le dossier `data/` et les informations privées sous `%LOCALAPPDATA%\\ScrumMasterNotebook` **ne doivent jamais être remplacés lors d’une mise à jour**. Les anciennes distributions à plat demeurent compatibles tant qu’elles ne font pas l’objet d’un remplacement destructif.
 
 ## Fabrication, récupération et transfert
 
