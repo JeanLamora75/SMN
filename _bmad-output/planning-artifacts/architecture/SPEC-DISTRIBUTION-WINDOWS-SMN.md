@@ -73,6 +73,12 @@ Seuls les cinq éléments de racine `Demarrer SMN.bat`, `app/`, `runtime/`, `dat
 5. Associer explicitement la preuve à un **SHA de commit**, un **run GitHub**, la version du paquet et l'empreinte du ZIP. Une preuve historique ne qualifie jamais un nouveau commit.
 6. Après transfert sur le serveur de distribution ou le PC cible, revérifier l'empreinte SHA-256. L'absence de droits administrateur, de téléchargement réseau et d'IDE doit être testée sur le PC d'entreprise.
 
+### 5.1 Barrière antivirus de distribution
+
+Le workflow Windows exécute `scripts/windows/scan-distribution.ps1` en deux étapes : (1) analyse récursive du dossier `_package/SMN-Windows` une fois la recette isolée terminée et les données de test supprimées ; (2) analyse du ZIP final `SMN-Setup-Windows-x64-v33.zip` avant la publication. Ces scans utilisent Microsoft Defender (commande `MpCmdRun.exe`) et doivent échouer si le moteur, sa protection ou ses signatures ne sont pas opérationnels, si le scan échoue ou si une détection est signalée. Le rapport `smn-antivirus-report.json` consigne les deux étapes, l'horodatage UTC, le commit, le run et les versions de signatures ; il est inclus dans l'artefact en cas de réussite.
+
+**Limites :** un antivirus opérationnel sur un runner GitHub hébergé n'est pas garanti avant preuve du run ; l'échec bloque volontairement le ZIP plutôt que de prétendre à un résultat sain. Une analyse sans détection n'établit pas l'absence absolue de malware et ne garantit pas que Google Chrome acceptera le téléchargement. Les rapports ne contiennent pas de secrets ni de chemins de poste utilisateur.
+
 ## 6. Critères d'acceptation testables
 
 - **AC-01 — Racine minimale.** Étant donné un build Windows initial, quand le ZIP est ouvert, alors seuls `Demarrer SMN.bat`, `app`, `runtime`, `data`, `updates` apparaissent au premier niveau.
@@ -82,6 +88,7 @@ Seuls les cinq éléments de racine `Demarrer SMN.bat`, `app/`, `runtime/`, `dat
 - **AC-05 — Récupération sûre.** Étant donné un essai interrompu ou des données préexistantes, quand l'initialisation est relancée, alors les fichiers existants sont préservés et aucune suppression/reprise destructive n'est effectuée sans confirmation.
 - **AC-06 — Pas de secrets.** Étant donné un ZIP produit en CI, quand son contenu est audité, alors aucun secret, donnée personnelle, cluster initialisé, fichier de développement interdit ou lien symbolique n'est distribué.
 - **AC-07 — Mise à jour isolée.** Étant donné une installation peuplée, quand un ZIP de mise à jour applicative est préparé, alors aucun chemin `runtime/`, `data/`, `updates/` ou secret privé ne peut être remplacé.
+- **AC-09 — Antivirus de distribution.** Étant donné un paquet initial assemblé, quand la CI analyse les fichiers et le ZIP final, alors les deux scans Microsoft Defender réussissent, aucun résultat de menace n'est enregistré et le rapport lié au run est joint à la livraison ; si Defender n'est pas utilisable, aucune archive n'est publiée.
 - **AC-08 — Preuves.** Étant donné une nouvelle livraison, quand elle est annoncée prête, alors le dernier run Windows est vert, le ZIP final et son empreinte sont disponibles, et le contrôle d'installation du paquet réel est passé.
 
 ## 7. Décisions ouvertes / non-conformités à suivre
