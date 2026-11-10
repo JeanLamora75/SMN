@@ -206,7 +206,8 @@ export async function POST(req:NextRequest){
    return jsonResult({error:"office-member-flag-failed",reason:error.code,country:error.country},422);
   if(error instanceof OfficeChartLayoutError)
    return jsonResult({error:"office-chart-render-failed",reason:error.code},422);
-  if(error instanceof Error&&error.message.startsWith("Paramètres de tag"))
+  if(error instanceof Error&&(error.message.startsWith("Paramètres de tag")||
+    error.message.startsWith("office-table-invalid-sort")))
    return jsonResult({error:"invalid-tag-parameters"},422);
   return jsonResult({error:"generation-failed"},422);
  }
