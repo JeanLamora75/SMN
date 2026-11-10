@@ -23,6 +23,8 @@ test("Office modal is wired to both generation actions and closes on completion"
 test("Download progress is based on received bytes rather than a simulated timer",()=>{
  const catalog=read("src/app/app/reports/office-template-catalog.tsx");
  assert.match(catalog,/response\.headers\.get\("content-length"\)/);
+ const route=read("src/app/api/admin/reports/office-templates/generate/route.ts");
+ assert.match(route,/"Content-Length":String\(withCharts\.byteLength\)/);
  assert.match(catalog,/response\.body\.getReader\(\)/);
  assert.match(catalog,/received\+=value\.byteLength/);
  assert.match(catalog,/Math\.round\(received\/total\*100\)/);
