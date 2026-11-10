@@ -36,10 +36,16 @@ Le paquet contient le build Next.js standalone, Node.js embarqué, PostgreSQL 18
 
 ## Diagnostic d'un échec vers 25 % sur un poste Windows restreint
 
-À 25 %, SMN prépare les composants PostgreSQL : il ne crée pas encore les tables ni le compte administrateur. Le ZIP `runtime/postgres/postgresql-18.6-5-windows-x64-binaries.zip` est vérifié par SHA-256 **en lecture progressive** pour limiter la mémoire du serveur Next.js. L'extraction est tentée avec `tar.exe`, puis avec `powershell.exe` et `Expand-Archive` si `tar` échoue. Aucun téléchargement réseau n'est requis tant que l'archive valide est embarquée.
+À 25 %, SMN prépare les composants PostgreSQL : il ne crée pas encore les tables ni le compte administrateur. Le ZIP `runtime/postgres/postgres.zip` (nom court du fichier source EnterpriseDB `postgresql-18.6-5-windows-x64-binaries.zip`) est vérifié par SHA-256 **en lecture progressive** pour limiter la mémoire du serveur Next.js. L'extraction est tentée avec `tar.exe`, puis avec `powershell.exe` et `Expand-Archive` si `tar` échoue. Aucun téléchargement réseau n'est requis tant que l'archive valide est embarquée.
 
 Les binaires décompressés doivent apparaître sous `SMN-Windows/data/postgres/pgsql/bin/` ; le cluster sous `SMN-Windows/data/postgres/data/`. Les fichiers de connexion/chiffrement restent dans le profil Windows pour préserver le comportement existant. Lors d'une extraction précédente interrompue, un répertoire de binaires incomplet est préservé dans `data/postgres/recovery/pgsql-partial-*` avant une nouvelle tentative ; les données de base ne sont jamais effacées pour corriger l'extraction.
 
 Si l'interface indique `postgres-extract-failed`, vérifier les restrictions d'exécution de `tar.exe` et de PowerShell ainsi que l'espace disque ; ce code est transmis sans divulguer les chemins privés. Une erreur restée à 25 % n'est **pas** une preuve d'une migration SQL défaillante.
 
 Le test de contrats `node --test tests/postgres-offline-install.test.mjs` s'exécute dans la CI de packaging. Le test complet `scripts/windows/verify-package.mjs` sur runner Windows contrôle aussi une installation complète dans un cluster isolé, mais une recette sur le PC d'entreprise reste obligatoire.
+
+## Correctif de nom court pour les chemins Windows
+
+À partir du prochain paquet Windows généré, l'archive livrée porte exactement le nom `runtime/postgres/postgres.zip`. Le téléchargement de préparation continue de viser le fichier officiel EnterpriseDB, et le contrôle SHA-256 reste inchangé. Le runtime reconnaît aussi un ancien paquet utilisant le nom source long et le copie sous `data/postgres/postgres.zip` après vérification avant de l'extraire. Aucun renommage manuel ni installation système de PostgreSQL n'est requis. Les exécutables PostgreSQL attendus restent sous `data/postgres/pgsql/bin/` ; ne pas confondre le ZIP de distribution avec la base de données persistante.
+
+La modification du dépôt ne modifie pas les ZIP déjà téléchargés ou hébergés sur un serveur tiers. La livraison corrigée exige le succès de la CI Windows puis un nouveau transfert du ZIP final et de sa somme SHA-256. Un résultat sur le PC professionnel reste la validation finale.
