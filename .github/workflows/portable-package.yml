@@ -28,7 +28,7 @@ permissions:
 jobs:
   portable-windows:
     runs-on: windows-latest
-    timeout-minutes: 22
+    timeout-minutes: 40
     env:
       NEXT_TELEMETRY_DISABLED: "1"
       SMN_FULL_INSTALL_TEST: "true"
@@ -66,6 +66,9 @@ jobs:
         run: node scripts/windows/package-portable.mjs
       - name: Contrôler le lancement autonome du paquet
         run: node scripts/windows/verify-package.mjs
+      - name: Analyser les fichiers distribués avec Microsoft Defender
+        shell: pwsh
+        run: ./scripts/windows/scan-distribution.ps1 -Stage directory -Target '_package/SMN-Windows'
       - name: Construire le ZIP transmissible et vérifier son empreinte
         shell: pwsh
         run: |
@@ -79,6 +82,9 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Bilan de livraison invalide' }
           & node scripts/windows/verify-delivery.mjs $destination ($destination + '.evidence.json') ($destination + '.sha256')
           if ($LASTEXITCODE -ne 0) { throw 'Contrôle intégrité du ZIP final invalide' }
+      - name: Analyser le ZIP final avec Microsoft Defender
+        shell: pwsh
+        run: ./scripts/windows/scan-distribution.ps1 -Stage zip -Target '_package/SMN-Setup-Windows-x64-v33.zip'
       - uses: actions/upload-artifact@v4
         with:
           name: SMN-Distribution-Windows-x64-v33
@@ -87,6 +93,7 @@ jobs:
             _package/SMN-Setup-Windows-x64-v33.zip.sha256
             _package/SMN-Setup-Windows-x64-v33.zip.evidence.json
             _package/smn-distribution-inventory.json
+            _package/smn-antivirus-report.json
           if-no-files-found: error
           retention-days: 14
           compression-level: 0
