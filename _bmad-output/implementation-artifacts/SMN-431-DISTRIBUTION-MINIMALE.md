@@ -70,3 +70,16 @@ Le workflow `portable-package.yml` exécute les tests de racine minimale et `ver
 - **Extension de recette après ces preuves** : `verify-package.mjs` lance désormais le vrai `Demarrer SMN.bat` et vérifie le heartbeat du lanceur ; cette extension exige un nouveau run `portable-windows` vert pour être considérée validée.
 
 **Interprétation :** les tests antérieurs ne valent pas preuve du dernier commit lorsque de nouveaux contrôles ont été ajoutés. La recette du poste d'entreprise cible reste distincte de la CI.
+
+## Qualification du lanceur unique — dernier run
+
+La preuve d'acceptation la plus récente est [42798122759](https://github.com/JeanLamora75/SMN/actions/runs/42798122759), job `portable-windows` **SUCCESS**, commit testé `eba464d3f25d5240a4b2a69918ea7c8cd87710f1`.
+
+- Démarrage via `Demarrer SMN.bat` par `cmd.exe`, avec Node embarqué ; navigateur volontairement simulé en CI ; heartbeat `updates/launcher.json` vérifié.
+- Initialisation PostgreSQL 18 dans un dossier isolé, récupération d'un essai interrompu, fallback de port et installation Express complète : **PASS**.
+- Racine minimale contrôlée, **5 218 fichiers** inventoried.
+- Nouvelle archive `SMN-Setup-Windows-x64-v33.zip` : **439 028 010 octets**, SHA-256 **`d87a70164a5314742e36ab461158809efe91026f19f1ae72e5c2f70fa2dc1775`**.
+- Artefact Actions `SMN-Distribution-Windows-x64-v33`, ID `13755207551` ; le ZIP enveloppe GitHub contient aussi fichiers de preuves et inventaire, et pèse **439 387 993 octets**.
+- Le smoke de mises à jour [42797242877](https://github.com/JeanLamora75/SMN/actions/runs/42797242877) est vert (39/39 contrats, delta 3 997 octets, application full 23 195 140 octets). Il ne constitue pas un artefact de production signé avec clé durable.
+
+**Décision** : livraison structurelle et launcher **validés sur Windows CI**. Recette entreprise et configuration de clé Ed25519 stable **non attestées**. L'ancienne archive non minimale ne doit pas être réutilisée pour un nouvel équipement.
