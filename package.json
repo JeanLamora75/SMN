@@ -109,7 +109,8 @@
     "test:validate-version": "node --test tests/version-validation-runner.test.mjs",
     "test:coverage-matrix": "node scripts/coverage-matrix.mjs --run",
     "db:migrate:ceremony-appearance": "tsx scripts/apply-smn-229-ceremony-appearance.ts",
-    "test:ceremony-appearance": "tsx --test tests/smn-229-ceremony-appearance.test.ts"
+    "test:ceremony-appearance": "tsx --test tests/smn-229-ceremony-appearance.test.ts",
+    "restore:audit": "tsx scripts/smn-34-audit-readonly.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
