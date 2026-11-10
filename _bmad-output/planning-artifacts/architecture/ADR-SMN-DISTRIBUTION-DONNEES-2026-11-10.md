@@ -1,7 +1,7 @@
 # ADR — SMN-425 — Préserver les données pendant les mises à jour Windows
 
 **Date :** 10 novembre 2026. **Epic :** SMN-424. **Story :** SMN-425.
-**Statut :** séparation physique du nouveau paquet codée sur main, tests Windows à confirmer ; aucune migration d’installation existante engagée.
+**Statut :** séparation physique et installation autonome validées sur runner Windows (GitHub Actions 42772783991, succès) ; recette sur Windows 11 d’entreprise et remplacement sur données utilisateur non encore attestés. Aucune migration de données existantes engagée.
 
 ## Constat initial avant découpage de la distribution
 
@@ -33,3 +33,9 @@ Cela signifie que le dossier SMN contient aujourd'hui **des fichiers applicatifs
 - La séparation physique `app/` est codée pour les nouvelles distributions mais la réussite de la CI Windows est requise avant qualification. Le remplacement de version sur une installation déjà peuplée reste à démontrer avec l’updater des Stories suivantes.
 - Une procédure de migration v2 → arborescence cible doit être isolée des opérations d'initialisation et nécessiter une recette sur Windows et une récupération vérifiée.
 - La signature des mises à jour et leur application sont du ressort des US-02/03 ; aucun ZIP externe n'est exécuté au titre de cette Story.
+
+## Preuve de qualification Windows
+
+- CI : https://github.com/JeanLamora75/SMN/actions/runs/42772783991 — succès du packaging, des tests de protection, de l'installation Express PostgreSQL v2 isolée, de la reprise après interruption et du repli de port.
+- ZIP : 451140199 octets ; SHA-256 `2c7793e8e1cb14ec3325f0e2e64dbbf07d7fc7ccfdecdc581784e02e227d325b`.
+- Ce résultat n'est pas une recette sur Windows 11 réel, et ne prouve pas encore le remplacement d'une ancienne version avec données conservées. Ces scénarios restent exigés avant une déclaration de compatibilité globale des mises à jour.
