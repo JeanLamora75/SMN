@@ -4472,6 +4472,7 @@
     "preview": "Verify package",
     "checking": "Checking signature and compatibility…",
     "confirm": "Confirm installation",
+    "schemaIncompatible": "Update blocked: incompatible or ambiguous PostgreSQL version, v33 schema, or migration history. No automatic migration will run. Check diagnostics before retrying.",
     "backupRequired": "A complete, recent (within 24 hours), verified backup is required before updating. Create and verify a backup in Maintenance, then retry.",
     "confirmPrompt": "Apply this SMN update? The application will stop temporarily and restart.",
     "queued": "Update approved. The launcher will stop SMN and replace application files. Wait for the restart and sign in again.",
