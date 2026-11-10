@@ -50,10 +50,13 @@ Adapter `C:\SMN` au chemin réel. Aucun `uv`, IDE ou droit administrateur n'est 
 
 ## 3. Installation initiale
 
+Le nouveau paquet SMN-431 ne présente à la racine que `Demarrer SMN.bat`, `app/`, `runtime/`, `data/` et `updates/`. Toute archive contenant les répertoires de développement (`.git`, `.agents`, `_bmad`, `src`, `tests`) doit être refusée. L'ancienne distribution n'est pas interchangeable avec le nouveau contrat d'updates.
+
+
 1. Choisir un emplacement où l'utilisateur possède lecture/écriture, hors `Program Files` et sans répertoire de données SMN préexistant.
 2. Extraire le ZIP de distribution avec l'explorateur Windows. Ne pas extraire une mise à jour par-dessus une installation en place.
-3. Vérifier la présence de `SMN-Windows\Demarrer SMN.cmd`, `runtime\node\node.exe`, du composant PostgreSQL et des scripts de maintenance.
-4. Lancer `Demarrer SMN.cmd` depuis la session de l'utilisateur. Vérifier l'accès à `http://127.0.0.1:3003`.
+3. Vérifier la présence de `SMN-Windows\Demarrer SMN.bat`, `runtime\node\node.exe`, du composant PostgreSQL et des scripts de maintenance.
+4. Lancer `Demarrer SMN.bat` depuis la session de l'utilisateur. Vérifier l'accès à `http://127.0.0.1:3003`.
 5. Effectuer l'installation Express dans une base neuve, vérifier la connexion administrateur et le diagnostic de schéma v33.
 6. Créer des données représentatives **fictives** : deux équipes, membres, sprints, métriques/indicateurs v33, historique de clôture, risques, liens et modèles Word/PPT. Générer des rapports et noter leurs empreintes.
 7. Créer et vérifier une sauvegarde complète. Consigner l'identifiant, la date et le statut de vérification sans révéler sa phrase secrète.
