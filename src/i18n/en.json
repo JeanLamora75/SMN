@@ -2213,17 +2213,20 @@
     "statusUnknown": "Not specified"
   },
   "settingsPortal": {
-    "subtitle": "Application settings",
+    "subtitle": "Configure your work environment",
     "groupGeneral": "Application and personalization",
     "general": "General settings",
     "generalDescription": "Manage language, theme, palette and reference country."
   },
   "settingsCatalog": {
     "groups": {
-      "application": "Application",
+      "application": "Application and personalization",
       "agile": "Agile organization",
       "calendar": "Calendars and availability",
-      "administration": "Administration"
+      "administration": "Administration and maintenance",
+      "organization": "Organization and teams",
+      "practices": "Agile practices and reference data",
+      "reports": "Reporting and visualization"
     },
     "status": {
       "available": "Available",
@@ -2242,15 +2245,15 @@
       },
       "languages": {
         "title": "Languages",
-        "description": "Choose the interface language."
+        "description": "Choose the interface and application language."
       },
       "appearance": {
         "title": "Appearance",
-        "description": "Customize the theme and colors."
+        "description": "Customize the application's theme and colors."
       },
       "cadence": {
-        "title": "Agile cadence",
-        "description": "Configure cycles for the active Scrum or Kanban mode."
+        "title": "Sprint cadence",
+        "description": "Define the cadence of your Agile team's cycles."
       },
       "ceremonies": {
         "title": "Ceremonies and templates",
@@ -2274,7 +2277,7 @@
       },
       "closures": {
         "title": "Company closures",
-        "description": "Manage company-wide closure periods."
+        "description": "Manage company closure periods."
       },
       "absences": {
         "title": "Absence categories",
@@ -2305,8 +2308,8 @@
         "description": "Browse links by team, category and visibility."
       },
       "preferences": {
-        "title": "Application preferences",
-        "description": "Language, theme, colors and general preferences."
+        "title": "General information",
+        "description": "Configure the application's general information and preferences."
       },
       "holidaysClosures": {
         "title": "Public holidays and closures",
@@ -2314,7 +2317,23 @@
       },
       "maintenance": {
         "title": "Maintenance",
-        "description": "Backups and operation history."
+        "description": "Manage updates, backups and the audit log."
+      },
+      "companies": {
+        "title": "Companies",
+        "description": "View and manage companies in the organization."
+      },
+      "indicators": {
+        "title": "Indicators",
+        "description": "Configure performance indicators and access permissions."
+      },
+      "holidays": {
+        "title": "Countries and public holidays",
+        "description": "Configure national calendars and public holidays."
+      },
+      "chartStyles": {
+        "title": "Chart styles",
+        "description": "Customize the appearance of charts used in reports."
       }
     },
     "view": {
@@ -2330,6 +2349,35 @@
       "general": "General",
       "language": "Language",
       "appearance": "Appearance"
+    },
+    "search": {
+      "label": "Search settings",
+      "placeholder": "Search for a setting…",
+      "clear": "Clear",
+      "results": "{count} settings found",
+      "empty": "No matching settings found.",
+      "reset": "Clear search"
+    },
+    "keywords": {
+      "preferences": "general preferences settings application installation country product",
+      "languages": "language translation french english localization internationalization",
+      "appearance": "theme palette colors visual light dark personalization",
+      "teams": "teams members product vision goal scrum kanban",
+      "companies": "company companies organizations employer administration",
+      "cadence": "sprint cadence rhythm cycle iteration kanban scrum frequency",
+      "ceremonies": "ceremonies templates scrum daily planning review retrospective meetings events",
+      "capacity": "capacity calculation days available effort rules",
+      "indicators": "indicators metrics kpi dashboard formula permissions",
+      "registries": "registries risk impediment note action decision categories alerts",
+      "links": "links categories urls scope cross team",
+      "workingDays": "workdays working hours work lunch break slots",
+      "holidays": "countries public holidays national calendar bank holidays vacations",
+      "closures": "company closures calendar unavailable days shutdown",
+      "absences": "absences categories leave vacation sickness colors",
+      "chartStyles": "chart graph styles reporting visualization office word powerpoint",
+      "users": "users accounts rights access permissions",
+      "security": "security sessions password access personal",
+      "maintenance": "maintenance updates offline upgrades backup backups restore audit log history"
     }
   },
   "memberAbsences": {
