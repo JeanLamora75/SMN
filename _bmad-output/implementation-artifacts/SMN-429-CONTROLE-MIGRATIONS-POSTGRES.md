@@ -47,3 +47,7 @@ Le format de mise à jour hors ligne actuellement signé par SMN-426/427 **ne co
 - **État des nouveaux tests** : suivre les tests ajoutés pour SMN-428 (matrice d'interruption et politique de sauvegarde) sur un run CI au commit courant ; les runs antérieurs ne constituent pas une preuve pour ce nouveau code.
 
 **Verdict** : vérification de compatibilité *validée en CI dans le cadre v33→v33 sans DDL* ; AC2 et AC6 ne sont pas clos pour une migration PostgreSQL réelle. La Story reste ouverte.
+
+### Matrice étendue — preuve réelle GitHub Actions
+
+Le run [42790328870](https://github.com/JeanLamora75/SMN/actions/runs/42790328870), job `update-contract-tests`, est **success** avec **37/37 tests** dont la politique de compatibilité PostgreSQL 18/v33 et le blocage des migrations incohérentes. La qualification reste limitée au parcours *sans migration DDL* : elle n'atteste pas la réalisation d'une migration de schéma ni l'absence de DDL implicite dans tout SMN.
