@@ -54,7 +54,7 @@ export default function SprintCeremoniesBulkAction({sprintId,teamId,total}:{
    const response=await fetch("/api/admin/sprints/"+encodeURIComponent(sprintId)+"/ceremonies-bulk",{
     method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({teamId,operation,expectedCount:total,
-     ...(create?{}:{types:selected})})
+     ...(create?{}:{types:selected,expectedSelectedCount:selectedCount})})
    });
    const data=await response.json() as {ok?:boolean;error?:string;count?:number};
    if(!response.ok||!data.ok){
