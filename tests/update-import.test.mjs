@@ -214,3 +214,40 @@ test("SMN-428: corrupted journal blocks startup and never modifies data",async()
   await assert.rejects(recoverCutover(root),/update-journal-unreadable/);
  }finally{await rm(root,{recursive:true,force:true})}
 });
+
+test("SMN-430: locked or unexpected application target fails closed before data mutation",async()=>{
+ const root=await mkdtemp(path.join(os.tmpdir(),"smn-locked-target-"));
+ const id=randomUUID();
+ try{
+  for(const dir of ["updates/prepared/"+id,"updates/rollback/"+id,"app","data/postgres"]){
+   await mkdir(path.join(root,dir),{recursive:true});
+  }
+  await writeFile(path.join(root,"app","server.js"),"OLD");
+  await writeFile(path.join(root,"data/postgres","sentinel"),"PRIVATE");
+  const record=await beginCutover(root,id,"33.0.999");
+  assert.equal(record.state,"applying");
+  // The candidate is absent; simulate an unexpected live path appearing
+  // after the original has been safely moved to rollback.
+  await rename(path.join(root,"app"),path.join(root,"updates/rollback",id,"app"));
+  await mkdir(path.join(root,"app"));
+  await writeFile(path.join(root,"app","intruder"),"UNEXPECTED");
+  await assert.rejects(recoverCutover(root),/update-recovery-collision/);
+  assert.equal((await readCutover(root)).state,"applying");
+  assert.equal(await readFile(path.join(root,"data/postgres","sentinel"),"utf8"),"PRIVATE");
+  assert.equal(await readFile(path.join(root,"updates/rollback",id,"app","server.js"),"utf8"),"OLD");
+ }finally{await rm(root,{recursive:true,force:true})}
+});
+test("SMN-430: missing rollback component blocks recovery without touching PostgreSQL",async()=>{
+ const root=await mkdtemp(path.join(os.tmpdir(),"smn-recovery-missing-"));
+ const id=randomUUID();
+ try{
+  for(const dir of ["updates/prepared/"+id,"updates/rollback/"+id,"app","data/postgres"])
+   await mkdir(path.join(root,dir),{recursive:true});
+  await writeFile(path.join(root,"data/postgres","sentinel"),"PERSIST");
+  await writeFile(path.join(root,"app","server.js"),"OLD");
+  await beginCutover(root,id,"33.0.999");
+  await rm(path.join(root,"app"),{recursive:true,force:true});
+  await assert.rejects(recoverCutover(root),/update-recovery-missing-original/);
+  assert.equal(await readFile(path.join(root,"data/postgres","sentinel"),"utf8"),"PERSIST");
+ }finally{await rm(root,{recursive:true,force:true})}
+});
