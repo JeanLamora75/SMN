@@ -50,9 +50,15 @@ async function localUri() {
     if (!(e && e.code==="ENOENT")) throw e;
   }
   cfg=JSON.parse((await privateFile(root,"runtime.json")).toString("utf8"));
-  if (cfg.version!==1 || cfg.user!=="smn_owner" ||
-      cfg.pgBin!==path.join(root,"pgsql","bin") || cfg.cluster!==path.join(root,"data") ||
-      !Number.isInteger(cfg.port) || cfg.port<1024 || cfg.port>65535) throw new Error("Cluster SMN non reconnu.");
+  // Both legacy and in-directory managed clusters are supported. Only
+  // locally derived paths are trusted; the manifest cannot select an arbitrary cluster.
+  const managedRoot=cfg.version===1?root:
+    cfg.version===2?path.join(process.cwd(),"data","postgres"):null;
+  if (!managedRoot || cfg.user!=="smn_owner" ||
+      cfg.pgBin!==path.join(managedRoot,"pgsql","bin") ||
+      cfg.cluster!==path.join(managedRoot,"data") ||
+      !Number.isInteger(cfg.port) || cfg.port<1024 || cfg.port>65535)
+    throw new Error("Cluster SMN non reconnu.");
   return checkUri("postgresql://smn_owner:"+encodeURIComponent(await decrypt(cfg.encryptedPassword,root))+
     "@127.0.0.1:"+cfg.port+"/smn");
 }
