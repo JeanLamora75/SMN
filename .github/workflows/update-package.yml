@@ -82,6 +82,8 @@ jobs:
           & node scripts/windows/verify-update.mjs --dir $unpacked --trust '_package/smoke-public-test-only.pem'
           if ($LASTEXITCODE -ne 0) { throw 'ZIP différentiel inutilisable après compression' }
           Write-Host "CI-ONLY SIGNED SMALL UPDATE ZIP BYTES: $((Get-Item $archive).Length)"
+          & node scripts/windows/verify-zipped-update.mjs --zip $archive --out '_package/smoke-native-small' --trust '_package/smoke-public-test-only.pem'
+          if ($LASTEXITCODE -ne 0) { throw 'Archive ZIP native refusée par l’importateur SMN' }
           if ((Get-Item $archive).Length -ge 25MB) { throw 'Petit correctif de démonstration supérieur à 25 Mo' }
           $fullStage = (Resolve-Path '_package/smoke-full-stage').Path
           $fullZip = Join-Path (Resolve-Path '_package').Path 'smoke-full-application-ci-only.zip'
@@ -91,6 +93,8 @@ jobs:
           & node scripts/windows/verify-update.mjs --dir $fullExtracted --trust '_package/smoke-public-test-only.pem'
           if ($LASTEXITCODE -ne 0) { throw 'ZIP application complète non vérifiable après compression' }
           Write-Host "CI-ONLY SIGNED FULL UPDATE ZIP BYTES: $((Get-Item $fullZip).Length)"
+          & node scripts/windows/verify-zipped-update.mjs --zip $fullZip --out '_package/smoke-native-full' --trust '_package/smoke-public-test-only.pem'
+          if ($LASTEXITCODE -ne 0) { throw 'Archive complète refusée par l’importateur SMN' }
 
   build-signed-update:
     if: github.event_name == 'workflow_dispatch'
