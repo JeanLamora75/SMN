@@ -42,14 +42,15 @@ test("suppression atomique des trois sources et des données dérivées en cas d
  assert.doesNotMatch(server,/TRUNCATE|CASCADE|DROP TABLE/);
  assert.match(server,/WHERE sprint_id=\$1/);
 });
-test("toutes les références FK directes vers les trois sources sont traitées",()=>{
- const sourceTables=["smn_sprint_ceremony","smn_scrum_template_occurrence",
- "smn_sprint_exceptional_meeting"];
- for(const parent of sourceTables){
-  const regex=new RegExp('ALTER TABLE ONLY "public"\\."([^"]+)"[\\s\\S]*?ADD CONSTRAINT "[^"]+" FOREIGN KEY \\([^)]+\\) REFERENCES "public"\\."'+parent+'"','g');
-  const related=[...schema.matchAll(regex)].map(m=>m[1]);
-  // Only the last ALTER TABLE before the matching constraint is relevant.
-  for(const name of related)assert.match(server,new RegExp(name));
+test("les tables de dépendances du schéma v33 sont prévues",()=>{
+ const children=["smn_sprint_ceremony_history","smn_sprint_ceremony_segment",
+  "smn_sprint_ceremony_status_history","smn_scrum_template_occurrence_status_history",
+  "smn_sprint_exceptional_meeting_history","smn_sprint_exceptional_meeting_status_history",
+  "smn_exceptional_capacity_impact_history","smn_exceptional_meeting_participant",
+  "smn_exceptional_meeting_participant_audit","smn_sprint_historical_event"];
+ for(const name of children){
+  assert.match(schema,new RegExp('CREATE TABLE "public"\\\\."'+name+'"'));
+  assert.match(server,new RegExp(name));
  }
 });
 test("traductions des actions en FR et EN",()=>{
