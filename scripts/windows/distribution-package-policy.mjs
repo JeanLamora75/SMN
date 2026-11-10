@@ -11,7 +11,7 @@ const forbidden=new Set([
  "pnpm-workspace.yaml","README.md","node.exe","server.js","package.json"
 ]);
 const buildJunk=new Set([".git",".github",".agents","_bmad","_bmad-output",
- "tests","docs",".env",".env.local",".env.example"]);
+ "tests","docs","src",".env",".env.local",".env.example"]);
 export async function auditWindowsDistribution(root){
  const listed=await readdir(root);
  const allowed=new Set([...ROOT_DIRS,...ROOT_FILES]);
