@@ -11,7 +11,7 @@ sources:
 
 # EXPERIENCE.md — Centre Paramètres V2
 
-**Contrat comportemental UX validé quant aux six familles et à la recherche transversale, le 10 novembre 2026.** Le [DESIGN.md](DESIGN.md) associé définit exclusivement l'apparence. Les critères détaillés sont dans [RECETTE-UX.md](RECETTE-UX.md) et les routes dans [CATALOGUE-ET-ROUTES.md). Ce document **remplace pour le portail** la classification initiale 14 rubriques / 4 familles du 23 octobre. Les autorisations, règles métier et parcours fonctionnels conservés dans les anciens contrats demeurent applicables. Aucune réalisation de code ici.
+**Contrat comportemental UX validé quant aux six familles et à la recherche transversale, le 10 novembre 2026.** Le [DESIGN.md](DESIGN.md) associé définit exclusivement l'apparence. Les critères détaillés sont dans [RECETTE-UX.md](RECETTE-UX.md) et les routes dans [CATALOGUE-ET-ROUTES.md](CATALOGUE-ET-ROUTES.md). Ce document **remplace pour le portail** la classification initiale 14 rubriques / 4 familles du 23 octobre. Les autorisations, règles métier et parcours fonctionnels conservés dans les anciens contrats demeurent applicables. Aucune réalisation de code ici.
 
 ## Foundation
 
