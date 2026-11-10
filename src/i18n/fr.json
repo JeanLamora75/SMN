@@ -4506,7 +4506,7 @@
   "registryDelete": {
     "button": "Supprimer définitivement",
     "deleting": "Suppression…",
-    "confirm": "Supprimer définitivement « {title} » ?\\n\\nCette opération est irréversible. Les commentaires, historiques et associations propres à cette fiche seront également effacés. Les sauvegardes et archives existantes ne sont pas modifiées.",
+    "confirm": "Supprimer définitivement « {title} » ?\n\nCette opération est irréversible. Les commentaires, historiques et associations propres à cette fiche seront également effacés. Les sauvegardes et archives existantes ne sont pas modifiées.",
     "notFound": "Cette fiche n'existe plus ou n'est pas accessible.",
     "conflict": "La fiche a changé depuis son chargement. Actualisez la page et réessayez.",
     "linkedData": "Suppression refusée : une dépendance non prise en charge protège encore cette fiche. Aucune donnée n'a été supprimée.",
