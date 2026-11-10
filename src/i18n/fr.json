@@ -784,12 +784,18 @@
       "atomic-cutover-unverified": "La bascule cohérente de la base et des documents n'est pas encore attestée.",
       "session-reset-unverified": "La révocation et la réévaluation des sessions ne sont pas encore attestées.",
       "privacy-erased-data": "La sauvegarde est antérieure à un effacement attesté : la réintroduction des informations est interdite.",
-      "privacy-coverage-gap": "L'historique des effacements ne couvre pas la date de la sauvegarde : restauration suspendue."
+      "privacy-coverage-gap": "L'historique des effacements ne couvre pas la date de la sauvegarde : restauration suspendue.",
+      "archive-scope-incomplete": "Cette sauvegarde ne couvre pas intégralement la base et les fichiers requis (format v4 complet obligatoire).",
+      "archive-identity-mismatch": "L'identifiant de l'archive vérifiée ne correspond pas à celui demandé."
     },
     "scopeCompleteness": "Périmètre de sauvegarde",
     "scopeV4": "v4 — fichiers gérés inclus et contrôle de cohérence activé",
     "scopeLegacy": "Ancien format — intégrité vérifiée, périmètre non exhaustif",
-    "officeModelCount": "Modèles Office personnalisés"
+    "officeModelCount": "Modèles Office personnalisés",
+    "restoreWarningsTitle": "Risques à prendre en compte",
+    "restoreWarnings": {
+      "potential-data-loss": "La sauvegarde est antérieure à l'état actuel : les données récentes pourraient être perdues."
+    }
   },
   "members": {
     "title": "Membres de l'équipe",
