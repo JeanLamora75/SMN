@@ -94,6 +94,8 @@ try {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
   assert.equal(ready, true, "Le serveur livré ne répond pas");
+  for(let i=0;i<30&&!existsSync(path.join(root,"updates","launcher.json"));i++)
+   await new Promise(resolve=>setTimeout(resolve,100));
   assert.ok(existsSync(path.join(root,"updates","launcher.json")),
    "Le fichier de présence du lanceur doit être créé par le vrai batch Windows");
   const welcome = await fetchTimed(base + "/welcome");
