@@ -1,7 +1,7 @@
 // Lanceur du paquet Windows SMN : double-clic, sans Node ni pnpm installé.
 // La fenêtre peut être fermée pour arrêter le serveur web local.
 import { spawn } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {ensureOfficeDirectories} from "./scripts/office-dirs.mjs";
@@ -10,6 +10,12 @@ if (process.platform !== "win32") throw new Error("Windows x64 requis");
 const root = path.dirname(fileURLToPath(import.meta.url));
 const server = path.join(root, "app", "server.js");
 ensureOfficeDirectories(root);
+const updates = path.join(root,"updates");
+if (existsSync(updates)) {
+  const info = lstatSync(updates);
+  if (!info.isDirectory() || info.isSymbolicLink())
+    throw new Error("Dossier de mises à jour invalide");
+} else mkdirSync(updates);
 const url = "http://127.0.0.1:3003";
 if (!existsSync(server)) throw new Error("SMN incomplet : app/server.js absent.");
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
