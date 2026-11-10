@@ -48,6 +48,8 @@ jobs:
         run: npm install --no-package-lock --no-audit --no-fund --legacy-peer-deps
       - name: Contrat de protection des répertoires persistants et racine minimale
         run: node --test tests/distribution-layout.test.mjs tests/distribution-package-policy.test.mjs
+      - name: Contrats installation PostgreSQL hors ligne
+        run: node --test tests/postgres-offline-install.test.mjs
       - name: Preuve de transport Windows sans dépendances
         run: node --test tests/update-delivery.test.mjs
       - name: Parité des catalogues FR/EN
