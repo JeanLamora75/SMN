@@ -47,6 +47,7 @@ try{
    deletions:manifest.files.filter(f=>f.action==="delete").length,
    bytes:manifest.files.reduce((n,f)=>n+f.size,0),
    sourceCommit:manifest.sourceCommit,
+   affected:manifest.files.slice(0,15).map(file=>({path:file.path,action:file.action})),
    manifestSha256:fingerprint,archiveSha256:createHash("sha256").update(bytes).digest("hex"),
    checkedAt:new Date().toISOString()
  };
