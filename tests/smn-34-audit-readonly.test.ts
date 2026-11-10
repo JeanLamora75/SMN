@@ -76,5 +76,17 @@ test("SMN-34: le CLI audit ne contient ni operation de bascule ni transmission e
  assert.match(cli,/--audit-only/);
  assert.match(cli,/withSessionReadDb/);
  assert.match(cli,/assessRestoreAudit/);
+ assert.match(cli,/previewBackupReadOnly/);
+ assert.doesNotMatch(cli,/from ["\x27]\.\.\/src\/server\/backup\/preview["\x27]/);
  assert.doesNotMatch(cli,/\b(?:rename|rm|spawn|exec|fetch|rehearseOfflineDatabaseCutover|rehearseCoordinatedOfflineCutover)\(/);
+});
+
+test("SMN-34: previsualisation CLI conserve une transaction SQL read-only",()=>{
+ const source=readFileSync(new URL("../src/server/backup/restore-audit-preview.ts",import.meta.url),"utf8");
+ assert.match(source,/withSessionReadDb/);
+ assert.match(source,/inspectBackup/);
+ assert.match(source,/evaluatePreview/);
+ assert.match(source,/key\?\.fill\(0\)/);
+ assert.doesNotMatch(source,/\b(?:spawn|rename|rm|exec|fetch)\(/);
+ assert.doesNotMatch(source,/import "server-only"/);
 });
