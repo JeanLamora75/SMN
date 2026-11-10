@@ -4506,7 +4506,7 @@
   "registryDelete": {
     "button": "Delete permanently",
     "deleting": "Deleting…",
-    "confirm": "Permanently delete “{title}”?\\n\\nThis cannot be undone. The record's comments, history and associations will also be erased. Existing backups and archives are not modified.",
+    "confirm": "Permanently delete “{title}”?\n\nThis cannot be undone. The record's comments, history and associations will also be erased. Existing backups and archives are not modified.",
     "notFound": "This record no longer exists or cannot be accessed.",
     "conflict": "The record has changed. Refresh and try again.",
     "linkedData": "Deletion was blocked by an unsupported dependency. No data was deleted.",
