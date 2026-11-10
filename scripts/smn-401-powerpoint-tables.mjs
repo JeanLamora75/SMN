@@ -130,6 +130,10 @@ export function expandPowerPointTextBoxesXml(xml,datasets,language="fr"){
   const bodyPattern=/<p:txBody(?:\s[^>]*)?>[\s\S]*?<\/p:txBody>/g;
   return shape.replace(bodyPattern,body=>{
    const converted=body.replace(PARAGRAPH,paragraph=>{
+    const paragraphText=nodesOf(paragraph).map(node=>node.text).join("");
+    // ROW markers may span runs, but must never be split between paragraphs.
+    if(paragraphText.includes("{{ROW:")&&!paragraphText.includes("}}"))
+     throw Error("office-pptx-unsupported-text-marker");
     const marker=readMarker(paragraph);
     if(!marker)return paragraph;
     const records=datasets[marker.source];
