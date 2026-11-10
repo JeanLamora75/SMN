@@ -86,11 +86,15 @@ for(const file of [
 
 await mkdir(path.join(target, "runtime", "node"), { recursive: true });
 await copyFile(process.execPath, path.join(target, "runtime", "node", "node.exe"));
+// Critical launcher dependencies remain outside app/, so recovery works if app/ is temporarily absent.
+await mkdir(path.join(target,"runtime","maintenance"),{recursive:true});
+await copyFile("scripts/office-dirs.mjs",path.join(target,"runtime","maintenance","office-dirs.mjs"));
+await copyFile("scripts/windows/update-transaction.mjs",path.join(target,"runtime","maintenance","update-transaction.mjs"));
 // The stable launcher is a protected runtime component and is never patched by an update.
 const launchSource=await readFile("scripts/windows/launch-portable.mjs","utf8");
 const packagedLaunch=launchSource
- .replace('from "./scripts/office-dirs.mjs"','from "../app/maintenance/office-dirs.mjs"')
- .replace('from "./scripts/windows/update-transaction.mjs"','from "../app/maintenance/windows/update-transaction.mjs"')
+ .replace('from "./scripts/office-dirs.mjs"','from "./maintenance/office-dirs.mjs"')
+ .replace('from "./scripts/windows/update-transaction.mjs"','from "./maintenance/update-transaction.mjs"')
  .replace('const root=path.dirname(fileURLToPath(import.meta.url));',
   'const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");')
  .replace('path.join(root,"scripts","windows","update-apply.mjs")',
@@ -99,7 +103,6 @@ if(packagedLaunch===launchSource||packagedLaunch.includes('from "./scripts/'))
  throw Error("launcher-packaging-transform-invalid");
 await writeFile(path.join(target,"runtime","launcher.mjs"),packagedLaunch,"utf8");
 await mkdir(path.join(appDir,"maintenance","windows"),{recursive:true});
-await copyFile("scripts/office-dirs.mjs",path.join(appDir,"maintenance","office-dirs.mjs"));
 for(const file of [
  "distribution-layout.mjs",
  "update-contract.mjs",
