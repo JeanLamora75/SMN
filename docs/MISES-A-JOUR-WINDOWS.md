@@ -59,3 +59,15 @@ Un ZIP est une entrée non fiable. Le futur importateur doit contrôler chaque c
 ## Numérotation entre workflows
 
 Les versions installées et les mises à jour utilisent `33.0.<GITHUB_RUN_ID>`, et **pas** `GITHUB_RUN_NUMBER` qui repart indépendamment pour chaque workflow. Cette règle évite un faux déclassement quand le ZIP de base vient du workflow d'installation complète et le correctif du workflow de mise à jour.
+
+## Utilisation de l'onglet Maintenance sur Windows 11 (SMN-427)
+
+L'**administrateur SMN** ouvre **Paramètres → Maintenance → Mises à jour**, sélectionne le ZIP de production signé et clique sur **Vérifier le paquet**. Un aperçu affiche les versions source/cible, le mode, la liste bornée des changements et les tailles. À ce stade, aucune modification n'est effectuée dans l'application ni dans PostgreSQL.
+
+Pour que l'action soit disponible, SMN doit avoir été démarré avec **Demarrer SMN.cmd** et disposer de la clé publique de confiance dans `runtime/trust/update-signing-public.pem`. L'interface avertit si la clé de confiance manque ou si le serveur n'est pas sous le contrôle du lanceur. **Aucun ZIP ne permet d'ajouter sa propre clé de confiance.**
+
+L'administrateur confirme séparément l'installation. Le lanceur Windows qui possède le processus web contrôle l'ordre, arrête uniquement le serveur SMN, prépare les fichiers applicatifs dans `updates/prepared/`, les vérifie une nouvelle fois, les active puis redémarre l'application. Les anciens fichiers applicatifs sont conservés sous `updates/rollback/`. Les dossiers `data/` et `runtime/` ne sont pas modifiés.
+
+L'import refuse par défaut les versions incompatibles, les fichiers suspects et les ZIP altérés. Les archives dépassant **120 Mio compressés** ne sont pas acceptées par l'importateur actuel. Ce seuil n'est pas un objectif métier ; il protège les ressources du poste.
+
+**Restrictions :** l'arrêt contrôlé du serveur et le retour arrière applicatif sur échec logiciel ne remplacent pas une procédure complète de sauvegarde et de reprise après coupure d'alimentation (SMN-428), ni la validation des migrations de schéma (SMN-429), ni la recette Windows 11 d'entreprise (SMN-430). Ne jamais mettre à jour un poste disposant de données personnelles sans sauvegarde vérifiée et sans avoir qualifié la compatibilité du paquet.
