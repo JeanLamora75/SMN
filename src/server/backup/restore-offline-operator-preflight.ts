@@ -1,4 +1,5 @@
 import {randomBytes} from "node:crypto";
+import {lstat} from "node:fs/promises";
 import {Client} from "pg";
 import type {CutoverDrillInput} from "./restore-cutover-drill";
 import {validateCutoverDrill} from "./restore-cutover-drill";
@@ -92,14 +93,26 @@ export async function inspectDisposableOfflineScope(
  else if(connections>0)blockers.push("connections-present");
  let fileStatus:DisposableOfflineReport["files"]["status"]="unverifiable";
  let originalFingerprint:string|null=null,candidateFingerprint:string|null=null;
+ // A pre-existing rollback target must never be overwritten or accepted.
+ // Unknown filesystem errors are not equivalent to ENOENT.
+ let rollbackFree=false;
  try{
-  const [a,b]=await Promise.all([
-   inspectRestoreFileTree(input.files.originalRoot),
-   inspectRestoreFileTree(input.files.candidateRoot)
-  ]);
-  originalFingerprint=a.sha256;candidateFingerprint=b.sha256;
-  fileStatus=b.count>0?"ready":"blocked";
- }catch{fileStatus="blocked";}
+  await lstat(input.files.rollbackRoot);
+  blockers.push("rollback-files-occupied");
+ }catch(error){
+  if((error as NodeJS.ErrnoException).code==="ENOENT")rollbackFree=true;
+  else blockers.push("rollback-files-unverifiable");
+ }
+ if(rollbackFree){
+  try{
+   const [a,b]=await Promise.all([
+    inspectRestoreFileTree(input.files.originalRoot),
+    inspectRestoreFileTree(input.files.candidateRoot)
+   ]);
+   originalFingerprint=a.sha256;candidateFingerprint=b.sha256;
+   fileStatus=b.count>0?"ready":"blocked";
+  }catch{fileStatus="blocked";}
+ }
  if(fileStatus!=="ready")blockers.push("candidate-files-unverified");
  // This only qualifies a *test namespace*; never elevates an active SMN.
  return result(dbStatus,pg18,namesCorrect,connections,fileStatus,
