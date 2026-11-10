@@ -23,7 +23,7 @@ export function validateUpdateVersion(version) {
   return version;
 }
 function mustAdvance(fromVersion,toVersion) {
-  const parse=v=>v.match(/^33\\.([0-9]+)\\.([0-9]+)(?:-(.*))?$/);
+  const parse=v=>v.match(/^33\.([0-9]+)\.([0-9]+)(?:-(.*))?$/);
   const from=parse(fromVersion),to=parse(toVersion);
   if(!from||!to)throw Error("update-version-invalid");
   const baseA=Number(from[1]),baseB=Number(from[2]);
