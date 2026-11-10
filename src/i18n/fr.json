@@ -3893,7 +3893,15 @@
     "tagBuilderCopied": "Tag copié dans le presse-papiers.",
     "tagBuilderReset": "Réinitialiser",
     "tagBuilderCopy": "Copier le tag",
-    "tagBuilderGuideHelp": "Cliquez sur « Configurateur » pour choisir un tag, définir ses options (dont le tri des tableaux et les graphiques), voir l'expression complète et la copier dans Word ou PowerPoint."
+    "tagBuilderGuideHelp": "Cliquez sur « Configurateur » pour choisir un tag, définir ses options (dont le tri des tableaux et les graphiques), voir l'expression complète et la copier dans Word ou PowerPoint.",
+    "officeProgressTitle": "Génération du rapport",
+    "officeProgressChecking": "Vérification du modèle et de la destination…",
+    "officeProgressGenerating": "Création du document Word ou PowerPoint…",
+    "officeProgressDownloading": "Réception du rapport…",
+    "officeProgressSaving": "Enregistrement du rapport…",
+    "officeProgressIndeterminate": "Progression en cours, pourcentage non disponible",
+    "officeProgressWorking": "En cours…",
+    "officeProgressPleaseWait": "La fenêtre se fermera automatiquement dès que le rapport sera prêt."
   },
   "reportsStudio": {
     "modes": "Modes du Studio",
