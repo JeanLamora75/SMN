@@ -2,11 +2,11 @@
 // or extracting the archive. Works with the Node runtime already bundled in SMN.
 import {createHash} from "node:crypto";
 import {createReadStream} from "node:fs";
-import {readFile,stat,lstat} from "node:fs/promises";
+import {readFile,lstat} from "node:fs/promises";
+import {fileURLToPath} from "node:url";
 import path from "node:path";
 
 const SHA=/^[a-f0-9]{64}$/;
-const SIZE=/^(0|[1-9][0-9]*)$/;
 const MAX_SIZE=1024*1024*1024;
 export function parseDeliveryChecksum(value,basename){
  const lines=value.replace(/\r/g,"").trim().split("\n");
@@ -41,7 +41,7 @@ export async function verifyDelivery(archive,evidencePath,checksumPath){
  return {verified:true,archive:filename,bytes:details.size,sha256:expected,
   kind:evidence.kind,runId:evidence.runId,gitCommit:evidence.gitCommit};
 }
-if(process.argv[1]&&path.resolve(process.argv[1])===path.resolve(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:\/)/,"$1"))){
+if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  const [archive,evidence,checksum]=process.argv.slice(2);
  if(!archive||!evidence||!checksum){
   console.error("Usage: node verify-delivery.mjs <archive.zip> <archive.zip.evidence.json> <archive.zip.sha256>");
