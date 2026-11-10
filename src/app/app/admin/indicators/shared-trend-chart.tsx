@@ -14,20 +14,23 @@ export default function SharedTrendChart({payload,downloadName}:{payload:SharedC
  const [catalog,setCatalog]=useState<Catalog|null>(null);
  const [catalogError,setCatalogError]=useState(false);
  const [chosen,setChosen]=useState("");
- const [url,setUrl]=useState("");
- const [loading,setLoading]=useState(true);
- const [error,setError]=useState(false);
+ const [rendered,setRendered]=useState<{key:string;url:string}|null>(null);
+ const [failedKey,setFailedKey]=useState("");
  useEffect(()=>{
   const controller=new AbortController();
   void fetch("/api/admin/reports/chart-styles",{signal:controller.signal,cache:"no-store"})
    .then(async r=>{if(!r.ok)throw Error("styles");return r.json() as Promise<Catalog>;})
    .then(data=>{if(!Array.isArray(data.styles)||!data.defaults)throw Error("styles");
     if(!controller.signal.aborted){setCatalog(data);setCatalogError(false);}})
-   .catch(()=>{if(!controller.signal.aborted){setCatalogError(true);setLoading(false);}});
+   .catch(()=>{if(!controller.signal.aborted){setCatalogError(true);}});
   return()=>controller.abort();
  },[]);
  const styleId=chosen||catalog?.defaults?.[payload.type]?.styleId||"";
  const payloadKey=JSON.stringify(payload);
+ const requestKey=payloadKey+"|"+styleId;
+ const url=rendered?.key===requestKey?rendered.url:"";
+ const loading=!catalogError&&(!styleId||(!url&&failedKey!==requestKey));
+ const error=failedKey===requestKey&&!!styleId;
  useEffect(()=>{
   if(!styleId)return;
   const controller=new AbortController();let objectUrl="";
@@ -38,9 +41,9 @@ export default function SharedTrendChart({payload,downloadName}:{payload:SharedC
    .then(blob=>{
     if(controller.signal.aborted)return;
     objectUrl=URL.createObjectURL(blob);
-    setUrl(objectUrl);setLoading(false);setError(false);
+    setRendered({key:requestKey,url:objectUrl});setFailedKey("");
    })
-   .catch(()=>{if(!controller.signal.aborted){setError(true);setLoading(false);setUrl("");}});
+   .catch(()=>{if(!controller.signal.aborted)setFailedKey(requestKey);});
   return()=>{controller.abort();if(objectUrl)URL.revokeObjectURL(objectUrl);};
  // payloadKey tracks any data, interval or chart-type change. JSON keeps dependency stable
  // when the caller rebuilds an equivalent array while rendering.
@@ -54,7 +57,7 @@ export default function SharedTrendChart({payload,downloadName}:{payload:SharedC
   <div className="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
    <label className="form-label mb-0">{tr("style")}
     <select className="form-select form-select-sm mt-1" disabled={!catalog} value={chosen}
-     onChange={e=>{setChosen(e.target.value);setLoading(true);setUrl("");}}>
+     onChange={e=>setChosen(e.target.value)}>
      <option value="">{tr("default")}</option>
      {catalog?.styles.map(style=><option key={style.id} value={style.id}>{style.name}</option>)}
     </select>
