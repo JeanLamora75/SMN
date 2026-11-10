@@ -5,7 +5,7 @@
 
 ## Livrables / périmètre
 
-`SMN-Update-33.0.<numéro-ci>.zip` est un **paquet de données applicatives, pas un installateur autonome**. Il comprend exclusivement `manifest.json`, `manifest.sig` (signature Ed25519 détachée), et `payload/` avec les fichiers d'application. Aucune archive PostgreSQL, aucun exécutable Node.js et aucun répertoire `data/`, `runtime/`, `updates/` ou secret ne doivent entrer dans le paquet. L'activation d'un ZIP sur le PC relève de **SMN-427**, non de SMN-426.
+`SMN-Update-33.0.<identifiant-run-GitHub>.zip` est un **paquet de données applicatives, pas un installateur autonome**. Il comprend exclusivement `manifest.json`, `manifest.sig` (signature Ed25519 détachée), et `payload/` avec les fichiers d'application. Aucune archive PostgreSQL, aucun exécutable Node.js et aucun répertoire `data/`, `runtime/`, `updates/` ou secret ne doivent entrer dans le paquet. L'activation d'un ZIP sur le PC relève de **SMN-427**, non de SMN-426.
 
 Le manifeste explicite : produit, plateforme, version source, version cible, commit GitHub, versions Node/PostgreSQL/schéma requises, mode complet ou différentiel et inventaire SHA-256 des fichiers ajoutés/remplacés/supprimés. Chaque fichier remplacé par un delta indique l'empreinte attendue de sa version précédente. La vérification refuse les versions source incompatibles et les empreintes divergentes.
 
@@ -55,3 +55,7 @@ Ne jamais déclarer le système de mise à jour **opérationnel sur PC final** t
 Un ZIP est une entrée non fiable. Le futur importateur doit contrôler chaque chemin, interdire les liens symboliques, les chemins absolus et la traversée de répertoires, limiter taille et nombre d'entrées, tester l'espace disponible et vérifier l'authenticité avant toute écriture. Le manifeste ne contient ni instructions arbitraires ni scripts de migration exécutables au téléchargement. Le changement de version du schéma PostgreSQL ne peut se faire que par le moteur explicite validé dans SMN-429.
 
 **Références :** `scripts/windows/update-contract.mjs`, `build-update.mjs`, `verify-update.mjs`, `create-update-signing-key.mjs`.
+
+## Numérotation entre workflows
+
+Les versions installées et les mises à jour utilisent `33.0.<GITHUB_RUN_ID>`, et **pas** `GITHUB_RUN_NUMBER` qui repart indépendamment pour chaque workflow. Cette règle évite un faux déclassement quand le ZIP de base vient du workflow d'installation complète et le correctif du workflow de mise à jour.
