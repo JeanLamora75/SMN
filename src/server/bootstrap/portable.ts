@@ -185,7 +185,17 @@ export async function prepareManaged(onProgress: (step: string) => void, recover
   onProgress("Préparation des composants PostgreSQL — le premier lancement peut prendre quelques minutes");
   const verifiedArchive = await acquirePgArchive(archive, existsSync(bundle) ? bundle : undefined);
   const pgRoot = path.join(root, "pgsql");
-  if (!existsSync(path.join(pgRoot, "bin", "initdb.exe"))) {
+  if (!existsSync(path.join(pgRoot, "bin", "initdb.exe")) ||
+      !existsSync(path.join(pgRoot, "bin", "pg_ctl.exe"))) {
+    // A previous interrupted extraction may have left an incomplete runtime.
+    // Preserve it for diagnosis; never delete or overwrite existing data.
+    if (existsSync(pgRoot)) {
+      const info = await lstat(pgRoot);
+      if (!info.isDirectory() || info.isSymbolicLink()) throw new Error("managed-cluster-unsafe");
+      const recovery = path.join(root, "recovery");
+      await mkdir(recovery, { recursive: true });
+      await rename(pgRoot, path.join(recovery, "pgsql-partial-" + randomBytes(8).toString("hex")));
+    }
     // Limiter la longueur des chemins internes de la distribution Windows EDB.
     // Certains fichiers d’archive dépasseraient MAX_PATH sous un LocalAppData profond.
     const tmp = path.join(os.tmpdir(), "smnp-" + randomBytes(4).toString("hex"));
