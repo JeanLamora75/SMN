@@ -207,6 +207,8 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
   setAttentionRefresh(n=>n+1);
  };
  const createAnother=()=>{setCreatedId(null);setCreateOpen(true);};
+ const deleted=()=>{setCreatedId(null);setEditingId(null);setLoading(true);setRefresh(n=>n+1);
+  setAttentionLoading(true);setAttentionRefresh(n=>n+1);};
  const edited=()=>{setEditingId(null);setLoading(true);setRefresh(n=>n+1);
   setAttentionLoading(true);setAttentionRefresh(n=>n+1);};
  const choose=(next:RegistryScope)=>{
@@ -379,7 +381,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
        <th scope="col">{translate("actions")}</th>
       </tr></thead>
       <tbody>{canManage&&<tr className="smn-registry-create-table-row"><td colSpan={canManage?12:11}><button type="button" className="smn-registry-add-event" onClick={()=>setCreateOpen(true)}><BootstrapIcon name="plus-lg"/>{translate("addEvent")}</button></td></tr>}{result.items.map(item=><RegistryListRow key={item.id} item={item}
-       navigation={{origin,trail:[]}} onNavigate={savePosition} onEdit={()=>setEditingId(item.id)}
+       navigation={{origin,trail:[]}} onNavigate={savePosition} onEdit={()=>setEditingId(item.id)} onDeleted={deleted} teamId={teamId}
        canManage={canManage} highlight={createdId===item.id}
        signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
       </tbody>
