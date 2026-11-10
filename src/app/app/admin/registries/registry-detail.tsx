@@ -1,6 +1,8 @@
 "use client";
 
 import {enterRegistryRelation,type RegistryNavigation} from "@/lib/registry-navigation";
+import {useRouter} from "next/navigation";
+import RegistryDeleteAction from "./registry-delete-action";
 import {useEffect,useId,useRef,useState,type KeyboardEvent,type ReactNode} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import {formatRegistryDate} from "@/lib/registry-date";
@@ -56,6 +58,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
  id:string;teamId:string;canManage:boolean;navigation:RegistryNavigation;
 }){
  const t=useTranslation(),locale=useLocale();
+ const router=useRouter();
  const tr=(key:string)=>t(("registryDetail."+key) as Parameters<typeof t>[0]);
  const label=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
  const [item,setItem]=useState<DetailItem|null>(null);
@@ -177,6 +180,8 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
        onClick={()=>setFullEditing(true)}>
        <BootstrapIcon name="pencil-square"/>
       </button>}
+      {canManage&&<RegistryDeleteAction id={id} title={item.title} teamId={teamId}
+       onDeleted={()=>router.push(navigation.origin)}/>}
      </div>
      <div className="smn-registry-detail-meta">
       <span className="badge bg-body-secondary text-body-emphasis border">{label(item.status)}</span>
