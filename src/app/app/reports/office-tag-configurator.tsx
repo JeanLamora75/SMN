@@ -53,7 +53,6 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
  useEffect(()=>{
   if(!open)return;
   let alive=true;
-  setLoading(true);setCatalogError(false);setStyleError(false);setIndicators([]);setStyles([]);
   void Promise.allSettled([
    teamId?fetch("/api/admin/indicators/catalog?teamId="+encodeURIComponent(teamId),{cache:"no-store"}).then(async r=>{
     if(!r.ok)throw Error("catalog");const data=await r.json() as Catalog;
@@ -77,6 +76,7 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
  useEffect(()=>{
   if(!open)return;
   const previous=document.activeElement as HTMLElement|null;
+  const openerNode=opener.current;
   const frame=requestAnimationFrame(()=>dialog.current?.querySelector<HTMLElement>("button[data-close]")?.focus());
   function onKey(event:KeyboardEvent){
    if(event.key==="Escape"){event.preventDefault();setOpen(false);return;}
@@ -88,7 +88,7 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
    else if(!event.shiftKey&&document.activeElement===end){event.preventDefault();first.focus();}
   }
   document.addEventListener("keydown",onKey);
-  return()=>{cancelAnimationFrame(frame);document.removeEventListener("keydown",onKey);(opener.current??previous)?.focus();}
+  return()=>{cancelAnimationFrame(frame);document.removeEventListener("keydown",onKey);(openerNode??previous)?.focus();}
  },[open]);
  async function copy(value:string){
   setCopyFailed(false);setCopied(false);
@@ -97,7 +97,7 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
  }
  const list=options;
  return <>
-  <button ref={opener} type="button" className="btn btn-primary btn-sm" onClick={()=>{setOpen(true);selectFamily("scalar");}}>
+  <button ref={opener} type="button" className="btn btn-primary btn-sm" onClick={()=>{setLoading(true);setCatalogError(false);setStyleError(false);setIndicators([]);setStyles([]);setOpen(true);selectFamily("scalar");}}>
    <span aria-hidden="true">⚙ </span>{tr("Open")}
   </button>
   {open&&<div className="modal d-block" role="presentation" style={{backgroundColor:"rgba(0,0,0,.6)",zIndex:1090}}>
