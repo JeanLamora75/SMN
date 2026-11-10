@@ -33,3 +33,13 @@ Le paquet contient le build Next.js standalone, Node.js embarqué, PostgreSQL 18
 - La recette sur le PC cible doit rester **distincte** du résultat du workflow. Les antivirus, exécutables bloqués, ports réservés ou restrictions de répertoire peuvent empêcher l'installation.
 - Toute mise à jour ou remplacement du dossier SMN doit **préserver le cluster PostgreSQL** et les secrets du profil Windows. Ne pas remplacer l'intégralité de `SMN-Windows` sans sauvegarde et procédure de mise à niveau testée.
 - Un nouveau numéro de version distribué exige un nouveau fichier et son empreinte, non une réutilisation ambiguë d'une ancienne archive.
+
+## Diagnostic d'un échec vers 25 % sur un poste Windows restreint
+
+À 25 %, SMN prépare les composants PostgreSQL : il ne crée pas encore les tables ni le compte administrateur. Le ZIP `runtime/postgres/postgresql-18.6-5-windows-x64-binaries.zip` est vérifié par SHA-256 **en lecture progressive** pour limiter la mémoire du serveur Next.js. L'extraction est tentée avec `tar.exe`, puis avec `powershell.exe` et `Expand-Archive` si `tar` échoue. Aucun téléchargement réseau n'est requis tant que l'archive valide est embarquée.
+
+Les binaires décompressés doivent apparaître sous `SMN-Windows/data/postgres/pgsql/bin/` ; le cluster sous `SMN-Windows/data/postgres/data/`. Les fichiers de connexion/chiffrement restent dans le profil Windows pour préserver le comportement existant. Lors d'une extraction précédente interrompue, un répertoire de binaires incomplet est préservé dans `data/postgres/recovery/pgsql-partial-*` avant une nouvelle tentative ; les données de base ne sont jamais effacées pour corriger l'extraction.
+
+Si l'interface indique `postgres-extract-failed`, vérifier les restrictions d'exécution de `tar.exe` et de PowerShell ainsi que l'espace disque ; ce code est transmis sans divulguer les chemins privés. Une erreur restée à 25 % n'est **pas** une preuve d'une migration SQL défaillante.
+
+Le test de contrats `node --test tests/postgres-offline-install.test.mjs` s'exécute dans la CI de packaging. Le test complet `scripts/windows/verify-package.mjs` sur runner Windows contrôle aussi une installation complète dans un cluster isolé, mais une recette sur le PC d'entreprise reste obligatoire.
