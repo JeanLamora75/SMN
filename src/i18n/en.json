@@ -3893,7 +3893,15 @@
     "tagBuilderCopied": "Tag copied to clipboard.",
     "tagBuilderReset": "Reset",
     "tagBuilderCopy": "Copy tag",
-    "tagBuilderGuideHelp": "Click “Configurator” to choose a tag, set its options (including table sorting and charts), preview the full expression and copy it into Word or PowerPoint."
+    "tagBuilderGuideHelp": "Click “Configurator” to choose a tag, set its options (including table sorting and charts), preview the full expression and copy it into Word or PowerPoint.",
+    "officeProgressTitle": "Report generation",
+    "officeProgressChecking": "Checking the template and destination…",
+    "officeProgressGenerating": "Creating the Word or PowerPoint document…",
+    "officeProgressDownloading": "Receiving the report…",
+    "officeProgressSaving": "Saving the report…",
+    "officeProgressIndeterminate": "Work in progress; percentage unavailable",
+    "officeProgressWorking": "Working…",
+    "officeProgressPleaseWait": "This window will close automatically when the report is ready."
   },
   "reportsStudio": {
     "modes": "Studio modes",
