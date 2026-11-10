@@ -17,6 +17,10 @@ export async function POST(request:NextRequest){
   return jsonResult({error:"update-confirmation-required"},400);
  try{
   const root=await safeUpdatesRoot();
+  // Confirm only when the process owner is polling for an update request.
+  const owner=JSON.parse(await readFile(path.join(root,"launcher.json"),"utf8")) as {at:string};
+  if(!owner.at||Date.now()-Date.parse(owner.at)>12000)
+    return jsonResult({error:"update-launcher-not-active"},409);
   const preview=await readPreview(input.id);
   if(preview.actor!==actor.id||preview.nonce!==input.nonce)
    return jsonResult({error:"update-preview-not-owned"},403);
