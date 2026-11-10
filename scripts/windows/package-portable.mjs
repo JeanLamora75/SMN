@@ -115,7 +115,7 @@ for(const file of [
 for(const name of ["templates","reports"])await mkdir(path.join(target,"data","office",name),{recursive:true});
 await mkdir(path.join(target,"updates"), { recursive: true });
 await copyFile("scripts/recover-admin.mjs", path.join(appDir, "recover-admin.mjs"));
-const launch = `@echo off\r\nsetlocal\r\ncd /d "%~dp0"\r\nif not exist "%~dp0runtime\\node\\node.exe" (echo SMN : Node.js embarque absent. & pause & exit /b 1)\r\n"%~dp0runtime\\node\\node.exe" "%~dp0runtime\\launcher.mjs" %*\r\nif errorlevel 1 pause\r\n`;
+const launch = "@echo off\r\nsetlocal\r\ncd /d \"%~dp0\"\r\nif not exist \"%~dp0runtime\\node\\node.exe\" (echo SMN : Node.js absent. & pause & exit /b 1)\r\nif /I \"%~1\"==\"--recover-admin\" (\r\n \"%~dp0runtime\\node\\node.exe\" \"%~dp0app\\recover-admin.mjs\"\r\n) else (\r\n \"%~dp0runtime\\node\\node.exe\" \"%~dp0runtime\\launcher.mjs\"\r\n)\r\nif errorlevel 1 pause\r\n";
 await writeFile(path.join(target,"Demarrer SMN.bat"),launch,"utf8");
 const pgFolder = path.join(target, "runtime", "postgres");
 await mkdir(pgFolder, { recursive: true });
