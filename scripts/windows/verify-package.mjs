@@ -38,6 +38,10 @@ const isolatedHome = await mkdtemp(path.join(os.tmpdir(), "smn-portable-ci-"));
 const newStorage=path.join(root, "data", "postgres");
 assert.equal(existsSync(path.join(root, "server.js")), false, "Le serveur doit être isolé dans app/");
 assert.equal(existsSync(path.join(root, "node.exe")), false, "Node.js doit être isolé dans runtime/node/");
+assert.ok(existsSync(path.join(root, "updates")), "Le staging updates doit être séparé des données");
+for (const privateFile of [".env",".env.local",".settings-key","runtime.json","postgres-connection.json"]) {
+  assert.equal(existsSync(path.join(root,"app",privateFile)), false, "Configuration privée incluse dans app : "+privateFile);
+}
 assert.equal(existsSync(newStorage), false, "Le paquet de distribution ne doit contenir aucune base PostgreSQL préinitialisée");
 const recoveryProbe=spawnSync(path.join(root,"runtime","node","node.exe"),[path.join(root,"app","recover-admin.mjs")],{
   cwd:root,windowsHide:true,encoding:"utf8",stdio:["pipe","pipe","pipe"],
