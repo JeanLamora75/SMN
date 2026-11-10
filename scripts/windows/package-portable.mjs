@@ -4,6 +4,7 @@ import { cp, copyFile, mkdir, writeFile, readFile, stat } from "node:fs/promises
 import { existsSync } from "node:fs";
 import path from "node:path";
 import {createRequire} from "node:module";
+import { createPrivateKey, createPublicKey } from "node:crypto";
 import { acquirePgArchive, PG_ARCHIVE } from "./postgres-archive.mjs";
 
 if (process.platform !== "win32" || process.env.GITHUB_ACTIONS !== "true") {
@@ -12,6 +13,25 @@ if (process.platform !== "win32" || process.env.GITHUB_ACTIONS !== "true") {
 const target = path.resolve(process.env.SMN_PACKAGE_DIR || path.join(process.cwd(), "_package", "SMN-Windows"));
 if (!existsSync(".next/standalone/server.js")) throw new Error("Next standalone manquant. Vérifier next.config et pnpm build.");
 await mkdir(target, { recursive: true });
+// A stable installed version is required for explicit offline patch preconditions.
+const runNumber=process.env.GITHUB_RUN_NUMBER;
+const buildSha=process.env.GITHUB_SHA;
+if(!/^\\d+$/.test(runNumber??"") || !/^[0-9a-f]{40}$/.test(buildSha??""))
+  throw new Error("Numéro de build GitHub ou commit absent");
+const buildVersion="33.0."+Number(runNumber);
+await writeFile(path.join(target,"distribution-version.json"),
+  JSON.stringify({product:"SMN",version:buildVersion,sourceCommit:buildSha})+"\\n","utf8");
+// Trust anchor is only supplied from the CI signing secret, never by the ZIP.
+// Existing installations without this anchor cannot verify signed updates.
+const signingSecret=process.env.SMN_UPDATE_SIGNING_KEY_PEM_B64;
+if(signingSecret){
+  const privateKey=createPrivateKey(Buffer.from(signingSecret,"base64").toString("utf8"));
+  if(privateKey.asymmetricKeyType!=="ed25519")throw Error("update-signing-key-invalid");
+  const pub=createPublicKey(privateKey).export({format:"pem",type:"spki"});
+  await mkdir(path.join(target,"runtime","trust"),{recursive:true});
+  await writeFile(path.join(target,"runtime","trust","update-signing-public.pem"),pub,
+    {encoding:"utf8",flag:"wx"});
+}
 const appDir = path.join(target, "app");
 await mkdir(appDir, { recursive: true });
 // pnpm/Next produisent des liens symboliques vers .next/standalone ; un paquet
