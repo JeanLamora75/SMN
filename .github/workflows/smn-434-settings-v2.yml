@@ -1,0 +1,58 @@
+name: "SMN-434 — Paramètres V2 et internationalisation"
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/smn-434-settings-v2.yml"
+      - "src/lib/settings-catalog.ts"
+      - "src/lib/settings-catalog-search.ts"
+      - "src/app/app/admin/settings/**"
+      - "src/i18n/fr.json"
+      - "src/i18n/en.json"
+      - "tests/smn-224-settings-portal.test.ts"
+      - "tests/smn-225-settings-catalog.test.ts"
+      - "tests/smn-226-settings-view.test.ts"
+      - "tests/smn-227-settings-navigation.test.ts"
+      - "tests/settings-cockpit-ux.test.ts"
+      - "tests/smn-282-team-settings.test.ts"
+      - "tests/smn-434-settings-v2-i18n.test.ts"
+  workflow_dispatch:
+
+concurrency:
+  group: smn-434-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  settings-v2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - name: Installer les dépendances verrouillées
+        run: pnpm install --frozen-lockfile
+      - name: Vérifier l'internationalisation FR et EN
+        run: pnpm i18n:check
+      - name: Exécuter les contrats Paramètres V1 et V2
+        run: >-
+          pnpm exec tsx --test
+          tests/smn-224-settings-portal.test.ts
+          tests/smn-225-settings-catalog.test.ts
+          tests/smn-226-settings-view.test.ts
+          tests/smn-227-settings-navigation.test.ts
+          tests/settings-cockpit-ux.test.ts
+          tests/smn-282-team-settings.test.ts
+          tests/smn-434-settings-v2-i18n.test.ts
+      - name: Vérifier TypeScript
+        run: pnpm typecheck
