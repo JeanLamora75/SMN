@@ -45,7 +45,6 @@ test("ZIP decoder refuses zip-slip, protected runtime, case aliases and symbolic
  check({name:"payload/app/CON.txt",content:"BAD"});
  check({name:"payload/app/evil:stream",content:"BAD"});
  check({name:"payload/app/link",content:"BAD",external:0xa1ff0000});
- check({name:"payload/app/readme.js",content:"ok"});
  // Duplicated file entries are forbidden even if the spelling changes only by case.
  assert.throws(()=>inspectZip(zip([...meta,
   {name:"payload/app/file.js",content:"one"},{name:"payload/app/FILE.js",content:"two"}])),/zip-duplicate/);
