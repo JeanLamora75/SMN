@@ -4524,6 +4524,20 @@
     "linked-data": "Deletion blocked: associated data prevents safe removal. No changes were committed.",
     "no-templates": "No ceremonies could be created. Check active templates and the team's calendar.",
     "incomplete-schema": "The ceremonies schema is incomplete. No changes were made.",
-    "unavailable": "Operation unavailable. No partial changes were committed."
+    "unavailable": "Operation unavailable. No partial changes were committed.",
+    "chooseTypes": "Choose ceremony types to delete",
+    "chooseTypesHelp": "Select the types to remove from this sprint. All other ceremonies will be kept.",
+    "selectedCount": "{count} selected ceremony/ceremonies",
+    "continueDelete": "Continue deletion",
+    "cancel": "Cancel",
+    "confirmSelected": "Permanently delete {count} ceremony/ceremonies of these types: {types}? This cannot be undone.",
+    "type": {
+      "planning": "Sprint Planning",
+      "daily": "Daily Scrum",
+      "review": "Sprint Review",
+      "retrospective": "Sprint Retrospective",
+      "custom": "Custom ceremonies",
+      "exceptional": "Exceptional meetings"
+    }
   }
 }
