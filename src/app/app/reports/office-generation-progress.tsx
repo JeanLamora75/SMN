@@ -9,12 +9,13 @@ export default function OfficeGenerationProgressModal({progress}:{progress:Offic
  const t=useTranslation();
  const tr=(key:string)=>t(("reportsCenter.officeProgress"+key) as Parameters<typeof t>[0]);
  const dialog=useRef<HTMLDivElement>(null);
+ const active=progress!==null;
  useEffect(()=>{
-  if(!progress)return;
+  if(!active)return;
   const before=document.activeElement instanceof HTMLElement?document.activeElement:null;
   dialog.current?.focus();
   return()=>before?.focus();
- },[!!progress]); // focus only when modal opens/closes
+ },[active]); // focus only when modal opens/closes
  if(!progress)return null;
  const percent=progress.percent===null?null:Math.max(0,Math.min(100,Math.round(progress.percent)));
  return <div className="modal d-block" role="presentation" style={{backgroundColor:"rgba(0,0,0,.55)",zIndex:1100}}>
