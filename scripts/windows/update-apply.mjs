@@ -5,7 +5,7 @@ import {readFile,writeFile,mkdir,cp,rename,rm,lstat,readdir} from "node:fs/promi
 import {randomUUID,createHash} from "node:crypto";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
-import {beginCutover,finishCutover,recoverCutover} from "./update-transaction.mjs";
+import {beginCutover,finishCutover,recoverCutover,readCutover} from "./update-transaction.mjs";
 import {enumerateUpdateableFiles,verifySignedManifest,
   requireCompatibleBase,verifyUpdatePayload} from "./update-contract.mjs";
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
@@ -37,7 +37,10 @@ async function run(){
   await recoverCutover(root);
   return;
  }
- if(await recoverCutover(root)==="recovered")throw Error("update-recovery-performed-retry-required");
+ if((await readCutover(root))?.state==="applying"){
+  await recoverCutover(root);
+  throw Error("update-recovery-performed-retry-required");
+ }
  for(const name of ["data","runtime","updates"]){
   const st=await lstat(path.join(root,name));
   if(!st.isDirectory()||st.isSymbolicLink())throw Error("update-protected-root-unsafe");
