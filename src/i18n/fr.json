@@ -4524,6 +4524,20 @@
     "linked-data": "Suppression refusée : des données associées empêchent une suppression sûre. Aucune modification n'a été enregistrée.",
     "no-templates": "Aucune cérémonie n'a pu être créée. Vérifiez les modèles actifs et le calendrier de l'équipe.",
     "incomplete-schema": "Le schéma des cérémonies est incomplet. Aucune modification n'a été réalisée.",
-    "unavailable": "Opération indisponible. Aucune modification partielle n'a été validée."
+    "unavailable": "Opération indisponible. Aucune modification partielle n'a été validée.",
+    "chooseTypes": "Choisir les types de cérémonies à supprimer",
+    "chooseTypesHelp": "Sélectionnez les types à effacer dans ce sprint. Les autres cérémonies seront conservées.",
+    "selectedCount": "{count} cérémonie(s) sélectionnée(s)",
+    "continueDelete": "Poursuivre la suppression",
+    "cancel": "Annuler",
+    "confirmSelected": "Confirmer la suppression définitive de {count} cérémonie(s) : {types} ? Cette opération est irréversible.",
+    "type": {
+      "planning": "Sprint Planning",
+      "daily": "Daily Scrum",
+      "review": "Sprint Review",
+      "retrospective": "Sprint Rétrospective",
+      "custom": "Cérémonies personnalisées",
+      "exceptional": "Réunions exceptionnelles"
+    }
   }
 }
