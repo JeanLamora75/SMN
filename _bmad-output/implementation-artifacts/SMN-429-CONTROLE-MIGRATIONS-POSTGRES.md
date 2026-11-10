@@ -36,3 +36,14 @@ Le format de mise à jour hors ligne actuellement signé par SMN-426/427 **ne co
 6. Le justificatif de contrôle réalisé avant l'arrêt du serveur peut devenir obsolète en cas d'intervention parallèle dans PostgreSQL ; une attestation transactionnelle à l'instant de bascule est un renforcement à qualifier pour les scénarios de migrations futures.
 
 **Statut recommandé Jira :** en cours / en validation. Ne pas clôturer sans les résultats CI et Windows. Aucun script `uv` exécuté.
+
+## Qualification complémentaire du 10/11/2026
+
+- **Contrats Windows déjà exécutés avec succès** : [run 42788530953](https://github.com/JeanLamora75/SMN/actions/runs/42788530953), `update-contract-tests` : 21/21 tests passés, dont les quatre tests de `schema-update-policy.test.mjs` ; `update-build-smoke` : succès de la construction et vérification signée des ZIP de démonstration.
+- **Packaging Windows** : [run 42788487811](https://github.com/JeanLamora75/SMN/actions/runs/42788487811), `portable-windows` `success`.
+- **CI générale** : [run 42789990186](https://github.com/JeanLamora75/SMN/actions/runs/42789990186) job `TypeScript indépendant des tests` `success` après correction du lint de l'interface.
+- **Périmètre prouvé** : décision de ne pas migrer une base déjà en PostgreSQL 18/v33, refus sur versions 17/19 et schémas 32/34, refus des doublons, historiques incomplets et checksum non valide **dans la politique pure**, précontrôle de l'application via `probePostgres` en transaction `READ ONLY`, et absence d'exécution de DDL dans l'updater.
+- **Périmètre non prouvé** : migration DDL réellement appliquée, ordonnée et idempotente depuis une version antérieure dans un paquet signé ; comparaison complète des données membres, historiques, indicateurs v33, équipes et documents Office/PDF après une migration réelle. Les ZIP actuels ne comportent pas ce moteur. Une migration demandée par une future version est bloquée, elle n'est pas « validée ».
+- **État des nouveaux tests** : suivre les tests ajoutés pour SMN-428 (matrice d'interruption et politique de sauvegarde) sur un run CI au commit courant ; les runs antérieurs ne constituent pas une preuve pour ce nouveau code.
+
+**Verdict** : vérification de compatibilité *validée en CI dans le cadre v33→v33 sans DDL* ; AC2 et AC6 ne sont pas clos pour une migration PostgreSQL réelle. La Story reste ouverte.
