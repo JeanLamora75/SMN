@@ -220,3 +220,19 @@ Guide UI : https://github.com/JeanLamora75/SMN/blob/main/src/app/app/reports/off
 Parseur graphique : https://github.com/JeanLamora75/SMN/blob/main/scripts/smn-402-office-chart-tags.mjs
 
 Parseur tri : https://github.com/JeanLamora75/SMN/blob/main/scripts/smn-office-row-sort.mjs
+
+## 13. Traçabilité Jira et développement — 10 novembre 2026
+
+Stories créées et rattachées à l'Epic [SMN-6](https://lmn24.atlassian.net/browse/SMN-6) :
+
+| Story | Objet |
+|---|---|
+| [SMN-435](https://lmn24.atlassian.net/browse/SMN-435) | Accès, modale, recherche, aperçu et copie |
+| [SMN-436](https://lmn24.atlassian.net/browse/SMN-436) | Valeurs simples et indicateurs actifs |
+| [SMN-437](https://lmn24.atlassian.net/browse/SMN-437) | Sources ROW et tri SORT |
+| [SMN-438](https://lmn24.atlassian.net/browse/SMN-438) | Graphiques et paramètres |
+| [SMN-439](https://lmn24.atlassian.net/browse/SMN-439) | Guide, FR/EN, tests et recette |
+
+**État d'implémentation — non encore qualifié :** Amelia a ajouté au dépôt `main` le composant `src/app/app/reports/office-tag-configurator.tsx`, la sérialisation pure `src/lib/office-tag-builder.ts`, les traductions FR/EN, le point d'entrée dans `src/app/app/reports/page.tsx`, les tests `tests/smn-435-439-office-tag-configurator.test.ts` et la CI dédiée `.github/workflows/smn-435-439-office-tag-configurator.yml`.
+
+La preuve complète d'exécution CI, l'inspection de vrais modèles Office et la recette interactive Windows restent **à confirmer**, indépendamment de la présence du code.
