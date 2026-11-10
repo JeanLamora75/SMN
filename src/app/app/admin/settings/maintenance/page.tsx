@@ -9,6 +9,7 @@ import {withAuthDb} from "@/server/auth/database";
 import {readAuditJournal} from "@/server/audit/journal";
 import BackupsAdmin from "../../backups/backups-admin";
 import SettingsTabs from "../settings-tabs";
+import UpdatesAdmin from "./updates-admin";
 
 export const dynamic="force-dynamic";
 export default async function MaintenanceSettingsPage(){
@@ -17,7 +18,8 @@ export default async function MaintenanceSettingsPage(){
  if(account.must_change_password)redirect("/change-password");
  const backups=canAccess(account,"read",{type:"backups",exists:true,inScope:true});
  const audit=canAccess(account,"read",{type:"audit",exists:true,inScope:true});
- if(!backups&&!audit)notFound();
+ const updates=account.role==="admin";
+ if(!backups&&!audit&&!updates)notFound();
  const locale=await requestLocale();
  const entries=audit?await withAuthDb(client=>readAuditJournal(client)).catch(()=>null):null;
 
@@ -26,6 +28,7 @@ export default async function MaintenanceSettingsPage(){
   <header className="mb-3"><h1 className="h3">{translate(locale,"settingsCatalog.items.maintenance.title")}</h1>
    <p className="text-secondary">{translate(locale,"settingsCatalog.items.maintenance.description")}</p></header>
   <SettingsTabs label={translate(locale,"settingsCatalog.items.maintenance.title")} sections={[
+   ...(updates?[{id:"updates",label:translate(locale,"offlineUpdates.title"),content:<UpdatesAdmin/>}]:[]),
    ...(backups?[{id:"backups",label:translate(locale,"settingsCatalog.items.backups.title"),content:<BackupsAdmin/>}]:[]),
    ...(audit?[{id:"audit",label:translate(locale,"settingsCatalog.items.audit.title"),content:<AuditJournalView entries={entries} locale={locale}/>}]:[])
   ]}/>
