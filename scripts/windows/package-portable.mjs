@@ -95,11 +95,13 @@ await copyFile(process.execPath, path.join(target, "runtime", "node", "node.exe"
 await mkdir(path.join(target,"runtime","maintenance"),{recursive:true});
 await copyFile("scripts/office-dirs.mjs",path.join(target,"runtime","maintenance","office-dirs.mjs"));
 await copyFile("scripts/windows/update-transaction.mjs",path.join(target,"runtime","maintenance","update-transaction.mjs"));
+await copyFile("scripts/windows/restore-launch-gate.mjs",path.join(target,"runtime","maintenance","restore-launch-gate.mjs"));
 // The stable launcher is a protected runtime component and is never patched by an update.
 const launchSource=await readFile("scripts/windows/launch-portable.mjs","utf8");
 const packagedLaunch=launchSource
  .replace('from "./scripts/office-dirs.mjs"','from "./maintenance/office-dirs.mjs"')
  .replace('from "./scripts/windows/update-transaction.mjs"','from "./maintenance/update-transaction.mjs"')
+ .replace('from "./scripts/windows/restore-launch-gate.mjs"','from "./maintenance/restore-launch-gate.mjs"')
  .replace('const root=path.dirname(fileURLToPath(import.meta.url));',
   'const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");')
  .replace('path.join(root,"scripts","windows","update-apply.mjs")',
