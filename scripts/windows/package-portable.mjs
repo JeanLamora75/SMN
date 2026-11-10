@@ -1,6 +1,6 @@
 // Paquet Windows autonome pour un pilote. N'installe aucun service Windows.
 // À exécuter uniquement après pnpm build (Next standalone) sous GitHub Actions.
-import { cp, copyFile, mkdir, writeFile, readFile, stat } from "node:fs/promises";
+import { cp, copyFile, mkdir, writeFile, readFile, stat, rm } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import {createRequire} from "node:module";
@@ -42,6 +42,11 @@ if(signingSecret){
 // pnpm/Next produisent des liens symboliques vers .next/standalone ; un paquet
 // autonome doit copier leurs cibles, sinon Node cherchera les fichiers source.
 await cp(".next/standalone", appDir, { recursive: true, force: true, dereference: true });
+// Standalone tracing can copy source-only files. The deliverable is runtime-only.
+for(const name of [".git",".github",".agents","_bmad","_bmad-output",
+  "src","tests","docs",".env",".env.local",".env.example"]){
+ await rm(path.join(appDir,name),{recursive:true,force:true});
+}
 // The installed application may be replaced independently of its persistent data.
 // Next standalone changes cwd to the bundle directory; preserve SMN root as cwd
 // because existing database, Office and schema paths are anchored there.
