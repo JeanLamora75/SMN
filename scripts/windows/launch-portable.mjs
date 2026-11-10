@@ -8,8 +8,15 @@ import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {ensureOfficeDirectories} from "./scripts/office-dirs.mjs";
 import {recoverCutover} from "./scripts/windows/update-transaction.mjs";
+import {launcherMaintenanceBlocked} from "./scripts/windows/restore-launch-gate.mjs";
 if(process.platform!=="win32")throw Error("Windows x64 requis");
 const root=path.dirname(fileURLToPath(import.meta.url));
+const maintenanceMarker=process.env.SMN_RESTORE_MAINTENANCE_MARKER;
+async function maintenanceBlocked(){
+ return launcherMaintenanceBlocked(maintenanceMarker,root,process.env.SMN_BACKUP_DIR);
+}
+// Do not perform update recovery or start a child while maintenance is active.
+if(await maintenanceBlocked())throw Error("SMN maintenance externe active : démarrage refusé.");
 const server=path.join(root,"app","server.js");
 const updates=path.join(root,"updates");
 // Never launch an uncertain application after an interrupted file exchange.
@@ -59,6 +66,7 @@ let shuttingDown=false,webChild=null;
 process.on("SIGINT",()=>{shuttingDown=true;webChild?.kill("SIGTERM");});
 process.on("SIGTERM",()=>{shuttingDown=true;webChild?.kill("SIGTERM");});
 const alreadyRunning=await listening();
+if(await maintenanceBlocked())throw Error("SMN maintenance externe active : démarrage refusé.");
 if(alreadyRunning){
  // This launch did not start the other server, so it cannot own or stop it.
  browser();
@@ -66,6 +74,7 @@ if(alreadyRunning){
 }else{
  let opened=false;
  while(!shuttingDown){
+  if(await maintenanceBlocked()){shuttingDown=true;break;}
   const child=spawn(process.execPath,[server],{
    cwd:root,env:{...process.env,PORT:"3003",HOSTNAME:"127.0.0.1",NODE_ENV:"production"},
    stdio:"inherit",windowsHide:false,shell:false});
@@ -74,11 +83,13 @@ if(alreadyRunning){
   child.on("error",()=>{crashed=true;console.error("Impossible de démarrer SMN.");});
   let ready=false;
   for(let attempt=0;attempt<120&&!shuttingDown;attempt++){
+   if(await maintenanceBlocked()){shuttingDown=true;child.kill("SIGTERM");break;}
    if(child.exitCode!==null||crashed)break;
    if(await listening()){ready=true;break;}
    await sleep(500);
   }
   if(!ready){
+   if(shuttingDown){if(child.exitCode===null)await new Promise(resolve=>child.once("exit",resolve));break;}
    console.error("SMN indisponible sur le port 3003.");
    child.kill();
    process.exitCode=1;
@@ -92,6 +103,12 @@ if(alreadyRunning){
    if(polling||shuttingDown||applying)return;
    polling=true;
    try{
+    if(await maintenanceBlocked()){
+     shuttingDown=true;
+     console.log("SMN : maintenance externe détectée, arrêt du serveur propriétaire.");
+     child.kill("SIGTERM");
+     return;
+    }
     await heartbeat();
     if(existsSync(pending)){
      const record=JSON.parse(await readFile(pending,"utf8"));
