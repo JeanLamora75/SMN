@@ -2378,6 +2378,12 @@
       "users": "users accounts rights access permissions",
       "security": "security sessions password access personal",
       "maintenance": "maintenance updates offline upgrades backup backups restore audit log history"
+    },
+    "navigation": {
+      "back": "← Settings",
+      "adminEyebrow": "Agile Cockpit · Administration",
+      "indicatorsTitle": "Settings · Indicators",
+      "indicatorsDescription": "Define, understand and select the indicators used to monitor your teams"
     }
   },
   "memberAbsences": {
