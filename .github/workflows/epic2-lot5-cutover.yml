@@ -25,6 +25,7 @@ on:
       - "tests/smn-34-live-restore-safety.test.ts"
       - "tests/smn-34-audit-readonly.test.ts"
       - "src/server/backup/restore-audit.ts"
+      - "src/server/backup/restore-audit-preview.ts"
       - "scripts/smn-34-audit-readonly.ts"
       - "package.json"
       - "src/app/app/admin/backups/backups-admin.tsx"
