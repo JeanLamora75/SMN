@@ -12,7 +12,7 @@ import { canBindLoopback, selectLoopbackPort } from "./managed-port";
 import { runManagedProcess as run } from "./managed-process";
 import { managedStorageRoot, legacyManagedStorageRoot, managedRuntimeManifestPath } from "./managed-paths";
 
-// SMN gère UNIQUEMENT son propre cluster sous LocalAppData. Le système ou
+// SMN gère UNIQUEMENT son propre cluster dans SMN/data/postgres. Le système ou
 // l'autre application ne sont jamais interrogés, adoptés ou arrêtés.
 const PORT = 55432;
 const VERSION = 2;
@@ -191,7 +191,23 @@ export async function prepareManaged(onProgress: (step: string) => void, recover
     const tmp = path.join(os.tmpdir(), "smnp-" + randomBytes(4).toString("hex"));
     await mkdir(tmp, { recursive: false });
     try {
-      await run("tar.exe", ["-xf", verifiedArchive, "-C", tmp]);
+      try {
+        await run("tar.exe", ["-xf", verifiedArchive, "-C", tmp]);
+      } catch {
+        // Some locked-down Windows machines lack a usable tar.exe or block it.
+        // Retry with Windows PowerShell's built-in ZIP extractor, still fully offline.
+        await rm(tmp, { recursive: true, force: true });
+        await mkdir(tmp, { recursive: false });
+        const quote = (value: string) => "'" + value.replace(/'/g, "''") + "'";
+        const command = "Expand-Archive -LiteralPath " + quote(verifiedArchive) +
+          " -DestinationPath " + quote(tmp) + " -Force -ErrorAction Stop";
+        const encoded = Buffer.from(command, "utf16le").toString("base64");
+        try {
+          await run("powershell.exe", ["-NoProfile", "-NonInteractive", "-EncodedCommand", encoded]);
+        } catch {
+          throw new Error("postgres-extract-failed");
+        }
+      }
       const { readdir } = await import("node:fs/promises");
       const dirs = await readdir(tmp);
       const actual = dirs.includes("pgsql") ? path.join(tmp, "pgsql") : tmp;
