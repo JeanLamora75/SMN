@@ -49,7 +49,8 @@ async function executeUpdate(){
 let shuttingDown=false,webChild=null;
 process.on("SIGINT",()=>{shuttingDown=true;webChild?.kill("SIGTERM");});
 process.on("SIGTERM",()=>{shuttingDown=true;webChild?.kill("SIGTERM");});
-if(await listening()){
+const alreadyRunning=await listening();
+if(alreadyRunning){
  // This launch did not start the other server, so it cannot own or stop it.
  browser();
  console.log("SMN déjà actif. Les mises à jour exigent le lanceur propriétaire du serveur.");
@@ -95,7 +96,7 @@ if(await listening()){
    }catch{console.error("Contrôle de mise à jour indisponible.");}
    finally{polling=false;}
   },1500);
-  await new Promise(resolve=>child.once("exit",resolve));
+  if(child.exitCode===null)await new Promise(resolve=>child.once("exit",resolve));
   clearInterval(interval);webChild=null;
   if(shuttingDown)break;
   if(!applying){
@@ -109,4 +110,4 @@ if(await listening()){
   // No automatic database migration or PostgreSQL termination occurs here.
  }
 }
-await rm(path.join(updates,"launcher.json"),{force:true}).catch(()=>{});
+if(!alreadyRunning)await rm(path.join(updates,"launcher.json"),{force:true}).catch(()=>{});
