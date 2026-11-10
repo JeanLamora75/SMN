@@ -7,13 +7,15 @@ import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {beginCutover,finishCutover,recoverCutover,readCutover} from "./update-transaction.mjs";
 import {enumerateUpdateableFiles,verifySignedManifest,
-  requireCompatibleBase,verifyUpdatePayload} from "./update-contract.mjs";
-const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
+  requireCompatibleBase,verifyUpdatePayload,installedVersionPath} from "./update-contract.mjs";
+const ownDir=path.dirname(fileURLToPath(import.meta.url));
+const minimalLayout=path.basename(path.dirname(ownDir))==="maintenance";
+const root=path.resolve(ownDir,minimalLayout?"../../..":"../..");
 const updates=path.join(root,"updates");
 const pending=path.join(updates,"pending.json");
 const ROOTS=["app","prisma","scripts"];
 const FILES=["launch-portable.mjs","Demarrer SMN.cmd","Recuperer admin SMN.cmd","distribution-version.json"];
-const NAMES=[...ROOTS,...FILES];
+const NAMES=minimalLayout?["app"]:[...ROOTS,...FILES];
 async function status(state,version){
  const tmp=path.join(updates,"status-"+randomUUID()+".tmp");
  await writeFile(tmp,JSON.stringify({state,version,at:new Date().toISOString()})+"\n",{flag:"wx"});
@@ -26,7 +28,9 @@ async function maybeCopy(src,dst){
  }catch(e){if(e?.code!=="ENOENT")throw e;}
 }
 async function verifyStage(id){
- const script=path.join(root,"scripts","windows","verify-staged-update.mjs");
+ const script=minimalLayout?
+ path.join(root,"app","maintenance","windows","verify-staged-update.mjs"):
+ path.join(root,"scripts","windows","verify-staged-update.mjs");
  const child=spawnSync(process.execPath,[script,"--root",root,"--id",id],{
   cwd:root,windowsHide:true,stdio:"ignore",timeout:180000});
  if(child.status!==0)throw Error("update-reverification-failed");
@@ -74,7 +78,7 @@ async function run(){
  if(manifest.toVersion!==approval.version||
     createHash("sha256").update(manifestBytes).digest("hex")!==preview.manifestSha256)
    throw Error("update-signed-content-changed");
- const current=JSON.parse(await readFile(path.join(root,"distribution-version.json"),"utf8"));
+ const current=JSON.parse(await readFile(installedVersionPath(root),"utf8"));
  const installed=await enumerateUpdateableFiles(root);
  requireCompatibleBase(manifest,current.version,installed);
  await verifyUpdatePayload(extracted,manifest);
@@ -108,7 +112,7 @@ async function run(){
  for(const [key,item] of expected){
   if(finalFiles.get(key)?.sha256!==item.sha256)throw Error("update-prepared-hash-invalid");
  }
- const proposed=JSON.parse(await readFile(path.join(prepared,"distribution-version.json"),"utf8"));
+ const proposed=JSON.parse(await readFile(installedVersionPath(prepared),"utf8"));
  if(proposed.version!==manifest.toVersion||proposed.sourceCommit!==manifest.sourceCommit)
   throw Error("update-version-file-invalid");
  await mkdir(rollback,{recursive:true});
