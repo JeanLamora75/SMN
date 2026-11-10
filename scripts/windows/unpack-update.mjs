@@ -96,7 +96,8 @@ export function inspectZip(bytes){
 }
 export async function unpackZip(bytes,destination){
   const entries=inspectZip(bytes);
-  await mkdir(destination,{recursive:true,mode:0o700});
+  // A fresh destination is mandatory: never follow a planted staging symlink.
+  await mkdir(destination,{mode:0o700});
   for(const entry of entries){
     const file=path.join(destination,...entry.name.split("/"));
     if(entry.directory){await mkdir(file,{recursive:true});continue;}
