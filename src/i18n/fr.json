@@ -3892,7 +3892,8 @@
     "tagBuilderCopyError": "Copie impossible. Sélectionnez le tag et copiez-le manuellement.",
     "tagBuilderCopied": "Tag copié dans le presse-papiers.",
     "tagBuilderReset": "Réinitialiser",
-    "tagBuilderCopy": "Copier le tag"
+    "tagBuilderCopy": "Copier le tag",
+    "tagBuilderGuideHelp": "Cliquez sur « Configurateur » pour choisir un tag, définir ses options (dont le tri des tableaux et les graphiques), voir l'expression complète et la copier dans Word ou PowerPoint."
   },
   "reportsStudio": {
     "modes": "Modes du Studio",
