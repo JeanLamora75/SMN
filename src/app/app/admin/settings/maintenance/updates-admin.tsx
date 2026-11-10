@@ -49,6 +49,9 @@ export default function UpdatesAdmin(){
    });
    if(!res.ok){
     const failure=await res.json().catch(()=>({})) as {error?:string};
+    if(failure.error==="update-schema-incompatible"){
+     setError(t("offlineUpdates.schemaIncompatible"));return;
+    }
     if(failure.error==="update-verified-backup-required"){
      setError(t("offlineUpdates.backupRequired"));return;
     }
