@@ -388,6 +388,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
      </table>:<div className="smn-registry-card-grid" aria-label={translate("cardsView")}>
       {result.items.map(item=><RegistryCard key={item.id} item={item}
        navigation={{origin,trail:[]}} onNavigate={savePosition} onEdit={()=>setEditingId(item.id)}
+       onDeleted={deleted} teamId={teamId}
        canManage={canManage} highlight={createdId===item.id}
        signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
      </div>}
