@@ -122,7 +122,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          if ($env:SMN_BASE_RUN_ID -notmatch '^[0-9]+ '_base/SMN-Setup-Windows-x64-v33.zip')) {
+          if ($env:SMN_BASE_RUN_ID -notmatch '^[0-9]+$' -or -not (Test-Path '_base/SMN-Setup-Windows-x64-v33.zip')) {
             throw 'Une distribution SMN de base compatible est obligatoire pour un delta.'
           }
           Expand-Archive -LiteralPath '_base/SMN-Setup-Windows-x64-v33.zip' -DestinationPath '_base/extracted'
@@ -142,128 +142,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           if ($env:SMN_RELEASE_MODE -notin @('full','delta')) { throw 'Mode de mise à jour invalide' }
-          if ($env:SMN_RELEASE_MODE -eq 'full' -and $env:SMN_RELEASE_FROM_VERSION -notmatch '^33\\.[0-9]+\\.[0-9]+
-            '--mode',$env:SMN_RELEASE_MODE)
-          if ($env:SMN_RELEASE_MODE -eq 'delta') {
-            $base = '_base/extracted/SMN-Windows'
-            $originalKey = Get-Content -Raw "$base/runtime/trust/update-signing-public.pem"
-            $targetKey = Get-Content -Raw '_package/SMN-Windows/runtime/trust/update-signing-public.pem'
-            if ($originalKey -ne $targetKey) { throw 'La clé de confiance du paquet de base ne correspond pas à la signature actuelle.' }
-            $argsList += @('--base',$base)
-          } else {
-            $argsList += @('--from',$env:SMN_RELEASE_FROM_VERSION)
-          }
-          & node scripts/windows/build-update.mjs @argsList
-          if ($LASTEXITCODE -ne 0) { throw 'Échec de génération de mise à jour' }
-      - name: Vérifier les fichiers et la signature avec la clé publique indépendante
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $verifyArgs = @('--dir','_package/update-stage',
-            '--trust','_package/SMN-Windows/runtime/trust/update-signing-public.pem')
-          if ("${{ inputs.mode }}" -eq 'delta') {
-            $verifyArgs += @('--base','_base/extracted/SMN-Windows')
-          }
-          & node scripts/windows/verify-update.mjs @verifyArgs
-          if ($LASTEXITCODE -ne 0) { throw 'Mise à jour non vérifiable : distribution refusée' }
-      - name: Compresser, vérifier à nouveau et mesurer le ZIP
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          $stage = (Resolve-Path '_package/update-stage').Path
-          $target = Join-Path (Resolve-Path '_package').Path ("SMN-Update-" + (Get-Content '_package/SMN-Windows/distribution-version.json' | ConvertFrom-Json).version + ".zip")
-          [System.IO.Compression.ZipFile]::CreateFromDirectory($stage,$target,[System.IO.Compression.CompressionLevel]::Optimal,$false)
-          $roundtrip = Join-Path (Resolve-Path '_package').Path 'update-roundtrip'
-          [System.IO.Compression.ZipFile]::ExtractToDirectory($target,$roundtrip)
-          & node scripts/windows/verify-update.mjs --dir $roundtrip --trust '_package/SMN-Windows/runtime/trust/update-signing-public.pem'
-          if ($LASTEXITCODE -ne 0) { throw 'ZIP corrompu ou incomplet après compression' }
-          $hash = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  $(Split-Path -Leaf $target)" | Set-Content -Encoding ascii ($target + '.sha256')
-          $size = (Get-Item $target).Length
-          Write-Host "SMN UPDATE ZIP bytes: $size"
-          Write-Host "SMN UPDATE ZIP SHA256: $hash"
-          if ($size -gt 25MB) { Write-Warning "Objectif de 25 Mo dépassé : livraison maintenue et taille documentée." }
-      - uses: actions/upload-artifact@v4
-        with:
-          name: SMN-Update-Windows-signed
-          path: |
-            _package/SMN-Update-*.zip
-            _package/SMN-Update-*.zip.sha256
-          if-no-files-found: error
-          retention-days: 14
-          compression-level: 0
- -or -not (Test-Path '_base/SMN-Setup-Windows-x64-v33.zip')) {
-            throw 'Une distribution SMN de base compatible est obligatoire pour un delta.'
-          }
-          Expand-Archive -LiteralPath '_base/SMN-Setup-Windows-x64-v33.zip' -DestinationPath '_base/extracted'
-          if (-not (Test-Path '_base/extracted/SMN-Windows/distribution-version.json')) {
-            throw "La distribution de base doit disposer d'un marqueur de version."
-          }
-      - name: Installer les dépendances Windows
-        run: npm install --no-package-lock --no-audit --no-fund --legacy-peer-deps
-      - name: Construire l'application autonome
-        env:
-          SMN_BUILD_STANDALONE: "1"
-        run: npm run build
-      - name: Préparer le contenu applicatif sans PostgreSQL
-        run: node scripts/windows/package-portable.mjs
-      - name: Construire et signer le manifeste et les fichiers de mise à jour
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $argsList = @('--target','_package/SMN-Windows','--out','_package/update-stage',
-            '--mode',"${{ inputs.mode }}")
-          if ("${{ inputs.mode }}" -eq 'delta') {
-            $base = '_base/extracted/SMN-Windows'
-            $originalKey = Get-Content -Raw "$base/runtime/trust/update-signing-public.pem"
-            $targetKey = Get-Content -Raw '_package/SMN-Windows/runtime/trust/update-signing-public.pem'
-            if ($originalKey -ne $targetKey) { throw 'La clé de confiance du paquet de base ne correspond pas à la signature actuelle.' }
-            $argsList += @('--base',$base)
-          } else {
-            $argsList += @('--from',"${{ inputs.from_version }}")
-          }
-          & node scripts/windows/build-update.mjs @argsList
-          if ($LASTEXITCODE -ne 0) { throw 'Échec de génération de mise à jour' }
-      - name: Vérifier les fichiers et la signature avec la clé publique indépendante
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $verifyArgs = @('--dir','_package/update-stage',
-            '--trust','_package/SMN-Windows/runtime/trust/update-signing-public.pem')
-          if ("${{ inputs.mode }}" -eq 'delta') {
-            $verifyArgs += @('--base','_base/extracted/SMN-Windows')
-          }
-          & node scripts/windows/verify-update.mjs @verifyArgs
-          if ($LASTEXITCODE -ne 0) { throw 'Mise à jour non vérifiable : distribution refusée' }
-      - name: Compresser, vérifier à nouveau et mesurer le ZIP
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          $stage = (Resolve-Path '_package/update-stage').Path
-          $target = Join-Path (Resolve-Path '_package').Path ("SMN-Update-" + (Get-Content '_package/SMN-Windows/distribution-version.json' | ConvertFrom-Json).version + ".zip")
-          [System.IO.Compression.ZipFile]::CreateFromDirectory($stage,$target,[System.IO.Compression.CompressionLevel]::Optimal,$false)
-          $roundtrip = Join-Path (Resolve-Path '_package').Path 'update-roundtrip'
-          [System.IO.Compression.ZipFile]::ExtractToDirectory($target,$roundtrip)
-          & node scripts/windows/verify-update.mjs --dir $roundtrip --trust '_package/SMN-Windows/runtime/trust/update-signing-public.pem'
-          if ($LASTEXITCODE -ne 0) { throw 'ZIP corrompu ou incomplet après compression' }
-          $hash = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  $(Split-Path -Leaf $target)" | Set-Content -Encoding ascii ($target + '.sha256')
-          $size = (Get-Item $target).Length
-          Write-Host "SMN UPDATE ZIP bytes: $size"
-          Write-Host "SMN UPDATE ZIP SHA256: $hash"
-          if ($size -gt 25MB) { Write-Warning "Objectif de 25 Mo dépassé : livraison maintenue et taille documentée." }
-      - uses: actions/upload-artifact@v4
-        with:
-          name: SMN-Update-Windows-signed
-          path: |
-            _package/SMN-Update-*.zip
-            _package/SMN-Update-*.zip.sha256
-          if-no-files-found: error
-          retention-days: 14
-          compression-level: 0
-) {
+          if ($env:SMN_RELEASE_MODE -eq 'full' -and $env:SMN_RELEASE_FROM_VERSION -notmatch '^33\\.[0-9]+\\.[0-9]+$') {
             throw 'Version de départ invalide'
           }
           $argsList = @('--target','_package/SMN-Windows','--out','_package/update-stage',
@@ -285,77 +164,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $verifyArgs = @('--dir','_package/update-stage',
             '--trust','_package/SMN-Windows/runtime/trust/update-signing-public.pem')
-          if ("${{ inputs.mode }}" -eq 'delta') {
-            $verifyArgs += @('--base','_base/extracted/SMN-Windows')
-          }
-          & node scripts/windows/verify-update.mjs @verifyArgs
-          if ($LASTEXITCODE -ne 0) { throw 'Mise à jour non vérifiable : distribution refusée' }
-      - name: Compresser, vérifier à nouveau et mesurer le ZIP
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          $stage = (Resolve-Path '_package/update-stage').Path
-          $target = Join-Path (Resolve-Path '_package').Path ("SMN-Update-" + (Get-Content '_package/SMN-Windows/distribution-version.json' | ConvertFrom-Json).version + ".zip")
-          [System.IO.Compression.ZipFile]::CreateFromDirectory($stage,$target,[System.IO.Compression.CompressionLevel]::Optimal,$false)
-          $roundtrip = Join-Path (Resolve-Path '_package').Path 'update-roundtrip'
-          [System.IO.Compression.ZipFile]::ExtractToDirectory($target,$roundtrip)
-          & node scripts/windows/verify-update.mjs --dir $roundtrip --trust '_package/SMN-Windows/runtime/trust/update-signing-public.pem'
-          if ($LASTEXITCODE -ne 0) { throw 'ZIP corrompu ou incomplet après compression' }
-          $hash = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  $(Split-Path -Leaf $target)" | Set-Content -Encoding ascii ($target + '.sha256')
-          $size = (Get-Item $target).Length
-          Write-Host "SMN UPDATE ZIP bytes: $size"
-          Write-Host "SMN UPDATE ZIP SHA256: $hash"
-          if ($size -gt 25MB) { Write-Warning "Objectif de 25 Mo dépassé : livraison maintenue et taille documentée." }
-      - uses: actions/upload-artifact@v4
-        with:
-          name: SMN-Update-Windows-signed
-          path: |
-            _package/SMN-Update-*.zip
-            _package/SMN-Update-*.zip.sha256
-          if-no-files-found: error
-          retention-days: 14
-          compression-level: 0
- -or -not (Test-Path '_base/SMN-Setup-Windows-x64-v33.zip')) {
-            throw 'Une distribution SMN de base compatible est obligatoire pour un delta.'
-          }
-          Expand-Archive -LiteralPath '_base/SMN-Setup-Windows-x64-v33.zip' -DestinationPath '_base/extracted'
-          if (-not (Test-Path '_base/extracted/SMN-Windows/distribution-version.json')) {
-            throw "La distribution de base doit disposer d'un marqueur de version."
-          }
-      - name: Installer les dépendances Windows
-        run: npm install --no-package-lock --no-audit --no-fund --legacy-peer-deps
-      - name: Construire l'application autonome
-        env:
-          SMN_BUILD_STANDALONE: "1"
-        run: npm run build
-      - name: Préparer le contenu applicatif sans PostgreSQL
-        run: node scripts/windows/package-portable.mjs
-      - name: Construire et signer le manifeste et les fichiers de mise à jour
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $argsList = @('--target','_package/SMN-Windows','--out','_package/update-stage',
-            '--mode',"${{ inputs.mode }}")
-          if ("${{ inputs.mode }}" -eq 'delta') {
-            $base = '_base/extracted/SMN-Windows'
-            $originalKey = Get-Content -Raw "$base/runtime/trust/update-signing-public.pem"
-            $targetKey = Get-Content -Raw '_package/SMN-Windows/runtime/trust/update-signing-public.pem'
-            if ($originalKey -ne $targetKey) { throw 'La clé de confiance du paquet de base ne correspond pas à la signature actuelle.' }
-            $argsList += @('--base',$base)
-          } else {
-            $argsList += @('--from',"${{ inputs.from_version }}")
-          }
-          & node scripts/windows/build-update.mjs @argsList
-          if ($LASTEXITCODE -ne 0) { throw 'Échec de génération de mise à jour' }
-      - name: Vérifier les fichiers et la signature avec la clé publique indépendante
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $verifyArgs = @('--dir','_package/update-stage',
-            '--trust','_package/SMN-Windows/runtime/trust/update-signing-public.pem')
-          if ("${{ inputs.mode }}" -eq 'delta') {
+          if ($env:SMN_RELEASE_MODE -eq 'delta') {
             $verifyArgs += @('--base','_base/extracted/SMN-Windows')
           }
           & node scripts/windows/verify-update.mjs @verifyArgs
