@@ -3892,7 +3892,8 @@
     "tagBuilderCopyError": "Copy failed. Select the tag and copy it manually.",
     "tagBuilderCopied": "Tag copied to clipboard.",
     "tagBuilderReset": "Reset",
-    "tagBuilderCopy": "Copy tag"
+    "tagBuilderCopy": "Copy tag",
+    "tagBuilderGuideHelp": "Click “Configurator” to choose a tag, set its options (including table sorting and charts), preview the full expression and copy it into Word or PowerPoint."
   },
   "reportsStudio": {
     "modes": "Studio modes",
