@@ -1,7 +1,7 @@
 # ADR — SMN-425 — Préserver les données pendant les mises à jour Windows
 
 **Date :** 10 novembre 2026. **Epic :** SMN-424. **Story :** SMN-425.
-**Statut :** contrat de protection initial implémenté, migration physique de l'arborescence applicative non engagée.
+**Statut :** séparation physique du nouveau paquet codée sur main, tests Windows à confirmer ; aucune migration d’installation existante engagée.
 
 ## Constat GitHub `main`
 
@@ -16,7 +16,7 @@ Cela signifie que le dossier SMN contient aujourd'hui **des fichiers applicatifs
 3. **Contrat de contenu des futurs ZIP applicatifs** : chemins relatifs propres, sans traversée `../`, sans chemins Windows absolus, sans antislash, sans écriture vers ces emplacements. Le code `scripts/windows/distribution-layout.mjs` fournit une validation indépendante du prochain installateur.
 4. **Les paquets initiaux complets sont distincts des mises à jour** : ils contiennent intentionnellement une archive de runtime PostgreSQL signée par empreinte ; cette exception ne doit jamais servir à écraser un runtime en place. L'interdiction de remplacement est appliquée aux paquets de mise à jour (US-02/03).
 5. **Tests et preuve** : `tests/distribution-layout.test.mjs` est exécuté dans le workflow Windows avant l'assemblage. La récupération administrateur reconnaît v1 et v2 sans réécriture de cluster.
-6. **Arborescence cible** (US-01, étape suivante si nécessaire) : `SMN/app/` versionné/remplaçable, `SMN/runtime/` stable, `SMN/data/` persistant, `SMN/updates/` staging ; activation atomique par le lanceur externe (US-03). La migration du dossier du serveur ne doit être autorisée qu'après tests de tous les chemins de données et ressources (notamment Next standalone, imports et schémas SQL).
+6. **Arborescence livrable** : `SMN/app/` contient Next standalone et ses modules, `SMN/runtime/node/` et `SMN/runtime/postgres/` les moteurs, `SMN/data/` les données. Le lanceur conserve `SMN/` comme répertoire de travail, afin de préserver les chemins de PostgreSQL, Office et des schémas SQL. Le répertoire `SMN/updates/` et l'activation atomique restent du ressort des Stories suivantes.
 
 ## Impacts et contrôles de compatibilité
 
@@ -30,6 +30,6 @@ Cela signifie que le dossier SMN contient aujourd'hui **des fichiers applicatifs
 
 ## Critères ouverts
 
-- La **séparation physique complète de `app/`** n'est pas encore mise en œuvre. Ne pas déclarer AC1, AC2, AC4 et AC6 intégralement satisfaits tant qu'un remplacement applicatif a été testé sur une installation persistante.
+- La séparation physique `app/` est codée pour les nouvelles distributions mais la réussite de la CI Windows est requise avant qualification. Le remplacement de version sur une installation déjà peuplée reste à démontrer avec l’updater des Stories suivantes.
 - Une procédure de migration v2 → arborescence cible doit être isolée des opérations d'initialisation et nécessiter une recette sur Windows et une récupération vérifiée.
 - La signature des mises à jour et leur application sont du ressort des US-02/03 ; aucun ZIP externe n'est exécuté au titre de cette Story.
