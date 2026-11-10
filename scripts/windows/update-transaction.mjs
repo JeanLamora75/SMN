@@ -3,9 +3,11 @@
 import {readFile,writeFile,rename,lstat,mkdir} from "node:fs/promises";
 import {randomUUID} from "node:crypto";
 import path from "node:path";
+import {existsSync} from "node:fs";
 
-const NAMES=["app","prisma","scripts","launch-portable.mjs","Demarrer SMN.cmd",
+const LEGACY_NAMES=["app","prisma","scripts","launch-portable.mjs","Demarrer SMN.cmd",
   "Recuperer admin SMN.cmd","distribution-version.json"];
+const layoutNames=root=>existsSync(path.join(root,"app","distribution-version.json"))?["app"]:LEGACY_NAMES;
 const ID=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/;
 const VERSION=/^[a-zA-Z0-9._-]{1,80}$/;
 async function kind(file){
@@ -29,8 +31,8 @@ export async function readCutover(root){
  catch(error){if(error?.code==="ENOENT")return null;throw Error("update-journal-unreadable");}
  if(!record||record.format!==1||!ID.test(record.id)||!VERSION.test(record.version)||
    !["applying","committed","recovered"].includes(record.state)||
-   !Array.isArray(record.entries)||record.entries.length!==NAMES.length||
-   record.entries.some((e,i)=>e.name!==NAMES[i]||typeof e.old!=="boolean"||
+   !Array.isArray(record.entries)||record.entries.length!==layoutNames(root).length||
+   record.entries.some((e,i)=>e.name!==layoutNames(root)[i]||typeof e.old!=="boolean"||
      typeof e.next!=="boolean"))
   throw Error("update-journal-invalid");
  return record;
@@ -41,7 +43,7 @@ export async function beginCutover(root,id,version){
  if(previous?.state==="applying")throw Error("update-recovery-required");
  const entries=[];
  const prepared=path.join(root,"updates","prepared",id);
- for(const name of NAMES){
+ for(const name of layoutNames(root)){
   entries.push({name,old:!!await kind(path.join(root,name)),
     next:!!await kind(path.join(prepared,name))});
  }
