@@ -33,7 +33,8 @@ export async function auditWindowsDistribution(root){
  const paths=[],top=new Map(),hash=createHash("sha256");
  async function walk(folder,relative){
   for(const name of (await readdir(folder)).sort()){
-   if(buildJunk.has(name) || (relative===""&&forbidden.has(name)))
+   if(((relative===""||relative==="app")&&buildJunk.has(name)) ||
+      (relative===""&&forbidden.has(name)))
     throw Error("distribution-development-content");
    const absolute=path.join(folder,name);
    const info=await lstat(absolute);
