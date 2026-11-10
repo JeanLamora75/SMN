@@ -20,6 +20,7 @@ const publicBootstrapErrors = new Set([
   "managed-pg-permission-denied","managed-pg-runtime-incomplete","managed-pg-config-invalid",
   "managed-pg-data-incompatible","managed-pg-start-failed","postgres-runtime-invalid",
   "postgres-download-unavailable","postgres-archive-invalid","postgres-archive-too-large",
+  "postgres-extract-failed",
   "manual-connection-configured","windows-required","installation-failed",
   "verification-failed","not-empty","createdb-required","database-already-present",
   "database-missing","configuration-missing","configuration-invalid","virgin",
