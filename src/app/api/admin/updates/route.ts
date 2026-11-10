@@ -1,5 +1,6 @@
 import {NextRequest} from "next/server";
 import {readFile,lstat} from "node:fs/promises";
+import {existsSync} from "node:fs";
 import path from "node:path";
 import {authorizeApi} from "@/server/auth/authorization";
 import {jsonResult} from "@/server/auth/request";
@@ -16,8 +17,16 @@ export async function GET(request:NextRequest){
  const actor=await isAdmin(request,"read");
  if(!actor)return jsonResult({error:"forbidden"},403);
  try{
-  const root=process.cwd(),version=JSON.parse(
-   await readFile(path.join(root,"distribution-version.json"),"utf8")) as {version:string};
+  const root=process.cwd();
+  // The compact Windows distribution keeps its version inside app/; retain
+  // compatibility with installations made before the layout transition.
+  const packaged=path.join(root,"app","distribution-version.json");
+  const legacy=path.join(root,"distribution-version.json");
+  const versionPath=existsSync(packaged)?packaged:legacy;
+  const version=JSON.parse(await readFile(versionPath,"utf8")) as {product?:string;version?:string};
+  if(version.product!=="SMN"||typeof version.version!=="string"||
+     !/^33\\.0\\.[0-9]+$/.test(version.version))
+   throw Error("update-version-invalid");
   let trust=false;
   try{
    const info=await lstat(path.join(root,"runtime","trust","update-signing-public.pem"));
