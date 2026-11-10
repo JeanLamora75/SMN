@@ -4511,5 +4511,19 @@
     "conflict": "The record has changed. Refresh and try again.",
     "linkedData": "Deletion was blocked by an unsupported dependency. No data was deleted.",
     "unavailable": "Unable to delete the record at this time. No partial deletion was applied."
+  },
+  "sprintCeremoniesBulk": {
+    "create": "Create ceremonies",
+    "deleteAll": "Delete all ceremonies",
+    "confirmDelete": "Permanently delete all {count} ceremonies in this sprint, including associated information and history? This cannot be undone. The team's ceremony templates will remain.",
+    "working": "Working…",
+    "created": "Ceremonies created.",
+    "deleted": "All ceremonies in this sprint were deleted.",
+    "protected": "This sprint is closed: its historical ceremonies are protected.",
+    "state-changed": "The list of ceremonies has changed. Refresh the sprint before retrying.",
+    "linked-data": "Deletion blocked: associated data prevents safe removal. No changes were committed.",
+    "no-templates": "No ceremonies could be created. Check active templates and the team's calendar.",
+    "incomplete-schema": "The ceremonies schema is incomplete. No changes were made.",
+    "unavailable": "Operation unavailable. No partial changes were committed."
   }
 }
