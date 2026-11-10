@@ -1,4 +1,7 @@
 import {redirect} from "next/navigation";
+import Link from "next/link";
+import {requestLocale} from "@/i18n/locale.server";
+import {translate} from "@/i18n/catalog";
 import {currentAccount} from "@/server/auth/session";
 import {withSessionReadDb} from "@/server/auth/database";
 import {indicatorTeams} from "@/server/indicators/team-access";
@@ -17,6 +20,7 @@ export default async function IndicatorSettingsPage({searchParams}:{searchParams
  if(account.must_change_password)redirect("/change-password");
  if(account.role!=="admin")redirect("/app");
 
+ const locale=await requestLocale();
  const allowed=await withSessionReadDb(db=>indicatorTeams(db,{accountId:account.id,role:account.role}));
  const dashboard=await withSessionReadDb(db=>readAccountDashboard(db,{accountId:account.id,role:account.role})).catch(()=>null);
  const requested=(await searchParams).teamId;
@@ -31,10 +35,11 @@ export default async function IndicatorSettingsPage({searchParams}:{searchParams
    .map(t=>({id:t.id,name:t.name,mode:t.agile_mode as "scrum"|"kanban"}));
  }):[];
  return <main className="smn-page smn-team-page smn-sprint-detail-cockpit smn-indicator-settings-cockpit container-fluid px-3 px-lg-4 py-4">
+  <Link className="btn btn-link px-0 mb-2" href="/app/admin/settings">{translate(locale,"settingsCatalog.navigation.back")}</Link>
   <header className="smn-sprint-detail-hero mb-3">
-   <p className="smn-cycle-eyebrow text-uppercase small fw-semibold mb-1">Cockpit Agile · Administration</p>
-   <h1 className="mb-1">Paramètres · Indicateurs</h1>
-   <p className="smn-indicator-settings-subtitle mb-0">Définir, comprendre et choisir les indicateurs de pilotage de vos équipes</p>
+   <p className="smn-cycle-eyebrow text-uppercase small fw-semibold mb-1">{translate(locale,"settingsCatalog.navigation.adminEyebrow")}</p>
+   <h1 className="mb-1">{translate(locale,"settingsCatalog.navigation.indicatorsTitle")}</h1>
+   <p className="smn-indicator-settings-subtitle mb-0">{translate(locale,"settingsCatalog.navigation.indicatorsDescription")}</p>
   </header>
   <IndicatorSettingsTabs teams={teams} teamId={teams.some(t=>t.id===selected)?selected??null:null}
    catalogue={<IndicatorCatalog teams={[]} isAdmin scope="global"/>}
