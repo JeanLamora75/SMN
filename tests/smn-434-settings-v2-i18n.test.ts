@@ -71,11 +71,24 @@ describe("SMN-434 — Paramètres V2 et internationalisation exhaustive",()=>{
     }
    }
   }
+  for(const group of groups){
+   for(const messages of [fr,en]){
+    assert.equal(typeof messages.groups[group.id],"string");
+    assert(messages.groups[group.id].trim().length>0);
+    for(const entry of group.entries){
+     for(const property of ["title","description"]){
+      assert.equal(typeof messages.items[entry.id]?.[property],"string");
+      assert(messages.items[entry.id][property].trim().length>0);
+     }
+     assert.equal(typeof messages.keywords[entry.id],"string");
+    }
+   }
+  }
   for(const key of ["label","placeholder","clear","results","empty","reset"]){
    assert.equal(typeof fr.search[key],"string");
    assert.equal(typeof en.search[key],"string");
   }
-  for(const key of ["back","adminEyebrow","indicatorsTitle","indicatorsDescription"]){
+  for(const key of ["back","adminEyebrow","indicatorsTitle","indicatorsDescription","permissions","linksEyebrow","chartEyebrow","companiesIntro","manageCompanies"]){
    assert.equal(typeof fr.navigation[key],"string");
    assert.equal(typeof en.navigation[key],"string");
   }
@@ -89,6 +102,9 @@ describe("SMN-434 — Paramètres V2 et internationalisation exhaustive",()=>{
  it("interdit les textes visibles codés en dur et les accès directs aux API depuis le portail",()=>{
   const view=read("src/app/app/admin/settings/settings-catalog-view.tsx");
   const page=read("src/app/app/admin/settings/page.tsx");
+  const companies=read("src/app/app/admin/companies/page.tsx");
+  assert.doesNotMatch(companies,/← Paramètres|Référentiel partagé entre toutes les équipes/);
+  assert.match(companies,/settingsCatalog\.navigation\.companiesIntro/);
   assert.doesNotMatch(view,/showCompanies|Gestion des entreprises|Fermetures d’entreprise|Disponible/);
   assert.match(view,/t\("settingsCatalog\.search\.placeholder"\)/);
   assert.match(view,/t\("settingsCatalog\.search\.empty"\)/);
