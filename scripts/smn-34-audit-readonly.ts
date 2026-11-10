@@ -7,7 +7,7 @@
  * This never performs pg_restore, stops services, writes evidence or enables
  * restore. Output intentionally omits paths, personal identifiers and contents.
  */
-import {previewBackup} from "../src/server/backup/preview";
+import {previewBackupReadOnly} from "../src/server/backup/restore-audit-preview";
 import {withSessionReadDb} from "../src/server/auth/database";
 import {currentErasureEvidence} from "../src/server/backup/erasure-protection";
 import {verifyErasureIntegrity} from "../src/server/backup/erasure-completeness";
@@ -23,7 +23,7 @@ async function run(){
  if(!process.env.SMN_DATABASE_URL){
   try{process.loadEnvFile(".env.local");}catch{/* Optional settings file. */}
  }
- const preview=await previewBackup(argv[1]);
+ const preview=await previewBackupReadOnly(argv[1]);
  const state=await withSessionReadDb(async db=>{
   const integrity=await verifyErasureIntegrity(db);
   const privacy=await currentErasureEvidence(preview.archive.createdAt??undefined,db);
