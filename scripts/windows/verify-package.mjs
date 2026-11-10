@@ -48,6 +48,12 @@ if(existsSync(manifestPath)) {
 } else console.log("ATTENTION : manifeste proxy absent du paquet standalone");
 const layout=await auditWindowsDistribution(root);
 console.log("PASS: distribution minimaliste : "+layout.fileCount+" fichiers");
+// A fresh offline distribution must carry the verified binary archive under a short name.
+const pgArchiveFile = path.join(root, "runtime", "postgres", "postgres.zip");
+assert.ok(existsSync(pgArchiveFile), "Archive PostgreSQL courte absente du paquet");
+assert.equal(existsSync(path.join(root, "runtime", "postgres",
+  "postgresql-18.6-5-windows-x64-binaries.zip")), false,
+  "Ne pas expédier le nom long qui échoue sur certains postes Windows");
 const isolatedHome = await mkdtemp(path.join(os.tmpdir(), "smn-portable-ci-"));
 const newStorage=path.join(root, "data", "postgres");
 assert.equal(existsSync(path.join(root, "server.js")), false, "Le serveur doit être isolé dans app/");
