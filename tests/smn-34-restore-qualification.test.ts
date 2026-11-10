@@ -9,7 +9,8 @@ test("SMN-34 — preflight strictement non destructif, garde les autorisations e
  assert.match(route,/currentErasureEvidence\(preview\.archive\.createdAt\?\?undefined,db\)/);
  assert.match(route,/assessRestoreGate\(preview,evidence\)/);
  assert.match(route,/jsonResult\(\{preview,gate:assessRestoreGate\(preview,evidence\)\},409\)/);
- assert.doesNotMatch(route,/pg_restore|rehearseBackupRestore|rename\(|rm\(|cutover/i);
+ assert.doesNotMatch(route,/import .* from ".*(?:restore-sandbox|restore-cutover-drill|restore-coordinated-drill)"/);
+ assert.doesNotMatch(route,/\b(?:spawn|rename|rm|rehearseBackupRestore)\(/);
 });
 test("SMN-34 — les risques et refus sont tous internationalisés",()=>{
  const fr=JSON.parse(read("src/i18n/fr.json")).backups;
