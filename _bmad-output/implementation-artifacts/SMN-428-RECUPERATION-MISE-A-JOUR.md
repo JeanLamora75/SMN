@@ -44,3 +44,7 @@ La CI `.github/workflows/portable-package.yml` vérifie le packaging. Les résul
 - **Points non qualifiés** : restauration PostgreSQL 18 réelle à partir du paquet sauvegardé, injection de panne disque/ACL sur Windows 11, recette sur un PC d'entreprise et gestion d'une migration de schéma incompatible. Le journal applicatif conserve les fichiers, mais n'offre pas une preuve de restauration métier complète.
 
 **Verdict** : qualification des contrats de mise à jour *partiellement réussie* ; AC1/AC4/AC5 nécessitent encore les essais de récupération et restauration réels. Ne pas fermer la Story avant les preuves complémentaires.
+
+### Matrice étendue — preuve réelle GitHub Actions
+
+Le run [42790328870](https://github.com/JeanLamora75/SMN/actions/runs/42790328870), job `update-contract-tests`, a terminé en **success** le 10 novembre 2026 avec **37 tests réussis / 37**, **0 échec, 0 ignoré**. Il couvre les 14 points d'interruption, l'absence de journal, le filtrage d'une sauvegarde incomplète/périmée et la conservation du fichier témoin PostgreSQL sur Windows. Ceci est une preuve de tests automatisés, **pas** de restauration vérifiée du cluster PostgreSQL sur le poste cible.
