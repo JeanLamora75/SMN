@@ -13,6 +13,9 @@ test("le bouton dépend de la disponibilité, des droits et du nombre total tout
  assert.match(action,/const create=total===0/);
  assert.match(action,/const operation=create\?"create":"delete"/);
  assert.match(action,/window\.confirm/);
+ assert.match(action,/chooseTypes/);
+ assert.match(action,/selectedCount/);
+ assert.match(action,/visibleTypes\.map/);
  assert.match(action,/router\.refresh\(\)/);
 });
 test("la route requiert administrateur, équipe autorisée et compteur attendu",()=>{
@@ -20,6 +23,8 @@ test("la route requiert administrateur, équipe autorisée et compteur attendu",
  assert.match(route,/resolveAdminTeam\(db/);
  assert.match(route,/team\.team_id!==body\.teamId/);
  assert.match(route,/expectedCount/);
+ assert.match(route,/expectedSelectedCount/);
+ assert.match(route,/parseCeremonyDeleteTypes/);
 });
 test("création à partir des modèles actifs et blocage historique",()=>{
  assert.match(server,/sprint\.status==="closed"/);
@@ -41,6 +46,8 @@ test("suppression atomique des trois sources et des données dérivées en cas d
   assert.match(server,new RegExp(name));
  assert.doesNotMatch(server,/TRUNCATE|CASCADE|DROP TABLE/);
  assert.match(server,/WHERE sprint_id=\$1/);
+ assert.match(server,/WHERE id=ANY\(\$1::text\[\]\) AND sprint_id=\$2/);
+ assert.match(server,/selectedTypes/);
 });
 test("les tables de dépendances du schéma v33 sont prévues",()=>{
  const children=["smn_sprint_ceremony_history","smn_sprint_ceremony_segment",
@@ -59,5 +66,7 @@ test("traductions des actions en FR et EN",()=>{
   for(const key of ["create","deleteAll","confirmDelete","working","created","deleted",
    "protected","state-changed","linked-data","no-templates","incomplete-schema","unavailable"])
    assert.equal(typeof messages[key],"string");
+  for(const kind of ["planning","daily","review","retrospective","custom","exceptional"])
+   assert.equal(typeof messages.type[kind],"string");
  }
 });
