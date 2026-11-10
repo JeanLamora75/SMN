@@ -7,6 +7,7 @@ on:
       - "tests/update-package.test.mjs"
       - "tests/update-import.test.mjs"
       - "tests/schema-update-policy.test.mjs"
+      - "tests/update-delivery.test.mjs"
       - "tests/distribution-layout.test.mjs"
       - ".github/workflows/update-package.yml"
   workflow_dispatch:
@@ -42,7 +43,7 @@ jobs:
         with:
           node-version: "24"
       - name: Contrat de mise à jour, signatures et scénarios hostiles
-        run: node --test tests/distribution-layout.test.mjs tests/update-package.test.mjs tests/update-import.test.mjs tests/schema-update-policy.test.mjs
+        run: node --test tests/distribution-layout.test.mjs tests/update-package.test.mjs tests/update-import.test.mjs tests/schema-update-policy.test.mjs tests/update-delivery.test.mjs
 
   update-build-smoke:
     if: github.event_name == 'push'
@@ -195,18 +196,18 @@ jobs:
           [System.IO.Compression.ZipFile]::ExtractToDirectory($target,$roundtrip)
           & node scripts/windows/verify-update.mjs --dir $roundtrip --trust '_package/SMN-Windows/runtime/trust/update-signing-public.pem'
           if ($LASTEXITCODE -ne 0) { throw 'ZIP corrompu ou incomplet après compression' }
-          $hash = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  $(Split-Path -Leaf $target)" | Set-Content -Encoding ascii ($target + '.sha256')
-          $size = (Get-Item $target).Length
-          Write-Host "SMN UPDATE ZIP bytes: $size"
-          Write-Host "SMN UPDATE ZIP SHA256: $hash"
-          if ($size -gt 25MB) { Write-Warning "Objectif de 25 Mo dépassé : livraison maintenue et taille documentée." }
+          & node scripts/windows/create-delivery-evidence.mjs $target windows-x64-update
+          if ($LASTEXITCODE -ne 0) { throw 'Echec du bilan CI de mise à jour' }
+          & node scripts/windows/verify-delivery.mjs $target ($target + '.evidence.json') ($target + '.sha256')
+          if ($LASTEXITCODE -ne 0) { throw 'L’intégrité du ZIP final n’est pas vérifiée' }
+          if ((Get-Item $target).Length -gt 25MB) { Write-Warning 'Objectif de 25 Mo dépassé : livraison maintenue et taille documentée.' }
       - uses: actions/upload-artifact@v4
         with:
           name: SMN-Update-Windows-signed
           path: |
             _package/SMN-Update-*.zip
             _package/SMN-Update-*.zip.sha256
+            _package/SMN-Update-*.zip.evidence.json
           if-no-files-found: error
           retention-days: 14
           compression-level: 0
