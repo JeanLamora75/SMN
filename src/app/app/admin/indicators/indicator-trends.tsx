@@ -26,6 +26,8 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
  const series=activeColumns.map(column=>({column,values:trendNumbers(range,column.id)}));
  const nums=series[0]?.values??[];
  const actual=series.flatMap(item=>item.values).filter((v):v is number=>v!==null);
+ const format=(value:number|null)=>formatIndicatorValue(value,locale);
+ const nonnegative=actual.length>0&&actual.every(v=>v>=0)&&actual.some(v=>v>0)&&actual.length===nums.length;
  const isParts=applied?.style==="pie"||applied?.style==="donut";
  const multiple=activeColumns.length>1;
  const selectionError=(code:Exclude<ReturnType<typeof validateTrendSelection>,null>)=>({
