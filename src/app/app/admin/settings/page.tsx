@@ -26,6 +26,6 @@ export default async function SettingsPortalPage(){
    <h1 className="h3">{t("navigation.entries.settings")}</h1>
    <p className="text-secondary">{t("settingsPortal.subtitle")}</p>
   </header>
-  <SettingsCatalogView groups={groups} showCompanies={account.role==="admin"}/>
+  <SettingsCatalogView groups={groups}/>
  </main>;
 }
