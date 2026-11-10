@@ -2365,7 +2365,7 @@
       "teams": "teams members product vision goal scrum kanban",
       "companies": "company companies organizations employer administration",
       "cadence": "sprint cadence rhythm cycle iteration kanban scrum frequency",
-      "ceremonies": "ceremonies templates scrum daily planning review retrospective meetings events",
+      "ceremonies": "ceremonies templates scrum daily planning review retrospective meetings events ceremony",
       "capacity": "capacity calculation days available effort rules",
       "indicators": "indicators metrics kpi dashboard formula permissions",
       "registries": "registries risk impediment note action decision categories alerts",
@@ -2383,7 +2383,8 @@
       "back": "← Settings",
       "adminEyebrow": "Agile Cockpit · Administration",
       "indicatorsTitle": "Settings · Indicators",
-      "indicatorsDescription": "Define, understand and select the indicators used to monitor your teams"
+      "indicatorsDescription": "Define, understand and select the indicators used to monitor your teams",
+      "permissions": "Scrum Master permissions by team"
     }
   },
   "memberAbsences": {
