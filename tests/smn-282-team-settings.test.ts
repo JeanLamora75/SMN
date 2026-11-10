@@ -8,7 +8,7 @@ const source=(path:string)=>readFileSync(new URL(path,root),"utf8");
 test("le portail Paramètres pointe vers Équipes dans les deux modes",()=>{
  const catalogue=source("src/lib/settings-catalog.ts");
  assert.match(catalogue,/id:"teams".*href:"\/app\/admin\/settings\/teams"/);
- assert.match(catalogue,/id:"agile"/);
+ assert.match(catalogue,/id:"organization"/);
 });
 test("le formulaire contient les quatre champs validés et seul le nom obligatoire",()=>{
  const page=source("src/app/app/admin/settings/teams/teams-settings.tsx");
