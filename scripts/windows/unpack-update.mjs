@@ -61,8 +61,8 @@ export function inspectZip(bytes){
     const nameLen=read16(bytes,cursor+28),extraLen=read16(bytes,cursor+30),commentLen=read16(bytes,cursor+32);
     const disk=read16(bytes,cursor+34),attr=read32(bytes,cursor+38),local=read32(bytes,cursor+42);
     if(nameLen<1||packed===0xffffffff||plain===0xffffffff||!([0,8].includes(method)) ||
-       (flags&~0x808)!==0 || disk!==0 || plain>MAX_SINGLE || extraLen!==0 ||
-       commentLen!==0 || local>=offset)throw Error("zip-entry-invalid");
+       (flags&~0x808)!==0 || disk!==0 || plain>MAX_SINGLE || extraLen>4096 ||
+       commentLen>1024 || local>=offset)throw Error("zip-entry-invalid");
     const isDir=(attr&0x10)!==0;
     const mode=(attr>>>16)&0xffff;
     if(platform===3 && ((mode&0xf000)===0xa000 || (mode&0xf000)===0x6000))
@@ -80,7 +80,7 @@ export function inspectZip(bytes){
     if(read32(bytes,local)!==0x04034b50 || read16(bytes,local+8)!==method ||
        read16(bytes,local+6)!==flags)throw Error("zip-header-mismatch");
     const localNameLen=read16(bytes,local+26),localExtra=read16(bytes,local+28);
-    if(localExtra!==0 || localNameLen!==nameLen ||
+    if(localExtra>4096 || localNameLen!==nameLen ||
        !bytes.subarray(local+30,local+30+nameLen).equals(bytes.subarray(nameStart,nameEnd)))
        throw Error("zip-header-mismatch");
     const start=local+30+localNameLen+localExtra;
