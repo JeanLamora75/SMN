@@ -18,6 +18,11 @@ on:
       - "src/server/backup/restore-readiness.ts"
       - "tests/epic2-lot5-cutover-pg.test.ts"
       - "tests/epic2-lot5-cutover-policy.test.ts"
+      - "tests/backup-restore-readiness.test.ts"
+      - "tests/smn-34-restore-qualification.test.ts"
+      - "src/app/app/admin/backups/backups-admin.tsx"
+      - "src/i18n/fr.json"
+      - "src/i18n/en.json"
       - "src/server/backup/restore-activation-policy.ts"
       - ".github/workflows/epic2-lot5-cutover.yml"
   workflow_dispatch:
@@ -43,7 +48,7 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Restore readiness and cutover controls
-        run: pnpm exec tsx --test tests/backup-restore-readiness.test.ts tests/epic2-lot5-cutover-policy.test.ts tests/epic2-lot5-file-cutover.test.ts tests/epic2-lot5-session-reset.test.ts tests/epic2-lot5-maintenance.test.ts tests/epic2-lot9-maintenance-reset.test.ts tests/epic2-lot9-recovery-measurement.test.ts
+        run: pnpm exec tsx --test tests/backup-restore-readiness.test.ts tests/smn-34-restore-qualification.test.ts tests/epic2-lot5-cutover-policy.test.ts tests/epic2-lot5-file-cutover.test.ts tests/epic2-lot5-session-reset.test.ts tests/epic2-lot5-maintenance.test.ts tests/epic2-lot9-maintenance-reset.test.ts tests/epic2-lot9-recovery-measurement.test.ts
       - name: TypeScript
         run: pnpm typecheck
       - name: Translations
