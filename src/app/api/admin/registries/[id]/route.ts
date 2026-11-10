@@ -4,6 +4,7 @@ import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import {withAuthDb} from "@/server/auth/database";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {readRegistryItem,updateRegistryItem} from "@/server/registries/items";
+import {deleteRegistryItem} from "@/server/registries/delete-item";
 import {resolveRegistryReadContext} from "@/server/registries/team-access";
 import {readTeamRegistryItem} from "@/server/registries/team-item-read";
 import {assertLegacyTeamApi} from "@/server/teams/legacy";
@@ -70,6 +71,31 @@ export async function PATCH(req:NextRequest,{params}:{params:Promise<{id:string}
  }catch(error){
   if(error instanceof Error&&error.message==="registry-team-write-not-ready")
    return jsonResult({error:"context-not-ready"},503);
+  return jsonResult({error:"service-unavailable"},503);
+ }
+}
+
+export async function DELETE(req:NextRequest,{params}:{params:Promise<{id:string}>}){
+ const actor=await authorizeApi(req,"write",{type:"settings",exists:true,inScope:true});
+ if(!actor)return jsonResult({error:"forbidden"},403);
+ const body=await readJsonObject(req);
+ if(!body||typeof body.teamId!=="string"||!Number.isSafeInteger(body.revision))
+  return jsonResult({error:"invalid-input"},400);
+ const {id}=await params;
+ try{
+  const result=await withAuthDb(async db=>{
+   const context=await resolveRegistryReadContext(db,{accountId:actor.id,role:actor.role},body.teamId as string);
+   if(context.version===28){
+    if(context.team?.team_id!==body.teamId)return {ok:false as const,error:"not-found" as const};
+    if(![32,33].includes(context.schemaVersion))return {ok:false as const,error:"unsupported-schema" as const};
+   }else await assertLegacyTeamApi(db);
+   return deleteRegistryItem(db,id,body.teamId as string,body.revision as number);
+  });
+  const code=result.ok?200:result.error==="not-found"?404:
+   result.error==="conflict"||result.error==="linked-data"?409:
+   result.error==="unsupported-schema"?503:400;
+  return jsonResult(result,code);
+ }catch{
   return jsonResult({error:"service-unavailable"},503);
  }
 }
