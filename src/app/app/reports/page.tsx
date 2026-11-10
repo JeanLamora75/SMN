@@ -1,5 +1,6 @@
 import Link from "next/link";
 import OfficeTags from "./office-tags";
+import OfficeTagConfigurator from "./office-tag-configurator";
 import OfficeTemplateCatalog from "./office-template-catalog";
 import {listOfficeTemplates,officeTemplatesDirectory} from "@/server/reports/office-catalog";
 import {officeReportsDirectory} from "@/server/reports/office-storage";
@@ -124,7 +125,7 @@ export default async function ReportsCenter({searchParams}:Params){
    <OfficeTemplateCatalog templates={officeTemplates??[]} unavailable={officeTemplates===null} cycles={sprintOptions} teamId={data.teamId} initialLanguage={locale==="en"?"en":"fr"} directories={officeFolders}/>
   </section>}
   {tab==="tags"&&<section className="smn-report-results" aria-labelledby="smn-report-tags-title">
-   <div className="smn-report-panel-heading"><h2 id="smn-report-tags-title">{locale==="en"?"Tag documentation — Word and PowerPoint":"Documentation des tags — Word et PowerPoint"}</h2></div>
+   <div className="smn-report-panel-heading"><h2 id="smn-report-tags-title">{t("tagBuilderGuideTitle")}</h2><OfficeTagConfigurator locale={locale==="en"?"en":"fr"} teamId={data.teamId}/></div>
    <OfficeTags locale={locale==="en"?"en":"fr"} expanded/>
   </section>}
   {tab==="archives"&&<section className="smn-report-results" aria-labelledby="smn-report-archives-title">
