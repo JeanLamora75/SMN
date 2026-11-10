@@ -3,6 +3,7 @@
 import { createHash, createPublicKey, sign, verify } from "node:crypto";
 import { readFile, lstat, readdir } from "node:fs/promises";
 import path from "node:path";
+import {existsSync} from "node:fs";
 import { assertApplicationPayload } from "./distribution-layout.mjs";
 
 const DIGEST=/^[0-9a-f]{64}$/;
@@ -11,6 +12,11 @@ const VERSION=/^33\.[0-9]+\.[0-9]+(?:-[a-z0-9]+(?:[.-][a-z0-9]+)*)?$/;
 const APP_ROOTS=new Set(["app","prisma","scripts"]);
 const APP_FILES=new Set(["launch-portable.mjs","Demarrer SMN.cmd","Recuperer admin SMN.cmd","distribution-version.json"]);
 export const UPDATE_FORMAT=1;
+export function installedVersionPath(root){
+ const portable=path.join(root,"app","distribution-version.json");
+ return existsSync(portable)?portable:path.join(root,"distribution-version.json");
+}
+export function isMinimalLayout(root){return existsSync(path.join(root,"app","distribution-version.json"));}
 
 export function inventoryFingerprint(files) {
   if(!(files instanceof Map)) throw Error("update-inventory-invalid");
@@ -103,7 +109,7 @@ export async function enumerateUpdateableFiles(root) {
       const info=await lstat(absolute);
       if(info.isSymbolicLink()) throw Error("update-symlink-rejected");
       if(info.isDirectory()) {
-        if(parts.length===0 && !APP_ROOTS.has(name)) continue;
+        if(parts.length===0 && !(isMinimalLayout(root)?name==="app":APP_ROOTS.has(name))) continue;
         await walk(absolute,[...parts,name]);
       } else if(info.isFile()) {
         // Root launcher files are collected once by the explicit allowlist below.
@@ -116,7 +122,7 @@ export async function enumerateUpdateableFiles(root) {
     }
   }
   await walk(root,[]);
-  for(const file of APP_FILES){
+  for(const file of (isMinimalLayout(root)?[]:APP_FILES)){
     const absolute=path.join(root,file);
     try {
       const info=await lstat(absolute);
