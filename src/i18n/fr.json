@@ -4472,6 +4472,7 @@
     "preview": "Vérifier le paquet",
     "checking": "Vérification de la signature et de la compatibilité…",
     "confirm": "Confirmer l'installation",
+    "backupRequired": "Une sauvegarde complète, récente (moins de 24 h) et vérifiée est obligatoire avant la mise à jour. Créez et vérifiez une sauvegarde dans Maintenance, puis recommencez.",
     "confirmPrompt": "Confirmer la mise à jour de SMN ? L'application sera temporairement arrêtée et redémarrée.",
     "queued": "Mise à jour validée. Le lanceur va arrêter SMN et appliquer les fichiers. Attendez le redémarrage, puis reconnectez-vous.",
     "error": "Paquet refusé ou incompatible. Aucune donnée ni fichier applicatif n'a été modifié.",
