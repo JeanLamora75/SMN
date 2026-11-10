@@ -1,6 +1,10 @@
 /** Native v33 installer: self-contained canonical schema, isolated and atomic. */
 import {randomUUID,createHash,timingSafeEqual} from "node:crypto";
-import {readFileSync} from "node:fs";
+import {readFileSync,existsSync} from "node:fs";
+const migrationFile=(...parts:string[])=>{
+ const packaged=resolve(process.cwd(),"app","prisma","migrations",...parts);
+ return existsSync(packaged)?packaged:migrationFile(...parts);
+};
 import {resolve} from "node:path";
 import {Client} from "pg";
 import {parseConnectionSettings} from "../db/config";
@@ -54,7 +58,7 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
    [randomUUID(),createHash("sha256").update(sql).digest("hex"),NATIVE_BASELINE_NAME]);
   await client.query("INSERT INTO public.smn_general_settings(installation_id,palette) VALUES ('singleton','red-purple')");
   // Initialize the additive chart catalog atomically for fresh native v33 installs.
-  const chartStyleSql=readFileSync(resolve(process.cwd(),"prisma","migrations","20261108_smn416_chart_styles","migration.sql"),"utf8");
+  const chartStyleSql=readFileSync(migrationFile("20261108_smn416_chart_styles","migration.sql"),"utf8");
   try{await client.query(chartStyleSql);}
   catch(error){
    const pg=error as {code?:unknown;position?:unknown};
@@ -66,10 +70,10 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
   // Privacy receipts are an additive safety contract, not part of the
   // immutable v33 baseline. A fresh installation must be able to execute
   // the narrow audited erasure route without a manual schema repair.
-  const privacyReceiptSql=readFileSync(resolve(process.cwd(),"prisma","migrations",
+  const privacyReceiptSql=readFileSync(migrationFile(
    "20261109_smn39_privacy_receipt","migration.sql"),"utf8");
   await client.query(privacyReceiptSql);
-  const memberDeleteGuardSql=readFileSync(resolve(process.cwd(),"prisma","migrations",
+  const memberDeleteGuardSql=readFileSync(migrationFile(
    "20261109_smn40_member_delete_guard","migration.sql"),"utf8");
   await client.query(memberDeleteGuardSql);
   await client.query("COMMIT");transaction=false;
