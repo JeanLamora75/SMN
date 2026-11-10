@@ -5,6 +5,7 @@ on:
     paths:
       - "src/app/app/reports/office-generation-progress.tsx"
       - "src/app/app/reports/office-template-catalog.tsx"
+      - "src/app/api/admin/reports/office-templates/generate/route.ts"
       - "src/i18n/fr.json"
       - "src/i18n/en.json"
       - "tests/smn-office-generation-progress.test.ts"
