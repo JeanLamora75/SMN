@@ -2,6 +2,7 @@ import "server-only";
 import {spawn} from "node:child_process";
 import {randomUUID} from "node:crypto";
 import {readFile,writeFile,mkdir,lstat,rm} from "node:fs/promises";
+import {existsSync} from "node:fs";
 import path from "node:path";
 
 export type UpdatePreview={id:string;actor:string;nonce:string;fromVersion:string;toVersion:string;
@@ -24,7 +25,9 @@ export async function runUpdateScript(script:string,args:string[],timeout=150000
    throw Error("update-script-invalid");
  const root=process.cwd();
  return new Promise((resolve,reject)=>{
-  const child=spawn(process.execPath,[path.join(root,"scripts","windows",script),...args],{
+  const packaged=path.join(root,"app","maintenance","windows",script);
+  const legacy=path.join(root,"scripts","windows",script);
+  const child=spawn(process.execPath,[existsSync(packaged)?packaged:legacy,...args],{
    cwd:root,windowsHide:true,stdio:["ignore","pipe","pipe"],timeout,shell:false
   });
   let stdout="",stderr="";
