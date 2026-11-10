@@ -87,6 +87,16 @@ await copyFile(process.execPath, path.join(target, "runtime", "node", "node.exe"
 await copyFile("scripts/windows/launch-portable.mjs", path.join(target, "launch-portable.mjs"));
 await mkdir(path.join(target,"scripts"),{recursive:true});
 await copyFile("scripts/office-dirs.mjs",path.join(target,"scripts","office-dirs.mjs"));
+await mkdir(path.join(target,"scripts","windows"),{recursive:true});
+for(const file of [
+ "distribution-layout.mjs",
+ "update-contract.mjs",
+ "unpack-update.mjs",
+ "import-update.mjs",
+ "verify-staged-update.mjs",
+ "update-apply.mjs"
+])await copyFile(path.join("scripts","windows",file),
+  path.join(target,"scripts","windows",file));
 for(const name of ["templates","reports"])await mkdir(path.join(target,"data","office",name),{recursive:true});
 await mkdir(path.join(target,"updates"), { recursive: true });
 await copyFile("scripts/recover-admin.mjs", path.join(appDir, "recover-admin.mjs"));
