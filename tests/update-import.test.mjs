@@ -188,7 +188,7 @@ test("SMN-428: interrupted exchange restores original app and preserves persiste
  const id=randomUUID();
  try{
   for(const dir of ["data/postgres","runtime","updates","updates/prepared/"+id,
-    "updates/rollback/"+id,"app","scripts"]){
+    "updates/rollback/"+id,"updates/prepared/"+id+"/app","app","scripts"]){
    await mkdir(path.join(root,...dir.split("/")),{recursive:true});
   }
   await writeFile(path.join(root,"data","postgres","sentinel"),"DATABASE");
