@@ -50,6 +50,21 @@ Ce sont des **exemples de noms** : les deux bases initiales doivent réellement 
 
 Le résultat peut comporter `database.status: "ready"` et `files.status: "ready"` ; il continue **toujours** à renvoyer `canActivate: false` et le code de sortie 2. Zéro connexion observée est un instantané, **pas** la preuve d'arrêt du service. Aucun usage contre l'installation de travail n'est accepté ; cet outil ne sait pas basculer une base réelle.
 
+## 3 ter. Répétition coordonnée avec lanceur indépendant (test seulement)
+
+Le nouveau `scripts/smn-34-offline-cutover-sandbox.ts` s'exécute depuis **PowerShell**, dans un processus Node distinct du serveur Next.js. Il appelle la bascule existante avec journal HMAC, contrôles de récupération et rollback, mais seulement sur des bases `smn_restore_test_*` et dossiers jetables `smn_restore_test_*` sous le dossier temporaire de Windows. **Ce script n'est pas un outil de restauration de production et ne s'interface pas avec le bouton de restauration de SMN.**
+
+Sur le **banc indépendant uniquement**, après création contrôlée des bases de test, des arbres de fichiers candidats et du dossier temporaire contenant les quatre chemins, définir la connexion PostgreSQL de test `SMN_TEST_DATABASE_URL` vers la base locale `postgres`. Fournir une clé HMAC **éphémère de test**, conservée exclusivement dans le processus local :
+
+```powershell
+$env:SMN_CUTOVER_TEST_AUDIT_KEY_HEX = node -e "process.stdout.write(require('node:crypto').randomBytes(32).toString('hex'))"
+pnpm exec tsx scripts/smn-34-offline-cutover-sandbox.ts --sandbox-cutover smn_restore_test_original01 smn_restore_test_candidate01 smn_restore_test_rollback01 "<dossier-temp>\\smn_restore_test_original" "<dossier-temp>\\smn_restore_test_candidate" "<dossier-temp>\\smn_restore_test_rollback" "<dossier-temp>\\smn_restore_test_recovered" "<dossier-temp>"
+```
+
+Les valeurs `<dossier-temp>` représentent le **même répertoire temporaire déjà créé**, sous `$env:TEMP`. Les bases original et candidate doivent exister ; la base rollback ne doit pas exister ; les fichiers original et candidate doivent contenir uniquement des données synthétiques et les quatre noms doivent être distincts. Les rôles, les secrets et les URL de connexion ne doivent pas être copiés dans GitHub/Jira.
+
+Le résultat `state:verified` avec `productionRestoreEnabled:false` signifie **uniquement** que le banc jetable a été basculé et que les sources originales y sont conservées. Il ne démontre ni une restauration d'un paquet réel, ni la révocation des sessions persistantes, ni l'arrêt des écrivains de l'installation de travail. Les tests CI utilisent le même lanceur contre PostgreSQL 18 et des fichiers jetables.
+
 ## 4. Dossier de recette REC-01 à REC-14
 
 | REC | Vérification en installation dédiée | Preuve attendue |
