@@ -27,7 +27,7 @@ test("private files must never be shipped in updates",()=>{
 
 test("unsafe paths are rejected",()=>{
   for(const file of ["../data/secret","app/../runtime/pg.exe","C:/Windows/system.ini",
-    "/tmp/file","app//file","./server.js","app\\server.js",""]){
+    "/tmp/file","app//file","./server.js","app\\server.js","app/config:alternate","CON","app/NUL.txt","app/trailing. ",""]){
     assert.throws(()=>classifyDistributionPath(file),/distribution-path-invalid/);
   }
 });
