@@ -96,5 +96,7 @@ test("AC2: rejects dangerous destination paths and unsigned releases",async()=>{
     assert.match(result.stderr,/update-signing-key-missing/);
     assert.throws(()=>planUpdate({oldFiles:before,newFiles:before,fromVersion:"33.0.1",
       toVersion:"33.0.1",sourceCommit:COMMIT,mode:"delta"}),/update-version-not-advanced/);
+    assert.throws(()=>planUpdate({oldFiles:before,newFiles:before,fromVersion:"33.0.4",
+      toVersion:"33.0.2",sourceCommit:COMMIT,mode:"delta"}),/update-version-not-advanced/);
   }finally{await rm(f.root,{recursive:true,force:true})}
 });
