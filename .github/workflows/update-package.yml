@@ -42,6 +42,47 @@ jobs:
       - name: Contrat de mise à jour, signatures et scénarios hostiles
         run: node --test tests/distribution-layout.test.mjs tests/update-package.test.mjs
 
+  update-build-smoke:
+    if: github.event_name == 'push'
+    needs: update-contract-tests
+    runs-on: windows-latest
+    timeout-minutes: 18
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      SMN_PACKAGE_DIR: _package/SMN-Windows
+      SMN_UPDATE_SKIP_PG_ARCHIVE: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Installer les dépendances Windows
+        run: npm install --no-package-lock --no-audit --no-fund --legacy-peer-deps
+      - name: Compiler SMN pour le paquet application
+        env:
+          SMN_BUILD_STANDALONE: "1"
+        run: npm run build
+      - name: Préparer les fichiers sans PostgreSQL
+        run: node scripts/windows/package-portable.mjs
+      - name: Prouver la mise à jour différentielle signée sur le build réel
+        run: node scripts/windows/smoke-update-build.mjs
+      - name: Vérifier le ZIP après compression réelle et mesurer le correctif
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $stage=(Resolve-Path '_package/smoke-stage').Path
+          $archive=Join-Path (Resolve-Path '_package').Path 'smoke-update-ci-only.zip'
+          [System.IO.Compression.ZipFile]::CreateFromDirectory($stage,$archive,[System.IO.Compression.CompressionLevel]::Optimal,$false)
+          $unpacked=Join-Path (Resolve-Path '_package').Path 'smoke-unpacked'
+          [System.IO.Compression.ZipFile]::ExtractToDirectory($archive,$unpacked)
+          & node scripts/windows/verify-update.mjs --dir $unpacked --trust '_package/smoke-public-test-only.pem'
+          if ($LASTEXITCODE -ne 0) { throw 'ZIP différentiel inutilisable après compression' }
+          Write-Host "CI-ONLY SIGNED SMALL UPDATE ZIP BYTES: $((Get-Item $archive).Length)"
+          if ((Get-Item $archive).Length -ge 25MB) { throw 'Petit correctif de démonstration supérieur à 25 Mo' }
+
   build-signed-update:
     if: github.event_name == 'workflow_dispatch'
     needs: update-contract-tests
