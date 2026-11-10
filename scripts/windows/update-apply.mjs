@@ -6,7 +6,6 @@ import {randomUUID,createHash} from "node:crypto";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {beginCutover,finishCutover,recoverCutover,readCutover} from "./update-transaction.mjs";
-import {evaluateDatabaseUpdatePolicy} from "./schema-update-policy.mjs";
 import {enumerateUpdateableFiles,verifySignedManifest,
   requireCompatibleBase,verifyUpdatePayload} from "./update-contract.mjs";
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
@@ -63,12 +62,9 @@ async function run(){
     Date.now()-Date.parse(evidence.checkedAt)>5*60*1000||
     Date.now()-Date.parse(evidence.checkedAt)<0)
    throw Error("update-schema-preflight-expired");
- evaluateDatabaseUpdatePolicy({diagnostic:"initialized",postgresMajor:evidence.postgresMajor,
-  schemaVersion:evidence.schemaVersion,indicatorV33Valid:true,migrations:[{
-   name:"approved-diagnostic",checksum:"0".repeat(64),finished:true,rolledBack:false
-  }]},{nodeMajor:24,postgresMajor:18,schemaVersion:33});
- if(!Number.isSafeInteger(evidence.migrationCount)||evidence.migrationCount<1)
-   throw Error("update-migration-history-ambiguous");
+ if(evidence.postgresMajor!==18||evidence.schemaVersion!==33||
+    !Number.isSafeInteger(evidence.migrationCount)||evidence.migrationCount<1)
+   throw Error("update-database-preflight-incompatible");
  await verifyStage(approval.id);
  const extracted=path.join(stage,"extracted");
  const manifestBytes=await readFile(path.join(extracted,"manifest.json"));
