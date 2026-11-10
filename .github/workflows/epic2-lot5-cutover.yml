@@ -38,6 +38,10 @@ on:
       - "tests/smn-34-sandbox-maintenance-process.test.ts"
       - "tests/fixtures/smn-34-session-worker.ts"
       - "tests/smn-34-session-restart-http.test.ts"
+      - "scripts/windows/restore-launch-gate.mjs"
+      - "scripts/windows/launch-portable.mjs"
+      - "scripts/windows/package-portable.mjs"
+      - "tests/smn-34-windows-launch-maintenance.test.ts"
       - "src/server/backup/restore-audit.ts"
       - "src/server/backup/restore-audit-preview.ts"
       - "scripts/smn-34-audit-readonly.ts"
@@ -70,7 +74,7 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Restore readiness and cutover controls
-        run: pnpm exec tsx --test tests/backup-restore-readiness.test.ts tests/smn-34-restore-qualification.test.ts tests/smn-34-live-restore-safety.test.ts tests/smn-34-audit-readonly.test.ts tests/smn-34-recette-checklist.test.ts tests/smn-34-offline-operator-preflight.test.ts tests/smn-34-offline-cutover-sandbox.test.ts tests/smn-34-sandbox-maintenance-process.test.ts tests/smn-34-session-restart-http.test.ts tests/epic2-lot5-cutover-policy.test.ts tests/epic2-lot5-file-cutover.test.ts tests/epic2-lot5-session-reset.test.ts tests/epic2-lot5-maintenance.test.ts tests/epic2-lot9-maintenance-reset.test.ts tests/epic2-lot9-recovery-measurement.test.ts
+        run: pnpm exec tsx --test tests/backup-restore-readiness.test.ts tests/smn-34-restore-qualification.test.ts tests/smn-34-live-restore-safety.test.ts tests/smn-34-audit-readonly.test.ts tests/smn-34-recette-checklist.test.ts tests/smn-34-offline-operator-preflight.test.ts tests/smn-34-offline-cutover-sandbox.test.ts tests/smn-34-sandbox-maintenance-process.test.ts tests/smn-34-session-restart-http.test.ts tests/smn-34-windows-launch-maintenance.test.ts tests/epic2-lot5-cutover-policy.test.ts tests/epic2-lot5-file-cutover.test.ts tests/epic2-lot5-session-reset.test.ts tests/epic2-lot5-maintenance.test.ts tests/epic2-lot9-maintenance-reset.test.ts tests/epic2-lot9-recovery-measurement.test.ts
       - name: TypeScript
         run: pnpm typecheck
       - name: Translations
