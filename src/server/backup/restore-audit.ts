@@ -19,6 +19,7 @@ export type RestoreAuditInput=Readonly<{
   pdf:number;officeReports:number;officeTemplates:number;privateFiles:number
  }>}>|null;
  platform:string;
+ concurrentDatabaseConnections:number|null;
 }>;
 
 export type RestoreAuditReport=Readonly<{
@@ -29,7 +30,8 @@ export type RestoreAuditReport=Readonly<{
  archives:Readonly<{status:"unverified"|"human-review-required"|"inventory-empty-not-cleared";
   inspectionComplete:false;counts:Readonly<{pdf:number;officeReports:number;officeTemplates:number;privateFiles:number}>|null}>;
  execution:Readonly<{status:"not-qualified";productionCutover:false;
-  persistentSessionsProven:false;writersStoppedProven:false}>;
+  persistentSessionsProven:false;writersStoppedProven:false;
+  databaseConnections:Readonly<{status:"unverifiable"|"connections-present"|"none-observed";count:number|null;provesOffline:false}>}>;
  windowsRecette:Readonly<{status:"not-performed";actualWindowsHost:boolean;
   scenariosRequired:14;scenariosWitnessed:0}>;
 }>;
@@ -54,8 +56,18 @@ export function assessRestoreAudit(input:RestoreAuditInput):RestoreAuditReport{
   archives:{status:archiveStatus,inspectionComplete:false,
    counts:validCounts?counts:null},
   execution:{status:"not-qualified",productionCutover:false,
-   persistentSessionsProven:false,writersStoppedProven:false},
+   persistentSessionsProven:false,writersStoppedProven:false,
+   databaseConnections:assessObservedConnections(input.concurrentDatabaseConnections)},
   windowsRecette:{status:"not-performed",actualWindowsHost:input.platform==="win32",
    scenariosRequired:14,scenariosWitnessed:0}
  };
+}
+
+/** Observing no PostgreSQL connections is never an offline-exclusivity proof.
+ * SQL permissions, external writers and race conditions remain unknown. */
+export function assessObservedConnections(count:number|null):RestoreAuditReport["execution"]["databaseConnections"]{
+ if(count===null||!Number.isSafeInteger(count)||count<0)
+  return {status:"unverifiable",count:null,provesOffline:false};
+ return {status:count>0?"connections-present":"none-observed",
+  count,provesOffline:false};
 }
