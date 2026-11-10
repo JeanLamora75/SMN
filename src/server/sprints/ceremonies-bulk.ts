@@ -88,7 +88,7 @@ export async function changeSprintCeremonies(db:Client,teamId:string,sprintId:st
   !["create","delete"].includes(operation)||!Number.isSafeInteger(expectedCount)||expectedCount<0||
   (operation==="delete"&&(!selectedTypes||!parseCeremonyDeleteTypes([...selectedTypes])))||
   (operation==="create"&&(selectedTypes!==undefined||expectedSelectedCount!==undefined))||
-  (operation==="delete"&&(!Number.isSafeInteger(expectedSelectedCount)||expectedSelectedCount!<1)))
+  (operation==="delete"&&(!Number.isSafeInteger(expectedSelectedCount)||Number(expectedSelectedCount)<1)))
   return {ok:false,error:"invalid-input"};
  await db.query("BEGIN");
  try{
