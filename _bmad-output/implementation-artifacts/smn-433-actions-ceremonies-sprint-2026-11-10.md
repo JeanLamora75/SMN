@@ -41,3 +41,22 @@ Route : `POST /api/admin/sprints/{sprintId}/ceremonies-bulk` ; corps `{teamId, o
 Implémentation et tests de garde-fous ajoutés à GitHub `main`. Lecture statique des fichiers réalisée ; tests Node et intégration PostgreSQL/Windows **non exécutés** à ce stade. Ne pas clôturer la Story avant preuves.
 
 **Adaptation BMAD :** le workflow est réalisé manuellement via les fichiers de skill, sans script `uv`. Référence : `.agents/skills/bmad-agent-dev/SKILL.md` et `_bmad/bmm/config.yaml`.
+
+
+## Avenant 2 — Reprise historique et suppression sélective (10 novembre 2026)
+
+**Demande validée :** la suppression doit fonctionner sur un sprint de n'importe quel statut **sauf `closed` (Clôturé)**. Cela inclut les sprints terminés mais non clôturés, essentiels à la reprise d'historique. Le garde serveur rejette exclusivement `closed`, en plus des contrôles de droits, équipe et schéma ; l'onglet cache les commandes pour les snapshots clôturés.
+
+**Deux étapes avant l'effacement :**
+1. Le bouton « Supprimer toutes les cérémonies » ouvre un sélecteur des types présents : Planning, Daily Scrum, Sprint Review, Rétrospective, personnalisées et exceptionnelles. Le nombre pour chaque type est lu côté serveur sur **tout le sprint**, indépendamment de la pagination.
+2. L'utilisateur coche les types qu'il veut supprimer, puis valide la sélection. Une **seconde confirmation explicite** indique le nombre et les types sélectionnés, avec possibilité d'annuler.
+
+**Contrat API complémentaire :**
+- `GET /api/admin/sprints/{sprintId}/ceremonies-bulk?teamId={uuid}` fournit `{state:"available",counts:{planning,daily,review,retrospective,custom,exceptional}}` uniquement pour l'équipe autorisée.
+- `POST` avec `operation:"delete"` exige en plus `types: [...] ` (liste unique non vide de types reconnus) et `expectedSelectedCount`. Le nombre total `expectedCount` et le nombre de types sélectionnés sont contrôlés avant toute suppression.
+- `planning/daily/review/retrospective` correspondent aux `kind` des événements standard. `custom` désigne les occurrences de modèles de cérémonie, `exceptional` les réunions exceptionnelles. Les types non sélectionnés sont conservés.
+- Le service verrouille le sprint dans une transaction, ne supprime que les identifiants sélectionnés, puis les dépendances de ces identifiants. Les archives gelées et modèles actifs ne sont pas altérés.
+
+**Recette complémentaire :** vérifier les sprints `planned`, `active`, `finished` versus `closed`, les sélections partielles (seulement Daily, seulement Review, seulement personnalisées) et multiples, un choix vide, une modification concurrente du nombre global ou du sous-ensemble choisi, l'isolation équipe, l'absence de suppression des événements non cochés et le rendu FR/EN. Les tests ajoutés au dépôt ne valent pas exécution attestée.
+
+**Références :** [Jira SMN-433](https://lmn24.atlassian.net/browse/SMN-433) · `src/server/sprints/ceremonies-bulk.ts` · `src/app/app/admin/sprints/[sprintId]/sprint-ceremonies-bulk-action.tsx`.
