@@ -32,6 +32,10 @@ async function listening(){
  }catch{return false;}
 }
 function browser(){
+ if(process.env.GITHUB_ACTIONS==="true"&&process.env.SMN_HEADLESS_LAUNCH_TEST==="1"){
+  console.log("PASS : ouverture du navigateur simulée par la recette Windows : "+url);
+  return;
+ }
  const p=spawn("cmd.exe",["/c","start",'""',url],{
   windowsHide:true,detached:true,stdio:"ignore",shell:false});
  p.on("error",()=>console.error("Ouvrez "+url+" dans votre navigateur."));
