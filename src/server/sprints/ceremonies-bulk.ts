@@ -82,12 +82,13 @@ async function countSources(db:Client,sprintId:string){
 }
 /** All changes are in one DB transaction; frozen sprint snapshots are never edited. */
 export async function changeSprintCeremonies(db:Client,teamId:string,sprintId:string,
- operation:"create"|"delete",expectedCount:number,selectedTypes?:readonly CeremonyDeleteType[]):
+ operation:"create"|"delete",expectedCount:number,selectedTypes?:readonly CeremonyDeleteType[],expectedSelectedCount?:number):
  Promise<{ok:true;count:number}|{ok:false;error:ErrorCode}>{
  if(!uuid.test(teamId)||!uuid.test(sprintId)||
   !["create","delete"].includes(operation)||!Number.isSafeInteger(expectedCount)||expectedCount<0||
   (operation==="delete"&&(!selectedTypes||!parseCeremonyDeleteTypes([...selectedTypes])))||
-  (operation==="create"&&selectedTypes!==undefined))
+  (operation==="create"&&(selectedTypes!==undefined||expectedSelectedCount!==undefined))||
+  (operation==="delete"&&(!Number.isSafeInteger(expectedSelectedCount)||expectedSelectedCount!<1)))
   return {ok:false,error:"invalid-input"};
  await db.query("BEGIN");
  try{
@@ -122,7 +123,7 @@ export async function changeSprintCeremonies(db:Client,teamId:string,sprintId:st
   }
   const selectedCount=ceremonyDeleteTypes.reduce((sum,type)=>
    sum+(selection.has(type)?matching.counts[type]:0),0);
-  if(selectedCount===0){
+  if(selectedCount===0||selectedCount!==expectedSelectedCount){
    await db.query("ROLLBACK");return {ok:false,error:"state-changed"};
   }
   // Only the explicitly selected kinds or source categories may be erased.
