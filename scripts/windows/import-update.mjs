@@ -5,7 +5,7 @@ import {createHash,randomBytes} from "node:crypto";
 import path from "node:path";
 import {unpackZip} from "./unpack-update.mjs";
 import {verifySignedManifest,verifyUpdatePayload,
-  enumerateUpdateableFiles,requireCompatibleBase} from "./update-contract.mjs";
+  enumerateUpdateableFiles,requireCompatibleBase,installedVersionPath} from "./update-contract.mjs";
 const args=process.argv.slice(2);
 function arg(name){const i=args.indexOf("--"+name);return i<0?null:args[i+1];}
 const root=path.resolve(arg("root")??"."),id=arg("id"),actor=arg("actor");
@@ -15,7 +15,7 @@ const stage=path.join(root,"updates","staging",id);
 const archive=path.join(stage,"incoming.zip");
 const unpacked=path.join(stage,"extracted");
 const trust=path.join(root,"runtime","trust","update-signing-public.pem");
-const marker=path.join(root,"distribution-version.json");
+const marker=installedVersionPath(root);
 for(const dir of [path.join(root,"updates"),path.join(root,"updates","staging"),stage]){
  const info=await lstat(dir);
  if(!info.isDirectory()||info.isSymbolicLink())throw Error("update-staging-directory-unsafe");
