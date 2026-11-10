@@ -116,3 +116,67 @@ test("real offline signed update import validates installed base, then detects l
   assert.match(refused.stderr,/update-base-inventory-mismatch/);
  }finally{await rm(root,{recursive:true,force:true})}
 });
+
+test("Windows external updater replaces application only, retains database and rollback",{
+ skip:process.platform!=="win32"
+},async()=>{
+ const workspace=await mkdtemp(path.join(os.tmpdir(),"smn-updater-cutover-"));
+ const installed=path.join(workspace,"SMN"),next=path.join(workspace,"next");
+ const keys=generateKeyPairSync("ed25519");
+ const privatePem=keys.privateKey.export({type:"pkcs8",format:"pem"});
+ const publicPem=keys.publicKey.export({type:"spki",format:"pem"});
+ const commit="c".repeat(40),fromVersion="33.0.201",toVersion="33.0.202",
+  id=randomUUID(),actor=randomUUID();
+ try{
+  for(const dir of [installed,next]){
+   await mkdir(path.join(dir,"app"),{recursive:true});
+   await mkdir(path.join(dir,"scripts","windows"),{recursive:true});
+   await writeFile(path.join(dir,"app","server.js"),"server unchanged");
+   for(const name of ["update-apply.mjs","verify-staged-update.mjs",
+     "update-contract.mjs","distribution-layout.mjs"]){
+    await cp(path.resolve("scripts","windows",name),path.join(dir,"scripts","windows",name));
+   }
+  }
+  await writeFile(path.join(installed,"app","feature.js"),"old feature");
+  await writeFile(path.join(next,"app","feature.js"),"new feature");
+  await writeFile(path.join(installed,"distribution-version.json"),
+   JSON.stringify({product:"SMN",version:fromVersion,sourceCommit:commit})+"\n");
+  await writeFile(path.join(next,"distribution-version.json"),
+   JSON.stringify({product:"SMN",version:toVersion,sourceCommit:commit})+"\n");
+  await mkdir(path.join(installed,"runtime","trust"),{recursive:true});
+  await writeFile(path.join(installed,"runtime","trust","update-signing-public.pem"),publicPem);
+  await mkdir(path.join(installed,"data","postgres"),{recursive:true});
+  await writeFile(path.join(installed,"data","postgres","sentinel"),"PERSISTENT DATABASE");
+  const stage=path.join(installed,"updates","staging",id);
+  await mkdir(stage,{recursive:true});
+  const oldFiles=await enumerateUpdateableFiles(installed),
+   newFiles=await enumerateUpdateableFiles(next);
+  const manifest=planUpdate({oldFiles,newFiles,fromVersion,toVersion,sourceCommit:commit,mode:"delta"});
+  const archive=zip([
+   {name:"manifest.json",content:manifestBytes(manifest)},
+   {name:"manifest.sig",content:signatureBytes(manifest,privatePem).toString("base64")+"\n"},
+   ...await Promise.all(manifest.files.filter(f=>f.action==="put").map(async file=>({
+    name:"payload/"+file.path,content:await readFile(path.join(next,...file.path.split("/")))
+   })))
+  ]);
+  await writeFile(path.join(stage,"incoming.zip"),archive);
+  const imported=spawnSync(process.execPath,[path.resolve("scripts/windows/import-update.mjs"),
+   "--root",installed,"--id",id,"--actor",actor],{encoding:"utf8",timeout:120000});
+  assert.equal(imported.status,0,imported.stderr);
+  const preview=JSON.parse(imported.stdout);
+  await writeFile(path.join(installed,"updates","pending.json"),
+   JSON.stringify({id,nonce:preview.nonce,actor,version:toVersion,
+    approvedAt:new Date().toISOString()})+"\n");
+  const updater=spawnSync(process.execPath,[path.join(installed,"scripts","windows","update-apply.mjs")],
+   {cwd:installed,encoding:"utf8",timeout:180000});
+  assert.equal(updater.status,0,updater.stderr);
+  assert.equal(await readFile(path.join(installed,"app","feature.js"),"utf8"),"new feature");
+  assert.equal(await readFile(path.join(installed,"data","postgres","sentinel"),"utf8"),
+    "PERSISTENT DATABASE");
+  assert.equal(await readFile(path.join(installed,"updates","rollback",id,"app","feature.js"),"utf8"),
+    "old feature");
+  const result=JSON.parse(await readFile(path.join(installed,"updates","status.json"),"utf8"));
+  assert.equal(result.state,"succeeded");
+  assert.equal(result.version,toVersion);
+ }finally{await rm(workspace,{recursive:true,force:true,maxRetries:8,retryDelay:500})}
+});
