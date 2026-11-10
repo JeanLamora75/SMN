@@ -167,7 +167,7 @@ test("Windows external updater replaces application only, retains database and r
   assert.equal(imported.status,0,imported.stderr);
   const preview=JSON.parse(imported.stdout);
   await writeFile(path.join(installed,"updates","pending.json"),
-   JSON.stringify({id,backupId:randomUUID(),nonce:preview.nonce,actor,version:toVersion,
+   JSON.stringify({id,backupId:randomUUID(),schema:{postgresMajor:18,schemaVersion:33,migrationCount:1,checkedAt:new Date().toISOString()},nonce:preview.nonce,actor,version:toVersion,
     approvedAt:new Date().toISOString()})+"\n");
   const updater=spawnSync(process.execPath,[path.join(installed,"scripts","windows","update-apply.mjs")],
    {cwd:installed,encoding:"utf8",timeout:180000});
