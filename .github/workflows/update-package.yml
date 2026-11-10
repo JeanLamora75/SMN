@@ -143,7 +143,7 @@ jobs:
             throw 'Une distribution SMN de base compatible est obligatoire pour un delta.'
           }
           Expand-Archive -LiteralPath '_base/SMN-Setup-Windows-x64-v33.zip' -DestinationPath '_base/extracted'
-          if (-not (Test-Path '_base/extracted/SMN-Windows/distribution-version.json')) {
+          if (-not (Test-Path '_base/extracted/SMN-Windows/app/distribution-version.json')) {
             throw "La distribution de base doit disposer d'un marqueur de version."
           }
       - name: Installer les dépendances Windows
