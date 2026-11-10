@@ -6,7 +6,7 @@ import { createPrivateKey, createPublicKey, createHash } from "node:crypto";
 import { readFile, mkdir, cp, writeFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { enumerateUpdateableFiles, planUpdate, manifestBytes, signatureBytes,
-  verifySignedManifest, validateUpdateVersion } from "./update-contract.mjs";
+  verifySignedManifest, validateUpdateVersion,installedVersionPath } from "./update-contract.mjs";
 
 function flag(name) {
   const i=process.argv.indexOf("--"+name);
@@ -22,10 +22,10 @@ const privatePem=Buffer.from(privateText,"base64").toString("utf8");
 const key=createPrivateKey(privatePem);
 if(key.asymmetricKeyType!=="ed25519")throw Error("update-signing-key-invalid");
 const fingerprint=createHash("sha256").update(createPublicKey(key).export({type:"spki",format:"der"})).digest("hex");
-const version=JSON.parse(await readFile(path.join(target,"distribution-version.json"),"utf8"));
+const version=JSON.parse(await readFile(installedVersionPath(target),"utf8"));
 const toVersion=validateUpdateVersion(version.version);
 const fromVersion=mode==="delta"?
-  validateUpdateVersion(JSON.parse(await readFile(path.join(base,"distribution-version.json"),"utf8")).version):
+  validateUpdateVersion(JSON.parse(await readFile(installedVersionPath(base),"utf8")).version):
   validateUpdateVersion(flag("from"));
 const targetFiles=await enumerateUpdateableFiles(target);
 const baseFiles=mode==="delta"?await enumerateUpdateableFiles(base):null;
