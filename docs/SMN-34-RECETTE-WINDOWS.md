@@ -24,7 +24,7 @@ Remplacer `<UUID_DE_SAUVEGARDE>` par l'identifiant réel figurant dans l'inventa
 
 Le rapport contient uniquement les familles d'obstacles, le nombre d'archives par type et des statuts ; aucune URL PostgreSQL, chemin privé, donnée utilisateur ni secret n'est imprimé. Conserver même ce résumé dans le dossier privé de recette, jamais dans une issue publique.
 
-Les principaux champs sont : `preflightBlockers`, `privacy.integrityReason`, `archives.status`, `execution.status`, `windowsRecette.status` et `canActivate:false`. Cette dernière valeur reste **toujours false** : il s'agit d'un diagnostic, pas d'une permission d'exécuter.
+Les principaux champs sont : `preflightBlockers`, `privacy.integrityReason`, `archives.status`, `execution.status`, `execution.databaseConnections`, `windowsRecette.status` et `canActivate:false`. Cette dernière valeur reste **toujours false** : il s'agit d'un diagnostic, pas d'une permission d'exécuter.
 
 ## 3. Reconstruction isolée sans bascule
 
