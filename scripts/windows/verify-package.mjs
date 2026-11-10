@@ -21,6 +21,8 @@ for(const file of [
  "scripts/windows/import-update.mjs",
  "scripts/windows/verify-staged-update.mjs",
  "scripts/windows/update-apply.mjs",
+ "scripts/windows/update-transaction.mjs",
+ "scripts/windows/schema-update-policy.mjs",
 ]) assert.ok(existsSync(path.join(root,file)), "Composant de maintenance Windows absent : "+file);
 for(const file of [
  "prisma/baseline/v33/schema.sql",
