@@ -23,6 +23,7 @@ for(const file of [
  "scripts/windows/update-apply.mjs",
  "scripts/windows/update-transaction.mjs",
  "scripts/windows/schema-update-policy.mjs",
+ "scripts/windows/update-backup-policy.mjs",
  "scripts/windows/verify-delivery.mjs",
 ]) assert.ok(existsSync(path.join(root,file)), "Composant de maintenance Windows absent : "+file);
 for(const file of [
