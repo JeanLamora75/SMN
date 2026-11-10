@@ -31,8 +31,8 @@ export async function readCutover(root){
  catch(error){if(error?.code==="ENOENT")return null;throw Error("update-journal-unreadable");}
  if(!record||record.format!==1||!ID.test(record.id)||!VERSION.test(record.version)||
    !["applying","committed","recovered"].includes(record.state)||
-   !Array.isArray(record.entries)||record.entries.length!==layoutNames(root).length||
-   record.entries.some((e,i)=>e.name!==layoutNames(root)[i]||typeof e.old!=="boolean"||
+   !Array.isArray(record.entries)||![1,LEGACY_NAMES.length].includes(record.entries.length)||
+   record.entries.some((e,i)=>e.name!==(record.entries.length===1?["app"]:LEGACY_NAMES)[i]||typeof e.old!=="boolean"||
      typeof e.next!=="boolean"))
   throw Error("update-journal-invalid");
  return record;
