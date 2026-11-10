@@ -8,7 +8,7 @@ const target=path.resolve(process.env.SMN_PACKAGE_DIR??"_package/SMN-Windows");
 const root=path.dirname(target);
 const base=path.join(root,"smoke-old"),out=path.join(root,"smoke-stage");
 const pubFile=path.join(root,"smoke-public-test-only.pem");
-const versionFile=path.join(target,"distribution-version.json");
+const versionFile=path.join(target,"app","distribution-version.json");
 const marker=JSON.parse(await readFile(versionFile,"utf8"));
 const patch=Number(marker.version.split(".")[2]);
 if(!Number.isSafeInteger(patch)||patch<1)throw Error("update-smoke-version-invalid");
@@ -25,7 +25,7 @@ function call(file,args,env={}) {
 }
 await cp(target,base,{recursive:true,errorOnExist:true,force:false});
 await writeFile(path.join(base,"app","server.js"),original+"\n// synthetic CI difference\n");
-await writeFile(path.join(base,"distribution-version.json"),
+await writeFile(path.join(base,"app","distribution-version.json"),
   JSON.stringify({...marker,version:oldVersion})+"\n");
 await writeFile(pubFile,publicPem,{flag:"wx"});
 const privateB64=Buffer.from(privatePem).toString("base64");
@@ -35,7 +35,7 @@ try{
     {SMN_UPDATE_SIGNING_KEY_PEM_B64:privateB64});
   const manifest=JSON.parse(await readFile(path.join(out,"manifest.json"),"utf8"));
   if(manifest.files.length!==2 || !manifest.files.some(x=>x.path==="app/server.js") ||
-      !manifest.files.some(x=>x.path==="distribution-version.json"))
+      !manifest.files.some(x=>x.path==="app/distribution-version.json"))
     throw Error("update-smoke-diff-unexpected");
   call("scripts/windows/verify-update.mjs",["--dir",out,"--trust",pubFile,"--base",base]);
   const bytes=manifest.files.reduce((n,file)=>n+file.size,0);
