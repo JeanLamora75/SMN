@@ -143,3 +143,15 @@ Le superviseur **strictement jetable** `scripts/smn-34-sandbox-maintenance.ts` a
 Le test `tests/smn-34-sandbox-maintenance-process.test.ts` lance de vrais processus Node séparés et prouve la persistance du fichier après terminaison du premier processus. Le composant réutilise `restore-maintenance.ts` qui bloque l'accès aux sessions pendant l'état de maintenance. **Aucun arrêt de serveur HTTP, job de fond ou écrivain PostgreSQL n'est certifié par ce test.** Les sessions actuelles SMN sont stockées en mémoire dans `SessionStore`, et non dans un magasin partagé durable. Une recette sur plusieurs processus réellement connectés reste requise.
 
 Le test initial a révélé une erreur de commentaire TypeScript puis un nom de répertoire de test non déterministe (caractères majuscules aléatoires). Ces deux défauts ont été corrigés sans assouplir la règle de sécurité sur les noms `smn_restore_test_*`. Aucune restauration de production n'a été activée et aucun marqueur réel n'a été créé.
+
+
+## Jalon — simulation HTTP du verrou et de la perte des sessions après redémarrage
+
+**Travaux sur `main` :**
+- `tests/fixtures/smn-34-session-worker.ts` : serveur HTTP de test lié uniquement à `127.0.0.1` sur port éphémère, simulant l'émission et la consultation de sessions synthétiques à l'aide du vrai `SessionStore` et du vrai `restoreMaintenanceActive()` ; aucune authentification, route ou base de production n'est utilisée.
+- `tests/smn-34-session-restart-http.test.ts` : lance trois processus Node distincts, émet une session dans le premier, vérifie son refus HTTP 503 après création d'un marqueur de maintenance jetable, redémarre avec le marqueur persistant (HTTP 503), puis enlève **uniquement le marqueur temporaire du banc de test** et démontre que l'ancien jeton de session ne fonctionne plus (HTTP 401). Une nouvelle session de test n'est créée qu'après la levée contrôlée par le banc.
+- Test inclus dans `.github/workflows/epic2-lot5-cutover.yml` Linux et Windows.
+
+**Preuve :** [GitHub Actions Lot 5 #42899733404](https://github.com/JeanLamora75/SMN/actions/runs/42899733404), SHA `79e57bb3d4149c1893a3086ae4ac430bb7e97c0d`, **SUCCESS sur les trois jobs** (Windows, Linux et PostgreSQL 18 isolé).
+
+**Portée de cette preuve :** confirme le comportement de **la simulation HTTP indépendante** qui utilise les composants réels de maintenance et sessions, mais **pas** l'arrêt du serveur Next.js de production, des jobs, des connexions PostgreSQL, des processus multiples de l'installation ni une reprise SMN après restauration de données réelles. Dans SMN les sessions sont en mémoire de processus, pas dans une table durable ; l'invalidation après redémarrage exige que **tous** les processus détenteurs de sessions aient effectivement été arrêtés. Les données personnelles, archives historiques et REC-01 à REC-14 sur un véritable poste Windows 11 indépendant restent non qualifiés. **NO-GO pour production maintenu.**
