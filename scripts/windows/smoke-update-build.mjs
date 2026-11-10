@@ -42,6 +42,18 @@ try{
   if(bytes>=25*1024*1024)throw Error("update-smoke-small-delta-exceeds-25MiB");
   console.log("PASS: signed synthetic small update, delta payload bytes: "+bytes);
   console.log("PASS: no DB or runtime shipped; offline Ed25519 verification passed");
+  // Also verify the application-only full mode on the exact same real build.
+  // This artifact uses an ephemeral test key and must never be published.
+  const fullStage=path.join(root,"smoke-full-stage");
+  call("scripts/windows/build-update.mjs",[
+    "--target",target,"--out",fullStage,"--mode","full",
+    "--from",oldVersion],{SMN_UPDATE_SIGNING_KEY_PEM_B64:privateB64});
+  call("scripts/windows/verify-update.mjs",["--dir",fullStage,"--trust",pubFile]);
+  const fullManifest=JSON.parse(await readFile(path.join(fullStage,"manifest.json"),"utf8"));
+  if(fullManifest.mode!=="full" || !fullManifest.files.some(e=>e.path==="app/server.js") ||
+      fullManifest.files.some(e=>e.path.startsWith("runtime/")||e.path.startsWith("data/")))
+    throw Error("update-smoke-full-unexpected");
+  console.log("PASS: full application-only update validated, files: "+fullManifest.files.length);
 }finally{
   await rm(base,{recursive:true,force:true,maxRetries:4,retryDelay:200});
 }
