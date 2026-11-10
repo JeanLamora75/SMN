@@ -46,8 +46,8 @@ jobs:
         # Le build pilote autonome nécessite des fichiers copiables, pas les
         # jonctions Windows générées par le linker pnpm du poste de CI.
         run: npm install --no-package-lock --no-audit --no-fund --legacy-peer-deps
-      - name: Contrat de protection des répertoires persistants
-        run: node --test tests/distribution-layout.test.mjs
+      - name: Contrat de protection des répertoires persistants et racine minimale
+        run: node --test tests/distribution-layout.test.mjs tests/distribution-package-policy.test.mjs
       - name: Preuve de transport Windows sans dépendances
         run: node --test tests/update-delivery.test.mjs
       - name: Parité des catalogues FR/EN
@@ -84,6 +84,7 @@ jobs:
             _package/SMN-Setup-Windows-x64-v33.zip
             _package/SMN-Setup-Windows-x64-v33.zip.sha256
             _package/SMN-Setup-Windows-x64-v33.zip.evidence.json
+            _package/smn-distribution-inventory.json
           if-no-files-found: error
           retention-days: 14
           compression-level: 0
