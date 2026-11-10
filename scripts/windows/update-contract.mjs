@@ -83,6 +83,8 @@ export async function enumerateUpdateableFiles(root) {
         if(parts.length===0 && !APP_ROOTS.has(name)) continue;
         await walk(absolute,[...parts,name]);
       } else if(info.isFile()) {
+        // Root launcher files are collected once by the explicit allowlist below.
+        if(parts.length===0) continue;
         if(!isUpdateableFile(relative)) throw Error("update-protected-file");
         const hash=createHash("sha256").update(await readFile(absolute)).digest("hex");
         if(collected.has(relative.toLowerCase())) throw Error("update-path-collision");
