@@ -22,6 +22,19 @@ export function validateUpdateVersion(version) {
   if (typeof version!=="string" || !VERSION.test(version)) throw Error("update-version-invalid");
   return version;
 }
+function mustAdvance(fromVersion,toVersion) {
+  const parse=v=>v.match(/^33\\.([0-9]+)\\.([0-9]+)(?:-(.*))?$/);
+  const from=parse(fromVersion),to=parse(toVersion);
+  if(!from||!to)throw Error("update-version-invalid");
+  const baseA=Number(from[1]),baseB=Number(from[2]);
+  const nextA=Number(to[1]),nextB=Number(to[2]);
+  if(![baseA,baseB,nextA,nextB].every(Number.isSafeInteger))
+    throw Error("update-version-invalid");
+  if(nextA<baseA || nextA===baseA && nextB<baseB ||
+      nextA===baseA && nextB===baseB &&
+      (!from[3] || !!to[3] && to[3]<=from[3]))
+    throw Error("update-version-not-advanced");
+}
 export function isUpdateableFile(relative) {
   assertApplicationPayload([relative]);
   const top=relative.split("/")[0];
@@ -50,7 +63,7 @@ export function validateUpdateManifest(manifest) {
     throw Error("update-manifest-invalid");
   validateUpdateVersion(manifest.fromVersion);
   validateUpdateVersion(manifest.toVersion);
-  if(manifest.fromVersion===manifest.toVersion) throw Error("update-version-not-advanced");
+  mustAdvance(manifest.fromVersion,manifest.toVersion);
   if(manifest.mode==="delta" && !manifest.files?.every(e=>e.previousSha256!==null || e.action==="put"))
     throw Error("update-delta-invalid");
   if(manifest.requires?.nodeMajor!==24 || manifest.requires?.postgresMajor!==18 ||
@@ -118,7 +131,7 @@ export async function enumerateUpdateableFiles(root) {
 }
 export function planUpdate({oldFiles,newFiles,fromVersion,toVersion,sourceCommit,mode}) {
   validateUpdateVersion(fromVersion);validateUpdateVersion(toVersion);
-  if(fromVersion===toVersion)throw Error("update-version-not-advanced");
+mustAdvance(manifest.fromVersion,manifest.toVersion);
   if(!COMMIT.test(sourceCommit))throw Error("update-commit-invalid");
   if(!["full","delta"].includes(mode))throw Error("update-mode-invalid");
   if(mode==="delta"&&!oldFiles)throw Error("update-base-required");
