@@ -5,7 +5,11 @@ import type {Snapshot} from "./diagnostic";
 
 export const NATIVE_V32_NAME="smn_v32_native_baseline";
 // Resolve at runtime: bundlers must not require this optional SQL file at build time.
-export const NATIVE_V32_FILE=()=>resolve(process.cwd(),"prisma","baseline","v32","schema.sql");
+export const NATIVE_V32_FILE=()=>{
+ const legacy=resolve(process.cwd(),"prisma","baseline","v32","schema.sql");
+ const packaged=resolve(process.cwd(),"app","prisma","baseline","v32","schema.sql");
+ return existsSync(packaged)?packaged:legacy;
+};
 
 export function nativeBaselineSql():string|null {
  const file=NATIVE_V32_FILE();
