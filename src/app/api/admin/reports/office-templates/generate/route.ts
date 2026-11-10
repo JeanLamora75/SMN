@@ -148,7 +148,7 @@ export async function POST(req:NextRequest){
   // Style read is one per export. Missing legacy tables preserve the old
   // renderer, but a broken migrated catalog is never silently ignored.
   const base=selected.template.format==="docx"?
-   generateWordTables(selected.bytes,payload.rows).bytes:
+   generateWordTables(selected.bytes,payload.rows,language as Locale).bytes:
    generatePowerPointTables(selected.bytes,payload.rows,language as Locale).bytes;
   const linked=activateOfficeLinkLabels(base,selected.template.format,payload.links.labels);
   const result=generateScalarOffice(linked.bytes,selected.template.format,payload.values);
