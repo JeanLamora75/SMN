@@ -1,15 +1,17 @@
 import assert from "node:assert/strict";
 import {test} from "node:test";
 import {spawnSync} from "node:child_process";
-import {mkdtemp,readFile,rm,writeFile} from "node:fs/promises";
+import {mkdtemp,mkdir,readFile,rm,writeFile} from "node:fs/promises";
 import {fileURLToPath} from "node:url";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 
 test("SMN-34: maintenance persistante entre trois processus externes sans jamais autoriser de restore",
  {timeout:30000},async()=>{
- const root=await mkdtemp(join(tmpdir(),"smn_restore_test_maintenance_"));
- const marker=join(root,"maintenance.lock");
+ const root=await mkdtemp(join(tmpdir(),"smn34-maintenance-test-"));
+ const sandbox=join(root,"smn_restore_test_maintenance_lab");
+ await mkdir(sandbox);
+ const marker=join(sandbox,"maintenance.lock");
  const cwd=fileURLToPath(new URL("../",import.meta.url));
  const script=fileURLToPath(new URL("../scripts/smn-34-sandbox-maintenance.ts",import.meta.url));
  const invoke=(mode:string,location=marker)=>spawnSync(process.execPath,
