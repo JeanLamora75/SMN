@@ -40,6 +40,37 @@ async function verifyTables(db:Client){
   WHERE table_schema='public' AND table_name=ANY($1::text[])`,[needed]);
  return needed.every(name=>result.rows.some(row=>row.name===name));
 }
+export const ceremonyDeleteTypes=[
+ "planning","daily","review","retrospective","custom","exceptional"
+] as const;
+export type CeremonyDeleteType=(typeof ceremonyDeleteTypes)[number];
+export function parseCeremonyDeleteTypes(raw:unknown):CeremonyDeleteType[]|null{
+ if(!Array.isArray(raw)||raw.length===0||raw.length>ceremonyDeleteTypes.length||
+  raw.some(v=>typeof v!=="string"||!ceremonyDeleteTypes.includes(v as CeremonyDeleteType))||
+  new Set(raw).size!==raw.length)return null;
+ return raw as CeremonyDeleteType[];
+}
+export async function readSprintCeremonyTypeCounts(db:Client,teamId:string,sprintId:string){
+ const sprint=await checkedSprint(db,sprintId,teamId);
+ if(!sprint)return null;
+ if(!await verifyTables(db))return {state:"unavailable" as const};
+ const result=await db.query<{type:CeremonyDeleteType;count:string}>(`
+  SELECT kind AS type,COUNT(*)::text AS count FROM public.smn_sprint_ceremony
+  WHERE sprint_id=$1 AND kind=ANY($2::text[]) GROUP BY kind
+  UNION ALL SELECT 'custom' AS type,COUNT(*)::text AS count
+  FROM public.smn_scrum_template_occurrence WHERE sprint_id=$1
+  UNION ALL SELECT 'exceptional' AS type,COUNT(*)::text AS count
+  FROM public.smn_sprint_exceptional_meeting WHERE sprint_id=$1`,
+  [sprintId,ceremonyDeleteTypes.slice(0,4)]);
+ const counts=Object.fromEntries(ceremonyDeleteTypes.map(type=>[type,0])) as Record<CeremonyDeleteType,number>;
+ for(const row of result.rows){
+  const n=Number(row.count);
+  if(!ceremonyDeleteTypes.includes(row.type)||!Number.isSafeInteger(n)||n<0)
+   return {state:"unavailable" as const};
+  counts[row.type]=n;
+ }
+ return {state:"available" as const,counts};
+}
 async function countSources(db:Client,sprintId:string){
  const counts:number[]=[];
  for(const source of sources){
@@ -51,10 +82,12 @@ async function countSources(db:Client,sprintId:string){
 }
 /** All changes are in one DB transaction; frozen sprint snapshots are never edited. */
 export async function changeSprintCeremonies(db:Client,teamId:string,sprintId:string,
- operation:"create"|"delete",expectedCount:number):
+ operation:"create"|"delete",expectedCount:number,selectedTypes?:readonly CeremonyDeleteType[]):
  Promise<{ok:true;count:number}|{ok:false;error:ErrorCode}>{
  if(!uuid.test(teamId)||!uuid.test(sprintId)||
-  !["create","delete"].includes(operation)||!Number.isSafeInteger(expectedCount)||expectedCount<0)
+  !["create","delete"].includes(operation)||!Number.isSafeInteger(expectedCount)||expectedCount<0||
+  (operation==="delete"&&(!selectedTypes||!parseCeremonyDeleteTypes([...selectedTypes])))||
+  (operation==="create"&&selectedTypes!==undefined))
   return {ok:false,error:"invalid-input"};
  await db.query("BEGIN");
  try{
@@ -82,11 +115,28 @@ export async function changeSprintCeremonies(db:Client,teamId:string,sprintId:st
    await db.query("COMMIT");
    return {ok:true,count:generated};
   }
-  // The three source lists are scoped to the same locked sprint.
+  const selection=new Set(selectedTypes);
+  const matching=await readSprintCeremonyTypeCounts(db,teamId,sprintId);
+  if(!matching||matching.state!=="available"){
+   await db.query("ROLLBACK");return {ok:false,error:"incomplete-schema"};
+  }
+  const selectedCount=ceremonyDeleteTypes.reduce((sum,type)=>
+   sum+(selection.has(type)?matching.counts[type]:0),0);
+  if(selectedCount===0){
+   await db.query("ROLLBACK");return {ok:false,error:"state-changed"};
+  }
+  // Only the explicitly selected kinds or source categories may be erased.
+
   const ids:Record<string,string[]>={};
   for(const source of sources){
+   const types=ceremonyDeleteTypes.slice(0,4).filter(type=>selection.has(type));
+   const enabled=source.key==="ceremony"?types.length>0:
+    selection.has(source.key==="template"?"custom":"exceptional");
+   if(!enabled){ids[source.key]=[];continue;}
+   const condition=source.key==="ceremony"?" AND kind=ANY($2::text[])":"";
+   const params=source.key==="ceremony"?[sprintId,types]:[sprintId];
    const result=await db.query<{id:string}>(`SELECT id FROM public.${source.table}
-    WHERE sprint_id=$1 FOR UPDATE`,[sprintId]);
+    WHERE sprint_id=$1${condition} FOR UPDATE`,params);
    ids[source.key]=result.rows.map(r=>r.id);
   }
   // Disassociate register items without deleting the register records themselves.
@@ -110,10 +160,11 @@ export async function changeSprintCeremonies(db:Client,teamId:string,sprintId:st
    await db.query(`DELETE FROM public.${table} WHERE meeting_id=ANY($1::text[])`,[ids.exceptional]);
   }
   for(const source of sources){
-   await db.query(`DELETE FROM public.${source.table} WHERE sprint_id=$1`,[sprintId]);
+   await db.query(`DELETE FROM public.${source.table} WHERE id=ANY($1::text[]) AND sprint_id=$2`,
+    [ids[source.key],sprintId]);
   }
   await db.query("COMMIT");
-  return {ok:true,count};
+  return {ok:true,count:selectedCount};
  }catch(error){
   await db.query("ROLLBACK").catch(()=>undefined);
   if(error&&typeof error==="object"&&"code" in error&&error.code==="23503")
