@@ -57,6 +57,8 @@ jobs:
           SMN_BUILD_STANDALONE: "1"
         run: npm run build
       - name: Construire le paquet Node et PostgreSQL Windows vérifiés
+        env:
+          SMN_UPDATE_SIGNING_KEY_PEM_B64: ${{ secrets.SMN_UPDATE_SIGNING_KEY_PEM_B64 }}
         run: node scripts/windows/package-portable.mjs
       - name: Contrôler le lancement autonome du paquet
         run: node scripts/windows/verify-package.mjs
