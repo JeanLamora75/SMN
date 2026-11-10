@@ -59,6 +59,24 @@ pnpm exec tsx scripts/smn-34-restore-rehearsal.ts --archive <UUID_DE_SAUVEGARDE>
 
 **Format de preuve à conserver en privé :** identifiant non nominatif du banc, SHA Git, version SMN/PG, date/heure UTC, scénario REC, résultat PASS/FAIL/BLOCKED, responsable du constat, hash d'un contenu de test, description d'anomalie sans données personnelles. Un script CI n'est jamais un témoin d'un redémarrage réel Windows.
 
+## 4 bis. Grille de preuves locale REC-01 à REC-14
+
+Dans PowerShell sur une installation **de validation indépendante**, générer le modèle des quatorze essais :
+
+```powershell
+node scripts/windows/smn-34-recette-check.mjs --template
+```
+
+La sortie JSON peut être conservée dans un fichier privé de recette (hors dépôt et hors sauvegardes). Chaque scénario doit conserver son identifiant `REC-01` à `REC-14`, son statut `PASS`, `FAIL` ou `BLOCKED` et, **uniquement pour PASS**, une empreinte SHA-256 d'une preuve existante et sa date d'observation UTC `observedAt`. Ne pas inscrire de noms, chemins confidentiels ni de secrets dans ce fichier.
+
+La vérification syntaxique ne lit pas les preuves elles-mêmes et n'accorde aucune approbation :
+
+```powershell
+node scripts/windows/smn-34-recette-check.mjs --check "C:\\RecetteSMN\\rec-01-14.json"
+```
+
+Utiliser un chemin absolu local pour le fichier privé. La commande n'écrit rien, ne transmet aucun contenu et renvoie **toujours le code 2** en mode `--check`, y compris si les 14 statuts sont déclarés `PASS`. Le rapport affiche seulement les statuts et décomptes. Une déclaration `PASS` n'est pas une preuve de réalisation : **la revue indépendante est obligatoire** et une CI GitHub ne peut la remplacer.
+
 ## 5. Conditions de décision
 
 **NO-GO** si une archive est non inspectable, si une suppression historique est inconnue, si les agrégats ne sont pas justifiés, si les chemins DB/fichiers se chevauchent avec une installation de travail, si un écrivain est actif, si les sessions ne sont pas révoquées, si un journal de bascule est ambigu, ou si un REC applicable est non vérifié.
