@@ -16,11 +16,11 @@ await mkdir(target, { recursive: true });
 // A stable installed version is required for explicit offline patch preconditions.
 const runNumber=process.env.GITHUB_RUN_NUMBER;
 const buildSha=process.env.GITHUB_SHA;
-if(!/^\\d+$/.test(runNumber??"") || !/^[0-9a-f]{40}$/.test(buildSha??""))
+if(!/^\d+$/.test(runNumber??"") || !/^[0-9a-f]{40}$/.test(buildSha??""))
   throw new Error("Numéro de build GitHub ou commit absent");
 const buildVersion="33.0."+Number(runNumber);
 await writeFile(path.join(target,"distribution-version.json"),
-  JSON.stringify({product:"SMN",version:buildVersion,sourceCommit:buildSha})+"\\n","utf8");
+  JSON.stringify({product:"SMN",version:buildVersion,sourceCommit:buildSha})+"\n","utf8");
 // Trust anchor is only supplied from the CI signing secret, never by the ZIP.
 // Existing installations without this anchor cannot verify signed updates.
 const signingSecret=process.env.SMN_UPDATE_SIGNING_KEY_PEM_B64;
