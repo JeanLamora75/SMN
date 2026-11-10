@@ -4,6 +4,7 @@ import path from "node:path";
 import {authorizeApi} from "@/server/auth/authorization";
 import {backupRootPath} from "@/server/backup/runner";
 import {backupInventory} from "@/server/backup/verification";
+import {selectUpdateRecoveryPoint} from "../../../../../../scripts/windows/update-backup-policy.mjs";
 import {inspectUpdateSchema} from "@/server/updates/schema-preflight";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {isUpdateId,isUpdateNonce,readPreview,runUpdateScript,safeUpdatesRoot} from "@/server/updates/local";
@@ -42,12 +43,7 @@ export async function POST(request:NextRequest){
   // A current, complete and cryptographically verified recovery point is mandatory.
   // A cached badge or a last-attempt status is never sufficient evidence.
   const backups=await backupInventory(backupRootPath());
-  const verified=backups.find(item=>item.status==="verified" &&
-   item.integrityVerified===true && item.scopeComplete===true &&
-   item.components.some(component=>component.kind==="database") &&
-   item.createdAt!==null && Number.isFinite(Date.parse(item.createdAt)) &&
-   Date.now()-Date.parse(item.createdAt)>=0 &&
-   Date.now()-Date.parse(item.createdAt)<=24*60*60*1000);
+  const verified=selectUpdateRecoveryPoint(backups);
   if(!verified)return jsonResult({error:"update-verified-backup-required"},409);
   // Recheck the live DB after ZIP verification and before the launcher stops the web server.
   // Never infer compatibility from the package version or a prior cached diagnostic.
