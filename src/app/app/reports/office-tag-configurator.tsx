@@ -53,7 +53,7 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
  useEffect(()=>{
   if(!open)return;
   let alive=true;
-  setLoading(true);setCatalogError(false);setStyleError(false);
+  setLoading(true);setCatalogError(false);setStyleError(false);setIndicators([]);setStyles([]);
   void Promise.allSettled([
    teamId?fetch("/api/admin/indicators/catalog?teamId="+encodeURIComponent(teamId),{cache:"no-store"}).then(async r=>{
     if(!r.ok)throw Error("catalog");const data=await r.json() as Catalog;
