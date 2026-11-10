@@ -22,6 +22,8 @@ async function atomic(file,value){
 }
 function journalPath(root){return path.join(root,"updates","cutover-journal.json");}
 export async function readCutover(root){
+ const updatesInfo=await kind(path.join(root,"updates"));
+ if(updatesInfo!=="directory")throw Error("update-protected-root-unsafe");
  let record;
  try{record=JSON.parse(await readFile(journalPath(root),"utf8"));}
  catch(error){if(error?.code==="ENOENT")return null;throw Error("update-journal-unreadable");}
@@ -56,6 +58,8 @@ export async function recoverCutover(root){
  if(!record||record.state!=="applying")return record?.state??"none";
  const prepared=path.join(root,"updates","prepared",record.id);
  const rollback=path.join(root,"updates","rollback",record.id);
+ if(await kind(prepared)!=="directory"||await kind(rollback)!=="directory")
+  throw Error("update-recovery-folder-unsafe");
  // Reverse order, failing closed on any unexpected collision or missing backup.
  for(const entry of [...record.entries].reverse()){
   const live=path.join(root,entry.name);
