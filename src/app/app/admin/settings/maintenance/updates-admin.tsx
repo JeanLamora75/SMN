@@ -22,7 +22,17 @@ export default function UpdatesAdmin(){
   if(!res.ok)throw Error("update-status-unavailable");
   setOverview(await res.json() as Overview);
  },[]);
- useEffect(()=>{void refresh().catch(()=>setError(t("offlineUpdates.loadError")));},[refresh,t]);
+ useEffect(()=>{
+  let active=true;
+  void fetch("/api/admin/updates",{cache:"no-store"})
+   .then(async response=>{
+    if(!response.ok)throw Error("update-status-unavailable");
+    return response.json() as Promise<Overview>;
+   })
+   .then(data=>{if(active)setOverview(data);})
+   .catch(()=>{if(active)setError(t("offlineUpdates.loadError"));});
+  return ()=>{active=false;};
+ },[t]);
  async function check(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
   if(!file||busy||queued||!overview?.ready)return;
