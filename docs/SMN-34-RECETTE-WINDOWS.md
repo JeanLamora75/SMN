@@ -38,6 +38,18 @@ pnpm exec tsx scripts/smn-34-restore-rehearsal.ts --archive <UUID_DE_SAUVEGARDE>
 - Ce résultat ne prouve **pas** la bascule active, le contrôle des sessions persistantes ni l'exhaustivité des effacements historiques.
 - Si la cible ne correspond pas au motif strict, si elle n'est pas vide, si les empreintes divergent ou si un PDF/Office manque, **arrêter** : jamais de flag pour forcer une restauration.
 
+## 3 bis. Précontrôle de l'orchestrateur **exclusivement sur cibles jetables**
+
+Un opérateur peut désormais inspecter le banc PostgreSQL 18 et les arbres de fichiers **sans jamais déclencher la bascule**, uniquement avec des noms de bases `smn_restore_test_*` et trois répertoires frères `smn_restore_test_*` situés sous le dossier temporaire du système. Le compte PostgreSQL est lu depuis `SMN_TEST_DATABASE_URL` (serveur local, base `postgres`). Cette variable n'est jamais affichée.
+
+```powershell
+pnpm exec tsx scripts/smn-34-offline-preflight.ts --check-test-only smn_restore_test_original01 smn_restore_test_candidate01 smn_restore_test_rollback01 "C:\\Users\\<utilisateur>\\AppData\\Local\\Temp\\smn34-test\\smn_restore_test_original" "C:\\Users\\<utilisateur>\\AppData\\Local\\Temp\\smn34-test\\smn_restore_test_candidate" "C:\\Users\\<utilisateur>\\AppData\\Local\\Temp\\smn34-test\\smn_restore_test_rollback"
+```
+
+Ce sont des **exemples de noms** : les deux bases initiales doivent réellement être créées et la base `rollback` ne doit pas exister ; les répertoires `original` et `candidate` doivent être des répertoires **jetables**, avec fichiers de test dans les sous-dossiers autorisés. Le précontrôle vérifie la version majeure PG18, la présence/absence des trois bases, les connexions concurrentes, l'intégrité des arbres de fichiers et leurs empreintes SHA-256. Aucun mot de passe, nom de fichier privé ni connexion PostgreSQL n'est imprimé.
+
+Le résultat peut comporter `database.status: "ready"` et `files.status: "ready"` ; il continue **toujours** à renvoyer `canActivate: false` et le code de sortie 2. Zéro connexion observée est un instantané, **pas** la preuve d'arrêt du service. Aucun usage contre l'installation de travail n'est accepté ; cet outil ne sait pas basculer une base réelle.
+
 ## 4. Dossier de recette REC-01 à REC-14
 
 | REC | Vérification en installation dédiée | Preuve attendue |
