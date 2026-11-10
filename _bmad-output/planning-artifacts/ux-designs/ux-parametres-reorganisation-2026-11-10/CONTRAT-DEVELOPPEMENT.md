@@ -46,3 +46,10 @@ Tous les cas applicables de [RECETTE-UX.md](RECETTE-UX.md) ont leurs preuves. Au
 ## Recommandation de mise en production
 
 Faire modifier les fichiers dans un même lot cohérent catalogue + vue + i18n pour éviter un portail cassé entre deux commits, puis recette. Les options de publication (main direct selon fonctionnement SMN) ne dispensent pas de vérifier les actions GitHub et les tests.
+
+
+## Avenant impératif SMN-434 — Internationalisation exhaustive (10/11/2026)
+
+**Instruction utilisateur expressément prioritaire :** `tous les mots` de la refonte Paramètres sont internationalisés. Interdire toute nouvelle chaîne destinée à l'utilisateur dans le JSX ou les props `title`, `placeholder`, `aria-label`, `alt`, `role=status`, `label`, menus, actions, aides et messages d'erreur, sauf marque déposée ou identifiants techniques invisibles. Les seules sources de texte sont les catalogues `src/i18n/fr.json` et `src/i18n/en.json`. Même règle pour les mots-clés de recherche, qui doivent être adaptés à la langue. Ne pas compter sur le fallback français pour masquer une clé manquante en anglais.
+
+La Story [SMN-434](https://lmn24.atlassian.net/browse/SMN-434) couvre le catalogue V2, la recherche et l'internationalisation. Des tests de parité des clés, d'absence de littéraux UI dans les fichiers modifiés et de recherche FR/EN sont requis. Contrôle par `pnpm i18n:check`, `pnpm typecheck`, tests ciblés et recette des 30 scénarios (résultats réels, jamais supposés). L'écriture sur GitHub sans exécution de ces tests ne suffit pas à déclarer la Story terminée.
