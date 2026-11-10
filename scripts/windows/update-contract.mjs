@@ -38,7 +38,7 @@ function mustAdvance(fromVersion,toVersion) {
 export function isUpdateableFile(relative) {
   assertApplicationPayload([relative]);
   const top=relative.split("/")[0];
-  return APP_ROOTS.has(top) || APP_FILES.has(relative);
+  return (APP_ROOTS.has(top) && relative.includes("/")) || APP_FILES.has(relative);
 }
 function requireEntries(entries) {
   if (!Array.isArray(entries) || entries.length>20000) throw Error("update-file-list-invalid");
