@@ -22,7 +22,7 @@ export default async function ChartStylesPage(){
    <Link href="/app/admin/settings" className="btn btn-link px-0">{t("chartStyles.gallery.back")}</Link>
   </nav>
   <header className="smn-chart-style-hero mb-4">
-   <p className="smn-chart-style-eyebrow">COCKPIT AGILE · {t("chartStyles.gallery.breadcrumb")}</p>
+   <p className="smn-chart-style-eyebrow">{t("settingsCatalog.navigation.chartEyebrow")} · {t("chartStyles.gallery.breadcrumb")}</p>
    <h1>{t("chartStyles.gallery.heading")}</h1>
    <p>{t("chartStyles.gallery.intro")}</p>
   </header>
