@@ -15,6 +15,14 @@ for (const file of ["runtime/node/node.exe", "app/server.js", "Demarrer SMN.cmd"
   assert.ok(existsSync(path.join(root, file)), "Fichier manquant du paquet : " + file);
 }
 for(const file of [
+ "scripts/windows/update-contract.mjs",
+ "scripts/windows/distribution-layout.mjs",
+ "scripts/windows/unpack-update.mjs",
+ "scripts/windows/import-update.mjs",
+ "scripts/windows/verify-staged-update.mjs",
+ "scripts/windows/update-apply.mjs",
+]) assert.ok(existsSync(path.join(root,file)), "Composant de maintenance Windows absent : "+file);
+for(const file of [
  "prisma/baseline/v33/schema.sql",
  "prisma/baseline/v32/schema.sql",
  "_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql",
