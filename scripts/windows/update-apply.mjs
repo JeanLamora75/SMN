@@ -46,7 +46,7 @@ async function run(){
   if(!st.isDirectory()||st.isSymbolicLink())throw Error("update-protected-root-unsafe");
  }
  const approval=JSON.parse(await readFile(pending,"utf8"));
- if(!safeId(approval.id)||typeof approval.nonce!=="string"||
+ if(!safeId(approval.id)||!safeId(approval.backupId)||typeof approval.nonce!=="string"||
     !/^[a-f0-9]{48}$/.test(approval.nonce) ||
     Date.now()-Date.parse(approval.approvedAt)>5*60*1000)
    throw Error("update-approval-expired");
