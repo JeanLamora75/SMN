@@ -23,7 +23,7 @@
 | `scripts/windows/verify-update.mjs` | Contrôle hors ligne en lecture seule d'un staging extrait avec clé publique externe |
 | `scripts/windows/create-update-signing-key.mjs` | Génération locale d'une paire de clés privée/publique sans outil supplémentaire |
 | `scripts/windows/smoke-update-build.mjs` | Essai Windows sur build réel avec **clé éphémère de CI jamais publiée** |
-| `scripts/windows/package-portable.mjs` | Version installée `distribution-version.json`, ancre de confiance (si configurée), omission de l'archive PG en mode update build |
+| `scripts/windows/package-portable.mjs` | Version installée `distribution-version.json` basée sur l’identifiant global GitHub Actions `GITHUB_RUN_ID` (distinct des compteurs par workflow), ancre de confiance (si configurée), omission de l'archive PG en mode update build |
 | `.github/workflows/update-package.yml` | Tests Windows sur push, version Windows signée sur demande après vérification de secret |
 | `tests/update-package.test.mjs` | Signature, altération, version source, empreintes et secrets |
 | `docs/MISES-A-JOUR-WINDOWS.md` | Mode opératoire de distribution et provisions |
@@ -48,3 +48,7 @@ La publication de **vrais** ZIP signés via `workflow_dispatch` exige le secret 
 - Aucune installation de mise à jour, migration PostgreSQL ni suppression de fichiers utilisateur exécutée dans le cadre de SMN-426.
 - Les clés privées ne doivent jamais être commitées, envoyées par messagerie, imprimées dans un log CI ni ajoutées à un artefact.
 - Toute rotation de clé constitue une migration de confiance explicitement approuvée et testée.
+
+## Versionnement inter-workflows
+
+Les compteurs `GITHUB_RUN_NUMBER` sont locaux à chaque workflow et **ne peuvent pas** ordonner une distribution initiale et une mise à jour. Les deux builds utilisent désormais `33.0.<GITHUB_RUN_ID>` (identifiant global monotone des exécutions GitHub Actions). Un numéro de version cible inférieur ou égal à celui de l’installation est refusé. Cette numérotation reste technique et évoluera sous contrôle de migration de version, jamais par approximation au poste utilisateur.
