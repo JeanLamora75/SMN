@@ -8,6 +8,10 @@ Une archive Windows précédemment transmise comprenait à la racine des éléme
 
 Le nouveau `package-portable.mjs` construit une distribution différente : une application Next.js autonome compilée, les dépendances runtime sélectionnées par Next, Node.js et l'archive binaire vérifiée de PostgreSQL 18, plus les scripts de maintenance indispensables.
 
+## Référence normative
+
+Le contrat complet et évolutif de composition, d'exclusions, de protection des données et de recette du ZIP se trouve dans [SPEC-DISTRIBUTION-WINDOWS-SMN.md](../planning-artifacts/architecture/SPEC-DISTRIBUTION-WINDOWS-SMN.md). L'archive PostgreSQL de toute **nouvelle** distribution est `postgres.zip` (nom officiel source conservé uniquement pour le téléchargement). Les preuves historiques ci-dessous concernent des builds antérieurs à ce changement et ne qualifient pas le dernier code.
+
 ## Structure cible
 
 ```text
@@ -26,7 +30,7 @@ SMN-Windows/
   runtime/
     launcher.mjs
     node/node.exe
-    postgres/postgresql-18.6-5-windows-x64-binaries.zip
+    postgres/postgres.zip
     trust/update-signing-public.pem [si signature configurée]
   data/
     office/templates/
