@@ -101,3 +101,12 @@ Pour chaque REC, enregistrer date UTC, SHA Git du code, version PG18, machine de
 **CI :** [Lot 5 — exécution 42893233552](https://github.com/JeanLamora75/SMN/actions/runs/42893233552) : **SUCCESS Linux + Windows + PostgreSQL 18 isolé**, SHA `6a314447e367d4654864f0fd0e73ff9b76724000`. La suite générale I0 sur le commit documentaire suivant était en cours au moment de la consultation ; une CI verte spécialisée **ne vaut pas** une restauration active.
 
 **Limite explicite :** un audit de lecture seule sur des données réelles et une recette complète sur Windows ne peuvent pas être exécutés sur GitHub depuis la session de l'agent. Les trois blocages demeurent **NO-GO** jusqu'aux attestations indépendantes. Aucun secret ni backup transféré à GitHub/Jira.
+
+
+## Incrément supplémentaire — diagnostic écrivains et matrice de recette
+
+Le diagnostic `pnpm restore:audit --archive <UUID> --audit-only` relève désormais **le nombre des connexions PostgreSQL concurrentes à l'instant T**, via `pg_catalog.pg_stat_activity`, sans émettre PID, contenu de requêtes ni identifiants. Une erreur ou un manque de permission produit `unverifiable` ; le constat « zéro autre session » produit `none-observed` avec `provesOffline:false`. La mesure n'atteste **jamais** l'arrêt du serveur HTTP, des tâches planifiées, des connexions futures ou des écrivains externes. **Aucune autorisation de restauration n'en découle.**
+
+Une grille de recette contrôlable depuis Windows a été publiée : `scripts/windows/smn-34-recette-contract.mjs` et `scripts/windows/smn-34-recette-check.mjs` ; ils exposent les 14 scénarios REC-01 à REC-14, leur état PASS / FAIL / BLOCKED et une référence SHA-256/horodatage UTC pour chaque PASS. Le contrôle de cohérence ne lit aucun contenu des preuves et **retourne toujours `canActivate:false`**, y compris pour 14 PASS déclarés. Voir [le guide](../../docs/SMN-34-RECETTE-WINDOWS.md). Les tests `tests/smn-34-audit-readonly.test.ts` et `tests/smn-34-recette-checklist.test.ts` sont intégrés au workflow Lot 5.
+
+Les données historiques, les archives réelles et les sessions de l'installation personnelle n'ont pas été consultées. Aucune restauration réelle n'a été tentée. Statut des trois conditions : **NON LEVÉES**, avec diagnostic et collecte de preuves facilités.
