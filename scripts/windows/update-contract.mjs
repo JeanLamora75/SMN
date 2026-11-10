@@ -126,3 +126,47 @@ export function planUpdate({oldFiles,newFiles,fromVersion,toVersion,sourceCommit
     platform:"win32-x64",mode,fromVersion,toVersion,sourceCommit,
     requires:{nodeMajor:24,postgresMajor:18,schemaVersion:33},files:entries});
 }
+
+export function requireCompatibleBase(manifest,baseVersion,installedFiles) {
+  validateUpdateManifest(manifest);
+  if(baseVersion!==manifest.fromVersion)throw Error("update-from-version-mismatch");
+  if(manifest.mode==="delta"){
+    for(const entry of manifest.files){
+      const present=installedFiles.get(entry.path.toLowerCase());
+      if(entry.previousSha256===null && present)
+        throw Error("update-file-already-exists");
+      if(entry.previousSha256!==null && present?.sha256!==entry.previousSha256)
+        throw Error("update-base-file-mismatch");
+    }
+  }
+  return true;
+}
+export async function verifyUpdatePayload(root,manifest) {
+  validateUpdateManifest(manifest);
+  const expected=new Set(manifest.files.filter(f=>f.action==="put").map(f=>f.path.toLowerCase()));
+  const payloadRoot=path.join(root,"payload");
+  const observed=new Set();
+  async function inspect(folder,parts) {
+    for(const name of await readdir(folder)){
+      const relative=[...parts,name].join("/");
+      const entry=path.join(folder,name),info=await lstat(entry);
+      if(info.isSymbolicLink())throw Error("update-payload-symlink");
+      if(info.isDirectory()){await inspect(entry,[...parts,name]);continue;}
+      if(!info.isFile() || !expected.has(relative.toLowerCase()) || observed.has(relative.toLowerCase()))
+        throw Error("update-payload-extra-or-unsafe");
+      observed.add(relative.toLowerCase());
+      const record=manifest.files.find(f=>f.path.toLowerCase()===relative.toLowerCase());
+      if(!record || record.size!==info.size ||
+        createHash("sha256").update(await readFile(entry)).digest("hex")!==record.sha256)
+        throw Error("update-payload-integrity-failed");
+    }
+  }
+  if(expected.size){
+    await inspect(payloadRoot,[]);
+  }else {
+    try {if((await readdir(payloadRoot)).length)throw Error("update-payload-extra-or-unsafe");}
+    catch(e){if(e?.code!=="ENOENT")throw e;}
+  }
+  if(observed.size!==expected.size)throw Error("update-payload-missing");
+  return true;
+}
