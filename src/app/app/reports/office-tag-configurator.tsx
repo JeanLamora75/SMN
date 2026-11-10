@@ -61,9 +61,9 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
  const currentRow=officeRowDefinitions.find(x=>x.source===key);
  const currentFields=currentRow?.fields??[];
  const computed=expression(family,key,rules,{type:chartType,tags:chartTags,last,style,explicitLast,explicitType:chartType!=="bar"});
- const canCopy=!!computed&&
+ const canCopy=!!computed&&list.some(x=>x.value===key)&&
   (family!=="indicator"||!!teamId&&selected.has(key))&&
-  (family!=="chart"||(!catalogError&&!styleError&&!loading&&(!chartTags.length||chartTags.every(x=>selected.has(x)))));
+  (family!=="chart"||(!catalogError&&!loading&&(style===""||!styleError)&&(!chartTags.length||chartTags.every(x=>selected.has(x)))));
  function selectFamily(next:Family){
   setFamily(next);setSearch("");setKey(next==="scalar"?"TEAM_NAME":next==="row"?"MEMBERS_ACTIVE":next==="chart"?"bar":"");
   setRules([]);setChartTags([]);setChartType("bar");setLast(6);setExplicitLast(false);setStyle("");
