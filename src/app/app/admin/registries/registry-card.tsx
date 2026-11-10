@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import RegistryDeleteAction from "./registry-delete-action";
 import {useLocale,useTranslation} from "@/i18n/client";
 import {formatRegistryDate} from "@/lib/registry-date";
 import type {RegistryType} from "@/lib/registry-types";
@@ -15,9 +16,9 @@ const icons={
 } as const satisfies Record<RegistryType,string>;
 
 /** Same persisted item and verified SMN-104 signals as the List rendering. */
-export default function RegistryCard({item,canManage,signals,highlight=false,navigation,onNavigate,onEdit}:{
+export default function RegistryCard({item,canManage,signals,highlight=false,navigation,onNavigate,onEdit,onDeleted,teamId}:{
  item:RegistryListItem;canManage:boolean;signals:readonly RegistrySignal[];highlight?:boolean;
- navigation:RegistryNavigation;onNavigate:()=>void;onEdit:()=>void;
+ navigation:RegistryNavigation;onNavigate:()=>void;onEdit:()=>void;onDeleted:()=>void;teamId:string;
 }){
  const t=useTranslation(),locale=useLocale();
  const tr=(key:string)=>t(("registryList."+key) as Parameters<typeof t>[0]);
@@ -41,6 +42,9 @@ export default function RegistryCard({item,canManage,signals,highlight=false,nav
       onClick={event=>{event.currentTarget.closest("details")?.removeAttribute("open");onEdit();}}>
       {tr("editRecord")}
      </button>}
+     {canManage&&<RegistryDeleteAction id={item.id} title={item.title} teamId={teamId}
+      className="smn-registry-row-menu-link w-100 text-start border-0 bg-transparent text-danger"
+      onDeleted={onDeleted}/>}
     </div>
    </details>
   </header>
