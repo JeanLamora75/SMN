@@ -3,7 +3,7 @@
 **Date :** 10 novembre 2026. **Epic :** SMN-424. **Story :** SMN-425.
 **Statut :** séparation physique du nouveau paquet codée sur main, tests Windows à confirmer ; aucune migration d’installation existante engagée.
 
-## Constat GitHub `main`
+## Constat initial avant découpage de la distribution
 
 Le paquet Windows actuel contient un serveur Next standalone à sa racine, `node.exe`, le runtime de distribution PostgreSQL sous `runtime/postgres/` et les données PostgreSQL créées sous `data/postgres/` pour les nouvelles installations (manifest v2). Les installations héritées (manifest v1) restent sous `%LOCALAPPDATA%/ScrumMasterNotebook`. Les secrets et configurations privées restent dans le profil Windows. Les documents Office sont conservés sous `data/office/` par défaut, ou dans les répertoires absolus configurés.
 
