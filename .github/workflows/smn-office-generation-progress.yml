@@ -1,0 +1,45 @@
+name: SMN — Progression génération rapports Office
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/app/app/reports/office-generation-progress.tsx"
+      - "src/app/app/reports/office-template-catalog.tsx"
+      - "src/i18n/fr.json"
+      - "src/i18n/en.json"
+      - "tests/smn-office-generation-progress.test.ts"
+      - ".github/workflows/smn-office-generation-progress.yml"
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  office-progress:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Contrats progression Office
+        run: pnpm exec tsx --test tests/smn-office-generation-progress.test.ts
+      - name: Contrats rapports Office existants
+        run: pnpm exec tsx --test tests/smn-421-office-report-style.test.ts tests/smn-400-word-tables.test.mjs tests/smn-401-powerpoint-tables.test.mjs
+      - name: Traductions
+        run: pnpm i18n:check
+      - name: TypeScript
+        run: pnpm typecheck
+      - name: ESLint ciblé
+        run: pnpm exec eslint src/app/app/reports/office-generation-progress.tsx src/app/app/reports/office-template-catalog.tsx tests/smn-office-generation-progress.test.ts
