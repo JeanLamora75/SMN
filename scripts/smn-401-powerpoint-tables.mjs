@@ -42,7 +42,13 @@ function readMarker(row){
   return null;
  }
  if(all.length!==1)throw Error("office-pptx-invalid-row-marker");
- return {...parseOfficeRowMarker(all[0][1],SOURCES),start:all[0].index,end:all[0].index+all[0][0].length};
+ let parsed;
+ try{parsed=parseOfficeRowMarker(all[0][1],SOURCES);}catch(error){
+  if(error instanceof Error&&error.message==="office-table-invalid-source")
+   throw Error("office-pptx-invalid-row-marker");
+  throw error;
+ }
+ return {...parsed,start:all[0].index,end:all[0].index+all[0][0].length};
 }
 function removeMarker(row,marker){
  const nodes=nodesOf(row),edits=nodes.map(n=>n.text);
