@@ -42,7 +42,7 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
  const computed=serializeOfficeTag({family,key,rules,
   allowedFields:currentFields,
   chart:{type:chartType,tags:chartTags,last,style,explicitLast,explicitType:chartType!=="bar"}});
- const canCopy=!!computed&&list.some(x=>x.value===key)&&
+ const canCopy=!!computed&&options.some(x=>x.value===key)&&
   (family!=="indicator"||!!teamId&&selected.has(key))&&
   (family!=="chart"||(!catalogError&&!loading&&(style===""||!styleError)&&(!chartTags.length||chartTags.every(x=>selected.has(x)))));
  function selectFamily(next:Family){
