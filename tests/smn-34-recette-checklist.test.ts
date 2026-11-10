@@ -3,7 +3,7 @@ import {test} from "node:test";
 import {spawnSync} from "node:child_process";
 import {fileURLToPath} from "node:url";
 import {emptyRecette,inspectRecetteEvidence,SCENARIOS} from "../scripts/windows/smn-34-recette-contract.mjs";
-const valid=(i)=>({...emptyRecette().scenarios[i],
+const valid=(i:number)=>({...emptyRecette().scenarios[i],
  status:"PASS",evidenceSha256:"a".repeat(64),observedAt:"2026-11-10T20:00:00.000Z"});
 test("SMN-34: REC-01 a REC-14 identifies une fois, tous bloques par defaut",()=>{
  const plan=emptyRecette();
