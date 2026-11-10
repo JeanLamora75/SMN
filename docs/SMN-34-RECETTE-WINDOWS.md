@@ -145,3 +145,14 @@ Utiliser un chemin absolu local pour le fichier privé. La commande n'écrit rie
 - [Diagnostic implémenté](../src/server/backup/restore-audit.ts)
 - [Script Node Windows](../scripts/smn-34-audit-readonly.ts)
 - [Jira SMN-34](https://lmn24.atlassian.net/browse/SMN-34)
+
+
+## 3 sexies. Lanceur Windows propriétaire et maintenance externe (qualification partielle)
+
+Le lanceur `scripts/windows/launch-portable.mjs` consulte désormais `SMN_RESTORE_MAINTENANCE_MARKER` **avant les opérations de récupération de mise à jour, avant le démarrage du serveur et régulièrement pendant l'exécution du serveur qu'il possède**. Si un marqueur externe valide existe, est illisible ou mal formé (fichier, lien symbolique ou répertoire), le lanceur refuse le démarrage ou demande au processus web **qu'il a créé** de s'arrêter. Le processus propriétaire sort ensuite au lieu de redémarrer le web. Ce contrôle est livré dans les **nouveaux paquets Windows** grâce à `scripts/windows/package-portable.mjs` (le lanceur situé dans `runtime/` est protégé par le système de mise à jour).
+
+**Préconditions impératives :** le marqueur doit être configuré avec un chemin absolu extérieur à l'installation et au répertoire de sauvegardes, et être accessible par le processus web et son lanceur. Sans `SMN_RESTORE_MAINTENANCE_MARKER`, le lanceur conserve son comportement historique : **aucune mise en maintenance n'est implicite**. Ne pas utiliser cette faculté pour arrêter le serveur d'une autre installation sur le port 3003.
+
+**Limites non qualifiées :** le signal `SIGTERM` doit être suivi par une constatation de l'arrêt effectif du PID propriétaire, de la disponibilité du port, de l'absence de jobs en cours, des connexions PostgreSQL et des autres écrivains. Le lanceur ne force pas l'arrêt d'un processus tiers, n'arrête pas PostgreSQL, ne révoque pas à lui seul des sessions d'autres processus et n'opère **aucune restauration active**. Un contrôle périodique comporte une fenêtre de latence : seul l'opérateur externe, après preuves indépendantes d'arrêt, peut décider de poursuivre la phase suivante.
+
+**Test de contrat sans données personnelles :** `pnpm exec tsx --test tests/smn-34-windows-launch-maintenance.test.ts`. Ce test vérifie les états du marqueur et que le paquetage embarque le nouveau contrôle ; il ne remplace pas la recette réelle du lanceur natif, attendue dans REC-10 / REC-11.
