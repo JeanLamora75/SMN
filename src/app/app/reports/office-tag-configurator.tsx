@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {officeRowDefinitions,officeScalarDefinitions,officeChartDefinitions} from "./office-tags";
+import {serializeOfficeTag} from "@/lib/office-tag-builder";
 import {useTranslation} from "@/i18n/client";
 
 type Locale="fr"|"en";
@@ -9,30 +10,8 @@ type Rule={field:string;direction:"ASC"|"DESC"};
 type Indicator={id:string;tag:string;name:string;archived_at:string|null};
 type Catalog={definitions:Indicator[];selections:{indicator_id:string;is_active:boolean}[]};
 type ChartStyle={id:string;name:string};
-const types=["bar","line","area","pie","donut","gauge"] as const;
-type ChartType=typeof types[number];
+type ChartType="bar"|"line"|"area"|"pie"|"donut"|"gauge";
 const fieldName=/^[A-Z][A-Z0-9_]*$/;
-function expression(family:Family,key:string,rules:Rule[],chart:{
- type:ChartType;tags:string[];last:number;style:string;explicitType:boolean;explicitLast:boolean;
-}):string{
- if(family==="scalar")return fieldName.test(key)?"{{"+key+"}}":"";
- if(family==="indicator")return fieldName.test(key)?"{{INDICATOR_"+key+"}}":"";
- if(family==="row"){
-  if(!officeRowDefinitions.some(x=>x.source===key))return "";
-  const valid=new Set(officeRowDefinitions.find(x=>x.source===key)?.fields??[]);
-  if(rules.some(r=>!valid.has(r.field)||!["ASC","DESC"].includes(r.direction))||
-     new Set(rules.map(r=>r.field)).size!==rules.length)return "";
-  return "{{ROW:"+key+(rules.length?"|SORT="+rules.map(r=>r.field+":"+r.direction).join(","):"")+"}}";
- }
- if(chart.tags.length>6||new Set(chart.tags).size!==chart.tags.length||
-  chart.tags.some(tag=>!fieldName.test(tag))||chart.last<1||chart.last>24||
-  (chart.type==="gauge"&&chart.tags.length>1)||
-  (chart.style!==""&&!/^(?:legacy|[a-z][a-z0-9-]{2,63})$/.test(chart.style)))return "";
- return "{{CHART:TREND"+(chart.explicitType?"|TYPE="+chart.type:"")+
-  (chart.tags.length?"|TAGS="+chart.tags.join(","):"")+
-  (chart.explicitLast&& !["pie","donut","gauge"].includes(chart.type)?"|LAST="+chart.last:"")+
-  (chart.style?"|STYLE="+chart.style:"")+"}}";
-}
 export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;teamId:string|null}){
  const t=useTranslation();
  const tr=(key:string)=>t(("reportsCenter.tagBuilder"+key) as Parameters<typeof t>[0]);
@@ -60,7 +39,9 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
  },[family,indicators,locale,search]);
  const currentRow=officeRowDefinitions.find(x=>x.source===key);
  const currentFields=currentRow?.fields??[];
- const computed=expression(family,key,rules,{type:chartType,tags:chartTags,last,style,explicitLast,explicitType:chartType!=="bar"});
+ const computed=serializeOfficeTag({family,key,rules,
+  allowedFields:currentFields,
+  chart:{type:chartType,tags:chartTags,last,style,explicitLast,explicitType:chartType!=="bar"}});
  const canCopy=!!computed&&list.some(x=>x.value===key)&&
   (family!=="indicator"||!!teamId&&selected.has(key))&&
   (family!=="chart"||(!catalogError&&!loading&&(style===""||!styleError)&&(!chartTags.length||chartTags.every(x=>selected.has(x)))));
