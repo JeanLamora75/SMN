@@ -18,9 +18,10 @@ if (-not (Get-Command Get-MpComputerStatus -ErrorAction SilentlyContinue)) {
 try {
   $before = Get-MpComputerStatus -ErrorAction Stop
 } catch { FailScan "defender-status-unavailable" }
-if (-not $before.AMServiceEnabled -or -not $before.AntivirusEnabled -or
-    -not $before.RealTimeProtectionEnabled) {
-  FailScan "defender-inactive-or-realtime-disabled"
+Write-Host "SMN Defender serviceEnabled=$($before.AMServiceEnabled) antivirusEnabled=$($before.AntivirusEnabled) realtimeEnabled=$($before.RealTimeProtectionEnabled)"
+# Real-time protection can be disabled on hosted CI while explicit on-demand scans work.
+if (-not $before.AMServiceEnabled -or -not $before.AntivirusEnabled) {
+  FailScan "defender-engine-disabled"
 }
 if ([string]::IsNullOrWhiteSpace([string]$before.AntivirusSignatureVersion) -or
     [string]::IsNullOrWhiteSpace([string]$before.AMEngineVersion)) {
@@ -43,8 +44,9 @@ $result = $LASTEXITCODE
 if ($result -ne 0) { FailScan "defender-scan-$Stage-exit-$result" }
 try {
   $after = Get-MpComputerStatus -ErrorAction Stop
-  if (-not $after.AMServiceEnabled -or -not $after.AntivirusEnabled -or
-      -not $after.RealTimeProtectionEnabled) { FailScan "defender-disabled-after-scan" }
+  if (-not $after.AMServiceEnabled -or -not $after.AntivirusEnabled) {
+    FailScan "defender-disabled-after-scan"
+  }
   $detections = @(Get-MpThreatDetection -ErrorAction Stop |
     Where-Object { $_.InitialDetectionTime -and $_.InitialDetectionTime.ToUniversalTime() -ge [datetime]$startUtc })
   if ($detections.Count -gt 0) { FailScan "defender-threat-detected-$Stage" }
