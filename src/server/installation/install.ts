@@ -1,10 +1,6 @@
 /** Native v33 installer: self-contained canonical schema, isolated and atomic. */
 import {randomUUID,createHash,timingSafeEqual} from "node:crypto";
 import {readFileSync,existsSync} from "node:fs";
-const migrationFile=(...parts:string[])=>{
- const packaged=resolve(process.cwd(),"app","prisma","migrations",...parts);
- return existsSync(packaged)?packaged:resolve(process.cwd(),"prisma","migrations",...parts);
-};
 import {resolve} from "node:path";
 import {Client} from "pg";
 import {parseConnectionSettings} from "../db/config";
@@ -14,6 +10,11 @@ import {validateExpressInput} from "./contract";
 import {nativeV33BaselineSql,nativeV33BaselineReady,NATIVE_V33_NAME} from "./native-v33";
 import {passwordHash} from "../auth/password";
 export {passwordHash} from "../auth/password";
+
+const migrationFile=(...parts:string[])=>{
+ const packaged=resolve(process.cwd(),"app","prisma","migrations",...parts);
+ return existsSync(packaged)?packaged:resolve(process.cwd(),"prisma","migrations",...parts);
+};
 
 export const NATIVE_BASELINE_NAME=NATIVE_V33_NAME;
 export type InstallResult={ok:true}|{ok:false;status:string};
