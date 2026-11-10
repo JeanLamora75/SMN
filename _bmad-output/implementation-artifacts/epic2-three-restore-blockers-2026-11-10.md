@@ -87,3 +87,17 @@ Pour chaque REC, enregistrer date UTC, SHA Git du code, version PG18, machine de
 | Recette Windows | Jobs Windows de contrats, PostgreSQL isolé, scénario de reprise | Banc Windows 11 représentatif, redémarrage et revue humaine | **BLOQUÉ** |
 
 **Aucune suppression, aucune restauration active et aucune écriture sur la base personnelle n'a eu lieu. Aucun résultat de recette réelle n'est revendiqué.** Les Stories SMN-34, 38, 39, 40 doivent rester ouvertes jusqu'à une preuve conforme.
+
+
+## Incrément suivant — diagnostic opérateur read-only (10 novembre 2026)
+
+**Implémentation publiée sur GitHub main :**
+- `src/server/backup/restore-audit.ts` : rapport de qualification non nominatif, trois blocages distingués (historique des effacements, exécuteur hors ligne, recette Windows). `canActivate:false` est une constante de sécurité, indépendamment des chiffres de l'inventaire.
+- `src/server/backup/restore-audit-preview.ts` : lecture indépendante depuis Node de l'archive chiffrée, de la version PostgreSQL et du schéma v33, et de l'inventaire de documents, dans une transaction SQL lecture seule. Le module n'importe pas la sentinelle `server-only` de Next.js.
+- `scripts/smn-34-audit-readonly.ts` : CLI `--archive UUID --audit-only`, lancement `pnpm restore:audit --archive UUID --audit-only` ou `pnpm exec tsx scripts/smn-34-audit-readonly.ts --archive UUID --audit-only`. Il ne déplace aucun fichier, ne lance pas `pg_restore`, ne modifie ni la base ni les archives. Les résultats affichés sont uniquement les codes des blocages et les effectifs d'archives par catégorie, **sans nom ni chemin**.
+- `tests/smn-34-audit-readonly.test.ts` : couverture de l'état « archives non inspectables », inventaire vide sans fausse preuve, absence de permission malgré un registre local `completeHistory:true` simulé, absence d'écriture dans le code CLI, et route SQL en transaction `READ ONLY`.
+- `docs/SMN-34-RECETTE-WINDOWS.md` : protocole exécutable sous Windows 11, sans installation d'IDE ni droits administrateur, et matrice REC-01 à REC-14 à remplir depuis **un banc indépendant**.
+
+**CI :** [Lot 5 — exécution 42893233552](https://github.com/JeanLamora75/SMN/actions/runs/42893233552) : **SUCCESS Linux + Windows + PostgreSQL 18 isolé**, SHA `6a314447e367d4654864f0fd0e73ff9b76724000`. La suite générale I0 sur le commit documentaire suivant était en cours au moment de la consultation ; une CI verte spécialisée **ne vaut pas** une restauration active.
+
+**Limite explicite :** un audit de lecture seule sur des données réelles et une recette complète sur Windows ne peuvent pas être exécutés sur GitHub depuis la session de l'agent. Les trois blocages demeurent **NO-GO** jusqu'aux attestations indépendantes. Aucun secret ni backup transféré à GitHub/Jira.
