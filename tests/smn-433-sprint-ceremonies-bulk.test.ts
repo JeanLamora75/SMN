@@ -49,7 +49,7 @@ test("les tables de dépendances du schéma v33 sont prévues",()=>{
   "smn_exceptional_capacity_impact_history","smn_exceptional_meeting_participant",
   "smn_exceptional_meeting_participant_audit","smn_sprint_historical_event"];
  for(const name of children){
-  assert.match(schema,new RegExp('CREATE TABLE "public"\\\\."'+name+'"'));
+  assert.ok(schema.includes('CREATE TABLE "public"."'+name+'"'));
   assert.match(server,new RegExp(name));
  }
 });
