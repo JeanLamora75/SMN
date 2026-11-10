@@ -6,7 +6,8 @@ import path from "node:path";
 
 export type UpdatePreview={id:string;actor:string;nonce:string;fromVersion:string;toVersion:string;
  mode:"full"|"delta";files:number;changes:number;deletions:number;bytes:number;
- sourceCommit:string;manifestSha256:string;archiveSha256:string;checkedAt:string};
+ sourceCommit:string;affected:{path:string;action:"put"|"delete"}[];
+ manifestSha256:string;archiveSha256:string;checkedAt:string};
 export const updateRoot=()=>path.join(process.cwd(),"updates");
 const ID=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/;
 const NONCE=/^[0-9a-f]{48}$/;
