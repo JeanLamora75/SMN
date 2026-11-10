@@ -47,7 +47,13 @@ export default function UpdatesAdmin(){
     method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({id:preview.id,nonce:preview.nonce,confirm:true})
    });
-   if(!res.ok)throw Error("update-confirm-failed");
+   if(!res.ok){
+    const failure=await res.json().catch(()=>({})) as {error?:string};
+    if(failure.error==="update-verified-backup-required"){
+     setError(t("offlineUpdates.backupRequired"));return;
+    }
+    throw Error("update-confirm-failed");
+   }
    setQueued(true);
   }catch{setError(t("offlineUpdates.error"));}
   finally{setBusy(false);}
@@ -110,6 +116,7 @@ export default function UpdatesAdmin(){
      </li>)}
     </ul>
    </details>}
+   <p className="small text-secondary mb-0">{t("offlineUpdates.backupRequired")}</p>
    <button className="btn btn-primary" type="button"
     disabled={busy||queued||!overview?.ready||!overview?.launcher}
     onClick={()=>void approve()}>{t("offlineUpdates.confirm")}</button>
