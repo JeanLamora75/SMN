@@ -30,7 +30,12 @@ export async function GET(request:NextRequest){
    if(raw&&typeof raw==="object" && typeof raw.state==="string")
     status={state:raw.state,at:raw.at,version:raw.version};
   }catch{}
-  return jsonResult({version:version.version,ready:trust,status});
+  let launcher=false;
+  try{
+   const live=JSON.parse(await readFile(path.join(updates,"launcher.json"),"utf8")) as {at?:string};
+   launcher=typeof live.at==="string"&&Date.now()-Date.parse(live.at)<12000;
+  }catch{}
+  return jsonResult({version:version.version,ready:trust,launcher,status});
  }catch{return jsonResult({error:"update-distribution-unavailable"},503);}
 }
 export async function POST(request:NextRequest){
