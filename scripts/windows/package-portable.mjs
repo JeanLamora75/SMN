@@ -50,6 +50,9 @@ for(const file of [
  "prisma/baseline/v32/schema.sql",
  "_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql",
  "prisma/migrations/20261101_smn_dashboard_slots_additive/migration.sql",
+ "prisma/migrations/20261108_smn416_chart_styles/migration.sql",
+ "prisma/migrations/20261109_smn39_privacy_receipt/migration.sql",
+ "prisma/migrations/20261109_smn40_member_delete_guard/migration.sql",
 ]){
  const destination=path.join(target,file);
  await mkdir(path.dirname(destination),{recursive:true});
