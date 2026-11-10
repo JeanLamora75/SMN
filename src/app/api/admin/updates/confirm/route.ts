@@ -4,6 +4,7 @@ import path from "node:path";
 import {authorizeApi} from "@/server/auth/authorization";
 import {backupRootPath} from "@/server/backup/runner";
 import {backupInventory} from "@/server/backup/verification";
+import {inspectUpdateSchema} from "@/server/updates/schema-preflight";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {isUpdateId,isUpdateNonce,readPreview,runUpdateScript,safeUpdatesRoot} from "@/server/updates/local";
 export const runtime="nodejs";
@@ -48,7 +49,12 @@ export async function POST(request:NextRequest){
    Date.now()-Date.parse(item.createdAt)>=0 &&
    Date.now()-Date.parse(item.createdAt)<=24*60*60*1000);
   if(!verified)return jsonResult({error:"update-verified-backup-required"},409);
-  const record={backupId:verified.id,id:preview.id,nonce:preview.nonce,version:preview.toVersion,
+  // Recheck the live DB after ZIP verification and before the launcher stops the web server.
+  // Never infer compatibility from the package version or a prior cached diagnostic.
+  let schema;
+  try{schema=await inspectUpdateSchema();}
+  catch{return jsonResult({error:"update-schema-incompatible"},409);}
+  const record={backupId:verified.id,schema, id:preview.id,nonce:preview.nonce,version:preview.toVersion,
     actor:actor.id,approvedAt:new Date().toISOString()};
   await writeFile(pending,JSON.stringify(record)+"\n",{flag:"wx",mode:0o600});
   return jsonResult({accepted:true,version:preview.toVersion,notice:"update-awaiting-launcher"},202);
