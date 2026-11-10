@@ -95,7 +95,8 @@ for(const file of [
  "import-update.mjs",
  "verify-staged-update.mjs",
  "update-apply.mjs",
- "update-transaction.mjs"
+ "update-transaction.mjs",
+ "schema-update-policy.mjs"
 ])await copyFile(path.join("scripts","windows",file),
   path.join(target,"scripts","windows",file));
 for(const name of ["templates","reports"])await mkdir(path.join(target,"data","office",name),{recursive:true});
