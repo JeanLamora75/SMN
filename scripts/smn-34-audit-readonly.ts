@@ -31,7 +31,17 @@ async function run(){
   try{inventory=await collectArchiveReviewInventory(
    db,process.env.SMN_PRIVATE_DOCUMENTS_DIR);
   }catch{/* Unknown inventory means unverified, never empty. */}
-  return {integrity,privacy,inventory};
+  // A snapshot of OTHER PostgreSQL connections to this database.
+  // It cannot prove that HTTP or background writers have stopped.
+  let connections:number|null=null;
+  try{
+   const observed=await db.query<{n:string}>(
+    "SELECT count(*)::text AS n FROM pg_catalog.pg_stat_activity "+
+    "WHERE datname=current_database() AND pid<>pg_backend_pid()");
+   const value=Number(observed.rows[0]?.n);
+   if(Number.isSafeInteger(value)&&value>=0)connections=value;
+  }catch{/* Missing permissions or interrupted query means unknown. */}
+  return {integrity,privacy,inventory,connections};
  });
  const counts=state.inventory?.candidates.reduce((acc,item)=>{
   if(item.kind==="pdf")acc.pdf++;
@@ -43,6 +53,7 @@ async function run(){
  const result=assessRestoreAudit({
   preview,privacy:state.privacy,erasureIntegrity:state.integrity,
   archiveInventory:counts&&state.inventory?{complete:state.inventory.complete,counts}:null,
+  concurrentDatabaseConnections:state.connections,
   platform:process.platform
  });
  process.stdout.write(JSON.stringify(result,null,2)+"\n");
