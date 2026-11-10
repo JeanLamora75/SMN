@@ -121,6 +121,19 @@ export default function OfficeTags({locale="fr",expanded=false}:{locale?:Locale;
    {fr?"Dans le modèle, créer un tableau puis placer un marqueur {{ROW:SOURCE}} dans sa ligne d'exemple. Ajouter les champs voulus dans les cellules de cette même ligne. SMN reproduit la ligne pour chaque élément du sprint, en conservant sa mise en forme compatible.":
     "Create a table in the template and place a {{ROW:SOURCE}} marker in its sample row. Add the desired fields in the cells of that row. SMN repeats the row for each item in the sprint, retaining supported formatting."}
   </p>
+  <div className="border rounded-3 p-3 mb-3">
+   <h4 className="h6">{fr?"Trier les lignes avec SORT":"Sort rows using SORT"}</h4>
+   <p className="small mb-2">{fr?
+    "Ajoutez |SORT=CHAMP:ASC ou |SORT=CHAMP:DESC au marqueur ROW. Plusieurs critères sont séparés par des virgules et appliqués de gauche à droite. ASC est facultatif ; DESC inverse l'ordre. Les valeurs absentes restent à la fin. Aucun paramètre : ordre historique conservé. Utilisez les noms exacts des tags de colonnes ci-dessous, sans accolades.":
+    "Add |SORT=FIELD:ASC or |SORT=FIELD:DESC to the ROW marker. Separate multiple criteria with commas, evaluated from left to right. ASC is optional; DESC reverses the order. Missing values stay last. Without SORT the previous order is preserved. Use the exact field tags listed below, without braces."}</p>
+   <div className="d-flex align-items-center flex-wrap gap-2">
+    <code className="text-break">{mark("ROW:MEMBERS_ACTIVE|SORT=MEMBER_FUNCTION:ASC,MEMBER_NAME:ASC")}</code>
+    <CopyOfficeTag value={mark("ROW:MEMBERS_ACTIVE|SORT=MEMBER_FUNCTION:ASC,MEMBER_NAME:ASC")} fr={fr}/>
+   </div>
+   <p className="small text-secondary mb-0 mt-2">{fr?
+    "Exemple Word et PowerPoint : membres actifs triés d'abord par fonction, puis alphabétiquement par nom pour une même fonction. Fonctionne également dans les zones de texte PowerPoint.":
+    "Word and PowerPoint example: active members sorted by professional function, then by name within each function. Also works in PowerPoint text boxes."}</p>
+  </div>
   <div className="table-responsive">
    <table className="table table-sm table-striped align-middle">
     <thead><tr><th scope="col">{fr?"Famille":"Family"}</th>
