@@ -3,7 +3,7 @@ import {randomUUID,createHash,timingSafeEqual} from "node:crypto";
 import {readFileSync,existsSync} from "node:fs";
 const migrationFile=(...parts:string[])=>{
  const packaged=resolve(process.cwd(),"app","prisma","migrations",...parts);
- return existsSync(packaged)?packaged:migrationFile(...parts);
+ return existsSync(packaged)?packaged:resolve(process.cwd(),"prisma","migrations",...parts);
 };
 import {resolve} from "node:path";
 import {Client} from "pg";
