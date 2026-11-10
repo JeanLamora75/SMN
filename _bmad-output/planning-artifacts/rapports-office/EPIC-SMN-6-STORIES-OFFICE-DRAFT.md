@@ -277,3 +277,22 @@ Architecture Winston : **AD-01 à AD-10**, circuit indépendant des rapports PDF
 - **Story 6.9 / CA-9.5 :** la recette inclut les tags libres, le nom et la langue obligatoires, les huit familles, les tableaux sans limitation métier et les garde-fous techniques, dont les dépassements doivent produire une erreur explicite plutôt qu'une troncature.
 
 **État :** découpage et cinq arbitrages approuvés, document non publié dans Jira. Preuve de concept et tests Office non exécutés ; leur réussite n'est pas présumée. L'extension BMAD reste un brouillon de travail jusqu'à clôture formelle du workflow.
+
+---
+
+## Addendum du 10 novembre 2026 — Progression visible des générations Word et PowerPoint
+
+L'extension **SMN-404 / Story 6.8** de l'Epic SMN-6 comprend désormais les critères **CA-8.8 à CA-8.14**, approuvés implicitement par la demande de modale de progression :
+
+- ouvrir une modale lors d'une génération ou d'un enregistrement Office ;
+- afficher une barre animée **sans pourcentage** tant que le serveur réalise la génération sans remontée de progression ;
+- afficher une valeur en pourcentage **uniquement durant le téléchargement** lorsque la taille `Content-Length` est connue et les octets réellement lus ;
+- fermer automatiquement la modale à la fin et conserver le message de succès ou d'erreur sur la page ;
+- préserver la confirmation avant remplacement d'un fichier existant, les autorisations, l'internationalisation FR/EN et l'accessibilité ;
+- qualifier la non-régression Office via tests ciblés, TypeScript, ESLint, CI Windows/Linux et recette fonctionnelle.
+
+**Livrable d'implémentation BMAD :** [SMN-404 — Modale de progression de génération Office](../../implementation-artifacts/SMN-404-PROGRESSION-GENERATION-OFFICE-2026-11-10.md).  
+**Jira à jour :** [SMN-404](https://lmn24.atlassian.net/browse/SMN-404).  
+**Validation :** code publié sur `main`, CI dédiée en attente lors de la rédaction ; aucune recette Word/PowerPoint sur Windows revendiquée.
+
+Les mentions historiques « draft » et « aucune création Jira autorisée » ci-dessus décrivent le **statut initial du 06/11/2026** et ne représentent plus l'état actuel de SMN-404, qui existe dans Jira.
