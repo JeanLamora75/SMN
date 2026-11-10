@@ -7,10 +7,15 @@ import {randomUUID} from "node:crypto";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {ensureOfficeDirectories} from "./scripts/office-dirs.mjs";
+import {recoverCutover} from "./scripts/windows/update-transaction.mjs";
 if(process.platform!=="win32")throw Error("Windows x64 requis");
 const root=path.dirname(fileURLToPath(import.meta.url));
 const server=path.join(root,"app","server.js");
 const updates=path.join(root,"updates");
+// Never launch an uncertain application after an interrupted file exchange.
+// An unresolved or malformed journal raises and blocks startup.
+const recovery=await recoverCutover(root);
+if(recovery==="recovered")console.log("Mise à jour interrompue : ancienne application restaurée.");
 ensureOfficeDirectories(root);
 if(existsSync(updates)){
  const info=lstatSync(updates);
