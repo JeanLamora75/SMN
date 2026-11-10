@@ -7,33 +7,33 @@ import { mkdtemp, mkdir, writeFile, readFile, readdir, rm } from "node:fs/promis
 import os from "node:os";
 import net from "node:net";
 import path from "node:path";
+import {auditWindowsDistribution} from "./distribution-package-policy.mjs";
 if (process.platform !== "win32" || process.env.GITHUB_ACTIONS !== "true") {
   throw new Error("Smoke autonome réservé au runner Windows");
 }
 const root = path.resolve(process.env.SMN_PACKAGE_DIR || path.join(process.cwd(), "_package", "SMN-Windows"));
-for (const file of ["runtime/node/node.exe", "app/server.js", "Demarrer SMN.cmd", "launch-portable.mjs", "app/recover-admin.mjs", "Recuperer admin SMN.cmd"]) {
+for (const file of ["runtime/node/node.exe", "app/server.js", "Demarrer SMN.bat", "runtime/launcher.mjs", "app/recover-admin.mjs", "app/distribution-version.json"]) {
   assert.ok(existsSync(path.join(root, file)), "Fichier manquant du paquet : " + file);
 }
 for(const file of [
- "scripts/windows/update-contract.mjs",
- "scripts/windows/distribution-layout.mjs",
- "scripts/windows/unpack-update.mjs",
- "scripts/windows/import-update.mjs",
- "scripts/windows/verify-staged-update.mjs",
- "scripts/windows/update-apply.mjs",
- "scripts/windows/update-transaction.mjs",
- "scripts/windows/schema-update-policy.mjs",
- "scripts/windows/update-backup-policy.mjs",
- "scripts/windows/verify-delivery.mjs",
+ "app/maintenance/windows/update-contract.mjs",
+ "app/maintenance/windows/distribution-layout.mjs",
+ "app/maintenance/windows/unpack-update.mjs",
+ "app/maintenance/windows/import-update.mjs",
+ "app/maintenance/windows/verify-staged-update.mjs",
+ "app/maintenance/windows/update-apply.mjs",
+ "app/maintenance/windows/update-transaction.mjs",
+ "app/maintenance/windows/schema-update-policy.mjs",
+ "app/maintenance/windows/update-backup-policy.mjs",
+ "app/maintenance/windows/verify-delivery.mjs",
 ]) assert.ok(existsSync(path.join(root,file)), "Composant de maintenance Windows absent : "+file);
 for(const file of [
- "prisma/baseline/v33/schema.sql",
- "prisma/baseline/v32/schema.sql",
- "_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql",
- "prisma/migrations/20261101_smn_dashboard_slots_additive/migration.sql",
- "prisma/migrations/20261108_smn416_chart_styles/migration.sql",
- "prisma/migrations/20261109_smn39_privacy_receipt/migration.sql",
- "prisma/migrations/20261109_smn40_member_delete_guard/migration.sql",
+ "app/prisma/baseline/v33/schema.sql",
+ "app/prisma/baseline/v32/schema.sql",
+ "app/prisma/migrations/20261101_smn_dashboard_slots_additive/migration.sql",
+ "app/prisma/migrations/20261108_smn416_chart_styles/migration.sql",
+ "app/prisma/migrations/20261109_smn39_privacy_receipt/migration.sql",
+ "app/prisma/migrations/20261109_smn40_member_delete_guard/migration.sql",
 ]){
  assert.ok(existsSync(path.join(root,file)),"Required installation SQL missing: "+file);
 }
@@ -46,6 +46,8 @@ if(existsSync(manifestPath)) {
  const manifest=JSON.parse(await readFile(manifestPath,"utf8"));
  console.log("Routes du proxy standalone : "+JSON.stringify(Object.keys(manifest.middleware??{})));
 } else console.log("ATTENTION : manifeste proxy absent du paquet standalone");
+const layout=await auditWindowsDistribution(root);
+console.log("PASS: distribution minimaliste : "+layout.fileCount+" fichiers");
 const isolatedHome = await mkdtemp(path.join(os.tmpdir(), "smn-portable-ci-"));
 const newStorage=path.join(root, "data", "postgres");
 assert.equal(existsSync(path.join(root, "server.js")), false, "Le serveur doit être isolé dans app/");
