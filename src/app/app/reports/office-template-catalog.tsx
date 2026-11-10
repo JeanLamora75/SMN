@@ -3,6 +3,7 @@ import {useEffect,useState} from "react";
 import {useRouter} from "next/navigation";
 import {useTranslation} from "@/i18n/client";
 import type {OfficeTemplate} from "@/server/reports/office-catalog";
+import OfficeGenerationProgressModal,{type OfficeGenerationProgress} from "./office-generation-progress";
 
 type Language="fr"|"en";
 type Props={
@@ -49,6 +50,7 @@ export default function OfficeTemplateCatalog({
  const styleOverride=()=>reportStyleId?{reportStyleId}:{};
 
  const [busy,setBusy]=useState(false);
+ const [progress,setProgress]=useState<OfficeGenerationProgress|null>(null);
  const [error,setError]=useState("");
  const [missingChartTag,setMissingChartTag]=useState<string|null>(null);
  const [saved,setSaved]=useState("");
@@ -122,7 +124,7 @@ export default function OfficeTemplateCatalog({
  }
  async function checkThenSave(){
   if(!current||!teamId||!cycle||!filename.trim()||busy)return;
-  setBusy(true);setError("");setMissingChartTag(null);setSaved("");
+  setBusy(true);setProgress({phase:"check",percent:null});setError("");setMissingChartTag(null);setSaved("");
   try{
    const response=await fetch("/api/admin/reports/office-templates/generate",{
     method:"POST",headers:{"Content-Type":"application/json"},
@@ -133,10 +135,11 @@ export default function OfficeTemplateCatalog({
    if(info.exists){setConfirmOverwrite(info);return;}
    await saveAfterCheck(info.fingerprint);
   }catch{setError(tr("officeSaveError"));}
-  finally{setBusy(false);}
+  finally{setBusy(false);setProgress(null);}
  }
  async function saveAfterCheck(fingerprint:string){
   if(!current||!teamId||!cycle||!filename.trim())return;
+  setProgress({phase:"save",percent:null});
   const response=await fetch("/api/admin/reports/office-templates/generate",{
    method:"POST",headers:{"Content-Type":"application/json"},
    body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,...styleOverride(),action:"save",expectedFingerprint:fingerprint})
@@ -152,7 +155,7 @@ export default function OfficeTemplateCatalog({
  }
  async function generate(){
   if(!current||!teamId||!cycle||!filename.trim()||busy)return;
-  setBusy(true);setError("");setSaved("");
+  setBusy(true);setProgress({phase:"generate",percent:null});setError("");setSaved("");
   try{
    const response=await fetch("/api/admin/reports/office-templates/generate",{
     method:"POST",
@@ -163,7 +166,23 @@ export default function OfficeTemplateCatalog({
     await reportGenerationFailure(response,tr("officeGenerationError"));
     return;
    }
-   const blob=await response.blob();
+   setProgress({phase:"download",percent:null});
+   const byteCount=Number(response.headers.get("content-length"));
+   const total=Number.isSafeInteger(byteCount)&&byteCount>0?byteCount:null;
+   let blob:Blob;
+   if(response.body){
+    const reader=response.body.getReader();
+    const chunks:Uint8Array<ArrayBuffer>[]=[];
+    let received=0;
+    for(;;){
+     const {done,value}=await reader.read();
+     if(done)break;
+     chunks.push(new Uint8Array(value));
+     received+=value.byteLength;
+     if(total!==null)setProgress({phase:"download",percent:Math.min(99,Math.round(received/total*100))});
+    }
+    blob=new Blob(chunks,{type:response.headers.get("content-type")??"application/octet-stream"});
+   }else blob=await response.blob();
    const url=URL.createObjectURL(blob);
    const link=document.createElement("a");
    link.href=url;
@@ -173,7 +192,7 @@ export default function OfficeTemplateCatalog({
    link.remove();
    setTimeout(()=>URL.revokeObjectURL(url),1000);
   }catch{setError(tr("officeGenerationError"));}
-  finally{setBusy(false);}
+  finally{setBusy(false);setProgress(null);}
  }
  return <section className="card mt-3" aria-labelledby="smn-office-templates-title">
   <div className="card-body">
@@ -284,12 +303,13 @@ export default function OfficeTemplateCatalog({
        <div className="modal-footer">
         <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={()=>setConfirmOverwrite(null)}>{tr("officeCancel")}</button>
         <button type="button" className="btn btn-danger" disabled={busy} onClick={()=>{
-         setBusy(true);void saveAfterCheck(confirmOverwrite.fingerprint).catch(()=>{setConfirmOverwrite(null);setError(tr("officeSaveError"));}).finally(()=>setBusy(false));
+         setBusy(true);void saveAfterCheck(confirmOverwrite.fingerprint).catch(()=>{setConfirmOverwrite(null);setError(tr("officeSaveError"));}).finally(()=>{setBusy(false);setProgress(null);});
         }}>{tr("officeOverwriteConfirm")}</button>
        </div></div></div>
      </div>}
     </>
    }
   </div>
+  <OfficeGenerationProgressModal progress={progress}/>
  </section>;
 }
