@@ -5,6 +5,7 @@ on:
     paths:
       - "scripts/windows/**"
       - "tests/update-package.test.mjs"
+      - "tests/update-import.test.mjs"
       - "tests/distribution-layout.test.mjs"
       - ".github/workflows/update-package.yml"
   workflow_dispatch:
@@ -40,7 +41,7 @@ jobs:
         with:
           node-version: "24"
       - name: Contrat de mise à jour, signatures et scénarios hostiles
-        run: node --test tests/distribution-layout.test.mjs tests/update-package.test.mjs
+        run: node --test tests/distribution-layout.test.mjs tests/update-package.test.mjs tests/update-import.test.mjs
 
   update-build-smoke:
     if: github.event_name == 'push'
