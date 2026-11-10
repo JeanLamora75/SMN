@@ -6,6 +6,7 @@ on:
       - "scripts/windows/**"
       - "tests/update-package.test.mjs"
       - "tests/update-import.test.mjs"
+      - "tests/update-recovery-matrix.test.mjs"
       - "tests/schema-update-policy.test.mjs"
       - "tests/update-delivery.test.mjs"
       - "tests/distribution-layout.test.mjs"
@@ -43,7 +44,7 @@ jobs:
         with:
           node-version: "24"
       - name: Contrat de mise à jour, signatures et scénarios hostiles
-        run: node --test tests/distribution-layout.test.mjs tests/update-package.test.mjs tests/update-import.test.mjs tests/schema-update-policy.test.mjs tests/update-delivery.test.mjs
+        run: node --test tests/distribution-layout.test.mjs tests/update-package.test.mjs tests/update-import.test.mjs tests/update-recovery-matrix.test.mjs tests/schema-update-policy.test.mjs tests/update-delivery.test.mjs
 
   update-build-smoke:
     if: github.event_name == 'push'
