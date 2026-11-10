@@ -2378,6 +2378,12 @@
       "users": "utilisateurs comptes droits autorisations habilitations",
       "security": "sécurité sessions mot de passe accès personnel",
       "maintenance": "maintenance mises à jour maj mise a jour mise a jour offline update backup sauvegardes restauration audit journal historique"
+    },
+    "navigation": {
+      "back": "← Paramètres",
+      "adminEyebrow": "Cockpit Agile · Administration",
+      "indicatorsTitle": "Paramètres · Indicateurs",
+      "indicatorsDescription": "Définir, comprendre et choisir les indicateurs de pilotage de vos équipes"
     }
   },
   "memberAbsences": {
