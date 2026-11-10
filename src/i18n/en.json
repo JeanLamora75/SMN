@@ -784,12 +784,18 @@
       "atomic-cutover-unverified": "A consistent database and document cutover has not been demonstrated.",
       "session-reset-unverified": "Session revocation and re-evaluation have not been demonstrated.",
       "privacy-erased-data": "The backup predates a verified erasure: restoring the erased data is prohibited.",
-      "privacy-coverage-gap": "The erasure audit history does not cover the backup date: restore suspended."
+      "privacy-coverage-gap": "The erasure audit history does not cover the backup date: restore suspended.",
+      "archive-scope-incomplete": "This backup does not contain the complete required database and file scope (full v4 package required).",
+      "archive-identity-mismatch": "The verified backup identifier does not match the requested backup."
     },
     "scopeCompleteness": "Backup scope",
     "scopeV4": "v4 — managed files included, consistency fence enabled",
     "scopeLegacy": "Legacy format — verified integrity, incomplete scope",
-    "officeModelCount": "Custom Office templates"
+    "officeModelCount": "Custom Office templates",
+    "restoreWarningsTitle": "Risks requiring attention",
+    "restoreWarnings": {
+      "potential-data-loss": "The backup is older than the current state: recent changes could be lost."
+    }
   },
   "members": {
     "title": "Team members",
