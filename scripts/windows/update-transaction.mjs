@@ -84,5 +84,8 @@ export async function recoverCutover(root){
   }
  }
  await finishCutover(root,record,"recovered");
+ await atomic(path.join(root,"updates","status.json"),{
+  state:"failed",version:null,at:new Date().toISOString()
+ });
  return "recovered";
 }
