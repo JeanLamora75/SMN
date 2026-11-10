@@ -474,6 +474,7 @@
       "postgres-archive-invalid": "The PostgreSQL archive failed integrity verification.",
       "postgres-download-unavailable": "The PostgreSQL files could not be downloaded.",
       "postgres-runtime-invalid": "The portable PostgreSQL files are invalid.",
+      "postgres-extract-failed": "Unable to extract PostgreSQL using the available Windows tools (tar and PowerShell). Check the computer security restrictions and available disk space; existing database contents were not deleted.",
       "postgres-auth-invalid": "Incorrect PostgreSQL username or password.",
       "postgres-unreachable": "The local PostgreSQL server did not respond on the specified port. Check that it is running.",
       "postgres-connection-failed": "Cannot connect to PostgreSQL. Check the port and connection details.",
