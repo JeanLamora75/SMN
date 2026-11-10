@@ -29,7 +29,8 @@ describe("SMN-227 — centralisation des accès sans perte",()=>{
  it("regroupe Langues et Apparence sans retirer leurs ancres historiques",()=>{
   const items=settingsCatalog("scrum",admin).flatMap(g=>g.entries);
   assert.equal(items.find(x=>x.id==="preferences")?.href,"/app/admin/settings/general");
-  assert.equal(items.some(x=>x.id==="languages"||x.id==="appearance"),false);
+  assert.equal(items.find(x=>x.id==="languages")?.href,"/app/admin/settings/general#settings-language");
+  assert.equal(items.find(x=>x.id==="appearance")?.href,"/app/admin/settings/general#settings-appearance");
   const form=read("src/app/app/admin/settings/settings-form.tsx");
   for(const anchor of ["settings-language","settings-appearance"])
    assert.ok(form.includes('id="'+anchor+'"'));
