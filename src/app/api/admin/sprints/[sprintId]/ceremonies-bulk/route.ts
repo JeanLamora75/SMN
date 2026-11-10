@@ -18,7 +18,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{sprintId:st
   !Number.isSafeInteger(body.expectedCount)||Number(body.expectedCount)<0||
   (body.operation==="delete"&&!parseCeremonyDeleteTypes(body.types))||
   (body.operation==="create"&&(body.types!==undefined||body.expectedSelectedCount!==undefined))||
-  (body.operation==="delete"&&(!Number.isSafeInteger(body.expectedSelectedCount)||Number(body.expectedSelectedCount)<1))
+  (body.operation==="delete"&&(!Number.isSafeInteger(body.expectedSelectedCount)||Number(body.expectedSelectedCount)<1)))
   return jsonResult({error:"invalid-input"},400);
  const {sprintId}=await params;
  try{
