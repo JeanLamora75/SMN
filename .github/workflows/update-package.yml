@@ -150,7 +150,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           if ($env:SMN_RELEASE_MODE -notin @('full','delta')) { throw 'Mode de mise à jour invalide' }
-          if ($env:SMN_RELEASE_MODE -eq 'full' -and $env:SMN_RELEASE_FROM_VERSION -notmatch '^33\\.[0-9]+\\.[0-9]+$') {
+          if ($env:SMN_RELEASE_MODE -eq 'full' -and $env:SMN_RELEASE_FROM_VERSION -notmatch '^33\.[0-9]+\.[0-9]+$') {
             throw 'Version de départ invalide'
           }
           $argsList = @('--target','_package/SMN-Windows','--out','_package/update-stage',
