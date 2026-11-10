@@ -174,12 +174,16 @@ export default function OfficeTemplateCatalog({
     const reader=response.body.getReader();
     const chunks:Uint8Array<ArrayBuffer>[]=[];
     let received=0;
+    let displayedPercent=-1;
     for(;;){
      const {done,value}=await reader.read();
      if(done)break;
      chunks.push(new Uint8Array(value));
      received+=value.byteLength;
-     if(total!==null)setProgress({phase:"download",percent:Math.min(99,Math.round(received/total*100))});
+     if(total!==null){
+      const nextPercent=Math.min(99,Math.round(received/total*100));
+      if(nextPercent!==displayedPercent){displayedPercent=nextPercent;setProgress({phase:"download",percent:nextPercent});}
+     }
     }
     blob=new Blob(chunks,{type:response.headers.get("content-type")??"application/octet-stream"});
    }else blob=await response.blob();
