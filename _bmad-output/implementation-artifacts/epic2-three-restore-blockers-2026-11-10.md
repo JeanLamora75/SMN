@@ -168,3 +168,14 @@ Le test initial a révélé une erreur de commentaire TypeScript puis un nom de 
 **Preuve CI réelle :** [Epic 2 Lot 5 #42900974605](https://github.com/JeanLamora75/SMN/actions/runs/42900974605) sur SHA `e08bf2f2a22d85755be08f5802d7da8e24318ffc` — **SUCCESS** sur Linux, Windows et PostgreSQL 18 jetable.
 
 **Limites / NO-GO toujours applicables :** l'opérateur doit prouver que le PID propriétaire, le port HTTP, les tâches planifiées et les connexions PostgreSQL ont réellement cessé avant de remplacer toute donnée. La notification `SIGTERM` n'est pas une attestation de quiescence, et le lanceur ne protège pas les instances démarrées indépendamment. Sans `SMN_RESTORE_MAINTENANCE_MARKER` configuré, aucun arrêt n'est demandé. Les suppressions historiques non attestées (SMN-38/39/40), l'activation de production et les essais REC-01..14 sur installation Windows indépendante restent ouverts.
+
+
+## Jalon — test de bout en bout du lanceur propriétaire sous Windows CI
+
+Un nouveau test `tests/smn-34-windows-launch-owner-e2e.test.ts` construit dans un répertoire temporaire une copie du **code réel du lanceur Windows**, avec ses imports convertis exactement comme lors du packaging, et le module `restore-launch-gate.mjs`. Il remplace uniquement l'application et les dépendances non pertinentes par des **fixtures synthétiques**, sans PostgreSQL ni données personnelles. Il démarre le lanceur Node, constate le serveur HTTP sur `127.0.0.1:3003`, crée le marqueur de maintenance **externe au paquet**, constate la disparition de l'écoute HTTP, attend la sortie du lanceur propriétaire, puis vérifie l'absence de redémarrage et la conservation du marqueur.
+
+Ce test est exécuté **uniquement** dans le job `windows-latest` ; sous Linux il est explicitement ignoré. Il complète le test des états du verrou et les exercices de sessions synthétiques, sans modifier les règles de restauration active.
+
+**Preuve CI sur le dernier commit de code :** [Epic 2 Lot 5 run 42901595539](https://github.com/JeanLamora75/SMN/actions/runs/42901595539), SHA `6c51c03fcac2f5b3492687275b53689cdfa00f41`, conclusion **SUCCESS** : job Windows (y compris vrai lancement du lanceur synthétique), job Linux et reconstruction/bascule PG18 jetable. La CI générale I0 doit être contrôlée séparément sur la dernière révision.
+
+**Limite stricte :** le lanceur testé a exécuté un serveur HTTP de **substitution**, pas l'application Next.js installée. Les dépendances de mise à jour et la création de répertoires Office étaient simulées uniquement dans le banc, ce qui permet de tester le cycle de vie sans autoriser de modification de la distribution réelle. Ce résultat **ne prouve pas** l'arrêt des autres processus, jobs, connexions PG et services Windows de l'installation de l'utilisateur, ni la reconstruction correcte d'une sauvegarde réelle. Les effacements historiques SMN-40, l'orchestration de production, REC-01..14 et l'acceptation indépendante restent des blocages NO-GO.
