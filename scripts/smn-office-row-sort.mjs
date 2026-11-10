@@ -51,11 +51,12 @@ function dateValue(value,locale){
 }
 /** Applies stable, typed, locale-sensitive sorting without changing the original dataset. */
 export function sortOfficeRows(records,sort,locale="fr"){
- if(!sort.length||records.length<2)return records;
+ if(!sort.length)return records;
  if(locale!=="fr"&&locale!=="en")throw Error("office-table-invalid-locale");
  const available=records[0]??{};
- for(const {field} of sort)if(!Object.hasOwn(available,field))
+ for(const {field} of sort)if(records.length>0&&!Object.hasOwn(available,field))
   throw Error("office-table-invalid-sort-column");
+ if(records.length<2)return records;
  const collator=new Intl.Collator(locale,{numeric:true,sensitivity:"base"});
  return records.map((row,index)=>({row,index})).sort((left,right)=>{
   for(const {field,direction} of sort){
