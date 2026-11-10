@@ -2384,7 +2384,8 @@
       "adminEyebrow": "Cockpit Agile · Administration",
       "indicatorsTitle": "Paramètres · Indicateurs",
       "indicatorsDescription": "Définir, comprendre et choisir les indicateurs de pilotage de vos équipes",
-      "permissions": "Habilitations des Scrum Masters par équipe"
+      "permissions": "Habilitations des Scrum Masters par équipe",
+      "linksEyebrow": "Administration · Cockpit Agile"
     }
   },
   "memberAbsences": {
