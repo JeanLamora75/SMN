@@ -73,6 +73,7 @@ if (existsSync("public")) await cp("public", path.join(appDir, "public"), { recu
 for(const file of [
  "prisma/baseline/v33/schema.sql",
  "prisma/baseline/v32/schema.sql",
+ "prisma/migrations/20261101_smn338_indicator_v33/migration.sql",
  "prisma/migrations/20261101_smn_dashboard_slots_additive/migration.sql",
  "prisma/migrations/20261108_smn416_chart_styles/migration.sql",
  "prisma/migrations/20261109_smn39_privacy_receipt/migration.sql",
