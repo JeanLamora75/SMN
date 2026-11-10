@@ -4511,5 +4511,19 @@
     "conflict": "La fiche a changé depuis son chargement. Actualisez la page et réessayez.",
     "linkedData": "Suppression refusée : une dépendance non prise en charge protège encore cette fiche. Aucune donnée n'a été supprimée.",
     "unavailable": "Suppression impossible pour le moment. Aucune suppression partielle n'a été appliquée."
+  },
+  "sprintCeremoniesBulk": {
+    "create": "Créer les cérémonies",
+    "deleteAll": "Supprimer toutes les cérémonies",
+    "confirmDelete": "Supprimer définitivement les {count} cérémonies de ce sprint, leurs informations associées et leurs historiques ? Cette opération est irréversible. Les modèles de l'équipe ne seront pas supprimés.",
+    "working": "Traitement en cours…",
+    "created": "Les cérémonies ont été créées.",
+    "deleted": "Toutes les cérémonies de ce sprint ont été supprimées.",
+    "protected": "Ce sprint est clôturé : ses cérémonies historiques sont protégées.",
+    "state-changed": "La liste des cérémonies a changé. Actualisez le sprint avant de réessayer.",
+    "linked-data": "Suppression refusée : des données associées empêchent une suppression sûre. Aucune modification n'a été enregistrée.",
+    "no-templates": "Aucune cérémonie n'a pu être créée. Vérifiez les modèles actifs et le calendrier de l'équipe.",
+    "incomplete-schema": "Le schéma des cérémonies est incomplet. Aucune modification n'a été réalisée.",
+    "unavailable": "Opération indisponible. Aucune modification partielle n'a été validée."
   }
 }
