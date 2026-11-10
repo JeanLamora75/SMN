@@ -1,5 +1,7 @@
 import {randomBytes} from "node:crypto";
-import {lstat} from "node:fs/promises";
+import {lstat,realpath} from "node:fs/promises";
+import {tmpdir} from "node:os";
+import {dirname,relative,isAbsolute,sep,resolve} from "node:path";
 import {Client} from "pg";
 import type {CutoverDrillInput} from "./restore-cutover-drill";
 import {validateCutoverDrill} from "./restore-cutover-drill";
@@ -38,6 +40,20 @@ export function validateDisposableOfflineScope(input:DisposableOfflineScope):boo
  return validateCutoverDrill(cutover)&&validateFileCutoverDrill(input.files);
 }
 
+async function trustedDisposableFileParent(originalRoot:string):Promise<boolean>{
+ try{
+  const parent=dirname(originalRoot);
+  const stat=await lstat(parent);
+  if(!stat.isDirectory()||stat.isSymbolicLink())return false;
+  const physicalParent=await realpath(parent);
+  const physicalTemp=await realpath(resolve(tmpdir()));
+  const inside=relative(physicalTemp,physicalParent);
+  // A symlinked ancestor must never redirect the operator beyond the temp sandbox.
+  return inside!==""&&inside!==".."&&!inside.startsWith(".."+sep)&&
+   !isAbsolute(inside);
+ }catch{return false;}
+}
+
 export async function inspectDisposableOfflineScope(
  input:DisposableOfflineScope
 ):Promise<DisposableOfflineReport>{
@@ -53,6 +69,9 @@ export async function inspectDisposableOfflineScope(
  if(!validateDisposableOfflineScope(input))
   return result("blocked",false,false,null,"blocked",null,null,
    ["disposable-scope-invalid"]);
+ if(!(await trustedDisposableFileParent(input.files.originalRoot)))
+  return result("blocked",false,false,null,"blocked",null,null,
+   ["disposable-parent-untrusted"]);
  const blockers:string[]=[];
  let pg18=false,namesCorrect=false,connections:number|null=null;
  let dbStatus:DisposableOfflineReport["database"]["status"]="unverifiable";
