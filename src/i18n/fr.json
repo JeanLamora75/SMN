@@ -2213,17 +2213,20 @@
     "statusUnknown": "Non renseigné"
   },
   "settingsPortal": {
-    "subtitle": "Configuration de l’application",
+    "subtitle": "Configurez votre environnement de travail",
     "groupGeneral": "Application et personnalisation",
     "general": "Informations générales",
     "generalDescription": "Gérer la langue, le thème, la palette et le pays de référence."
   },
   "settingsCatalog": {
     "groups": {
-      "application": "Application",
+      "application": "Application et personnalisation",
       "agile": "Organisation Agile",
       "calendar": "Calendriers et disponibilités",
-      "administration": "Administration"
+      "administration": "Administration et maintenance",
+      "organization": "Organisation et équipes",
+      "practices": "Pratiques et référentiels Agile",
+      "reports": "Rapports et visualisation"
     },
     "status": {
       "available": "Disponible",
@@ -2242,15 +2245,15 @@
       },
       "languages": {
         "title": "Langues",
-        "description": "Choisir la langue de l'interface française ou anglaise."
+        "description": "Choisir la langue d'affichage du portail et de l'application."
       },
       "appearance": {
         "title": "Apparence",
-        "description": "Personnaliser le thème et les couleurs."
+        "description": "Personnaliser le thème et les couleurs de l'application."
       },
       "cadence": {
-        "title": "Cadence Agile",
-        "description": "Configurer les cycles du mode Scrum ou Kanban actif."
+        "title": "Cadence des sprints",
+        "description": "Définir la cadence des cycles de votre équipe Agile."
       },
       "ceremonies": {
         "title": "Cérémonies et modèles",
@@ -2274,7 +2277,7 @@
       },
       "closures": {
         "title": "Fermetures d'entreprise",
-        "description": "Gérer les périodes de fermeture collective."
+        "description": "Gérer les périodes de fermeture des entreprises."
       },
       "absences": {
         "title": "Catégories d'absences",
@@ -2305,8 +2308,8 @@
         "description": "Consulter les liens par équipe, catégorie et visibilité."
       },
       "preferences": {
-        "title": "Préférences de l'application",
-        "description": "Langue, thème, couleurs et paramètres généraux."
+        "title": "Informations générales",
+        "description": "Configurer les informations et préférences générales de l'application."
       },
       "holidaysClosures": {
         "title": "Jours fériés et fermetures",
@@ -2314,7 +2317,23 @@
       },
       "maintenance": {
         "title": "Maintenance",
-        "description": "Sauvegardes et historique des opérations."
+        "description": "Gérer les mises à jour, les sauvegardes et le journal d'audit."
+      },
+      "companies": {
+        "title": "Entreprises",
+        "description": "Consulter et gérer les entreprises de l'organisation."
+      },
+      "indicators": {
+        "title": "Indicateurs",
+        "description": "Configurer les indicateurs de pilotage et leurs habilitations."
+      },
+      "holidays": {
+        "title": "Pays et jours fériés",
+        "description": "Configurer les calendriers nationaux et les jours fériés."
+      },
+      "chartStyles": {
+        "title": "Styles de graphiques",
+        "description": "Personnaliser les styles visuels des graphiques des rapports."
       }
     },
     "view": {
@@ -2330,6 +2349,35 @@
       "general": "Général",
       "language": "Langue",
       "appearance": "Apparence"
+    },
+    "search": {
+      "label": "Rechercher un paramètre",
+      "placeholder": "Rechercher un paramètre…",
+      "clear": "Effacer",
+      "results": "{count} rubrique(s) trouvée(s)",
+      "empty": "Aucun paramètre trouvé.",
+      "reset": "Effacer la recherche"
+    },
+    "keywords": {
+      "preferences": "général préférences configuration application installation pays produit",
+      "languages": "langue traduction français anglais internationalisation localisation",
+      "appearance": "thème palette couleurs visuel clair sombre personnalisation",
+      "teams": "équipes membres produit vision goal product scrum kanban",
+      "companies": "entreprise organisations société employeur gestion",
+      "cadence": "sprint cadence rythme cycle itération kanban scrum fréquence",
+      "ceremonies": "cérémonies modèles scrum daily planning review retrospective réunions événements",
+      "capacity": "capacité calcul jours hommes disponibilité effort règles",
+      "indicators": "indicateur mesure métrique kpi tableau bord formule habilitations",
+      "registries": "registres risque obstacle note action décision catégorie alertes",
+      "links": "liens catégories urls portée transverse équipe",
+      "workingDays": "jours horaires ouvrés travail pause déjeuner créneaux",
+      "holidays": "pays jours fériés calendrier national fêtes vacances",
+      "closures": "fermetures entreprise calendrier indisponibilités jours fermeture",
+      "absences": "absences catégories congés vacances maladie couleurs",
+      "chartStyles": "graphiques styles graphiques présentation visualisation office word powerpoint rapports",
+      "users": "utilisateurs comptes droits autorisations habilitations",
+      "security": "sécurité sessions mot de passe accès personnel",
+      "maintenance": "maintenance mises à jour maj mise a jour mise a jour offline update backup sauvegardes restauration audit journal historique"
     }
   },
   "memberAbsences": {
