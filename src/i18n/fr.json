@@ -4242,7 +4242,14 @@
     "confirmPublish": "Confirmer la publication de la simulation ?",
     "publish": "Publier",
     "preview": "Simuler",
-    "navTitle": "Indicateur"
+    "navTitle": "Indicateur",
+    "sharedChart": {
+      "style": "Style graphique",
+      "loading": "Génération du graphique…",
+      "unavailable": "Le graphique ou ses styles sont temporairement indisponibles.",
+      "download": "Enregistrer en PNG",
+      "default": "Style par défaut du type"
+    }
   },
   "chartStyles": {
     "title": "Styles graphiques",
