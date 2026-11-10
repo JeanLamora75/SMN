@@ -12,6 +12,12 @@ const APP_ROOTS=new Set(["app","prisma","scripts"]);
 const APP_FILES=new Set(["launch-portable.mjs","Demarrer SMN.cmd","Recuperer admin SMN.cmd","distribution-version.json"]);
 export const UPDATE_FORMAT=1;
 
+export function inventoryFingerprint(files) {
+  if(!(files instanceof Map)) throw Error("update-inventory-invalid");
+  const entries=[...files.values()].map(file=>`${file.path.toLowerCase()} ${file.sha256}`).sort();
+  return createHash("sha256").update(entries.join("\n")+"\n").digest("hex");
+}
+
 export function validateUpdateVersion(version) {
   if (typeof version!=="string" || !VERSION.test(version)) throw Error("update-version-invalid");
   return version;
@@ -50,6 +56,10 @@ export function validateUpdateManifest(manifest) {
   if(manifest.requires?.nodeMajor!==24 || manifest.requires?.postgresMajor!==18 ||
       manifest.requires?.schemaVersion!==33 || !COMMIT.test(manifest.sourceCommit))
     throw Error("update-compatibility-invalid");
+  if(manifest.mode==="delta" && !DIGEST.test(manifest.baseFingerprint))
+    throw Error("update-base-fingerprint-invalid");
+  if(manifest.mode==="full" && manifest.baseFingerprint!==null)
+    throw Error("update-base-fingerprint-invalid");
   requireEntries(manifest.files);
   return manifest;
 }
@@ -126,13 +136,16 @@ export function planUpdate({oldFiles,newFiles,fromVersion,toVersion,sourceCommit
   entries.sort((a,b)=>a.path.localeCompare(b.path,"en"));
   return validateUpdateManifest({format:UPDATE_FORMAT,product:"SMN",
     platform:"win32-x64",mode,fromVersion,toVersion,sourceCommit,
-    requires:{nodeMajor:24,postgresMajor:18,schemaVersion:33},files:entries});
+    requires:{nodeMajor:24,postgresMajor:18,schemaVersion:33},
+    baseFingerprint:mode==="delta"?inventoryFingerprint(oldFiles):null,files:entries});
 }
 
 export function requireCompatibleBase(manifest,baseVersion,installedFiles) {
   validateUpdateManifest(manifest);
   if(baseVersion!==manifest.fromVersion)throw Error("update-from-version-mismatch");
   if(manifest.mode==="delta"){
+    if(inventoryFingerprint(installedFiles)!==manifest.baseFingerprint)
+      throw Error("update-base-inventory-mismatch");
     for(const entry of manifest.files){
       const present=installedFiles.get(entry.path.toLowerCase());
       if(entry.previousSha256===null && present)
