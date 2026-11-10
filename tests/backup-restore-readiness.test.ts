@@ -8,7 +8,7 @@ const baseline:RestorePreview={
   createdAt:"2026-11-09T08:30:00.000Z",status:"verified",reason:null,
   checkedAt:"2026-11-09T09:00:00.000Z",installationSource:"singleton:2026-10-20T08:00:00.000Z",
   applicationVersion:"0.1.0",schemaVersion:33,postgresVersion:"18.6",
-  components:[],documentCount:0,integrityVerified:true,restoreTested:false},
+  components:[],documentCount:0,integrityVerified:true,scopeComplete:true,restoreTested:false},
  current:{installationSource:"singleton:2026-10-20T08:00:00.000Z",schemaVersion:33,
   applicationVersion:"0.1.0",postgresVersion:"18.6",documentCount:0},
  issues:["snapshot-older","privacy-not-cleared"],blocked:true,canRestore:false
@@ -24,6 +24,24 @@ describe("SMN-34 — preflight refuse toute restauration non qualifiée",()=>{
   assert.ok(decision.blockers.includes("atomic-cutover-unverified"));
   assert.ok(decision.blockers.includes("session-reset-unverified"));
   assert.deepEqual(decision.warnings,["potential-data-loss"]);
+ });
+ it("refuse un paquet incomplet ou une divergence d'identifiant même s'il est chiffré et vérifié",()=>{
+  const gate=assessRestoreGate({...baseline,archive:{...baseline.archive,
+   scopeComplete:false,id:"d4a8e381-2f00-4444-8888-1d9cefe75532"}});
+  assert.ok(gate.blockers.includes("archive-scope-incomplete"));
+  assert.ok(gate.blockers.includes("archive-identity-mismatch"));
+  assert.equal(gate.canExecute,false);
+ });
+ it("transmet tous les problèmes bloquants de la prévisualisation au contrôle préalable",()=>{
+  const gate=assessRestoreGate({...baseline,issues:[
+   "snapshot-older","source-unconfirmed","current-documents-unavailable",
+   "privacy-not-cleared"
+  ]});
+  assert.ok(gate.blockers.includes("preview-source-unconfirmed"));
+  assert.ok(gate.blockers.includes("preview-current-documents-unavailable"));
+  assert.ok(gate.blockers.includes("preview-privacy-not-cleared"));
+  assert.ok(!gate.blockers.includes("preview-snapshot-older"));
+  assert.deepEqual(gate.warnings,["potential-data-loss"]);
  });
  it("un paquet corrompu ou une origine étrangère reste bloquant",()=>{
   const decision=assessRestoreGate({...baseline,archive:{...baseline.archive,
