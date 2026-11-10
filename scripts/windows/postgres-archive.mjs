@@ -1,19 +1,23 @@
 // Source et empreinte fournie par EnterpriseDB pour PG 18.6-5 Windows x64.
 // https://github.com/EnterpriseDB/edb-installers/issues/733
 import { createHash } from "node:crypto";
-import { createWriteStream } from "node:fs";
-import { mkdir, rename, rm, stat, readFile } from "node:fs/promises";
+import { createReadStream, createWriteStream } from "node:fs";
+import { mkdir, rename, rm, stat } from "node:fs/promises";
 import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import path from "node:path";
 
-export const PG_ARCHIVE = "postgresql-18.6-5-windows-x64-binaries.zip";
-export const PG_URL = "https://get.enterprisedb.com/postgresql/" + PG_ARCHIVE;
+export const PG_ARCHIVE = "postgres.zip";
+export const PG_SOURCE_ARCHIVE = "postgresql-18.6-5-windows-x64-binaries.zip";
+export const PG_URL = "https://get.enterprisedb.com/postgresql/" + PG_SOURCE_ARCHIVE;
 export const PG_SHA256 = "e2246ba91d22345bc3d017586c09ede52d9df180b1eeb480f050445f1cad84e2";
 
 export async function verifyPgArchive(file) {
-  const bytes = await readFile(file);
-  return createHash("sha256").update(bytes).digest("hex") === PG_SHA256;
+  const details = await stat(file);
+  if (!details.isFile() || details.size <= 0 || details.size > 450 * 1024 * 1024) return false;
+  const hash = createHash("sha256");
+  for await (const chunk of createReadStream(file)) hash.update(chunk);
+  return hash.digest("hex") === PG_SHA256;
 }
 export async function acquirePgArchive(destination, bundled) {
   if (bundled) {
