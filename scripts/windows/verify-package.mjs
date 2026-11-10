@@ -12,7 +12,7 @@ if (process.platform !== "win32" || process.env.GITHUB_ACTIONS !== "true") {
   throw new Error("Smoke autonome réservé au runner Windows");
 }
 const root = path.resolve(process.env.SMN_PACKAGE_DIR || path.join(process.cwd(), "_package", "SMN-Windows"));
-for (const file of ["runtime/node/node.exe", "app/server.js", "Demarrer SMN.bat", "runtime/launcher.mjs", "app/recover-admin.mjs", "app/distribution-version.json"]) {
+for (const file of ["runtime/node/node.exe", "app/server.js", "Demarrer SMN.bat", "runtime/launcher.mjs", "runtime/maintenance/office-dirs.mjs", "runtime/maintenance/update-transaction.mjs", "app/recover-admin.mjs", "app/distribution-version.json"]) {
   assert.ok(existsSync(path.join(root, file)), "Fichier manquant du paquet : " + file);
 }
 for(const file of [
