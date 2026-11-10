@@ -37,16 +37,16 @@ test("Package and runtime share the short postgres.zip filename without changing
   const packaging = source("scripts/windows/postgres-archive.mjs");
   const runtime = source("src/server/bootstrap/archive.ts");
   for (const code of [packaging, runtime]) {
-    assert.match(code, /PG_ARCHIVE = "postgres\\.zip"/);
-    assert.match(code, /PG_SOURCE_ARCHIVE = "postgresql-18\\.6-5-windows-x64-binaries\\.zip"/);
-    assert.match(code, /get\\.enterprisedb\\.com\\/postgresql\\/" \\+ PG_SOURCE_ARCHIVE/);
+    assert.match(code, /PG_ARCHIVE = "postgres\.zip"/);
+    assert.match(code, /PG_SOURCE_ARCHIVE = "postgresql-18\.6-5-windows-x64-binaries\.zip"/);
+    assert.match(code, /get\.enterprisedb\.com\/postgresql\/" \+ PG_SOURCE_ARCHIVE/);
     assert.match(code, /e2246ba91d22345bc3d017586c09ede52d9df180b1eeb480f050445f1cad84e2/);
-    assert.match(code, /createReadStream\\(file\\)/);
+    assert.match(code, /createReadStream\(file\)/);
   }
   const portable = source("src/server/bootstrap/portable.ts");
-  assert.match(portable, /path\\.join\\(bundledFolder, PG_ARCHIVE\\)/);
-  assert.match(portable, /path\\.join\\(bundledFolder, PG_SOURCE_ARCHIVE\\)/);
-  assert.match(portable, /copyFile\\(checkedArchive, archive\\)/);
+  assert.match(portable, /path\.join\(bundledFolder, PG_ARCHIVE\)/);
+  assert.match(portable, /path\.join\(bundledFolder, PG_SOURCE_ARCHIVE\)/);
+  assert.match(portable, /copyFile\(checkedArchive, archive\)/);
   const distributor = source("scripts/windows/package-portable.mjs");
-  assert.match(distributor, /path\\.join\\(pgFolder, PG_ARCHIVE\\)/);
+  assert.match(distributor, /path\.join\(pgFolder, PG_ARCHIVE\)/);
 });
