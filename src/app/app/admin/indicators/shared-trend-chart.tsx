@@ -21,8 +21,9 @@ export default function SharedTrendChart({payload,downloadName}:{payload:SharedC
   const controller=new AbortController();
   void fetch("/api/admin/reports/chart-styles",{signal:controller.signal,cache:"no-store"})
    .then(async r=>{if(!r.ok)throw Error("styles");return r.json() as Promise<Catalog>;})
-   .then(data=>{if(!controller.signal.aborted&&Array.isArray(data.styles)&&data.defaults){setCatalog(data);setCatalogError(false);}})
-   .catch(()=>{if(!controller.signal.aborted)setCatalogError(true);});
+   .then(data=>{if(!Array.isArray(data.styles)||!data.defaults)throw Error("styles");
+    if(!controller.signal.aborted){setCatalog(data);setCatalogError(false);}})
+   .catch(()=>{if(!controller.signal.aborted){setCatalogError(true);setLoading(false);}});
   return()=>controller.abort();
  },[]);
  const styleId=chosen||catalog?.defaults?.[payload.type]?.styleId||"";
