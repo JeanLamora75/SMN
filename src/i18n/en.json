@@ -4242,7 +4242,14 @@
     "confirmPublish": "Confirm publishing this preview?",
     "publish": "Publish",
     "preview": "Preview",
-    "navTitle": "Indicator"
+    "navTitle": "Indicator",
+    "sharedChart": {
+      "style": "Chart style",
+      "loading": "Generating chart…",
+      "unavailable": "The chart or its styles are temporarily unavailable.",
+      "download": "Save as PNG",
+      "default": "Default style for chart type"
+    }
   },
   "chartStyles": {
     "title": "Chart styles",
