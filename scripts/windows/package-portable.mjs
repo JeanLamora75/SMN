@@ -93,7 +93,13 @@ const launch = `@echo off\r\ncd /d "%~dp0"\r\n"%~dp0runtime\\node\\node.exe" "%~
 await writeFile(path.join(target, "Demarrer SMN.cmd"), launch, "utf8");
 const pgFolder = path.join(target, "runtime", "postgres");
 await mkdir(pgFolder, { recursive: true });
-const zip = await acquirePgArchive(path.join(pgFolder, PG_ARCHIVE));
-const size = (await stat(zip)).size;
-console.log("SMN portable préparé pour Windows x64, archive PostgreSQL SHA-256 validée (" + size + " octets).");
+// CI update builds never redistribute the PostgreSQL archive. The full setup
+// workflow still downloads and validates the complete binary distribution.
+if (process.env.SMN_UPDATE_SKIP_PG_ARCHIVE !== "1") {
+  const zip = await acquirePgArchive(path.join(pgFolder, PG_ARCHIVE));
+  const size = (await stat(zip)).size;
+  console.log("SMN portable préparé pour Windows x64, archive PostgreSQL SHA-256 validée (" + size + " octets).");
+} else {
+  console.log("Application SMN préparée pour mise à jour sans distribution PostgreSQL.");
+}
 console.log("Paquet : " + target);
