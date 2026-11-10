@@ -110,3 +110,16 @@ Le diagnostic `pnpm restore:audit --archive <UUID> --audit-only` relève désorm
 Une grille de recette contrôlable depuis Windows a été publiée : `scripts/windows/smn-34-recette-contract.mjs` et `scripts/windows/smn-34-recette-check.mjs` ; ils exposent les 14 scénarios REC-01 à REC-14, leur état PASS / FAIL / BLOCKED et une référence SHA-256/horodatage UTC pour chaque PASS. Le contrôle de cohérence ne lit aucun contenu des preuves et **retourne toujours `canActivate:false`**, y compris pour 14 PASS déclarés. Voir [le guide](../../docs/SMN-34-RECETTE-WINDOWS.md). Les tests `tests/smn-34-audit-readonly.test.ts` et `tests/smn-34-recette-checklist.test.ts` sont intégrés au workflow Lot 5.
 
 Les données historiques, les archives réelles et les sessions de l'installation personnelle n'ont pas été consultées. Aucune restauration réelle n'a été tentée. Statut des trois conditions : **NON LEVÉES**, avec diagnostic et collecte de preuves facilités.
+
+
+## Incrément opérateur hors ligne — 10 novembre 2026 (suite)
+
+**Nouveau précontrôle externe, sans bascule** : `src/server/backup/restore-offline-operator-preflight.ts` et `scripts/smn-34-offline-preflight.ts`. Il exige des noms de bases `smn_restore_test_*` sur un serveur PG18 local, trois dossiers frères jetables situés sous le dossier temporaire du système, et renvoie un rapport lisible sans URL SQL ni chemins privés.
+
+**Vérifications** : PG18, bases source/candidate présentes et rollback absente, nombre de connexions concurrentes, empreintes des arbres de fichiers, présence d'une candidate non vide. Toutes les opérations de diagnostic sont en lecture seule ; aucune mutation de DB, fichiers, sessions ou maintenance. Même un résultat « ready » est associé à `canActivate:false`.
+
+**Tests** : `tests/smn-34-offline-operator-preflight.test.ts` (refus production/serveur distant/CLI) et `tests/smn-34-offline-operator-preflight-pg.test.ts` (bases PostgreSQL 18 jetables, blocage en présence d'une connexion concurrente, contrôle du non-renommage).
+
+**Preuve CI exécutée :** [Epic 2 Lot 5 run 42896293055](https://github.com/JeanLamora75/SMN/actions/runs/42896293055), SHA `ffce862d168eeb18f9d91aca2220220c9d8a180f`, conclusion **SUCCESS** sur Linux, Windows et PostgreSQL 18 jetable. Aucun script `uv` ni restauration de données personnelles.
+
+**Reste NO-GO** : orchestration effective de l'arrêt des écrivains et de la révocation des sessions persistantes, qualification historique des archives SMN-38/39/40, recette indépendante Windows 11 REC-01 à REC-14. Le précontrôle jetable ne prouve ni un arrêt HTTP réel ni un basculement de production sûre.
