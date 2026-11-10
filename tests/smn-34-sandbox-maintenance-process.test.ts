@@ -17,7 +17,7 @@ test("SMN-34: maintenance persistante entre trois processus externes sans jamais
    env:{...process.env,SMN_RESTORE_MAINTENANCE_MARKER:""}});
  try{
   const empty=invoke("--inspect");
-  assert.equal(empty.status,2);
+  assert.equal(empty.status,2,empty.stderr);
   assert.equal(empty.stdout,"");
   const begin=invoke("--begin");
   assert.equal(begin.status,0,begin.stderr);
@@ -50,7 +50,7 @@ test("SMN-34: refuse des dossiers dans le workspace, faux chemins et secrets",()
  const script=fileURLToPath(new URL("../scripts/smn-34-sandbox-maintenance.ts",import.meta.url));
  const bad=spawnSync(process.execPath,["--import","tsx",script,"--begin",
   join(cwd,"maintenance.lock")],{cwd,encoding:"utf8",timeout:14000});
- assert.equal(bad.status,2);
+ assert.equal(bad.status,2,bad.stderr);
  assert.equal(bad.stdout,"");
  assert.match(bad.stderr,/production remains locked/);
  assert.doesNotMatch(bad.stderr,/Error:|at .*\.ts:\d+|password/i);
