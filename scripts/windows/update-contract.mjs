@@ -171,7 +171,8 @@ export function requireCompatibleBase(manifest,baseVersion,installedFiles) {
 }
 export async function verifyUpdatePayload(root,manifest) {
   validateUpdateManifest(manifest);
-  const expected=new Set(manifest.files.filter(f=>f.action==="put").map(f=>f.path.toLowerCase()));
+  const records=new Map(manifest.files.filter(f=>f.action==="put").map(f=>[f.path.toLowerCase(),f]));
+  const expected=new Set(records.keys());
   const payloadRoot=path.join(root,"payload");
   const observed=new Set();
   async function inspect(folder,parts) {
@@ -183,7 +184,7 @@ export async function verifyUpdatePayload(root,manifest) {
       if(!info.isFile() || !expected.has(relative.toLowerCase()) || observed.has(relative.toLowerCase()))
         throw Error("update-payload-extra-or-unsafe");
       observed.add(relative.toLowerCase());
-      const record=manifest.files.find(f=>f.path.toLowerCase()===relative.toLowerCase());
+      const record=records.get(relative.toLowerCase());
       if(!record || record.size!==info.size ||
         createHash("sha256").update(await readFile(entry)).digest("hex")!==record.sha256)
         throw Error("update-payload-integrity-failed");
