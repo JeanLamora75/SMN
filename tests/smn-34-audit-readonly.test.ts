@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
+import {spawnSync} from "node:child_process";
+import {fileURLToPath} from "node:url";
 import {test} from "node:test";
 import {assessRestoreAudit} from "../src/server/backup/restore-audit";
 import type {RestorePreview} from "../src/server/backup/preview";
@@ -89,4 +91,18 @@ test("SMN-34: previsualisation CLI conserve une transaction SQL read-only",()=>{
  assert.match(source,/key\?\.fill\(0\)/);
  assert.doesNotMatch(source,/\b(?:spawn|rename|rm|exec|fetch)\(/);
  assert.doesNotMatch(source,/import "server-only"/);
+});
+
+test("SMN-34: demarrage reel du CLI refuse un identifiant invalide sans stack ni acces DB",()=>{
+ const file=fileURLToPath(new URL("../scripts/smn-34-audit-readonly.ts",import.meta.url));
+ const result=spawnSync(process.execPath,["--import","tsx",file,
+  "--archive","invalid-id","--audit-only"],{
+  cwd:fileURLToPath(new URL("../",import.meta.url)),
+  encoding:"utf8",timeout:20000,
+  env:{...process.env,SMN_DATABASE_URL:""}
+ });
+ assert.equal(result.status,2,result.stderr);
+ assert.equal(result.stdout,"");
+ assert.match(result.stderr,/SMN-34 audit unavailable or input invalid/);
+ assert.doesNotMatch(result.stderr,/server-only|Error:|at .+\.(?:ts|js):\d+/i);
 });
