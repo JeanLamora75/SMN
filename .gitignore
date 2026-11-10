@@ -33,3 +33,10 @@ Desktop.ini
 
 # Cluster PostgreSQL portable et données personnelles locales
 /data/postgres/
+
+# Paquets et staging de mises à jour locaux (pas de distribution dans Git)
+/updates/
+/_package/
+/runtime/trust/
+**/smn-update-private.pem
+**/SMN_UPDATE_SIGNING_KEY_PEM_B64.txt
