@@ -4,8 +4,9 @@ import { mkdir, rename, rm, stat } from "node:fs/promises";
 import path from "node:path";
 import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
-export const PG_ARCHIVE = "postgresql-18.6-5-windows-x64-binaries.zip";
-const PG_URL = "https://get.enterprisedb.com/postgresql/" + PG_ARCHIVE;
+export const PG_ARCHIVE = "postgres.zip";
+export const PG_SOURCE_ARCHIVE = "postgresql-18.6-5-windows-x64-binaries.zip";
+const PG_URL = "https://get.enterprisedb.com/postgresql/" + PG_SOURCE_ARCHIVE;
 const PG_SHA256 = "e2246ba91d22345bc3d017586c09ede52d9df180b1eeb480f050445f1cad84e2";
 // SHA-256 communiqué par EnterpriseDB : https://github.com/EnterpriseDB/edb-installers/issues/733
 async function checksum(file: string): Promise<boolean> {
