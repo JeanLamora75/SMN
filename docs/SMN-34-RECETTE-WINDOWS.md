@@ -81,6 +81,18 @@ Le deuxième appel se déroule dans un **nouveau processus Node**, qui relit le 
 
 Ce test ne prouve **ni l'arrêt du serveur HTTP, ni l'arrêt des tâches de fond ou des écrivains PostgreSQL, ni l'invalidation de sessions distribuées**. Dans le code actuel, les sessions SMN sont en mémoire du processus et ne survivent normalement pas au redémarrage, mais le maintien de plusieurs processus actifs resterait un risque. Tous ces points exigent des essais indépendants REC-10/REC-11.
 
+## 3 quinquies. Répétition HTTP du verrou et des sessions (données synthétiques)
+
+La CI exécute `tests/smn-34-session-restart-http.test.ts` sous Windows et Linux. Ce scénario crée **trois serveurs HTTP de test distincts** sur la boucle locale, utilisant seulement le magasin de sessions en mémoire et le contrôle de maintenance existants dans SMN. Il vérifie : accès autorisé avant maintenance, refus HTTP 503 après installation du verrou, refus persistant après redémarrage tant que le verrou est présent, puis refus HTTP 401 de l'ancien jeton après levée du **seul verrou temporaire du banc**. Ce test ne nécessite aucune base de données personnelle.
+
+Pour le reproduire sur un environnement Windows **de développement/validation uniquement**, depuis la copie du dépôt :
+
+```powershell
+pnpm exec tsx --test tests/smn-34-session-restart-http.test.ts
+```
+
+Le banc supprime uniquement ses propres fichiers jetables de test. **Ne pas supprimer le marqueur de maintenance de l'installation réelle**. Le test simule un serveur HTTP : il ne prouve pas l'arrêt effectif des processus du lanceur Windows, des travaux de fond, des connexions PostgreSQL ni la révocation de sessions dans une installation multiprocessus. La recette REC-11 doit toujours démontrer ces exigences sur une machine indépendante.
+
 ## 4. Dossier de recette REC-01 à REC-14
 
 | REC | Vérification en installation dédiée | Preuve attendue |
