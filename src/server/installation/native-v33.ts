@@ -4,7 +4,11 @@ import {resolve} from "node:path";
 import type {Snapshot} from "./diagnostic";
 
 export const NATIVE_V33_NAME="smn_v33_native_baseline";
-export const NATIVE_V33_FILE=()=>resolve(process.cwd(),"prisma","baseline","v33","schema.sql");
+export const NATIVE_V33_FILE=()=>{
+ const legacy=resolve(process.cwd(),"prisma","baseline","v33","schema.sql");
+ const packaged=resolve(process.cwd(),"app","prisma","baseline","v33","schema.sql");
+ return existsSync(packaged)?packaged:legacy;
+};
 
 /** Exactly one approved v33 DDL snapshot; no runtime dependency on v32 migrations. */
 export function nativeV33BaselineSql():string|null{
