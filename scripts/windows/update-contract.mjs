@@ -131,7 +131,7 @@ export async function enumerateUpdateableFiles(root) {
 }
 export function planUpdate({oldFiles,newFiles,fromVersion,toVersion,sourceCommit,mode}) {
   validateUpdateVersion(fromVersion);validateUpdateVersion(toVersion);
-mustAdvance(manifest.fromVersion,manifest.toVersion);
+  mustAdvance(fromVersion,toVersion);
   if(!COMMIT.test(sourceCommit))throw Error("update-commit-invalid");
   if(!["full","delta"].includes(mode))throw Error("update-mode-invalid");
   if(mode==="delta"&&!oldFiles)throw Error("update-base-required");
