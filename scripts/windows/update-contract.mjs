@@ -6,9 +6,10 @@ import path from "node:path";
 import { assertApplicationPayload } from "./distribution-layout.mjs";
 
 const DIGEST=/^[0-9a-f]{64}$/;
+const COMMIT=/^[0-9a-f]{40}$/;
 const VERSION=/^33\.[0-9]+\.[0-9]+(?:-[a-z0-9]+(?:[.-][a-z0-9]+)*)?$/;
 const APP_ROOTS=new Set(["app","prisma","scripts"]);
-const APP_FILES=new Set(["launch-portable.mjs","Demarrer SMN.cmd","Recuperer admin SMN.cmd"]);
+const APP_FILES=new Set(["launch-portable.mjs","Demarrer SMN.cmd","Recuperer admin SMN.cmd","distribution-version.json"]);
 export const UPDATE_FORMAT=1;
 
 export function validateUpdateVersion(version) {
@@ -30,8 +31,7 @@ function requireEntries(entries) {
     if(seen.has(key)) throw Error("update-path-collision");
     seen.add(key);
     if (!["put","delete"].includes(entry.action) || !Number.isSafeInteger(entry.size) ||
-        entry.size<0 || entry.size>1024**3 || (entry.action==="put" &&
-          (!DIGEST.test(entry.sha256) || entry.size===0 && typeof entry.sha256!=="string")) ||
+        entry.size<0 || entry.size>1024**3 || (entry.action==="put" && !DIGEST.test(entry.sha256)) ||
         (entry.action==="delete" && (entry.sha256!==null || entry.size!==0)) ||
         (entry.previousSha256!==null && !DIGEST.test(entry.previousSha256)))
       throw Error("update-file-entry-invalid");
@@ -48,7 +48,7 @@ export function validateUpdateManifest(manifest) {
   if(manifest.mode==="delta" && !manifest.files?.every(e=>e.previousSha256!==null || e.action==="put"))
     throw Error("update-delta-invalid");
   if(manifest.requires?.nodeMajor!==24 || manifest.requires?.postgresMajor!==18 ||
-      manifest.requires?.schemaVersion!==33 || !DIGEST.test(manifest.sourceCommit))
+      manifest.requires?.schemaVersion!==33 || !COMMIT.test(manifest.sourceCommit))
     throw Error("update-compatibility-invalid");
   requireEntries(manifest.files);
   return manifest;
@@ -107,7 +107,7 @@ export async function enumerateUpdateableFiles(root) {
 export function planUpdate({oldFiles,newFiles,fromVersion,toVersion,sourceCommit,mode}) {
   validateUpdateVersion(fromVersion);validateUpdateVersion(toVersion);
   if(fromVersion===toVersion)throw Error("update-version-not-advanced");
-  if(!DIGEST.test(sourceCommit))throw Error("update-commit-invalid");
+  if(!COMMIT.test(sourceCommit))throw Error("update-commit-invalid");
   if(!["full","delta"].includes(mode))throw Error("update-mode-invalid");
   if(mode==="delta"&&!oldFiles)throw Error("update-base-required");
   const entries=[];
