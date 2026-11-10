@@ -327,8 +327,16 @@ export default function BackupsAdmin(){
       {restoreGate?.archiveId===item.id&&<div role="status" className="alert alert-warning">
        <strong>{t("backups.restorePreflightBlocked")}</strong>
        <ul className="mt-2 mb-0">{restoreGate.blockers.map(blocker=><li key={blocker}>
-        {t(("backups.restoreGate."+blocker) as TranslationKey)}
+        {blocker.startsWith("preview-")?
+         t(("backups.previewIssues."+blocker.slice("preview-".length)) as TranslationKey):
+         t(("backups.restoreGate."+blocker) as TranslationKey)}
        </li>)}</ul>
+       {restoreGate.warnings.length>0&&<>
+        <strong className="d-block mt-3">{t("backups.restoreWarningsTitle")}</strong>
+        <ul className="mt-2 mb-0">{restoreGate.warnings.map(warning=><li key={warning}>
+         {t(("backups.restoreWarnings."+warning) as TranslationKey)}
+        </li>)}</ul>
+       </>}
       </div>}
       <button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>{setPreview(null);setRestoreGate(null);}}>
        {t("backups.previewClose")}
