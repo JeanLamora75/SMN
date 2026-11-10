@@ -123,3 +123,14 @@ Les données historiques, les archives réelles et les sessions de l'installatio
 **Preuve CI exécutée :** [Epic 2 Lot 5 run 42896293055](https://github.com/JeanLamora75/SMN/actions/runs/42896293055), SHA `ffce862d168eeb18f9d91aca2220220c9d8a180f`, conclusion **SUCCESS** sur Linux, Windows et PostgreSQL 18 jetable. Aucun script `uv` ni restauration de données personnelles.
 
 **Reste NO-GO** : orchestration effective de l'arrêt des écrivains et de la révocation des sessions persistantes, qualification historique des archives SMN-38/39/40, recette indépendante Windows 11 REC-01 à REC-14. Le précontrôle jetable ne prouve ni un arrêt HTTP réel ni un basculement de production sûre.
+
+
+## Nouveau jalon — répétition coordonnée via processus Node autonome
+
+**Code publié :** `scripts/smn-34-offline-cutover-sandbox.ts` (exécuté hors Next.js), `tests/smn-34-offline-cutover-sandbox.test.ts`, `tests/smn-34-offline-cutover-cli-pg.test.ts`.
+
+Le lanceur utilise le moteur `rehearseCoordinatedOfflineCutover` déjà présent pour opérer une **bascule réelle de deux bases PostgreSQL 18 jetables et de deux arbres de fichiers de test**. Il contrôle les noms `smn_restore_test_*`, les quatre répertoires temporaires distincts, le dossier parent et la clé de journal HMAC. Il ne peut viser ni la base `smn` de production ni les répertoires en dehors de l'espace temporaire. En cas de résultat ambigu, la récupération manuelle reste nécessaire ; aucun bypass.
+
+**Preuve effective :** [workflow Lot 5 #42897034123](https://github.com/JeanLamora75/SMN/actions/runs/42897034123), commit `de8ecb8014e07c831d5caf8dec309633de87e396`, conclusion **SUCCESS** : tests Windows, Linux et test de lancement du CLI contre PostgreSQL 18 isolé. La vérification PG constate la promotion de la candidate, la conservation de l'original dans le rollback et les contenus de fichiers respectifs. La sortie du script indique explicitement `productionRestoreEnabled:false`.
+
+**Périmètre strictement limité :** il ne vérifie pas l'exhaustivité des données effacées avant le registre SMN-40, n'arrête pas les processus réels SMN, ne révoque pas les sessions persistantes et n'a pas été testé sur une installation Windows 11 indépendante du client avec ses propres données. Les trois conditions restent donc **non clôturables**, malgré la réussite du banc de test. Aucun script `uv`, aucune modification de données personnelles.
