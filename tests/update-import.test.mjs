@@ -2,11 +2,12 @@ import assert from "node:assert/strict";
 import {test} from "node:test";
 import {generateKeyPairSync,randomUUID} from "node:crypto";
 import {deflateRawSync} from "node:zlib";
-import {mkdtemp,mkdir,writeFile,readFile,cp,rm} from "node:fs/promises";
+import {mkdtemp,mkdir,writeFile,readFile,cp,rm,rename} from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import {spawnSync} from "node:child_process";
 import {inspectZip,unpackZip} from "../scripts/windows/unpack-update.mjs";
+import {beginCutover,recoverCutover,readCutover} from "../scripts/windows/update-transaction.mjs";
 import {enumerateUpdateableFiles,planUpdate,manifestBytes,
   signatureBytes} from "../scripts/windows/update-contract.mjs";
 function crc32(buffer){
@@ -134,7 +135,7 @@ test("Windows external updater replaces application only, retains database and r
    await mkdir(path.join(dir,"scripts","windows"),{recursive:true});
    await writeFile(path.join(dir,"app","server.js"),"server unchanged");
    for(const name of ["update-apply.mjs","verify-staged-update.mjs",
-     "update-contract.mjs","distribution-layout.mjs"]){
+     "update-contract.mjs","distribution-layout.mjs","update-transaction.mjs"]){
     await cp(path.resolve("scripts","windows",name),path.join(dir,"scripts","windows",name));
    }
   }
@@ -180,4 +181,36 @@ test("Windows external updater replaces application only, retains database and r
   assert.equal(result.state,"succeeded");
   assert.equal(result.version,toVersion);
  }finally{await rm(workspace,{recursive:true,force:true,maxRetries:8,retryDelay:500})}
+});
+
+test("SMN-428: interrupted exchange restores original app and preserves persistent data",async()=>{
+ const root=await mkdtemp(path.join(os.tmpdir(),"smn-cutover-recovery-"));
+ const id=randomUUID();
+ try{
+  for(const dir of ["data/postgres","runtime","updates","updates/prepared/"+id,
+    "updates/rollback/"+id,"app","scripts"]){
+   await mkdir(path.join(root,...dir.split("/")),{recursive:true});
+  }
+  await writeFile(path.join(root,"data","postgres","sentinel"),"DATABASE");
+  await writeFile(path.join(root,"app","server.js"),"OLD");
+  await writeFile(path.join(root,"updates","prepared",id,"app","server.js"),"NEW");
+  await writeFile(path.join(root,"distribution-version.json"),"OLD VERSION");
+  const record=await beginCutover(root,id,"33.0.999");
+  assert.equal(record.state,"applying");
+  await rename(path.join(root,"app"),path.join(root,"updates","rollback",id,"app"));
+  await rename(path.join(root,"updates","prepared",id,"app"),path.join(root,"app"));
+  assert.equal(await recoverCutover(root),"recovered");
+  assert.equal(await readFile(path.join(root,"app","server.js"),"utf8"),"OLD");
+  assert.equal(await readFile(path.join(root,"data","postgres","sentinel"),"utf8"),"DATABASE");
+  assert.equal((await readCutover(root)).state,"recovered");
+  assert.equal(await recoverCutover(root),"recovered");
+ }finally{await rm(root,{recursive:true,force:true})}
+});
+test("SMN-428: corrupted journal blocks startup and never modifies data",async()=>{
+ const root=await mkdtemp(path.join(os.tmpdir(),"smn-cutover-journal-"));
+ try{
+  await mkdir(path.join(root,"updates"));
+  await writeFile(path.join(root,"updates","cutover-journal.json"),"{bad");
+  await assert.rejects(recoverCutover(root),/update-journal-unreadable/);
+ }finally{await rm(root,{recursive:true,force:true})}
 });
