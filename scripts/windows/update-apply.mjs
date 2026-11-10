@@ -62,6 +62,9 @@ async function run(){
  const prepared=path.join(updates,"prepared",approval.id);
  const rollback=path.join(updates,"rollback",approval.id);
  await mkdir(prepared,{recursive:true});
+ const preparedInfo=await lstat(prepared);
+ if(!preparedInfo.isDirectory()||preparedInfo.isSymbolicLink())
+  throw Error("update-prepared-unsafe");
  // Prepare a complete candidate before mutating any live application path.
  if(manifest.mode==="delta"){
   for(const name of NAMES)await maybeCopy(path.join(root,name),path.join(prepared,name));
@@ -90,6 +93,10 @@ async function run(){
  if(proposed.version!==manifest.toVersion||proposed.sourceCommit!==manifest.sourceCommit)
   throw Error("update-version-file-invalid");
  await mkdir(rollback,{recursive:true});
+ const rollbackInfo=await lstat(rollback);
+ if(!rollbackInfo.isDirectory()||rollbackInfo.isSymbolicLink()||
+    (await readdir(rollback)).length!==0)
+  throw Error("update-rollback-not-empty");
  const moved=[];
  try{
   await status("applying",manifest.toVersion);
@@ -120,6 +127,7 @@ async function run(){
 }
 try{await run();}
 catch(error){
+ try{await rm(pending,{force:true});}catch{}
  try{await status("failed",null);}catch{}
  // Do not print file names, credentials or archive contents in the console.
  console.error("Installation de mise à jour refusée ou interrompue.");
