@@ -48,7 +48,10 @@ test("AC1/AC2/AC3: signed delta contains changed application files and removals 
     assert.throws(()=>requireCompatibleBase(m,"33.0.0",before),/update-from-version-mismatch/);
     const corrupted=new Map(before);
     corrupted.set("app/changed.js",{...corrupted.get("app/changed.js"),sha256:"f".repeat(64)});
-    assert.throws(()=>requireCompatibleBase(m,"33.0.1",corrupted),/update-base-file-mismatch/);
+    assert.throws(()=>requireCompatibleBase(m,"33.0.1",corrupted),/update-base-inventory-mismatch/);
+    const unchanged=new Map(before);
+    unchanged.set("app/server.js",{...unchanged.get("app/server.js"),sha256:"b".repeat(64)});
+    assert.throws(()=>requireCompatibleBase(m,"33.0.1",unchanged),/update-base-inventory-mismatch/);
     const bytes=manifestBytes(m),sig=signatureBytes(m,PRIV);
     assert.deepEqual(verifySignedManifest(bytes,sig,PUB),m);
     assert.throws(()=>verifySignedManifest(Buffer.from(bytes.toString().replace("33.0.2","33.0.3")),sig,PUB),
