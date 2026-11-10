@@ -4249,7 +4249,8 @@
       "unavailable": "Le graphique ou ses styles sont temporairement indisponibles.",
       "download": "Enregistrer en PNG",
       "default": "Style par défaut du type",
-      "maxSlices": "Les secteurs et anneaux acceptent au maximum six sprints : réduisez la période."
+      "maxSlices": "Les secteurs et anneaux acceptent au maximum six sprints : réduisez la période.",
+      "maxCycles": "Le moteur graphique prend en charge jusqu'à 24 sprints : réduisez la période."
     }
   },
   "chartStyles": {
