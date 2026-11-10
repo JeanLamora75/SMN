@@ -4,7 +4,7 @@ import {readFile,lstat,readdir} from "node:fs/promises";
 import {createHash} from "node:crypto";
 import path from "node:path";
 import {verifySignedManifest,verifyUpdatePayload,enumerateUpdateableFiles,
-  requireCompatibleBase} from "./update-contract.mjs";
+  requireCompatibleBase,installedVersionPath} from "./update-contract.mjs";
 const args=process.argv.slice(2);
 function arg(name){const i=args.indexOf("--"+name);return i<0?null:args[i+1];}
 const root=path.resolve(arg("root")??"."),id=arg("id");
@@ -30,7 +30,7 @@ if(preview.manifestSha256!==createHash("sha256").update(manifestBytes).digest("h
 const archive=await readFile(path.join(dir,"incoming.zip"));
 if(preview.archiveSha256!==createHash("sha256").update(archive).digest("hex"))
  throw Error("update-archive-changed");
-const version=JSON.parse(await readFile(path.join(root,"distribution-version.json"),"utf8"));
+const version=JSON.parse(await readFile(installedVersionPath(root),"utf8"));
 if(version.product!=="SMN")throw Error("update-installation-invalid");
 const installed=await enumerateUpdateableFiles(root);
 requireCompatibleBase(manifest,version.version,installed);
