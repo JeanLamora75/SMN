@@ -134,3 +134,12 @@ Le lanceur utilise le moteur `rehearseCoordinatedOfflineCutover` déjà présent
 **Preuve effective :** [workflow Lot 5 #42897034123](https://github.com/JeanLamora75/SMN/actions/runs/42897034123), commit `de8ecb8014e07c831d5caf8dec309633de87e396`, conclusion **SUCCESS** : tests Windows, Linux et test de lancement du CLI contre PostgreSQL 18 isolé. La vérification PG constate la promotion de la candidate, la conservation de l'original dans le rollback et les contenus de fichiers respectifs. La sortie du script indique explicitement `productionRestoreEnabled:false`.
 
 **Périmètre strictement limité :** il ne vérifie pas l'exhaustivité des données effacées avant le registre SMN-40, n'arrête pas les processus réels SMN, ne révoque pas les sessions persistantes et n'a pas été testé sur une installation Windows 11 indépendante du client avec ses propres données. Les trois conditions restent donc **non clôturables**, malgré la réussite du banc de test. Aucun script `uv`, aucune modification de données personnelles.
+
+
+## Jalon — persistance du verrou de maintenance entre processus
+
+Le superviseur **strictement jetable** `scripts/smn-34-sandbox-maintenance.ts` a été ajouté. Il permet, depuis un processus Node indépendant du serveur SMN, de créer (`--begin`) un marqueur `maintenance.lock` dans un répertoire `smn_restore_test_*` réellement situé sous le dossier temporaire Windows/Linux, ou de constater sa présence (`--inspect`) depuis un autre processus. Il refuse une deuxième création et un marqueur endommagé, sans automatiser son retrait.
+
+Le test `tests/smn-34-sandbox-maintenance-process.test.ts` lance de vrais processus Node séparés et prouve la persistance du fichier après terminaison du premier processus. Le composant réutilise `restore-maintenance.ts` qui bloque l'accès aux sessions pendant l'état de maintenance. **Aucun arrêt de serveur HTTP, job de fond ou écrivain PostgreSQL n'est certifié par ce test.** Les sessions actuelles SMN sont stockées en mémoire dans `SessionStore`, et non dans un magasin partagé durable. Une recette sur plusieurs processus réellement connectés reste requise.
+
+Le test initial a révélé une erreur de commentaire TypeScript puis un nom de répertoire de test non déterministe (caractères majuscules aléatoires). Ces deux défauts ont été corrigés sans assouplir la règle de sécurité sur les noms `smn_restore_test_*`. Aucune restauration de production n'a été activée et aucun marqueur réel n'a été créé.
