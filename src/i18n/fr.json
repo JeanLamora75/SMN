@@ -4316,7 +4316,16 @@
     "collectiveRetentionPending": "Qualification non acquise : vélocité, capacité, SP/JH, bilans de sprint, indicateurs v33, Dashboard Builder et snapshots figés restent à examiner.",
     "historicalReviewTitle": "Qualification des données historiques — traitement bloqué",
     "historicalReviewNotice": "Cette grille récapitule les preuves à produire. Une correspondance absente ne prouve pas l'anonymat et aucune étape de cette revue n'autorise un effacement.",
-    "historicalReviewSteps": {"business-history":"Qualifier les affectations, absences, révisions, anciennes identités, cycles et dépendances indirectes.","unverified-relations":"Résoudre les références non inspectables et les chemins de dépendances inconnus.","free-text":"Examiner et expurger les mentions dans les notes, commentaires, objectifs et rapports.","archive-content":"Examiner les archives PDF, Office et TXT, images et objets intégrés ; vérifier la restriction des originaux et les versions expurgées.","collective-retention":"Arbitrer la conservation des métriques collectives et snapshots v33 sans risque de réidentification.","reintroduction-proof":"Démontrer la couverture exhaustive du journal d'effacement et la restauration v4 sans réintroduction.","external-copies":"Identifier et traiter séparément les copies déjà exportées hors SMN.","anonymization-risk":"Démontrer que les identifiants indirects ne permettent plus de reconnaître la personne."},
+    "historicalReviewSteps": {
+      "business-history": "Qualifier les affectations, absences, révisions, anciennes identités, cycles et dépendances indirectes.",
+      "unverified-relations": "Résoudre les références non inspectables et les chemins de dépendances inconnus.",
+      "free-text": "Examiner et expurger les mentions dans les notes, commentaires, objectifs et rapports.",
+      "archive-content": "Examiner les archives PDF, Office et TXT, images et objets intégrés ; vérifier la restriction des originaux et les versions expurgées.",
+      "collective-retention": "Arbitrer la conservation des métriques collectives et snapshots v33 sans risque de réidentification.",
+      "reintroduction-proof": "Démontrer la couverture exhaustive du journal d'effacement et la restauration v4 sans réintroduction.",
+      "external-copies": "Identifier et traiter séparément les copies déjà exportées hors SMN.",
+      "anonymization-risk": "Démontrer que les identifiants indirects ne permettent plus de reconnaître la personne."
+    },
     "archiveReviewTitle": "Revue des archives non inspectables",
     "archiveReviewWarning": "Les fichiers listés doivent être ouverts et examinés manuellement. Une simple absence de nom dans leur texte ne prouve jamais qu'ils ne contiennent pas de données personnelles. Cette liste ne constitue pas une validation d'effacement.",
     "archiveReviewButton": "Inventorier les fichiers à examiner",
@@ -4493,5 +4502,14 @@
     "unsigned": "Mise à jour de production non configurée",
     "loadError": "Informations de maintenance indisponibles.",
     "unauthorized": "Opération réservée aux administrateurs."
+  },
+  "registryDelete": {
+    "button": "Supprimer définitivement",
+    "deleting": "Suppression…",
+    "confirm": "Supprimer définitivement « {title} » ?\\n\\nCette opération est irréversible. Les commentaires, historiques et associations propres à cette fiche seront également effacés. Les sauvegardes et archives existantes ne sont pas modifiées.",
+    "notFound": "Cette fiche n'existe plus ou n'est pas accessible.",
+    "conflict": "La fiche a changé depuis son chargement. Actualisez la page et réessayez.",
+    "linkedData": "Suppression refusée : une dépendance non prise en charge protège encore cette fiche. Aucune donnée n'a été supprimée.",
+    "unavailable": "Suppression impossible pour le moment. Aucune suppression partielle n'a été appliquée."
   }
 }
