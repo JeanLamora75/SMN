@@ -65,6 +65,22 @@ Les valeurs `<dossier-temp>` représentent le **même répertoire temporaire dé
 
 Le résultat `state:verified` avec `productionRestoreEnabled:false` signifie **uniquement** que le banc jetable a été basculé et que les sources originales y sont conservées. Il ne démontre ni une restauration d'un paquet réel, ni la révocation des sessions persistantes, ni l'arrêt des écrivains de l'installation de travail. Les tests CI utilisent le même lanceur contre PostgreSQL 18 et des fichiers jetables.
 
+## 3 quater. Marqueur de maintenance persistant — banc Windows jetable uniquement
+
+Le superviseur `scripts/smn-34-sandbox-maintenance.ts` exerce la **mise en maintenance persistante entre processus**, sans arrêter ni relancer le service réel. Son marqueur doit être sous un répertoire temporaire `smn_restore_test_*` créé préalablement, situé sous `$env:TEMP` et **hors du projet et des sauvegardes**.
+
+```powershell
+$testRoot = Join-Path $env:TEMP "smn_restore_test_maintenance_demo"
+New-Item -ItemType Directory -Force -Path $testRoot | Out-Null
+$marker = Join-Path $testRoot "maintenance.lock"
+pnpm exec tsx scripts/smn-34-sandbox-maintenance.ts --begin $marker
+pnpm exec tsx scripts/smn-34-sandbox-maintenance.ts --inspect $marker
+```
+
+Le deuxième appel se déroule dans un **nouveau processus Node**, qui relit le marqueur sur disque. Une seconde commande `--begin` doit être refusée. Un marqueur altéré bloque l'inspection au lieu d'être considéré comme absent. **Aucune commande automatique de retrait du marqueur n'est fournie** : ne pas utiliser cette procédure contre une installation SMN réelle, et ne jamais détruire un marqueur de maintenance réel en supposant que la reprise est terminée.
+
+Ce test ne prouve **ni l'arrêt du serveur HTTP, ni l'arrêt des tâches de fond ou des écrivains PostgreSQL, ni l'invalidation de sessions distribuées**. Dans le code actuel, les sessions SMN sont en mémoire du processus et ne survivent normalement pas au redémarrage, mais le maintien de plusieurs processus actifs resterait un risque. Tous ces points exigent des essais indépendants REC-10/REC-11.
+
 ## 4. Dossier de recette REC-01 à REC-14
 
 | REC | Vérification en installation dédiée | Preuve attendue |
