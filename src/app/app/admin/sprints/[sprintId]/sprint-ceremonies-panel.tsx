@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SprintCeremoniesBulkAction from "./sprint-ceremonies-bulk-action";
 import BootstrapIcon from "../../../bootstrap-icon";
 import OperationalEdit from "../../../operational-edit";
 import {dashboardEventIcon,formatDashboardEventPeriod} from "@/lib/dashboard-card-format";
@@ -56,10 +57,14 @@ export default function SprintCeremoniesPanel({sprintId,teamId,timeZone,locale,c
     <p className="mb-0 fw-semibold small">
      {t("sprintDetail.ceremonyCount",{count:data.total})}
     </p>
-    <span className="small text-secondary">
-     {data.snapshotVersion!==null?t("sprintDetail.ceremonySnapshot",{version:data.snapshotVersion}):
-      t("sprintDetail.ceremonyCurrent")}
-    </span>
+    <div className="d-flex flex-wrap align-items-center gap-3">
+     <span className="small text-secondary">
+      {data.snapshotVersion!==null?t("sprintDetail.ceremonySnapshot",{version:data.snapshotVersion}):
+       t("sprintDetail.ceremonyCurrent")}
+     </span>
+     {canManage&&data.source==="recorded-events"&&data.missingSources.length===0&&
+      <SprintCeremoniesBulkAction sprintId={sprintId} teamId={teamId} total={data.total}/>}
+    </div>
    </div>
    {data.missingSources.length>0&&<div role="status" className="alert alert-warning">
     {t("sprintDetail.ceremonyPartialSources",{
