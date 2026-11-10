@@ -4,7 +4,7 @@
 import { readFile, lstat, readdir } from "node:fs/promises";
 import path from "node:path";
 import { verifySignedManifest, verifyUpdatePayload,
-  enumerateUpdateableFiles, requireCompatibleBase } from "./update-contract.mjs";
+  enumerateUpdateableFiles, requireCompatibleBase, installedVersionPath } from "./update-contract.mjs";
 function flag(name){const index=process.argv.indexOf("--"+name);return index<0?null:process.argv[index+1]??null;}
 const dir=flag("dir"),trust=flag("trust"),base=flag("base");
 if(!dir||!trust)throw Error("usage: verify-update --dir EXTRACTED --trust INSTALLED_PUBLIC_KEY [--base INSTALLED_ROOT]");
@@ -23,7 +23,7 @@ if(!/^[A-Za-z0-9+/]{86}==$/.test(sigText))throw Error("update-signature-encoding
 const manifest=verifySignedManifest(bytes,Buffer.from(sigText,"base64"),await readFile(trust,"utf8"));
 await verifyUpdatePayload(dir,manifest);
 if(base){
-  const installed=JSON.parse(await readFile(path.join(base,"distribution-version.json"),"utf8"));
+  const installed=JSON.parse(await readFile(installedVersionPath(base),"utf8"));
   const files=await enumerateUpdateableFiles(base);
   requireCompatibleBase(manifest,installed.version,files);
 }
