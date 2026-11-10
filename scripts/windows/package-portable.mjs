@@ -97,6 +97,7 @@ for(const file of [
  "update-apply.mjs",
  "update-transaction.mjs",
  "schema-update-policy.mjs",
+ "update-backup-policy.mjs",
  "verify-delivery.mjs"
 ])await copyFile(path.join("scripts","windows",file),
   path.join(target,"scripts","windows",file));
