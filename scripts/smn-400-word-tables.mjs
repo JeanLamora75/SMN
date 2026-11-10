@@ -1,9 +1,10 @@
 import {readZip,writeZip} from "./smn-397-office-poc.mjs";
 import {replaceScalarXml} from "./smn-399-office-scalars.mjs";
+import {ROW_MARKER,parseOfficeRowMarker,sortOfficeRows} from "./smn-office-row-sort.mjs";
 
 const SOURCES=new Set(["MEMBERS","MEMBERS_ACTIVE","MEMBERS_INACTIVE","INDICATORS","RISKS","OBSTACLES","DEPENDENCIES","NOTES","CEREMONIES","GOALS","ACTIONS","DECISIONS","LINKS_TRANSVERSE","LINKS_TEAM"]);
 const textRegex=/<w:t(?:\s[^>]*)?>[^<]*<\/w:t>/g;
-const tokenRegex=/\{\{ROW:([A-Z][A-Z0-9_]*)\}\}/g;
+const tokenRegex=ROW_MARKER;
 
 function escapeXml(value){
  return String(value).replace(/&/g,"&amp;").replace(/</g,"&lt;")
@@ -36,10 +37,10 @@ function editNodes(row,nodes,edits){
  }
  return xml;
 }
-function removeRowMarker(row,source){
+function removeRowMarker(row,marker){
  const nodes=rowNodes(row),text=nodes.map(node=>node.text).join("");
  const matches=[...text.matchAll(tokenRegex)];
- if(matches.length!==1||matches[0][1]!==source)
+ if(matches.length!==1||matches[0][0]!==marker)
   throw Error("office-table-ambiguous-marker");
  const start=matches[0].index,end=start+matches[0][0].length;
  const edits=nodes.map(node=>node.text);
@@ -57,10 +58,12 @@ function removeRowMarker(row,source){
 }
 function markerInRow(row){
  const found=[...rowNodes(row).map(node=>node.text).join("").matchAll(tokenRegex)];
- if(found.length===0)return null;
- if(found.length!==1||!SOURCES.has(found[0][1]))
-  throw Error("office-table-invalid-source");
- return found[0][1];
+ if(found.length===0){
+  if(rowNodes(row).map(node=>node.text).join("").includes("{{ROW:"))throw Error("office-table-invalid-source");
+  return null;
+ }
+ if(found.length!==1)throw Error("office-table-ambiguous-marker");
+ return {...parseOfficeRowMarker(found[0][1],SOURCES),marker:found[0][0]};
 }
 function ensureSupportedRow(row){
  if(/<w:vMerge\b|<w:tbl\b|<w:tblHeader\b/.test(row))
@@ -76,7 +79,7 @@ function tableSegments(xml){
  const re=/<w:tbl(?:\s[^>]*)?>[\s\S]*?<\/w:tbl>/g;
  return [...xml.matchAll(re)].map(x=>({index:x.index,text:x[0]}));
 }
-export function expandWordTablesXml(xml,datasets){
+export function expandWordTablesXml(xml,datasets,locale="fr"){
  if(typeof xml!=="string"||/<!DOCTYPE|<!ENTITY/i.test(xml))
   throw Error("office-table-invalid-xml");
  if(!datasets||typeof datasets!=="object")throw Error("office-table-invalid-data");
@@ -91,20 +94,20 @@ export function expandWordTablesXml(xml,datasets){
    const source=markerInRow(row);
    if(!source)return row;
    ensureSupportedRow(row);
-   const records=datasets[source];
+   const records=datasets[source.source];
    if(!Array.isArray(records))throw Error("office-table-source-unavailable");
    // Resource guard, not a business row limit: reject explicitly, never truncate.
    if(records.length>10000)throw Error("office-table-resource-limit");
    count++;
-   const clean=removeRowMarker(row,source);
+   const clean=removeRowMarker(row,source.marker);
    const render=(record)=>replaceScalarXml(clean,record).xml;
-   if(!records.length&&(source==="LINKS_TRANSVERSE"||source==="LINKS_TEAM"))return "";
+   if(!records.length&&(source.source==="LINKS_TRANSVERSE"||source.source==="LINKS_TEAM"))return "";
    if(!records.length){
     const fieldTags=[...rowNodes(clean).map(x=>x.text).join("").matchAll(/\{\{([A-Z][A-Z0-9_]*)\}\}/g)]
      .map(x=>x[1]);
     return render(Object.fromEntries(fieldTags.map(key=>[key,"N/D"])));
    }
-   return records.map(record=>render(record)).join("");
+   return sortOfficeRows(records,source.sort,locale).map(record=>render(record)).join("");
   });
   if(count>0){
    changes.push({sourceCount:count});
@@ -114,13 +117,13 @@ export function expandWordTablesXml(xml,datasets){
  return {xml:result,tableRows:changes.reduce((sum,item)=>sum+item.sourceCount,0)};
 }
 
-export function generateWordTables(source,datasets){
+export function generateWordTables(source,datasets,locale="fr"){
  const parts=readZip(source),changes=[];
  if(!parts.some(part=>part.name==="word/document.xml"))
   throw Error("office-table-document-missing");
  const modified=parts.map(part=>{
   if(!/^word\/(?:document|header\d+|footer\d+)\.xml$/.test(part.name))return part;
-  const result=expandWordTablesXml(part.data.toString("utf8"),datasets);
+  const result=expandWordTablesXml(part.data.toString("utf8"),datasets,locale);
   if(result.tableRows===0)return part;
   changes.push({part:part.name,count:result.tableRows});
   return {...part,data:Buffer.from(result.xml,"utf8")};
