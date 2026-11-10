@@ -186,6 +186,7 @@ export async function POST(req:NextRequest){
    status:200,
    headers:{
     "Content-Type":mime,
+    "Content-Length":String(withCharts.byteLength),
     "Content-Disposition":'attachment; filename="report.'+selected.template.format+'"; filename*=UTF-8'+String.fromCharCode(39,39)+encodeURIComponent(fullName),
     "Cache-Control":"no-store, private",
     "X-Content-Type-Options":"nosniff"
