@@ -11,7 +11,7 @@ if (process.platform !== "win32" || process.env.GITHUB_ACTIONS !== "true") {
   throw new Error("Smoke autonome réservé au runner Windows");
 }
 const root = path.resolve(process.env.SMN_PACKAGE_DIR || path.join(process.cwd(), "_package", "SMN-Windows"));
-for (const file of ["node.exe", "server.js", "Demarrer SMN.cmd", "launch-portable.mjs", "recover-admin.mjs", "Recuperer admin SMN.cmd"]) {
+for (const file of ["runtime/node/node.exe", "app/server.js", "Demarrer SMN.cmd", "launch-portable.mjs", "app/recover-admin.mjs", "Recuperer admin SMN.cmd"]) {
   assert.ok(existsSync(path.join(root, file)), "Fichier manquant du paquet : " + file);
 }
 for(const file of [
@@ -26,15 +26,17 @@ for (const forbidden of [".env",".settings-key","postgres-connection.json","runt
   assert.equal(existsSync(path.join(root,forbidden)),false,
     "Un fichier de configuration sensible a été inclus dans le paquet : "+forbidden);
 }
-const manifestPath=path.join(root,".next","server","middleware-manifest.json");
+const manifestPath=path.join(root,"app",".next","server","middleware-manifest.json");
 if(existsSync(manifestPath)) {
  const manifest=JSON.parse(await readFile(manifestPath,"utf8"));
  console.log("Routes du proxy standalone : "+JSON.stringify(Object.keys(manifest.middleware??{})));
 } else console.log("ATTENTION : manifeste proxy absent du paquet standalone");
 const isolatedHome = await mkdtemp(path.join(os.tmpdir(), "smn-portable-ci-"));
 const newStorage=path.join(root, "data", "postgres");
+assert.equal(existsSync(path.join(root, "server.js")), false, "Le serveur doit être isolé dans app/");
+assert.equal(existsSync(path.join(root, "node.exe")), false, "Node.js doit être isolé dans runtime/node/");
 assert.equal(existsSync(newStorage), false, "Le paquet de distribution ne doit contenir aucune base PostgreSQL préinitialisée");
-const recoveryProbe=spawnSync(path.join(root,"node.exe"),[path.join(root,"recover-admin.mjs")],{
+const recoveryProbe=spawnSync(path.join(root,"runtime","node","node.exe"),[path.join(root,"app","recover-admin.mjs")],{
   cwd:root,windowsHide:true,encoding:"utf8",stdio:["pipe","pipe","pipe"],
   env:{...process.env,SMN_DATABASE_URL:""},
 });
@@ -51,7 +53,7 @@ function fetchTimed(url, options = {}) {
 }
 try {
   let serverOutput = "";
-  server = spawn(path.join(root, "node.exe"), [path.join(root, "server.js")], {
+  server = spawn(path.join(root, "runtime", "node", "node.exe"), [path.join(root, "app", "server.js")], {
     cwd: root, stdio: ["ignore","pipe","pipe"], windowsHide: true, shell: false,
     env: { ...process.env, NODE_ENV: "production", HOSTNAME: "127.0.0.1", PORT: String(port),
       SMN_DATABASE_URL: "", SMN_SETUP_TOKEN: "", LOCALAPPDATA: isolatedHome },
