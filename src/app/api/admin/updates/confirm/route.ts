@@ -2,6 +2,8 @@ import {NextRequest} from "next/server";
 import {readFile,writeFile,lstat,rename} from "node:fs/promises";
 import path from "node:path";
 import {authorizeApi} from "@/server/auth/authorization";
+import {backupRootPath} from "@/server/backup/runner";
+import {backupInventory} from "@/server/backup/verification";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {isUpdateId,isUpdateNonce,readPreview,runUpdateScript,safeUpdatesRoot} from "@/server/updates/local";
 export const runtime="nodejs";
@@ -36,7 +38,17 @@ export async function POST(request:NextRequest){
   await runUpdateScript("verify-staged-update.mjs",[
    "--root",process.cwd(),"--id",preview.id
   ]);
-  const record={id:preview.id,nonce:preview.nonce,version:preview.toVersion,
+  // A current, complete and cryptographically verified recovery point is mandatory.
+  // A cached badge or a last-attempt status is never sufficient evidence.
+  const backups=await backupInventory(backupRootPath());
+  const verified=backups.find(item=>item.status==="verified" &&
+   item.integrityVerified===true && item.scopeComplete===true &&
+   item.components.some(component=>component.kind==="database") &&
+   item.createdAt!==null && Number.isFinite(Date.parse(item.createdAt)) &&
+   Date.now()-Date.parse(item.createdAt)>=0 &&
+   Date.now()-Date.parse(item.createdAt)<=24*60*60*1000);
+  if(!verified)return jsonResult({error:"update-verified-backup-required"},409);
+  const record={backupId:verified.id,id:preview.id,nonce:preview.nonce,version:preview.toVersion,
     actor:actor.id,approvedAt:new Date().toISOString()};
   await writeFile(pending,JSON.stringify(record)+"\n",{flag:"wx",mode:0o600});
   return jsonResult({accepted:true,version:preview.toVersion,notice:"update-awaiting-launcher"},202);
