@@ -74,10 +74,11 @@ function fetchTimed(url, options = {}) {
 }
 try {
   let serverOutput = "";
-  server = spawn(path.join(root, "runtime", "node", "node.exe"), [path.join(root, "app", "server.js")], {
+  server = spawn("cmd.exe", ["/d","/c",path.join(root,"Demarrer SMN.bat")], {
     cwd: root, stdio: ["ignore","pipe","pipe"], windowsHide: true, shell: false,
     env: { ...process.env, NODE_ENV: "production", HOSTNAME: "127.0.0.1", PORT: String(port),
-      SMN_DATABASE_URL: "", SMN_SETUP_TOKEN: "", LOCALAPPDATA: isolatedHome },
+      SMN_DATABASE_URL: "", SMN_SETUP_TOKEN: "", LOCALAPPDATA: isolatedHome,
+      SMN_HEADLESS_LAUNCH_TEST: "1" },
   });
   server.stdout.on("data", b => { serverOutput = (serverOutput + String(b)).slice(-2200); });
   server.stderr.on("data", b => { serverOutput = (serverOutput + String(b)).slice(-2200); });
@@ -93,6 +94,8 @@ try {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
   assert.equal(ready, true, "Le serveur livré ne répond pas");
+  assert.ok(existsSync(path.join(root,"updates","launcher.json")),
+   "Le fichier de présence du lanceur doit être créé par le vrai batch Windows");
   const welcome = await fetchTimed(base + "/welcome");
   assert.equal(welcome.status, 200);
   assert.match(await welcome.text(), /Installer Scrum Master Notebook/);
