@@ -5,6 +5,7 @@ import {useTranslation} from "@/i18n/client";
 type Preview={
  id:string;nonce:string;fromVersion:string;toVersion:string;mode:"delta"|"full";
  files:number;changes:number;deletions:number;bytes:number;sourceCommit:string;checkedAt:string;
+ affected:{path:string;action:"put"|"delete"}[];
 };
 type Overview={version:string;ready:boolean;launcher:boolean;
  status?:{state:string;version?:string;at?:string}|null};
@@ -101,6 +102,14 @@ export default function UpdatesAdmin(){
     <dt className="col-sm-5">{t("offlineUpdates.bytes")}</dt>
     <dd className="col-sm-7">{(preview.bytes/1024/1024).toLocaleString(undefined,{maximumFractionDigits:2})} Mo</dd>
    </dl>
+   {Array.isArray(preview.affected)&&preview.affected.length>0&&<details className="small">
+    <summary>{t("offlineUpdates.files")} — {preview.affected.length} / {preview.files}</summary>
+    <ul className="mt-2">
+     {preview.affected.map((item,i)=><li key={item.path+i}>
+      <code>{item.path}</code> ({item.action==="delete"?t("offlineUpdates.deletions"):t("offlineUpdates.changes")})
+     </li>)}
+    </ul>
+   </details>}
    <button className="btn btn-primary" type="button"
     disabled={busy||queued||!overview?.ready||!overview?.launcher}
     onClick={()=>void approve()}>{t("offlineUpdates.confirm")}</button>
