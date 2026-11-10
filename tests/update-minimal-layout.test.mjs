@@ -37,7 +37,7 @@ test("minimal layout signs and inventories app-only changes, protects runtime an
   const keys=generateKeyPairSync("ed25519");
   const signed=manifestBytes(manifest);
   assert.deepEqual(verifySignedManifest(signed,signatureBytes(manifest,keys.privateKey),
-    keys.publicKey),manifest);
+    keys.publicKey.export({type:"spki",format:"pem"})),manifest);
  }finally{await rm(f.dir,{recursive:true,force:true})}
 });
 test("minimal layout interrupted app directory exchange is recovered without private data changes",async()=>{
