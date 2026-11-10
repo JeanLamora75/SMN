@@ -14,11 +14,14 @@ const target = path.resolve(process.env.SMN_PACKAGE_DIR || path.join(process.cwd
 if (!existsSync(".next/standalone/server.js")) throw new Error("Next standalone manquant. Vérifier next.config et pnpm build.");
 await mkdir(target, { recursive: true });
 // A stable installed version is required for explicit offline patch preconditions.
-const runNumber=process.env.GITHUB_RUN_NUMBER;
+// GitHub RUN_NUMBER is per-workflow. RUN_ID is globally monotonic across
+// the setup and update workflows, preventing accidental signed downgrades.
+const runId=process.env.GITHUB_RUN_ID;
 const buildSha=process.env.GITHUB_SHA;
-if(!/^\d+$/.test(runNumber??"") || !/^[0-9a-f]{40}$/.test(buildSha??""))
-  throw new Error("Numéro de build GitHub ou commit absent");
-const buildVersion="33.0."+Number(runNumber);
+if(!/^\d+$/.test(runId??"") || !Number.isSafeInteger(Number(runId)) ||
+   !/^[0-9a-f]{40}$/.test(buildSha??""))
+  throw new Error("Identifiant de run GitHub ou commit absent");
+const buildVersion="33.0."+runId;
 await writeFile(path.join(target,"distribution-version.json"),
   JSON.stringify({product:"SMN",version:buildVersion,sourceCommit:buildSha})+"\n","utf8");
 // Trust anchor is only supplied from the CI signing secret, never by the ZIP.
