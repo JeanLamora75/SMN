@@ -12,12 +12,13 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{sprintId:st
  const actor=await authorizeApi(req,"write",target);
  if(!actor)return jsonResult({error:"forbidden"},403);
  const body=await readJsonObject(req);
- if(!body||Object.keys(body).some(k=>!["teamId","operation","expectedCount","types"].includes(k))||
+ if(!body||Object.keys(body).some(k=>!["teamId","operation","expectedCount","types","expectedSelectedCount"].includes(k))||
   typeof body.teamId!=="string"||
   !["create","delete"].includes(String(body.operation))||
   !Number.isSafeInteger(body.expectedCount)||Number(body.expectedCount)<0||
   (body.operation==="delete"&&!parseCeremonyDeleteTypes(body.types))||
-  (body.operation==="create"&&body.types!==undefined)
+  (body.operation==="create"&&(body.types!==undefined||body.expectedSelectedCount!==undefined))||
+  (body.operation==="delete"&&(!Number.isSafeInteger(body.expectedSelectedCount)||Number(body.expectedSelectedCount)<1))
   return jsonResult({error:"invalid-input"},400);
  const {sprintId}=await params;
  try{
@@ -27,7 +28,8 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{sprintId:st
     return {ok:false as const,error:"not-found" as const};
    return changeSprintCeremonies(db,team.team_id,sprintId,
     body.operation as "create"|"delete",body.expectedCount as number,
-    body.operation==="delete"?parseCeremonyDeleteTypes(body.types)!:undefined);
+    body.operation==="delete"?parseCeremonyDeleteTypes(body.types)!:undefined,
+    body.operation==="delete"?body.expectedSelectedCount as number:undefined);
   });
   const status=result.ok?200:result.error==="not-found"?404:
    result.error==="invalid-input"?400:
