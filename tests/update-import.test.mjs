@@ -42,6 +42,7 @@ test("ZIP decoder refuses zip-slip, protected runtime, case aliases and symbolic
  const check=(entry)=>assert.throws(()=>inspectZip(zip([...meta,entry])));
  check({name:"payload/../../data/postgres/PG_VERSION",content:"BAD"});
  check({name:"payload/runtime/node/node.exe",content:"BAD"});
+ check({name:"payload/app",content:"shadow directory"});
  check({name:"payload/app/CON.txt",content:"BAD"});
  check({name:"payload/app/evil:stream",content:"BAD"});
  check({name:"payload/app/link",content:"BAD",external:0xa1ff0000});
