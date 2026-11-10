@@ -90,3 +90,18 @@ test("compteur sélectionné périmé : refus même si le total ne change pas",a
   {ok:false,error:"state-changed"});
  assert.equal(calls.at(-1)?.sql,"ROLLBACK");
 });
+
+test("un sprint terminé mais non clôturé autorise la reprise d'historique",async()=>{
+ const {db,calls}=dbMock({status:"finished"});
+ assert.deepEqual(await changeSprintCeremonies(db,teamId,sprintId,"delete",3,
+  ["planning"],1),{ok:true,count:1});
+ assert.equal(calls.at(-1)?.sql,"COMMIT");
+});
+test("sélection vide ou doublonnée : rejet sans transaction",async()=>{
+ const {db,calls}=dbMock();
+ assert.deepEqual(await changeSprintCeremonies(db,teamId,sprintId,"delete",3,[],0),
+  {ok:false,error:"invalid-input"});
+ assert.deepEqual(await changeSprintCeremonies(db,teamId,sprintId,"delete",3,
+  ["planning","planning"],2),{ok:false,error:"invalid-input"});
+ assert.deepEqual(calls,[]);
+});
