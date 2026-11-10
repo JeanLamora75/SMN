@@ -3,7 +3,7 @@ import {readFileSync} from "node:fs";
 import {spawnSync} from "node:child_process";
 import {fileURLToPath} from "node:url";
 import {test} from "node:test";
-import {assessRestoreAudit} from "../src/server/backup/restore-audit";
+import {assessRestoreAudit,assessObservedConnections} from "../src/server/backup/restore-audit";
 import type {RestorePreview} from "../src/server/backup/preview";
 import type {ErasureEvidence} from "../src/server/backup/erasure-protection";
 
@@ -34,7 +34,7 @@ const empty={complete:true,
 
 test("SMN-34: diagnostic empty archives ne certifie pas l'historique",()=>{
  const report=assessRestoreAudit({
-  preview,privacy,erasureIntegrity:proof,archiveInventory:empty,platform:"win32"
+  preview,privacy,erasureIntegrity:proof,archiveInventory:empty,concurrentDatabaseConnections:0,platform:"win32"
  });
  assert.equal(report.canActivate,false);
  assert.equal(report.mode,"read-only");
@@ -42,19 +42,23 @@ test("SMN-34: diagnostic empty archives ne certifie pas l'historique",()=>{
  assert.equal(report.archives.status,"inventory-empty-not-cleared");
  assert.equal(report.windowsRecette.scenariosWitnessed,0);
  assert.equal(report.windowsRecette.scenariosRequired,14);
+ assert.equal(report.execution.databaseConnections.status,"none-observed");
+ assert.equal(report.execution.databaseConnections.provesOffline,false);
  assert.ok(report.preflightBlockers.includes("privacy-erasures-unverified"));
 });
 test("SMN-34: archives presentes imposent inspection humaine et version absente n'est pas vide",()=>{
  const archiveInventory={complete:true,
   counts:{pdf:1,officeReports:2,officeTemplates:1,privateFiles:0}};
  const reviewed=assessRestoreAudit({
-  preview,privacy,erasureIntegrity:proof,archiveInventory,platform:"linux"
+  preview,privacy,erasureIntegrity:proof,archiveInventory,concurrentDatabaseConnections:2,platform:"linux"
  });
  assert.equal(reviewed.archives.status,"human-review-required");
  assert.deepEqual(reviewed.archives.counts,archiveInventory.counts);
  assert.equal(reviewed.windowsRecette.actualWindowsHost,false);
+ assert.equal(reviewed.execution.databaseConnections.status,"connections-present");
+ assert.equal(reviewed.execution.databaseConnections.count,2);
  const unavailable=assessRestoreAudit({
-  preview,privacy,erasureIntegrity:null,archiveInventory:null,platform:"win32"
+  preview,privacy,erasureIntegrity:null,archiveInventory:null,concurrentDatabaseConnections:null,platform:"win32"
  });
  assert.equal(unavailable.archives.status,"unverified");
  assert.equal(unavailable.archives.counts,null);
@@ -65,7 +69,7 @@ test("SMN-34: aucune attestation booleenne ne remplace la recette hors ligne",()
   preview,privacy:{...privacy,completeHistory:true},
   erasureIntegrity:{complete:true,checkedAt:"2026-11-10T20:00:00.000Z",
    reason:"qualified-empty-archives-and-guarded-member-erasure",events:0},
-  archiveInventory:empty,platform:"win32"
+  archiveInventory:empty,concurrentDatabaseConnections:0,platform:"win32"
  });
  assert.equal(report.canActivate,false);
  assert.equal(report.execution.productionCutover,false);
@@ -105,4 +109,19 @@ test("SMN-34: demarrage reel du CLI refuse un identifiant invalide sans stack ni
  assert.equal(result.stdout,"");
  assert.match(result.stderr,/SMN-34 audit unavailable or input invalid/);
  assert.doesNotMatch(result.stderr,/server-only|Error:|at .+\.(?:ts|js):\d+/i);
+});
+
+test("SMN-34: les connexions PG sont un constat sans autorisation de cutover",()=>{
+ assert.deepEqual(assessObservedConnections(null),
+  {status:"unverifiable",count:null,provesOffline:false});
+ assert.deepEqual(assessObservedConnections(-1),
+  {status:"unverifiable",count:null,provesOffline:false});
+ assert.deepEqual(assessObservedConnections(0),
+  {status:"none-observed",count:0,provesOffline:false});
+ assert.deepEqual(assessObservedConnections(3),
+  {status:"connections-present",count:3,provesOffline:false});
+ const cli=readFileSync(new URL("../scripts/smn-34-audit-readonly.ts",import.meta.url),"utf8");
+ assert.match(cli,/pg_catalog\.pg_stat_activity/);
+ assert.match(cli,/pid<>pg_backend_pid\(\)/);
+ assert.match(cli,/concurrentDatabaseConnections:state\.connections/);
 });
