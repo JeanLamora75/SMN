@@ -101,11 +101,10 @@ export default function RegistryListRow({item,canManage,signals,highlight=false,
       onClick={event=>{event.currentTarget.closest("details")?.removeAttribute("open");onEdit();}}>
       {tr("editRecord")}
      </button>}
-     {canManage&&<RegistryDeleteAction id={item.id} title={item.title} teamId={teamId}
-      className="smn-registry-row-menu-link w-100 text-start border-0 bg-transparent text-danger"
-      onDeleted={onDeleted}/>}
     </div>
    </details>
+   {canManage&&<RegistryDeleteAction id={item.id} title={item.title} teamId={teamId}
+    className="btn btn-sm btn-outline-danger ms-1" onDeleted={onDeleted}/>}
   </td>
  </tr>;
 }
