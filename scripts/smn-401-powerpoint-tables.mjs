@@ -1,9 +1,10 @@
 import {readZip,writeZip} from "./smn-397-office-poc.mjs";
 import {replaceScalarXml} from "./smn-399-office-scalars.mjs";
+import {ROW_MARKER,parseOfficeRowMarker,sortOfficeRows} from "./smn-office-row-sort.mjs";
 
 const SOURCES=new Set(["MEMBERS","MEMBERS_ACTIVE","MEMBERS_INACTIVE","INDICATORS","RISKS","OBSTACLES","DEPENDENCIES","NOTES","CEREMONIES","GOALS","ACTIONS","DECISIONS","LINKS_TRANSVERSE","LINKS_TEAM"]);
 const TEXT=/<a:t(?:\s[^>]*)?>[^<]*<\/a:t>/g;
-const MARKER=/\{\{ROW:([A-Z][A-Z0-9_]*)\}\}/g;
+const MARKER=ROW_MARKER;
 
 function decodeXml(text) {
  return text.replace(/&(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);/g,entity=>{
@@ -36,9 +37,12 @@ function editRow(row,nodes,edits) {
 function readMarker(row){
  const combined=nodesOf(row).map(n=>n.text).join("");
  const all=[...combined.matchAll(MARKER)];
- if(!all.length)return null;
- if(all.length!==1||!SOURCES.has(all[0][1]))throw Error("office-pptx-invalid-row-marker");
- return {source:all[0][1],start:all[0].index,end:all[0].index+all[0][0].length};
+ if(!all.length){
+  if(combined.includes("{{ROW:"))throw Error("office-pptx-invalid-row-marker");
+  return null;
+ }
+ if(all.length!==1)throw Error("office-pptx-invalid-row-marker");
+ return {...parseOfficeRowMarker(all[0][1],SOURCES),start:all[0].index,end:all[0].index+all[0][0].length};
 }
 function removeMarker(row,marker){
  const nodes=nodesOf(row),edits=nodes.map(n=>n.text);
@@ -63,7 +67,7 @@ function ensureSupported(row){
  if(/<!DOCTYPE|<!ENTITY/i.test(row))
   throw Error("office-pptx-invalid-xml");
 }
-export function expandPowerPointTablesXml(xml,datasets){
+export function expandPowerPointTablesXml(xml,datasets,language="fr"){
  if(typeof xml!=="string"||/<!DOCTYPE|<!ENTITY/i.test(xml))
   throw Error("office-pptx-invalid-xml");
  if(!datasets||typeof datasets!=="object"||Array.isArray(datasets))
@@ -94,7 +98,7 @@ export function expandPowerPointTablesXml(xml,datasets){
      .map(m=>m[1]);
     return render(Object.fromEntries(fields.map(key=>[key,"N/D"])));
    }
-   return records.map(render).join("");
+   return sortOfficeRows(records,marker.sort,language).map(render).join("");
   });
   if(count){
    expanded+=count;
@@ -136,7 +140,7 @@ export function expandPowerPointTextBoxesXml(xml,datasets,language="fr"){
      // separators and stale example text when there are no business records.
      return editRow(clean,nodes,nodes.map((_node,index)=>index===0?message:""));
     }
-    return records.map(record=>replaceScalarXml(clean,record).xml).join("");
+    return sortOfficeRows(records,marker.sort,language).map(record=>replaceScalarXml(clean,record).xml).join("");
    });
    // A marker split across paragraphs or placed outside supported runs must not be ignored.
    if(nodesOf(converted).map(n=>n.text).join("").includes("{{ROW:"))
@@ -153,7 +157,7 @@ export function generatePowerPointTables(packageBytes,datasets,language="fr"){
   throw Error("office-pptx-presentation-missing");
  const updated=parts.map(part=>{
   if(!/^ppt\/slides\/slide\d+\.xml$/.test(part.name))return part;
-  const result=expandPowerPointTablesXml(part.data.toString("utf8"),datasets);
+  const result=expandPowerPointTablesXml(part.data.toString("utf8"),datasets,language);
   const text=expandPowerPointTextBoxesXml(result.xml,datasets,language);
   if(!result.tableRows&&!text.textRows)return part;
   changes.push({part:part.name,count:result.tableRows+text.textRows});
