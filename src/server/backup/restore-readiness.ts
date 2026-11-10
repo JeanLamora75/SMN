@@ -18,6 +18,8 @@ export function assessRestoreGate(preview:RestorePreview,
  const warnings:string[]=[];
  if(preview.archive.status!=="verified"||!preview.archive.integrityVerified)
   blockers.add("archive-not-verified");
+ if(preview.archive.scopeComplete!==true)blockers.add("archive-scope-incomplete");
+ if(preview.archive.id!==preview.id)blockers.add("archive-identity-mismatch");
  if(preview.archive.installationSource!==preview.current.installationSource)
   blockers.add("different-installation");
  if(preview.archive.schemaVersion!==preview.current.schemaVersion)
@@ -29,6 +31,11 @@ export function assessRestoreGate(preview:RestorePreview,
  if(preview.current.documentCount===null)blockers.add("current-documents-unavailable");
  if(!preview.archive.createdAt)blockers.add("archive-date-unavailable");
  if(preview.issues.includes("snapshot-older"))warnings.push("potential-data-loss");
+ // Keep every blocking preview finding visible in the preflight result.
+ // The snapshot age is informative, but every other preview finding is a blocker.
+ for(const issue of preview.issues){
+  if(issue!=="snapshot-older")blockers.add("preview-"+issue);
+ }
  // These cannot be inferred from the presence of a backup or asserted by a request.
  const privacy=evaluateErasureProtection(preview.archive.createdAt,evidence);
  if(!privacy.permitted){
