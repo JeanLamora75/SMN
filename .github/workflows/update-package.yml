@@ -82,6 +82,14 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'ZIP différentiel inutilisable après compression' }
           Write-Host "CI-ONLY SIGNED SMALL UPDATE ZIP BYTES: $((Get-Item $archive).Length)"
           if ((Get-Item $archive).Length -ge 25MB) { throw 'Petit correctif de démonstration supérieur à 25 Mo' }
+          $fullStage = (Resolve-Path '_package/smoke-full-stage').Path
+          $fullZip = Join-Path (Resolve-Path '_package').Path 'smoke-full-application-ci-only.zip'
+          [System.IO.Compression.ZipFile]::CreateFromDirectory($fullStage,$fullZip,[System.IO.Compression.CompressionLevel]::Optimal,$false)
+          $fullExtracted = Join-Path (Resolve-Path '_package').Path 'smoke-full-unpacked'
+          [System.IO.Compression.ZipFile]::ExtractToDirectory($fullZip,$fullExtracted)
+          & node scripts/windows/verify-update.mjs --dir $fullExtracted --trust '_package/smoke-public-test-only.pem'
+          if ($LASTEXITCODE -ne 0) { throw 'ZIP application complète non vérifiable après compression' }
+          Write-Host "CI-ONLY SIGNED FULL UPDATE ZIP BYTES: $((Get-Item $fullZip).Length)"
 
   build-signed-update:
     if: github.event_name == 'workflow_dispatch'
