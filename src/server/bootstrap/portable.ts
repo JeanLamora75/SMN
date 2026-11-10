@@ -1,10 +1,10 @@
 import { randomBytes } from "node:crypto";
 import { existsSync } from "node:fs";
-import { cp, lstat, mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
+import { cp, copyFile, lstat, mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
 import { Client } from "pg";
-import { acquirePgArchive, PG_ARCHIVE } from "./archive";
+import { acquirePgArchive, PG_ARCHIVE, PG_SOURCE_ARCHIVE } from "./archive";
 import { encryptSetting, decryptSetting, readPrivateFile } from "./settings";
 import { archiveIncompleteCluster } from "./recovery";
 import { classifyPostgresStartupLog } from "./postgres-startup";
@@ -181,9 +181,19 @@ export async function prepareManaged(onProgress: (step: string) => void, recover
     await archiveIncompleteCluster(root);
   }
   const archive = path.join(root, PG_ARCHIVE);
-  const bundle = path.join(process.cwd(), "runtime", "postgres", PG_ARCHIVE);
+  const bundledFolder = path.join(process.cwd(), "runtime", "postgres");
+  const bundle = path.join(bundledFolder, PG_ARCHIVE);
+  const legacyBundle = path.join(bundledFolder, PG_SOURCE_ARCHIVE);
   onProgress("Préparation des composants PostgreSQL — le premier lancement peut prendre quelques minutes");
-  const verifiedArchive = await acquirePgArchive(archive, existsSync(bundle) ? bundle : undefined);
+  // New distributions ship a short filename. Accept an older signed package,
+  // but stage it under the short name before extraction on restricted Windows.
+  const supplied = existsSync(bundle) ? bundle : existsSync(legacyBundle) ? legacyBundle : undefined;
+  const checkedArchive = await acquirePgArchive(archive, supplied);
+  let verifiedArchive = checkedArchive;
+  if (checkedArchive !== archive && path.basename(checkedArchive) !== PG_ARCHIVE) {
+    if (!existsSync(archive)) await copyFile(checkedArchive, archive);
+    verifiedArchive = await acquirePgArchive(archive, archive);
+  }
   const pgRoot = path.join(root, "pgsql");
   if (!existsSync(path.join(pgRoot, "bin", "initdb.exe")) ||
       !existsSync(path.join(pgRoot, "bin", "pg_ctl.exe"))) {
