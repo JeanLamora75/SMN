@@ -126,6 +126,7 @@ export default async function ReportsCenter({searchParams}:Params){
   </section>}
   {tab==="tags"&&<section className="smn-report-results" aria-labelledby="smn-report-tags-title">
    <div className="smn-report-panel-heading"><h2 id="smn-report-tags-title">{t("tagBuilderGuideTitle")}</h2><OfficeTagConfigurator locale={locale==="en"?"en":"fr"} teamId={data.teamId}/></div>
+   <p className="text-secondary small mt-3">{t("tagBuilderGuideHelp")}</p>
    <OfficeTags locale={locale==="en"?"en":"fr"} expanded/>
   </section>}
   {tab==="archives"&&<section className="smn-report-results" aria-labelledby="smn-report-archives-title">
