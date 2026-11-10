@@ -4249,7 +4249,8 @@
       "unavailable": "The chart or its styles are temporarily unavailable.",
       "download": "Save as PNG",
       "default": "Default style for chart type",
-      "maxSlices": "Pie and donut charts support at most six sprints: shorten the range."
+      "maxSlices": "Pie and donut charts support at most six sprints: shorten the range.",
+      "maxCycles": "The chart renderer supports up to 24 sprints: shorten the range."
     }
   },
   "chartStyles": {
