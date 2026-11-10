@@ -7,11 +7,13 @@ const PRIVATE_NAMES = new Set([".env", ".env.local", ".settings-key", "runtime.j
 
 function segments(relative) {
   if (typeof relative !== "string" || !relative || path.isAbsolute(relative) ||
-      relative.includes("\\") || relative.split("/").includes("..") ||
-      relative.startsWith("/") || /^[a-z]:/i.test(relative))
+      relative.includes("\\") || relative.includes(":") || /[\x00-\x1f\x7f]/.test(relative) ||
+      relative.split("/").includes("..") || relative.startsWith("/"))
     throw new Error("distribution-path-invalid");
   const parts=relative.split("/");
-  if (parts.some(part => !part || part === ".")) throw new Error("distribution-path-invalid");
+  if (parts.some(part => !part || part === "." || /[. ]$/.test(part) ||
+      /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(part)))
+    throw new Error("distribution-path-invalid");
   return parts;
 }
 
