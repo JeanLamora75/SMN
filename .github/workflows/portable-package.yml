@@ -48,6 +48,8 @@ jobs:
         run: npm install --no-package-lock --no-audit --no-fund --legacy-peer-deps
       - name: Contrat de protection des répertoires persistants
         run: node --test tests/distribution-layout.test.mjs
+      - name: Preuve de transport Windows sans dépendances
+        run: node --test tests/update-delivery.test.mjs
       - name: Parité des catalogues FR/EN
         run: npm run i18n:check
       - name: Compiler SMN
@@ -71,16 +73,17 @@ jobs:
           if (Test-Path "$source/data/postgres") { throw 'Cluster PostgreSQL de test présent dans la distribution' }
           Compress-Archive -Path $source -DestinationPath $destination -CompressionLevel Optimal -Force
           if (-not (Test-Path $destination)) { throw 'Archive de distribution absente' }
-          $hash = (Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  SMN-Setup-Windows-x64-v33.zip" | Set-Content -Encoding ascii '_package/SMN-Setup-Windows-x64-v33.zip.sha256'
-          Write-Host "ZIP bytes: $((Get-Item $destination).Length)"
-          Write-Host "SHA256: $hash"
+          & node scripts/windows/create-delivery-evidence.mjs $destination windows-x64-initial
+          if ($LASTEXITCODE -ne 0) { throw 'Bilan de livraison invalide' }
+          & node scripts/windows/verify-delivery.mjs $destination ($destination + '.evidence.json') ($destination + '.sha256')
+          if ($LASTEXITCODE -ne 0) { throw 'Contrôle intégrité du ZIP final invalide' }
       - uses: actions/upload-artifact@v4
         with:
           name: SMN-Distribution-Windows-x64-v33
           path: |
             _package/SMN-Setup-Windows-x64-v33.zip
             _package/SMN-Setup-Windows-x64-v33.zip.sha256
+            _package/SMN-Setup-Windows-x64-v33.zip.evidence.json
           if-no-files-found: error
           retention-days: 14
           compression-level: 0
