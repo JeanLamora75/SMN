@@ -77,6 +77,7 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
   {active&&<>
    {actual.length===0?<p role="status">{t("indicators.reporting.empty")}</p>:
     applied?.style==="gauge"&&!gaugeValid?<p role="alert">{locale==="fr"?"La jauge nécessite une valeur finale comprise entre 0 et 100 (référence : 100).":"Gauge requires a final value between 0 and 100 (reference: 100)."}</p>:
+    isParts&&range.length>6?<p role="alert">{t("indicators.sharedChart.maxSlices")}</p>:
     isParts&&!nonnegative?<p role="alert">{locale==="fr"?"Secteurs et anneau nécessitent des valeurs non négatives et renseignées pour chaque Sprint.":"Pie and donut need nonnegative values for every cycle."}</p>:
     <SharedTrendChart payload={{
      type:applied?.style??"bar",locale,
