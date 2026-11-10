@@ -122,3 +122,14 @@
 ### Addendum du 19/10/2026 — A7 et A8
 
 [D-PRD-132/133](arbitrages-metier-valides-2026-10-19.md) définissent désormais les règles normatives de criticité, les six catégories de faits automatiques (cinq activées, « Dépendance satisfaite » désactivée par défaut), la déduplication par événement source, l'invalidation des erreurs et la validation globale des faits avant reporting. Les exemples de catégories QLT-07 ci-dessus sont **historiques et indicatifs** ; seul le catalogue validé de l'annexe fait foi.
+
+
+## Avenant 2026-11-10 — Suppression définitive des fiches (SMN-432)
+
+Une suppression physique manuelle, distincte du passage à un statut final et de la suppression d'une simple relation, est autorisée pour l'Administrateur. Elle est accessible depuis les actions de lignes, les cartes et la fiche.
+
+**Critères** : confirmation explicite et irréversibilité ; contrôle de la portée équipe et de la révision ; transaction atomique effaçant les contenus appartenant à la fiche (commentaires, évaluations, audits, associations) et nettoyant les références d'autres fiches sans supprimer ces dernières ; refus motivé en cas de conflit ou de dépendance non qualifiée. Les sauvegardes et snapshots gelés ne sont pas modifiés, y compris quand ils contiennent l'ancienne fiche. Le référentiel de récupération (Epic 2) s'applique à toute restauration ultérieure.
+
+**Précédence** : cet avenant ne remet pas en cause FR-35/QLT-02 concernant le simple retrait d'une relation, qui continue d'être tracé sans supprimer la fiche. Il s'applique seulement à la commande destructive explicite.
+
+**Spécification technique et recette** : [SMN-432](/JeanLamora75/SMN/blob/main/_bmad-output/implementation-artifacts/smn-432-suppression-definitive-registres-2026-11-10.md) · [Jira SMN-432](https://lmn24.atlassian.net/browse/SMN-432). Les tests PostgreSQL/Windows sont à valider avant clôture.
