@@ -6,6 +6,7 @@ import path from "node:path";
 import {createRequire} from "node:module";
 import { createPrivateKey, createPublicKey } from "node:crypto";
 import { acquirePgArchive, PG_ARCHIVE } from "./postgres-archive.mjs";
+import {auditWindowsDistribution} from "./distribution-package-policy.mjs";
 
 if (process.platform !== "win32" || process.env.GITHUB_ACTIONS !== "true") {
   throw new Error("Le packaging Windows est réservé au runner GitHub Actions");
@@ -13,6 +14,8 @@ if (process.platform !== "win32" || process.env.GITHUB_ACTIONS !== "true") {
 const target = path.resolve(process.env.SMN_PACKAGE_DIR || path.join(process.cwd(), "_package", "SMN-Windows"));
 if (!existsSync(".next/standalone/server.js")) throw new Error("Next standalone manquant. Vérifier next.config et pnpm build.");
 await mkdir(target, { recursive: true });
+const appDir=path.join(target,"app");
+await mkdir(appDir,{recursive:true});
 // A stable installed version is required for explicit offline patch preconditions.
 // GitHub RUN_NUMBER is per-workflow. RUN_ID is globally monotonic across
 // the setup and update workflows, preventing accidental signed downgrades.
@@ -22,7 +25,7 @@ if(!/^\d+$/.test(runId??"") || !Number.isSafeInteger(Number(runId)) ||
    !/^[0-9a-f]{40}$/.test(buildSha??""))
   throw new Error("Identifiant de run GitHub ou commit absent");
 const buildVersion="33.0."+runId;
-await writeFile(path.join(target,"distribution-version.json"),
+await writeFile(path.join(appDir,"distribution-version.json"),
   JSON.stringify({product:"SMN",version:buildVersion,sourceCommit:buildSha})+"\n","utf8");
 // Trust anchor is only supplied from the CI signing secret, never by the ZIP.
 // Existing installations without this anchor cannot verify signed updates.
@@ -35,8 +38,7 @@ if(signingSecret){
   await writeFile(path.join(target,"runtime","trust","update-signing-public.pem"),pub,
     {encoding:"utf8",flag:"wx"});
 }
-const appDir = path.join(target, "app");
-await mkdir(appDir, { recursive: true });
+
 // pnpm/Next produisent des liens symboliques vers .next/standalone ; un paquet
 // autonome doit copier leurs cibles, sinon Node cherchera les fichiers source.
 await cp(".next/standalone", appDir, { recursive: true, force: true, dereference: true });
@@ -71,23 +73,32 @@ if (existsSync("public")) await cp("public", path.join(appDir, "public"), { recu
 for(const file of [
  "prisma/baseline/v33/schema.sql",
  "prisma/baseline/v32/schema.sql",
- "_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql",
  "prisma/migrations/20261101_smn_dashboard_slots_additive/migration.sql",
  "prisma/migrations/20261108_smn416_chart_styles/migration.sql",
  "prisma/migrations/20261109_smn39_privacy_receipt/migration.sql",
  "prisma/migrations/20261109_smn40_member_delete_guard/migration.sql",
 ]){
- const destination=path.join(target,file);
+ const destination=path.join(appDir,file);
  await mkdir(path.dirname(destination),{recursive:true});
  await copyFile(file,destination);
 }
 
 await mkdir(path.join(target, "runtime", "node"), { recursive: true });
 await copyFile(process.execPath, path.join(target, "runtime", "node", "node.exe"));
-await copyFile("scripts/windows/launch-portable.mjs", path.join(target, "launch-portable.mjs"));
-await mkdir(path.join(target,"scripts"),{recursive:true});
-await copyFile("scripts/office-dirs.mjs",path.join(target,"scripts","office-dirs.mjs"));
-await mkdir(path.join(target,"scripts","windows"),{recursive:true});
+// The stable launcher is a protected runtime component and is never patched by an update.
+const launchSource=await readFile("scripts/windows/launch-portable.mjs","utf8");
+const packagedLaunch=launchSource
+ .replace('from "./scripts/office-dirs.mjs"','from "../app/maintenance/office-dirs.mjs"')
+ .replace('from "./scripts/windows/update-transaction.mjs"','from "../app/maintenance/windows/update-transaction.mjs"')
+ .replace('const root=path.dirname(fileURLToPath(import.meta.url));',
+  'const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");')
+ .replace('path.join(root,"scripts","windows","update-apply.mjs")',
+  'path.join(root,"app","maintenance","windows","update-apply.mjs")');
+if(packagedLaunch===launchSource||packagedLaunch.includes('from "./scripts/'))
+ throw Error("launcher-packaging-transform-invalid");
+await writeFile(path.join(target,"runtime","launcher.mjs"),packagedLaunch,"utf8");
+await mkdir(path.join(appDir,"maintenance","windows"),{recursive:true});
+await copyFile("scripts/office-dirs.mjs",path.join(appDir,"maintenance","office-dirs.mjs"));
 for(const file of [
  "distribution-layout.mjs",
  "update-contract.mjs",
@@ -100,14 +111,12 @@ for(const file of [
  "update-backup-policy.mjs",
  "verify-delivery.mjs"
 ])await copyFile(path.join("scripts","windows",file),
-  path.join(target,"scripts","windows",file));
+  path.join(appDir,"maintenance","windows",file));
 for(const name of ["templates","reports"])await mkdir(path.join(target,"data","office",name),{recursive:true});
 await mkdir(path.join(target,"updates"), { recursive: true });
 await copyFile("scripts/recover-admin.mjs", path.join(appDir, "recover-admin.mjs"));
-const recoverLaunch = `@echo off\r\ncd /d "%~dp0"\r\n"%~dp0runtime\\node\\node.exe" "%~dp0app\\recover-admin.mjs"\r\nif errorlevel 1 pause\r\n`;
-await writeFile(path.join(target, "Recuperer admin SMN.cmd"), recoverLaunch, "utf8");
-const launch = `@echo off\r\ncd /d "%~dp0"\r\n"%~dp0runtime\\node\\node.exe" "%~dp0launch-portable.mjs"\r\nif errorlevel 1 pause\r\n`;
-await writeFile(path.join(target, "Demarrer SMN.cmd"), launch, "utf8");
+const launch = `@echo off\r\nsetlocal\r\ncd /d "%~dp0"\r\nif not exist "%~dp0runtime\\node\\node.exe" (echo SMN : Node.js embarque absent. & pause & exit /b 1)\r\n"%~dp0runtime\\node\\node.exe" "%~dp0runtime\\launcher.mjs" %*\r\nif errorlevel 1 pause\r\n`;
+await writeFile(path.join(target,"Demarrer SMN.bat"),launch,"utf8");
 const pgFolder = path.join(target, "runtime", "postgres");
 await mkdir(pgFolder, { recursive: true });
 // CI update builds never redistribute the PostgreSQL archive. The full setup
@@ -119,4 +128,9 @@ if (process.env.SMN_UPDATE_SKIP_PG_ARCHIVE !== "1") {
 } else {
   console.log("Application SMN préparée pour mise à jour sans distribution PostgreSQL.");
 }
+const audit=await auditWindowsDistribution(target);
+await writeFile(path.join(path.dirname(target),"smn-distribution-inventory.json"),
+ JSON.stringify({format:1,files:audit.files,byRoot:audit.byRoot,fileCount:audit.fileCount,
+  inventoryFingerprint:audit.inventoryFingerprint})+"\n");
+console.log("Distribution minimale vérifiée : "+audit.fileCount+" fichiers");
 console.log("Paquet : " + target);
