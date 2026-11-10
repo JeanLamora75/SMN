@@ -1,61 +1,112 @@
-// Lanceur du paquet Windows SMN : double-clic, sans Node ni pnpm installé.
-// La fenêtre peut être fermée pour arrêter le serveur web local.
-import { spawn } from "node:child_process";
-import { existsSync, lstatSync, mkdirSync } from "node:fs";
+// Lanceur Windows propriétaire du processus web : aucun service système.
+// Le remplacement applicatif est exécuté hors du serveur arrêté.
+import {spawn} from "node:child_process";
+import {existsSync,lstatSync,mkdirSync} from "node:fs";
+import {readFile,writeFile,rename,rm} from "node:fs/promises";
+import {randomUUID} from "node:crypto";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import {fileURLToPath} from "node:url";
 import {ensureOfficeDirectories} from "./scripts/office-dirs.mjs";
-
-if (process.platform !== "win32") throw new Error("Windows x64 requis");
-const root = path.dirname(fileURLToPath(import.meta.url));
-const server = path.join(root, "app", "server.js");
+if(process.platform!=="win32")throw Error("Windows x64 requis");
+const root=path.dirname(fileURLToPath(import.meta.url));
+const server=path.join(root,"app","server.js");
+const updates=path.join(root,"updates");
 ensureOfficeDirectories(root);
-const updates = path.join(root,"updates");
-if (existsSync(updates)) {
-  const info = lstatSync(updates);
-  if (!info.isDirectory() || info.isSymbolicLink())
-    throw new Error("Dossier de mises à jour invalide");
-} else mkdirSync(updates);
-const url = "http://127.0.0.1:3003";
-if (!existsSync(server)) throw new Error("SMN incomplet : app/server.js absent.");
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-async function listening() {
-  try {
-    const response = await fetch(url, { signal: AbortSignal.timeout(1500) });
-    const html = await response.text();
-    return response.status === 200 && html.includes("Scrum Master Notebook");
-  } catch { return false; }
+if(existsSync(updates)){
+ const info=lstatSync(updates);
+ if(!info.isDirectory()||info.isSymbolicLink())throw Error("Dossier de mises à jour invalide");
+}else mkdirSync(updates);
+const url="http://127.0.0.1:3003", pending=path.join(updates,"pending.json");
+if(!existsSync(server))throw Error("SMN incomplet : app/server.js absent");
+const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function listening(){
+ try{
+  const response=await fetch(url,{signal:AbortSignal.timeout(1500)});
+  const html=await response.text();
+  return response.status===200&&html.includes("Scrum Master Notebook");
+ }catch{return false;}
 }
-function browser() {
-  const p = spawn("cmd.exe", ["/c", "start", '""', url], {
-    windowsHide: true, detached: true, stdio: "ignore", shell: false,
-  });
-  p.on("error", () => console.error("Ouvrez " + url + " dans votre navigateur."));
-  p.unref();
+function browser(){
+ const p=spawn("cmd.exe",["/c","start",'""',url],{
+  windowsHide:true,detached:true,stdio:"ignore",shell:false});
+ p.on("error",()=>console.error("Ouvrez "+url+" dans votre navigateur."));
+ p.unref();
 }
-if (await listening()) {
-  browser();
-} else {
-  const child = spawn(process.execPath, [server], {
-    cwd: root, env: { ...process.env, PORT: "3003", HOSTNAME: "127.0.0.1", NODE_ENV: "production" },
-    stdio: "inherit", windowsHide: false, shell: false,
-  });
-  child.on("error", e => console.error("Impossible de lancer le serveur SMN : " + e.message));
-  let ready = false;
-  for (let attempt = 0; attempt < 120; attempt++) {
-    if (child.exitCode !== null) break;
-    if (await listening()) { ready = true; browser(); break; }
-    await sleep(500);
+async function heartbeat(){
+ const file=path.join(updates,"launcher.json");
+ const tmp=path.join(updates,"launcher-"+randomUUID()+".tmp");
+ await writeFile(tmp,JSON.stringify({pid:process.pid,at:new Date().toISOString()})+"\n",{flag:"wx"});
+ await rename(tmp,file);
+}
+async function executeUpdate(){
+ const child=spawn(process.execPath,[path.join(root,"scripts","windows","update-apply.mjs")],{
+  cwd:root,stdio:"inherit",windowsHide:false,shell:false});
+ return new Promise(resolve=>{
+  child.on("error",()=>resolve(1));
+  child.on("exit",code=>resolve(code??1));
+ });
+}
+let shuttingDown=false,webChild=null;
+process.on("SIGINT",()=>{shuttingDown=true;webChild?.kill("SIGTERM");});
+process.on("SIGTERM",()=>{shuttingDown=true;webChild?.kill("SIGTERM");});
+if(await listening()){
+ // This launch did not start the other server, so it cannot own or stop it.
+ browser();
+ console.log("SMN déjà actif. Les mises à jour exigent le lanceur propriétaire du serveur.");
+}else{
+ let opened=false;
+ while(!shuttingDown){
+  const child=spawn(process.execPath,[server],{
+   cwd:root,env:{...process.env,PORT:"3003",HOSTNAME:"127.0.0.1",NODE_ENV:"production"},
+   stdio:"inherit",windowsHide:false,shell:false});
+  webChild=child;
+  let crashed=false;
+  child.on("error",()=>{crashed=true;console.error("Impossible de démarrer SMN.");});
+  let ready=false;
+  for(let attempt=0;attempt<120&&!shuttingDown;attempt++){
+   if(child.exitCode!==null||crashed)break;
+   if(await listening()){ready=true;break;}
+   await sleep(500);
   }
-  if (!ready) {
-    console.error("SMN n'est pas disponible sur le port 3003. Vérifiez qu'il est libre.");
-    child.kill();
-    process.exitCode = 1;
-  } else {
-    console.log("SMN est ouvert dans votre navigateur sur " + url);
-    console.log("Fermez cette fenêtre pour arrêter le serveur web.");
-    process.on("SIGINT", () => child.kill("SIGINT"));
-    process.on("SIGTERM", () => child.kill("SIGTERM"));
-    await new Promise(resolve => child.once("exit", resolve));
+  if(!ready){
+   console.error("SMN indisponible sur le port 3003.");
+   child.kill();
+   process.exitCode=1;
+   break;
   }
+  if(!opened){browser();opened=true;}
+  console.log("SMN prêt sur "+url+" — données PostgreSQL préservées.");
+  let applying=false,polling=false;
+  await heartbeat().catch(()=>{});
+  const interval=setInterval(async()=>{
+   if(polling||shuttingDown||applying)return;
+   polling=true;
+   try{
+    await heartbeat();
+    if(existsSync(pending)){
+     const record=JSON.parse(await readFile(pending,"utf8"));
+     if(typeof record.id==="string" &&
+       /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/.test(record.id)){
+      applying=true;
+      console.log("Mise à jour confirmée : arrêt du serveur web uniquement.");
+      child.kill("SIGTERM");
+     }
+    }
+   }catch{console.error("Contrôle de mise à jour indisponible.");}
+   finally{polling=false;}
+  },1500);
+  await new Promise(resolve=>child.once("exit",resolve));
+  clearInterval(interval);webChild=null;
+  if(shuttingDown)break;
+  if(!applying){
+   console.error("Le serveur SMN s'est arrêté de manière inattendue.");
+   process.exitCode=1;
+   break;
+  }
+  const code=await executeUpdate();
+  if(code!==0)console.error("La mise à jour a échoué. Démarrage de l'application précédente.");
+  else console.log("Mise à jour vérifiée et activée. Redémarrage de SMN.");
+  // No automatic database migration or PostgreSQL termination occurs here.
+ }
 }
+await rm(path.join(updates,"launcher.json"),{force:true}).catch(()=>{});
