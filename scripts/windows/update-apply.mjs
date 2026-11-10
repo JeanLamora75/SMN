@@ -118,8 +118,8 @@ async function run(){
    catch(e){if(e?.code!=="ENOENT")throw e;}
    moved[moved.length-1].newer=newer;
   }
-  await finishCutover(root,transaction,"committed");
   await status("succeeded",manifest.toVersion);
+  await finishCutover(root,transaction,"committed");
  }catch(error){
   for(const item of moved.reverse()){
    const live=path.join(root,item.name),back=path.join(rollback,item.name);
