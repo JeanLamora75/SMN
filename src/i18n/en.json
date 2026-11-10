@@ -2386,7 +2386,9 @@
       "indicatorsDescription": "Define, understand and select the indicators used to monitor your teams",
       "permissions": "Scrum Master permissions by team",
       "linksEyebrow": "Administration · Agile Cockpit",
-      "chartEyebrow": "AGILE COCKPIT"
+      "chartEyebrow": "AGILE COCKPIT",
+      "companiesIntro": "Shared reference directory for all teams.",
+      "manageCompanies": "Manage companies"
     }
   },
   "memberAbsences": {
