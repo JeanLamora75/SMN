@@ -2,7 +2,8 @@ import {nativeBaselineSql,nativeV32HistoryValid,NATIVE_V32_NAME} from "./native-
 import {nativeV33BaselineSql,nativeV33HistoryValid,NATIVE_V33_NAME} from "./native-v33";
 import {SMN338_V33_NAME,INDICATOR_TABLES,indicatorV33Sql} from "./indicator-v33-contract";
 import { createHash } from "node:crypto";
-import {readFileSync} from "node:fs";
+import {readFileSync,existsSync} from "node:fs";
+import {resolve} from "node:path";
 import {LINKS_MIGRATION,LINKS_MIGRATION_SQL} from "../links/migration";
 import {COUNTRY_CONSOLIDATION_MIGRATION,COUNTRY_CONSOLIDATION_MIGRATION_SQL} from "../countries/consolidation-migration";
 import { INITIAL_MIGRATION, INITIAL_REQUIRED_RELATIONS, INSTALLATION_RELATIONS } from "./contract";
@@ -107,7 +108,10 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
     const slotsName="20261101_smn_dashboard_slots_additive";
     const slotMigration=migrations!.find(m=>m.migration_name===slotsName);
     if(slotMigration){
-      const slotSql=readFileSync(new URL("../../../prisma/migrations/20261101_smn_dashboard_slots_additive/migration.sql",import.meta.url),"utf8");
+      const slotSql=readFileSync((()=>{
+       const p=resolve(process.cwd(),"app","prisma","migrations","20261101_smn_dashboard_slots_additive","migration.sql");
+       return existsSync(p)?p:resolve(process.cwd(),"prisma","migrations","20261101_smn_dashboard_slots_additive","migration.sql");
+      })(),"utf8");
       if(slotMigration.checksum!==createHash("sha256").update(slotSql).digest("hex")||
          !slotMigration.finished_at||slotMigration.rolled_back_at||
          !names.has("public.smn_indicator_dashboard_slot:r"))return result("installation-incomplete");
