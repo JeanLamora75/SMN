@@ -1,7 +1,7 @@
 // Windows CI-only end-to-end delta proof, using an ephemeral test key.
 // Never publish this test-signed package as a production update.
 import { generateKeyPairSync } from "node:crypto";
-import { cp, mkdir, writeFile, readFile, rm } from "node:fs/promises";
+import { cp, writeFile, readFile, rm } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 const target=path.resolve(process.env.SMN_PACKAGE_DIR??"_package/SMN-Windows");
