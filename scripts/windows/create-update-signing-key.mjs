@@ -1,7 +1,7 @@
 // One-time local provisioning; never run in CI and never commit any secret.
 // Node.js 24 is enough; no admin privileges, OpenSSL or IDE needed.
 import {generateKeyPairSync,createHash} from "node:crypto";
-import {mkdir,writeFile,stat} from "node:fs/promises";
+import {mkdir,writeFile} from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 const destination=path.resolve(process.argv[2]??path.join(os.homedir(),"SMN-Update-Signing"));
