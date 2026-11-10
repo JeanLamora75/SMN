@@ -34,3 +34,13 @@ La CI `.github/workflows/update-package.yml` exécute sur Windows :
 `node --test tests/distribution-layout.test.mjs tests/update-package.test.mjs tests/update-import.test.mjs`.
 
 La CI `.github/workflows/portable-package.yml` vérifie le packaging. Les résultats doivent être consultés sur GitHub Actions, sans confondre « déclenché » et « réussi ».
+
+## Validation complémentaire du 10/11/2026
+
+- **Contrat Windows confirmé** : [run 42788530953](https://github.com/JeanLamora75/SMN/actions/runs/42788530953), job `update-contract-tests` `success` (**21 tests réussis**), puis job `update-build-smoke` `success`. Cela couvre un import signé, le refus des archives hostiles, une bascule Windows jetable, la conservation d'un fichier témoin PostgreSQL et un scénario d'interruption.
+- **Packaging Windows antérieur confirmé** : [run 42788487811](https://github.com/JeanLamora75/SMN/actions/runs/42788487811), job `portable-windows` `success`.
+- **Correctif CI** : une régression ESLint `react-hooks/set-state-in-effect` dans `updates-admin.tsx` bloquait les validations générales. Corrigée dans [commit 0399d06](https://github.com/JeanLamora75/SMN/commit/0399d06fdf8b0ceb90f63dfecba35d1957e55cef) ; le job TypeScript/lint correspondant est `success` ([run 42789990186](https://github.com/JeanLamora75/SMN/actions/runs/42789990186)).
+- **Nouveaux tests ajoutés après ces runs** : `tests/update-recovery-matrix.test.mjs` couvre 14 points d'interruption au niveau des sept composants, `tests/update-backup-policy.test.mjs` contrôle les archives récentes, complètes et vérifiées. **Les tests supplémentaires doivent être validés sur le nouveau run CI ; ne pas extrapoler les anciens succès.**
+- **Points non qualifiés** : restauration PostgreSQL 18 réelle à partir du paquet sauvegardé, injection de panne disque/ACL sur Windows 11, recette sur un PC d'entreprise et gestion d'une migration de schéma incompatible. Le journal applicatif conserve les fichiers, mais n'offre pas une preuve de restauration métier complète.
+
+**Verdict** : qualification des contrats de mise à jour *partiellement réussie* ; AC1/AC4/AC5 nécessitent encore les essais de récupération et restauration réels. Ne pas fermer la Story avant les preuves complémentaires.
