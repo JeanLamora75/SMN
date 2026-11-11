@@ -102,11 +102,11 @@ async function main(){
    restoredDatabasesPresent:checked.firstRestorePreserved&&checked.secondRestorePreserved,
    disposableTestsStarted:false,activeInstallationModified:false,
    productionRestoreEnabled:false
-  },null,2)+"\\n");
+  },null,2)+"\n");
   return;
  }
  const result=await runWindowsSandboxRollback(maintenance.toString(),expected);
- process.stdout.write(JSON.stringify(result,null,2)+"\\n");
+ process.stdout.write(JSON.stringify(result,null,2)+"\n");
  if(!result.passed)process.exitCode=2;
 }
 if(process.argv[1]?.replaceAll(String.fromCharCode(92),"/")
@@ -126,7 +126,7 @@ if(process.argv[1]?.replaceAll(String.fromCharCode(92),"/")
    error.message:"rollback-rehearsal-unverified");
   process.stderr.write(JSON.stringify({
    mode:"windows-isolated-rollback-rehearsal",passed:false,
-   reason,productionRestoreEnabled:false
+   reason,stage:auditStage,productionRestoreEnabled:false
   })+"\n");
   process.exitCode=2;
  });
