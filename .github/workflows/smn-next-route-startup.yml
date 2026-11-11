@@ -1,0 +1,40 @@
+name: SMN — Routage Next.js et démarrage
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/app/**"
+      - "tests/smn-next-route-slugs.test.mjs"
+      - "scripts/smn-next-startup-smoke.mjs"
+      - ".github/workflows/smn-next-route-startup.yml"
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  next-route-startup:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - name: Installer les dépendances verrouillées
+        run: pnpm install --frozen-lockfile
+      - name: Contrôle des segments de routes Next.js
+        run: node --test tests/smn-next-route-slugs.test.mjs
+      - name: Next.js doit démarrer sans conflit
+        run: node scripts/smn-next-startup-smoke.mjs
+      - name: TypeScript
+        run: pnpm typecheck
