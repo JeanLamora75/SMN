@@ -315,3 +315,58 @@ et `productionRestoreEnabled` restent `false`.
 La CI I0 générale, la recette complète REC-01 à REC-14, le contrôle des
 archives historiques et les attestations externes de suppressions doivent
 être traités séparément. **NO-GO inchangé**.
+
+
+## Audit historique SMN-38/39/40 — préqualification sans effacement
+
+La recette REC-04 (deux restaurations identiques) et le retour arrière
+Windows jetable ont été observés positivement par l'opérateur le 11/11/2026.
+Ils ne couvrent toutefois **aucun effacement antérieur au registre**.
+
+`scripts/smn-40-historical-privacy-audit.ts --check` est un diagnostic
+**strictement en lecture seule** sur l'installation native locale :
+- état des sept garde-fous SQL (migration non déclenchée) ;
+- inventaire intégré vérifié par empreintes des archives PDF, rapports Office,
+  modèles Office et documents privés, **sans sortie des noms ou empreintes** ;
+- disponibilité et période de couverture de la chaîne HMAC externe,
+  nombre de marqueurs, existence d'une intention non résolue ;
+- liste des sept familles d'agrégats soumises à l'Option A de
+  non-réidentification ;
+- codes de preuve manquante, sans jamais produire un feu vert.
+
+Aucun inventaire, même vide, ne constitue une revue humaine du contenu
+des archives ou la preuve d'absence d'effacements antérieurs au registre.
+Une impossibilité de scanner une catégorie reste `unverifiable`, jamais
+un résultat « zéro fichier ».
+
+Commande sur le poste de l'opérateur, après synchronisation GitHub :
+
+```powershell
+pnpm exec tsx --test tests/smn-40-historical-privacy-audit.test.ts
+pnpm exec tsx scripts/smn-40-historical-privacy-audit.ts --check
+```
+
+**Code de sortie 2 attendu**, même si les lectures réussissent :
+la qualification et l'autorisation de déploiement sont volontairement
+bloquées. Ne pas utiliser `--apply`, ne pas initialiser de registre externe,
+et ne pas tenter une restauration historique à cette étape.
+
+### Preuves à rassembler hors GitHub
+
+1. Recenser les suppressions et anonymisations réalisées avant
+   l'enrôlement du registre externe (journaux indépendants,
+   anciennes archives, traces d'exports). **En l'absence de preuve,
+   le résultat demeure « inconnu »**, et non « aucune suppression ».
+2. Revoir humainement chaque archive identifiée, y compris images de PDF,
+   objets embarqués Word/PowerPoint, exports et versions conservées ; attester
+   la révocation d'accès aux originaux si expurgation nécessaire.
+3. Qualifier les sept familles collectives selon l'Option A : conserver
+   seulement en absence démontrée de réidentification, sinon bloquer,
+   expurger ou supprimer après validation.
+4. Vérifier les copies hors gestion SMN et l'historique d'effacement
+   sur toutes les sauvegardes potentiellement restaurables.
+5. Ne jamais remplacer la valeur `completeHistory:false` du moteur
+   par un indicateur dérivé d'un registre nouveau ou d'un inventaire vide.
+
+**Sortie de phase :** documentation des écarts et des preuves manquantes,
+pas une activation de la restauration. Statut **NO-GO** maintenu.
