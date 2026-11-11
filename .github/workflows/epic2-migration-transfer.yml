@@ -16,6 +16,7 @@ on:
       - "src/server/backup/current-managed-file-fingerprint.ts"
       - "src/server/backup/fresh-install-cutover.ts"
       - "scripts/smn-40-fresh-install-activate.ts"
+      - "scripts/smn-40-managed-candidate-prepare.ts"
       - "scripts/smn-40-cross-pc-receipt.ts"
       - "scripts/smn-40-newpc-reconstruct.ts"
       - "scripts/windows/smn-40-newpc-one-shot.ps1"
@@ -28,6 +29,7 @@ on:
       - "tests/smn-40-cross-pc-receipt.test.ts"
       - "tests/smn-40-current-managed-file-fingerprint.test.ts"
       - "tests/smn-40-fresh-install-cutover.test.ts"
+      - "tests/smn-40-managed-candidate-prepare.test.ts"
       - "tests/smn-40-newpc-reconstruct.test.ts"
       - ".github/workflows/epic2-migration-transfer.yml"
   workflow_dispatch:
@@ -56,7 +58,7 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Export, import, intégrité et refus de restauration active
-        run: pnpm exec tsx --test tests/smn-40-migration-source.test.ts tests/smn-40-migration-destination.test.ts tests/smn-40-current-state-comparison.test.ts tests/smn-40-fresh-computer-transfer-policy.test.ts tests/smn-40-current-state-transfer-receipt.test.ts tests/smn-40-cross-pc-receipt.test.ts tests/smn-40-current-managed-file-fingerprint.test.ts tests/smn-40-fresh-install-cutover.test.ts tests/smn-40-portable-package.test.ts tests/smn-40-portable-import.test.ts tests/smn-40-newpc-reconstruct.test.ts
+        run: pnpm exec tsx --test tests/smn-40-migration-source.test.ts tests/smn-40-migration-destination.test.ts tests/smn-40-current-state-comparison.test.ts tests/smn-40-fresh-computer-transfer-policy.test.ts tests/smn-40-current-state-transfer-receipt.test.ts tests/smn-40-cross-pc-receipt.test.ts tests/smn-40-current-managed-file-fingerprint.test.ts tests/smn-40-fresh-install-cutover.test.ts tests/smn-40-managed-candidate-prepare.test.ts tests/smn-40-portable-package.test.ts tests/smn-40-portable-import.test.ts tests/smn-40-newpc-reconstruct.test.ts
       - name: Contrat TypeScript
         run: pnpm typecheck
       - name: Traductions
