@@ -29,7 +29,7 @@ export function assessMigrationSource(
  if(!UTC(archive.createdAt))blockers.push("archive-date-unverified");
  if(!ledger.verified||!UTC(ledger.coverageStart))
   blockers.push("ledger-unverified");
- else if(UTC(archive.createdAt)&&ledger.coverageStart!>archive.createdAt!)
+ else if(UTC(archive.createdAt)&&(ledger.coverageStart as string)>(archive.createdAt as string))
   blockers.push("archive-before-ledger-coverage");
  if(ledger.pendingErasure)blockers.push("erasure-pending");
  if(!Number.isSafeInteger(ledger.postArchiveErasureCount)||
