@@ -17,7 +17,7 @@ test("Windows: user-scoped DPAPI encrypt/decrypt round-trip for external HMAC ke
   const {keyFile,ledger,anchor}=privacyLedgerPaths(env);
   await mkdir(dirname(keyFile),{recursive:true});
   const testSecret=randomBytes(32).toString("hex");
-  const encrypt=`$ErrorActionPreference='Stop'; $s=[Console]::In.ReadToEnd().Trim(); $p=[Text.Encoding]::UTF8.GetBytes($s); try {$c=[Security.Cryptography.ProtectedData]::Protect($p,$null,[Security.Cryptography.DataProtectionScope]::CurrentUser); [Console]::Out.Write([Convert]::ToBase64String($c))} finally {[Array]::Clear($p,0,$p.Length)}`;
+  const encrypt=`$ErrorActionPreference='Stop'; Add-Type -AssemblyName System.Security; $s=[Console]::In.ReadToEnd().Trim(); $p=[Text.Encoding]::UTF8.GetBytes($s); try {$c=[Security.Cryptography.ProtectedData]::Protect($p,$null,[Security.Cryptography.DataProtectionScope]::CurrentUser); [Console]::Out.Write([Convert]::ToBase64String($c))} finally {[Array]::Clear($p,0,$p.Length)}`;
   const encrypted=spawnSync("powershell.exe",[
    "-NoProfile","-NonInteractive","-Command",encrypt
   ],{input:testSecret,encoding:"utf8",windowsHide:true,timeout:10000,maxBuffer:2048});
