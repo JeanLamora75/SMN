@@ -4,7 +4,7 @@ import {test} from "node:test";
 const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 test("SMN-335 trends exposes indicator/start/style/end/filter controls and PNG",()=>{
  const c=read("src/app/app/admin/indicators/indicator-trends.tsx");
- for(const token of ['"bar"|"line"|"pie"|"donut"|"gauge"|"area"','name','setStart','setEnd','setStyle','type="submit"','exportPng','svgRef'])assert.ok(c.includes(token),token);
+ for(const token of ['"bar"|"line"|"pie"|"donut"|"gauge"|"area"','name','setStart','setEnd','setStyle','type="submit"','SharedTrendChart','downloadName'])assert.ok(c.includes(token),token);
 });
 test("SMN-335 defaults to six inclusive cycles ending on selected Sprint",()=>{
  const c=read("src/app/app/admin/indicators/indicator-trends.tsx");
