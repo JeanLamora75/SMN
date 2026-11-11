@@ -5,6 +5,7 @@
 import {randomBytes} from "node:crypto";
 import {spawnSync} from "node:child_process";
 import {mkdir,lstat,writeFile} from "node:fs/promises";
+import {dirname} from "node:path";
 import {Client} from "pg";
 import {privacyLedgerPaths} from "./windows/privacy-ledger-env.mjs";
 import {installedDatabaseUri} from "../src/server/auth/database";
@@ -86,8 +87,11 @@ async function enroll(state:Awaited<ReturnType<typeof inspect>>){
  if(!/^[0-9a-f]{80,2048}$/i.test(encrypted))
   throw Error("privacy-ledger-dpapi-encryption-failed");
  // Exclusive creation ensures existing history/key cannot be reset silently.
- await mkdir(state.ledger,{recursive:true,mode:0o700});
- await mkdir(state.anchor,{recursive:true,mode:0o700});
+ await mkdir(dirname(state.ledger),{recursive:true,mode:0o700});
+ await mkdir(dirname(state.anchor),{recursive:true,mode:0o700});
+ // Atomic exclusive directory creation refuses concurrent enrollments.
+ await mkdir(state.ledger,{mode:0o700});
+ await mkdir(state.anchor,{mode:0o700});
  await writeFile(state.keyFile,encrypted,{flag:"wx",mode:0o600});
  process.env.SMN_ERASURE_LEDGER_DIR=state.ledger;
  process.env.SMN_ERASURE_ANCHOR_DIR=state.anchor;
@@ -115,6 +119,9 @@ async function main(){
  }
  // Refuse enrollment while the app is reachable, the SQL connection is
  // shared, or the exact archive cannot be authenticated.
+ if(["SMN_ERASURE_LEDGER_DIR","SMN_ERASURE_ANCHOR_DIR",
+  "SMN_ERASURE_LEDGER_KEY_HEX"].some(k=>!!process.env[k]))
+  throw Error("privacy-ledger-legacy-configuration-present");
  const preflight=await inspectPrivacyInstallPreflight(process.argv[4]);
  if(!preflight.decision.readyForExplicitGuardsInstallation)
   throw Error("privacy-ledger-offline-preflight-refused");
