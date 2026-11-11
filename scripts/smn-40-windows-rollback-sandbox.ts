@@ -1,6 +1,6 @@
 /**
  * Windows rollback rehearsal: dedicated PG18 cluster and disposable test DBs.
- * Never renames REC-04, second restored database or active SMN.
+ * Never renames the two latest restored databases, REC-04 or active SMN.
  */
 import {spawn} from "node:child_process";
 import {Client} from "pg";
@@ -48,7 +48,7 @@ export async function runWindowsSandboxRollback(
   const names=await db.query<{datname:string}>(`
    SELECT datname FROM pg_catalog.pg_database
    WHERE datname=ANY($1::text[])`,[[
-    "smn_restore_test_rec04_sandbox","smn_restore_test_rec04_second"
+    "smn_restore_test_latest_backup_20261111","smn_restore_test_latest_compare_20261111"
    ]]);
   if(names.rows.length!==2)throw Error("restored-snapshots-missing");
   await db.query("ROLLBACK");
