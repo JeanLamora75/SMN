@@ -58,7 +58,7 @@ async function main(){
  if(!result.candidateReconstructionAllowed)process.exitCode=2;
 }
 if(process.argv[1]?.replaceAll("\\","/")
- .endsWith("/smn-40-migration-destination-check.ts"))
+ .match(/\\/smn-40-migration-destination-check\\.(?:ts|mjs)$/))
  main().catch(()=>{
   process.stderr.write(JSON.stringify({
    status:"blocked",reason:"migration-destination-unverifiable",
