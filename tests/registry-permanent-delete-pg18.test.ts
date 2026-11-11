@@ -15,10 +15,12 @@ test("PG18 native v33 + SMN-40: delete risk with audit, comments, relation and a
  const raw=process.env.SMN_TEST_DATABASE_URL!;
  const url=new URL(raw);
  assert.ok(["127.0.0.1","localhost","[::1]"].includes(url.hostname));
- assert.equal(url.pathname,"/postgres");
+ assert.ok(["/postgres","/smn_ci"].includes(url.pathname),
+  "isolated test fixture must be a local disposable CI cluster");
+ if(url.pathname==="/smn_ci")url.pathname="/postgres";
  const name="smn_registry_delete_test_"+randomUUID().replaceAll("-","").slice(0,12);
- const admin=new Client({connectionString:raw,connectionTimeoutMillis:3500});
- const target=new URL(raw);target.pathname="/"+name;
+ const admin=new Client({connectionString:url.toString(),connectionTimeoutMillis:3500});
+ const target=new URL(url);target.pathname="/"+name;
  let db:Client|null=null,created=false;
  try{
   await admin.connect();
