@@ -12,8 +12,8 @@ import {useCurrentTime} from "../admin/sprints/use-current-time";
 type Attendance="held"|"not_held"|"cancelled";
 const attendanceKind={ceremony:"standard",template:"custom",exceptional:"exceptional"} as const;
 
-export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
- meeting:CalendarMeeting;isAdmin:boolean;onClose:()=>void;onSaved:()=>void;
+export default function CalendarMeetingModal({meeting,isAdmin,teamId,onClose,onSaved}:{
+ meeting:CalendarMeeting;isAdmin:boolean;teamId?:string|null;onClose:()=>void;onSaved:()=>void;
 }){
  const t=useTranslation(),now=useCurrentTime();
  const [detail,setDetail]=useState<CalendarMeetingDetail|null>(null);
@@ -32,6 +32,7 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
  const closeRef=useRef<HTMLButtonElement>(null);
  const dialogRef=useRef<HTMLDivElement>(null);
  const api="/api/team-calendar/meetings/"+encodeURIComponent(meeting.kind)+"/"+encodeURIComponent(meeting.id);
+ const scopedApi=api+(teamId?"?"+new URLSearchParams({teamId}):"");
  const outcomeApi=api+"/outcomes";
  function apply(item:CalendarMeetingDetail){
   setDetail(item);
@@ -43,7 +44,7 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
  useEffect(()=>{
   let active=true;
   const controller=new AbortController();
-  void fetch(api,{cache:"no-store",signal:controller.signal}).then(async res=>{
+  void fetch(scopedApi,{cache:"no-store",signal:controller.signal}).then(async res=>{
    if(!res.ok)throw Error("detail");
    return res.json() as Promise<{meeting:CalendarMeetingDetail}>;
   }).then(result=>{
@@ -52,7 +53,7 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
    apply(result.meeting);setLoadState("ready");
   }).catch(()=>{if(active)setLoadState("error");});
   return()=>{active=false;controller.abort();};
- },[api,meeting.id,meeting.kind]);
+ },[scopedApi,meeting.id,meeting.kind]);
  useEffect(()=>{
   const controller=new AbortController();
   void fetch(outcomeApi,{cache:"no-store",signal:controller.signal}).then(async res=>{
@@ -112,7 +113,7 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
   return t("calendarMeeting.exceptional");
  };
  async function refresh(){
-  const res=await fetch(api,{cache:"no-store"});
+  const res=await fetch(scopedApi,{cache:"no-store"});
   if(!res.ok)throw Error("refresh");
   const result=await res.json() as {meeting:CalendarMeetingDetail};
   if(!result.meeting||result.meeting.id!==meeting.id)throw Error("refresh");
