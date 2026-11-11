@@ -13,7 +13,9 @@ test("global catalog is administrator-only and linked from Settings",()=>{
  const portal=read("src/app/app/admin/settings/settings-catalog-view.tsx");
  assert.match(settings,/account\.role!=="admin"/);
  assert.match(settings,/scope="global"/);
- assert.match(portal,/app\/admin\/settings\/indicators/);
+ const catalog=read("src/lib/settings-catalog.ts");
+ assert.match(portal,/entry\.href/);
+ assert.match(catalog,/\/app\/admin\/settings\/indicators/);
 });
 test("team cockpit exposes all cycles with edit modal and collapsible preferences",()=>{
  const landing=read("src/app/app/admin/indicators/page.tsx");
