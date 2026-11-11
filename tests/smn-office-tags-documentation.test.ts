@@ -59,7 +59,11 @@ test("Documentation states current scope instead of promising multi-sprint table
 test("Tag center has a single heading and five independently collapsible sections",()=>{
  const page=readFileSync("src/app/app/reports/page.tsx","utf8");
  const source=readFileSync("src/app/app/reports/office-tags.tsx","utf8");
- assert.match(page,/Documentation des tags — Word et PowerPoint/);
+ const fr=JSON.parse(readFileSync("src/i18n/fr.json","utf8"));
+ const en=JSON.parse(readFileSync("src/i18n/en.json","utf8"));
+ assert.match(page,/t\("tags"\)/);
+ assert.equal(fr.reportsCenter.tags,"Documentation des tags — Word et PowerPoint");
+ assert.ok(en.reportsCenter.tags);
  assert.doesNotMatch(page,/<h2 id="smn-report-tags-title">\{t\("tags"\)\}<\/h2>/);
  assert.match(source,/<details className="border rounded-3 mb-3 smn-office-tag-section"/);
  assert.match(source,/open=\{initiallyOpen\}/);
