@@ -767,6 +767,8 @@
       "current-documents-unavailable": "Impossible d'inventorier les documents privés actuels.",
       "current-unavailable": "État de l'installation actuelle indisponible."
     },
+    "restorePlanStart": "Préparer une restauration sécurisée",
+    "restorePlanLocked": "Activation interdite tant que les effacements historiques et la reprise de sécurité ne sont pas attestés. Aucune donnée ne sera modifiée.",
     "restorePreflightStart": "Contrôler les prérequis de restauration",
     "restorePreflightRunning": "Contrôle des prérequis…",
     "restorePreflightFailed": "Impossible de confirmer les prérequis de restauration. Aucune modification effectuée.",
