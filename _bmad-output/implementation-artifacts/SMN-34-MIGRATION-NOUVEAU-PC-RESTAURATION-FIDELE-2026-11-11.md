@@ -42,3 +42,17 @@ La sauvegarde est un **instantané fidèle**. Les données personnelles des memb
 Les restaurations isolées (195 tables et zéro écart) et trois tests de rollback Windows en environnement jetable ont été rapportés réussis. Le contrat de préservation et la vérification de tables membres ont été ajoutés au code, avec tests automatisés publiés. **Import sur PC neuf, transport du registre externe, cutover réel et reprise de sessions ne sont pas encore qualifiés.** Ne pas activer une fonctionnalité prétendant achever la migration avant ces validations.
 
 Références : `src/server/backup/restoration-fidelity-policy.ts`, `scripts/smn-40-isolated-privacy-audit.ts`, `src/server/backup/restore-readiness.ts`, ADR `ADR-SMN-EPIC2-RESTAURATION-FIDELE-VS-EFFACEMENT-2026-11-11.md`.
+
+
+## Lot complémentaire — politique de destination neuve (11/11)
+
+Le contrat pur `src/server/backup/new-computer-migration-policy.ts` distingue :
+- destination SMN initialement vierge et vérifiable ;
+- destination déjà peuplée ou porteuse d'un registre ;
+- destination impossible à vérifier.
+
+La comparaison d'identité entre deux installations ne doit pas à elle seule rendre la migration impossible, mais **aucun écrasement d'une installation existante n'est permis via ce mode**. Le paquet doit être vérifié, son inventaire complet, PostgreSQL compatible et la preuve externe d'effacement **indépendamment réconciliée**. La politique autorise au maximum une **reconstruction isolée**, jamais un cutover de production.
+
+Les booléens de preuve utilisés par la fonction pure sont des **résultats attendus de validations serveur**, jamais des champs acceptables d'un utilisateur ou d'une API. Aucun endpoint d'exécution n'est exposé à ce stade. La préparation du transfert chiffré du registre externe et sa vérification sur le nouveau PC restent à implémenter. Le script de sauvegarde ordinaire ne doit pas embarquer le secret HMAC du registre dans l'archive.
+
+Tests : `tests/new-computer-migration-policy.test.ts`. Contrôles : refuse destination existante, fichiers ou tables déjà présents, registre existant, version PG incompatible, paquet incomplet, preuve de registre absente. Aucun effet sur les bases REC-04.
