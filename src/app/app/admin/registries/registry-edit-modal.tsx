@@ -6,6 +6,7 @@ import type {ComponentProps} from "react";
 import {registryTypes,type RegistryType} from "@/lib/registry-types";
 import RegistryCreate from "./registry-create";
 import RegistrySectionDialog from "./registry-section-dialog";
+import RegistryDeleteAction from "./registry-delete-action";
 const icons:Record<RegistryType,ComponentProps<typeof BootstrapIcon>["name"]>={
  risk:"exclamation-octagon-fill",obstacle:"exclamation-triangle-fill",
  dependency:"stack",decision:"bullseye",action:"ticket-perforated-fill",highlight:"bell-fill"
@@ -32,7 +33,9 @@ export default function RegistryEditModal({id,teamId,onSaved,onDismiss}:{
   <BootstrapIcon name={icons[identity.type]}/>
   <span>{t(("registryCreate."+identity.type) as Parameters<typeof t>[0])} : {identity.title}</span>
  </span>:t("registryList.editRecord");
- return <RegistrySectionDialog title={label} onDismiss={onDismiss} wide submitFormId="registry-main-edit">
+ return <RegistrySectionDialog title={label} onDismiss={onDismiss} wide submitFormId="registry-main-edit"
+  deleteAction={identity?<RegistryDeleteAction id={id} title={identity.title} teamId={teamId}
+   onDeleted={onSaved} className="btn btn-outline-danger"/>:undefined}>
   <RegistryCreate key={id} itemId={id} teamId={teamId} canManage={true}
    initialType="risk" modalMode onSaved={onSaved}/>
  </RegistrySectionDialog>;
