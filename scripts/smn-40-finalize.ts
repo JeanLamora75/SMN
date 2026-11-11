@@ -28,7 +28,7 @@ export function parseFinalizeArgs(args:readonly string[]):FinalizeArgs{
 }
 export function finalizeEligibility(guards:number,ready:boolean){
  return {
-  canInstallAndEnroll:guards===0&&ready,
+  canInstallAndEnroll:(guards===0||guards===7)&&ready,
   alreadyInstalled:guards===7,
   restoreAuthorized:false as const,
   historicalHistoryAttested:false as const
@@ -95,13 +95,15 @@ async function main(){
    throw Error("finalize-ledger-already-exists");
  }
  process.stdout.write("SMN-40 1/3 : précontrôle et sauvegarde vérifiés.\n");
- runStep("smn-40-maintenance.ts",[
-  "--apply","--confirm=INSTALL_SENSITIVE_PRIVACY_GUARDS",
-  "--backup-verified=YES"
- ],{SMN40_PRIVACY_BACKUP_ARCHIVE_ID:args.archiveId});
+ if(before.guardsInstalled===0){
+  runStep("smn-40-maintenance.ts",[
+   "--apply","--confirm=INSTALL_SENSITIVE_PRIVACY_GUARDS",
+   "--backup-verified=YES"
+  ],{SMN40_PRIVACY_BACKUP_ARCHIVE_ID:args.archiveId});
+ }
  const count=await guardCount();
  if(count!==7)throw Error("finalize-sql-postcheck-failed");
- process.stdout.write("SMN-40 2/3 : sept protections SQL installées et vérifiées.\n");
+ process.stdout.write("SMN-40 2/3 : sept protections SQL vérifiées.\n");
  // The database migration is committed; a failure here leaves 7/7 and
  // blocks all automatic retries. Never claim that the SQL was rolled back.
  runStep("smn-40-ledger-enrollment.ts",[
