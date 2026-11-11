@@ -79,6 +79,16 @@ test("SMN-34 lot 5 — PostgreSQL 18 offline cutover and failure rollback",
    .map(e=>e.stage),["intent","source-parked","rollback-started","rolled-back"]);
   assert.equal(await probe(two),"before-failure");
   assert.equal(await probe(other),"candidate-failure");
+  const postPromotion=await rehearseOfflineDatabaseCutover({
+   ...base,original:two,candidate:other,rollback:prev,
+   injectFailureAfterPromotion:true
+  });
+  assert.equal(postPromotion.stage,"rolled-back");
+  assert.deepEqual((await readCutoverDrillJournal(
+   postPromotion.journal,base.auditKeyHex)).map(e=>e.stage),
+   ["intent","source-parked","candidate-promoted","rollback-started","rolled-back"]);
+  assert.equal(await probe(two),"before-failure");
+  assert.equal(await probe(other),"candidate-failure");
   const busy=new Client({connectionString:dbUrl(two)});
   try{
    await busy.connect();
