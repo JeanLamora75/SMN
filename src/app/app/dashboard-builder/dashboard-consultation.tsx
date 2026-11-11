@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {DashboardBusinessList} from "./dashboard-business-list";
+import DashboardRecordEditor from "./dashboard-record-editor";
 import {SMNIcon} from "../smn-icon";
 import {isDashboardIcon} from "@/lib/dashboard-builder/icon-catalog";
 import {ceremonyIconColorHex} from "@/lib/ceremony-appearance";
@@ -67,6 +68,7 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
    filters:slot.filters,
   }))),[layout,cycleId]);
  const {slots,refresh,retry}=useDashboardBatch(teamId,cycleId,requests);
+ const [editing,setEditing]=useState<{id:string;kind:string;label:string;cycleId:string}|null>(null);
  const renderBlock=(block:DashboardBlock,headerMode=false)=>{
   const active=visibleSlots(block);
   if(!active.length)return null;
@@ -82,7 +84,8 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
      if(!result||result.state==="loading")return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} aria-busy="true" aria-label="Chargement de la donnée" className={`${styles.slotCard} ${isWatermarkView(slot.view)?styles.watermarkSlot:""}`}><DashboardWatermark slot={slot}/>{(slot.title?.trim()||(!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)))&&<h3 className={styles.slotTitle}>{!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}<span className={styles.slotTitleLabel}>{slot.title?.trim()}</span></h3>}<div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
      if(result.list&&(result.state==="available"||result.state==="absent"))return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} className={`${styles.slotCard} ${isWatermarkView(slot.view)?styles.watermarkSlot:""}`} aria-label={slot.title?.trim()||"Liste du tableau de bord"}><DashboardWatermark slot={slot}/>
       {(slot.title?.trim()||(!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)))&&<h3 className={styles.slotTitle}>{!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}<span className={styles.slotTitleLabel}>{slot.title?.trim()}</span></h3>}
-      <DashboardBusinessList data={result.list} locale={locale} columns={Array.isArray(slot.filters?.columns)?slot.filters.columns as string[]:undefined}/>
+      <DashboardBusinessList data={result.list} locale={locale} columns={Array.isArray(slot.filters?.columns)?slot.filters.columns as string[]:undefined}
+       onEdit={canManage&&!personalizing&&navigation.current?.status!=="closed"?item=>setEditing({id:item.id,kind:item.kind,label:item.label,cycleId:String(slot.filters?.cycleIdOverride??cycleId??"")}):undefined}/>
       {canManage&&mode==="scrum"&&cycleId&&!personalizing&&navigation.current?.status!=="closed"&&
        (slot.source==="calendar:ceremonies"||slot.source==="notes:sprint"||
         (slot.source==="registry:items"&&["all","risk","obstacle"].includes(String(slot.filters?.type??"all"))))&&
@@ -118,6 +121,8 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
  const header=layout.header.blocks.map(block=>renderBlock(block,true)).filter(Boolean);
  const rows=layout.rows.map(row=>row.blocks.map(block=>({block,content:renderBlock(block)})).filter(item=>item.content)).filter(row=>row.length);
  return <div className="smn-dashboard-builder" aria-label="Dashboard personnalisé">
+  {editing&&<DashboardRecordEditor key={editing.id} entry={editing} teamId={teamId}
+   onDismiss={()=>setEditing(null)} onSaved={()=>{setEditing(null);refresh();}}/>}
   <header className={styles.cockpitHeader} aria-label="En-tête du tableau de bord">
    <div className={styles.cockpitLayout}>
     <div>
