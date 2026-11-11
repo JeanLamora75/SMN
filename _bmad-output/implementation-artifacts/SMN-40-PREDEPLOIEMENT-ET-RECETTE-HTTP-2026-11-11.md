@@ -77,3 +77,42 @@ de complétude historique.
 sont pas démontrées. Les preuves techniques en sandbox ne remplacent pas une
 qualification de confidentialité historique. Ne jamais initialiser un registre
 vierge pour déclarer vérifiées des suppressions passées.
+
+
+## Préparation du registre externe — sans enrôlement
+
+L'audit de l'installation active du 11/11/2026 a constaté 15 membres,
+0 archive PDF référencée, 0/7 protections installées et
+`externalLedger=unconfigured`. **Ne pas initialiser de registre vierge**
+avant qualification des suppressions antérieures.
+
+Le registre utilisera trois variables `SMN_ERASURE_LEDGER_DIR`,
+`SMN_ERASURE_ANCHOR_DIR` et `SMN_ERASURE_LEDGER_KEY_HEX`.
+Les deux répertoires doivent être absolus, distincts, non imbriqués, hors
+des dossiers de sauvegarde, des documents privés et des rapports/modèles Office.
+La clé de 32 octets en hexadécimal doit rester confidentielle, sauvegardée et
+récupérable selon une procédure sécurisée distincte ; ne jamais la commiter
+ni la copier dans une sortie de diagnostic.
+
+Le système vérifie les ancrages HMAC, les déchirures d'écriture et les
+intentions en attente. Il ne fournit pas un stockage WORM matériel et
+ne peut pas certifier les opérations antérieures à son enrôlement.
+
+### Sauvegarde v4 existante — contrôle sans écriture
+
+Sur l'installation d'origine, après synchronisation GitHub :
+
+```powershell
+pnpm exec tsx --test tests/smn-40-backup-readiness.test.ts
+pnpm exec tsx scripts/smn-40-backup-readiness.ts --archive 1a591fe3-f9c2-478f-a3fa-fdd7bfe37fb5 --check
+```
+
+Le premier test valide le contrat de sécurité de la commande.
+Le second inspecte l'archive v4 et compare l'inventaire des PDF,
+rapports et modèles Office aux fichiers présents.
+**Il n'effectue aucune restauration**, et un succès d'intégrité
+n'est pas une preuve de retour arrière ni de conformité historique.
+
+La recette REC-04 a précédemment reconstruit un instantané dans un
+cluster isolé PG18, sans qualification définitive de restauration :
+cette preuve ne remplace pas un contrôle à jour de la sauvegarde active.
