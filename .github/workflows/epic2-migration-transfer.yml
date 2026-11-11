@@ -9,10 +9,12 @@ on:
       - "src/server/backup/migration-source-policy.ts"
       - "src/app/api/admin/backups/migration/**"
       - "scripts/smn-40-portable-import.ts"
+      - "scripts/smn-40-migration-destination-check.ts"
       - "scripts/smn-40-newpc-reconstruct.ts"
       - "scripts/windows/smn-40-newpc-one-shot.ps1"
       - "tests/smn-40-portable-*.test.ts"
       - "tests/smn-40-migration-source.test.ts"
+      - "tests/smn-40-migration-destination.test.ts"
       - "tests/smn-40-newpc-reconstruct.test.ts"
       - ".github/workflows/epic2-migration-transfer.yml"
   workflow_dispatch:
@@ -41,7 +43,7 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Export, import, intégrité et refus de restauration active
-        run: pnpm exec tsx --test tests/smn-40-migration-source.test.ts tests/smn-40-portable-package.test.ts tests/smn-40-portable-import.test.ts tests/smn-40-newpc-reconstruct.test.ts
+        run: pnpm exec tsx --test tests/smn-40-migration-source.test.ts tests/smn-40-migration-destination.test.ts tests/smn-40-portable-package.test.ts tests/smn-40-portable-import.test.ts tests/smn-40-newpc-reconstruct.test.ts
       - name: Contrat TypeScript
         run: pnpm typecheck
       - name: Traductions
