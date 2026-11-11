@@ -26,18 +26,23 @@ export default function RegistryDeleteAction({id,title,teamId,onDeleted,classNam
     body:JSON.stringify({teamId,revision})
    });
    if(!response.ok){
-    const data=await response.json().catch(()=>({error:"unavailable"})) as {error?:string};
-    throw Error(response.status===409?data.error==="linked-data"?"linkedData":"conflict":
+    const data=await response.json().catch(()=>({error:"unavailable"})) as {error?:string;diagnosticCode?:string};
+    const key=response.status===409?data.error==="linked-data"?"linkedData":"conflict":
      response.status===404?"notFound":
      data.error==="schema-mismatch"?"schemaMismatch":
      data.error==="protected-operation"?"protectedOperation":
-     data.error==="operation-timeout"?"operationTimeout":"unavailable");
+     data.error==="operation-timeout"?"operationTimeout":"unavailable";
+    const diagnostic=typeof data.diagnosticCode==="string"&&/^PG-[0-9A-Z]{5}$/.test(data.diagnosticCode)?
+     " ["+data.diagnosticCode+"]":"";
+    throw Error(key+diagnostic);
    }
    onDeleted();
   }catch(reason){
-   const key=reason instanceof Error&&["notFound","conflict","linkedData","schemaMismatch","protectedOperation","operationTimeout"].includes(reason.message)?
-    reason.message:"unavailable";
-   setError(tr(key));
+   const message=reason instanceof Error?reason.message:"";
+   const [candidate,diagnostic]=message.split(" [");
+   const key=["notFound","conflict","linkedData","schemaMismatch","protectedOperation","operationTimeout"].includes(candidate)?
+    candidate:"unavailable";
+   setError(tr(key)+(diagnostic&&/^PG-[0-9A-Z]{5}\]$/.test(diagnostic)?" ["+diagnostic:""));
   }finally{setBusy(false);}
  };
  return <>
