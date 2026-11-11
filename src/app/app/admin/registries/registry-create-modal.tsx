@@ -154,7 +154,7 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
     owner:owner||null,dueOn:dueOn||null,comment:comment||null,
     details:details(),
     ...(linkedFromJournal?{requestId:requestId.current}:{}),
-    ...((type==="risk"||type==="obstacle")&&cycleId?{cycleId}:{}),
+    ...((type==="risk"||type==="obstacle"||type==="dependency")&&cycleId?{cycleId}:{}),
     ...(!linkedFromJournal&&sourceId?{sourceId}:{})
    };
    const endpoint=linkedFromJournal?
