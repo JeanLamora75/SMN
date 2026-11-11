@@ -38,11 +38,16 @@ export async function validatePrivateDocumentDirectory(
  if(dedicated){
   const data=join(app,"data");
   const parent=await lstat(data);
+  // Windows temporary roots can be junctions or canonicalized aliases
+  // (short names, volume casing). Compare the child with its resolved
+  // physical parent, not against the user-facing lexical path.
   const physicalPath=await realpath(path),physicalParent=await realpath(data);
+  const expectedPhysical=join(physicalParent,"documents");
   const equal=(a:string,b:string)=>process.platform==="win32"?
-   a.toLowerCase()===b.toLowerCase():a===b;
+   resolve(a).toLowerCase()===resolve(b).toLowerCase():
+   resolve(a)===resolve(b);
   if(!parent.isDirectory()||parent.isSymbolicLink()||
-   !equal(physicalPath,path)||!equal(physicalParent,data))
+   !equal(physicalPath,expectedPhysical))
    throw Error("smn-private-documents-path-unsafe");
  }
 }
