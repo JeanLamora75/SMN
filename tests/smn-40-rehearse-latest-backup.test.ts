@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
+import {resolve} from "node:path";
 import {test} from "node:test";
 import {parseLatestRehearsalArgs,validLatestRehearsalScope}
  from "../scripts/smn-40-rehearse-latest-backup";
@@ -7,7 +8,7 @@ import {parseLatestRehearsalArgs,validLatestRehearsalScope}
 const id="a710f9a7-8a48-4fbc-b3ae-17e3c14bed4d";
 const live="postgresql://smn_active:secret@127.0.0.1:5432/smn";
 const rec04="postgresql://smn_rec04_admin:other-secret@127.0.0.1:57186/smn_restore_test_rec04_sandbox";
-const directory="C:\\isolated-pg18";
+const directory=resolve("isolated-pg18");
 
 test("latest v4 rehearsal: exact read-only check or explicit disposable restore",()=>{
  assert.deepEqual(parseLatestRehearsalArgs(["--archive",id,"--check"]),{
