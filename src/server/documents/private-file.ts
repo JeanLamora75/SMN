@@ -1,8 +1,10 @@
 import {createHash} from "node:crypto";
 import {constants} from "node:fs";
-import {lstat,open,realpath} from "node:fs/promises";
-import {isAbsolute,relative,resolve,sep} from "node:path";
+import {lstat,open} from "node:fs/promises";
+import {resolve} from "node:path";
 import {canAccess,type AccessActor} from "../access-policy";
+import {installedPrivateDocumentsDirectory,validatePrivateDocumentDirectory}
+ from "./storage-path";
 import {validRecordId} from "../dashboard/read";
 
 export type PrivateDocument=Readonly<{format:"PDF"|"TXT";body:Buffer;downloadName:string}>;
@@ -32,16 +34,14 @@ function parseManifest(value:unknown,id:string):Manifest|null{
 /**
  * Aucun contenu sous public/, aucune URL de fichier brute.
  * Les métadonnées privées sont résolues et vérifiées côté serveur seulement.
- * Si le dossier n'est pas configuré, tout téléchargement reste désactivé.
+ * Le stockage par défaut se trouve dans data/documents, hors de public/.
  */
 export async function readPrivateDocument(rootSetting:string|undefined,id:string,activeTeamId:string,
  actor:AccessActor):Promise<PrivateDocument|null>{
- if(!rootSetting||!isAbsolute(rootSetting)||!safeName(id)||!safeName(activeTeamId))return null;
+ if(!safeName(id)||!safeName(activeTeamId))return null;
  try{
-  const root=await realpath(rootSetting);
-  const app=resolve(process.cwd());
-  const insideApp=relative(app,root);
-  if(insideApp===""||(!insideApp.startsWith(".."+sep)&&insideApp!==".."&&!isAbsolute(insideApp))||!isAbsolute(root))return null;
+  const root=installedPrivateDocumentsDirectory(rootSetting);
+  await validatePrivateDocumentDirectory(root);
   const metadata=await readBounded(resolve(root,id+".meta.json"),2048);
   const manifest=parseManifest(JSON.parse(metadata.toString("utf8")),id);
   if(!manifest||manifest.teamId!==activeTeamId||!canAccess(actor,"download",{
