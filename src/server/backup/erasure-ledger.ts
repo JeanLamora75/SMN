@@ -1,6 +1,7 @@
 import {createHmac,randomBytes,timingSafeEqual} from "node:crypto";
 import {appendFile,lstat,mkdir,open,readFile,rename,rm,writeFile} from "node:fs/promises";
 import {isAbsolute,join,resolve,sep} from "node:path";
+import {installedPrivateDocumentsDirectory} from "../documents/storage-path";
 import {createErasureMarker,verifyErasureChain,ERASURE_GENESIS_MAC,
  type ErasureMarker} from "./erasure-evidence-format";
 
@@ -38,7 +39,7 @@ export function erasureLedgerConfig():{ledger:string;anchor:string;key:Buffer}|n
  const fallback=process.platform==="win32"&&process.env.LOCALAPPDATA?
   join(process.env.LOCALAPPDATA,"ScrumMasterNotebook","backups"):null;
  const protectedStores=[process.env.SMN_BACKUP_DIR??fallback,
-  process.env.SMN_PRIVATE_DOCUMENTS_DIR,
+  installedPrivateDocumentsDirectory(),
   process.env.SMN_OFFICE_REPORTS_DIR,process.env.SMN_OFFICE_TEMPLATES_DIR]
   .filter((x):x is string=>typeof x==="string"&&x.length>0);
  for(const store of protectedStores){
