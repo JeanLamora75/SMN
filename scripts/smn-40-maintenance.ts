@@ -74,6 +74,16 @@ async function main(){
  const db=new Client({connectionString:uri,connectionTimeoutMillis:3500,
   statement_timeout:30000,application_name:"smn40-explicit-maintenance"});
  try{
+  if(mode==="apply"){
+   // The preflight must run BEFORE opening this maintenance connection,
+   // otherwise its exclusive-session test would see this process as busy.
+   const archiveId=process.env.SMN40_PRIVACY_BACKUP_ARCHIVE_ID;
+   if(!archiveId)throw Error("maintenance-verified-archive-required");
+   const {inspectPrivacyInstallPreflight}=await import("./smn-40-privacy-install-preflight");
+   const preflight=await inspectPrivacyInstallPreflight(archiveId);
+   if(!preflight.decision.readyForExplicitGuardsInstallation)
+    throw Error("maintenance-preflight-refused");
+  }
   await db.connect();
   if(mode==="check"){
    await db.query("BEGIN READ ONLY");
@@ -83,14 +93,6 @@ async function main(){
    }finally{await db.query("ROLLBACK").catch(()=>undefined);}
    return;
   }
-  // A typed confirmation and a claimed backup are not sufficient evidence.
-  // Inspect the real current archive and quiescence before any SQL write.
-  const archiveId=process.env.SMN40_PRIVACY_BACKUP_ARCHIVE_ID;
-  if(!archiveId)throw Error("maintenance-verified-archive-required");
-  const {inspectPrivacyInstallPreflight}=await import("./smn-40-privacy-install-preflight");
-  const preflight=await inspectPrivacyInstallPreflight(archiveId);
-  if(!preflight.decision.readyForExplicitGuardsInstallation)
-   throw Error("maintenance-preflight-refused");
   // Recheck actual concurrent sessions inside the write transaction.
   await db.query("BEGIN");
   try{
