@@ -1,6 +1,7 @@
-import {randomBytes} from "node:crypto";
-import {open,appendFile,lstat,readdir,mkdir,cp,rename,readFile} from "node:fs/promises";
-import {join,dirname,resolve} from "node:path";
+import {randomBytes,createHash} from "node:crypto";
+import {open,lstat,readdir,mkdir,cp,rename,readFile,realpath} from "node:fs/promises";
+import {join,resolve,relative,isAbsolute,basename} from "node:path";
+import {tmpdir} from "node:os";
 import {Client} from "pg";
 import {existingManagedUri} from "../bootstrap/portable";
 import {managedStorageRoot} from "../bootstrap/managed-paths";
@@ -30,7 +31,6 @@ import {inspectOfflineRestoreMaintenance} from "./restore-maintenance";
  * restarts the owned server with new in-memory sessions.
  */
 const CANDIDATE=/^smn_restore_test_newpc_[a-f0-9]{8,16}$/;
-const HEX=/^[a-f0-9]{64}$/;
 type Stage="intent"|"files-promoted"|"source-parked"|"candidate-promoted"|
  "verified"|"rollback-started"|"rolled-back"|"incident";
 type FileOperation={active:string;prepared:string;rollback:string;state:"ready"|"parked"|"promoted"};
@@ -68,16 +68,15 @@ export function validateFreshInstallPaths(
  cwd:string,a:FreshInstallCutoverArgs
 ):boolean{
  if(!UUID.test(a.archiveId)||!CANDIDATE.test(a.candidateDb)||
-  !a.stagedRoot.startsWith(resolve(cwd))&&
-   !a.stagedRoot.startsWith(resolve(process.env.TEMP??"__never__"))){
-  // Staging may be in the system temporary directory; physical file
-  // verification below is still mandatory.
-  return false;
- }
- return resolve(a.stagedRoot)===a.stagedRoot&&
-  resolve(a.receiptPath)===a.receiptPath&&
-  resolve(a.operatorJournalDir)===a.operatorJournalDir;
+  ![a.stagedRoot,a.receiptPath,a.operatorJournalDir].every(
+   p=>isAbsolute(p)&&resolve(p)===p))return false;
+ const temp=resolve(tmpdir()),diff=relative(temp,a.stagedRoot);
+ if(!diff||diff===".."||diff.startsWith(".."+requireSep())||
+  isAbsolute(diff)||!/^smn_restore_test_files_[a-z0-9]{6,40}$/.test(
+   basename(a.stagedRoot)))return false;
+ return resolve(a.operatorJournalDir)===join(resolve(cwd),"data","migration-audit");
 }
+function requireSep(){return process.platform==="win32"?"\\":"\x2f";}
 /**
  * No injected boolean can override the signed proof or the observed pristine
  * destination. On failure, the coordinator attempts reverse renames and
@@ -215,12 +214,12 @@ export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs
   await target.end();targetReady=false;
   await source.end();sourceReady=false;
   await noDbConnections(admin,["smn",a.candidateDb]);
-  await mkdir(a.operatorJournalDir,{recursive:false,mode:0o700}).catch(e=>{
+  await mkdir(a.operatorJournalDir,{recursive:true,mode:0o700}).catch(e=>{
    if((e as NodeJS.ErrnoException).code!=="EEXIST")throw e;
   });
   const js=await lstat(a.operatorJournalDir);
   if(!js.isDirectory()||js.isSymbolicLink()||
-   !resolve(a.operatorJournalDir).startsWith(resolve(process.cwd())))
+   !same(a.operatorJournalDir,join(process.cwd(),"data","migration-audit")))
    throw Error("migration-journal-dir-invalid");
   journal=join(a.operatorJournalDir,"migration-"+session+".jsonl");
   await (await open(journal,"wx",0o600)).close();
