@@ -477,6 +477,20 @@ dialog.smn-team-context-dialog::backdrop {background:rgba(0,0,0,.52);}
  text-decoration:none;color:var(--smn-foreground)}
 .smn-registry-row-menu-link:hover,.smn-registry-row-menu-link:focus-visible{
  background:var(--smn-soft);color:var(--smn-primary)}
+/* Delete stays inside the anchored menu, never in a 65px table cell. */
+.smn-registry-row-menu .smn-registry-row-delete{
+ display:block;width:100%;text-align:left;border:0;background:transparent;
+ color:var(--bs-danger);cursor:pointer;font:inherit;white-space:normal;
+ overflow-wrap:normal;word-break:normal;
+}
+.smn-registry-row-menu .smn-registry-row-delete:hover,
+.smn-registry-row-menu .smn-registry-row-delete:focus-visible{
+ background:var(--bs-danger-bg-subtle);color:var(--bs-danger-text-emphasis);
+}
+.smn-registry-row-menu [role="alert"]{
+ display:block;white-space:normal;overflow-wrap:break-word;
+ max-width:220px;padding:8px 10px;line-height:1.4;
+}
 .smn-registry-mobile-label{display:none}
 @media(max-width:991px){
  .smn-registry-list-table,.smn-registry-list-table tbody{display:block;width:100%}
