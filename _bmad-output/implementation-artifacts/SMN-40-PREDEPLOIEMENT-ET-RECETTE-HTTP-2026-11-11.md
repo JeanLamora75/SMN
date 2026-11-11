@@ -370,3 +370,30 @@ et ne pas tenter une restauration historique à cette étape.
 
 **Sortie de phase :** documentation des écarts et des preuves manquantes,
 pas une activation de la restauration. Statut **NO-GO** maintenu.
+
+
+### Diagnostic réel du 11/11/2026 — archives non vérifiables
+
+L'opérateur a exécuté les trois tests du contrôle historique (3/3 PASS)
+puis l'audit de son installation native v33. Résultats observés :
+0/7 garde-fous SQL, registre externe non configuré, aucune attestation
+d'effacement avant enrôlement, 0/7 familles collectives revues, inventaire
+`unverifiable`. La sauvegarde v4 avait précédemment fait constater
+un rapport Office et un modèle Office valides : cela **ne démontre pas**
+que les fichiers privés ont été inspectés.
+
+Correctif de diagnostic : l'audit révisé inspecte les PDF/Office
+indépendamment du stockage de documents privés, et expose uniquement
+un code d'explication non sensible (`private-store-unconfigured`,
+`archive-validation-failed`, `combined-inventory-unavailable`).
+Un total partiel ne devient jamais un inventaire complet. Le
+`humanReviewStatus` reste `not-attested`.
+
+Après synchronisation du dépôt :
+```powershell
+pnpm exec tsx --test tests/smn-40-historical-privacy-audit.test.ts
+pnpm exec tsx scripts/smn-40-historical-privacy-audit.ts --check
+```
+Le code de sortie 2 reste attendu. Ne jamais renseigner un chemin
+de documents fictif, vide, ou créé uniquement pour satisfaire ce contrôle.
+Ne pas publier de configuration personnelle ou de noms de documents.
