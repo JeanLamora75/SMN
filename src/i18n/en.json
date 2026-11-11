@@ -796,7 +796,8 @@
     "restoreWarningsTitle": "Risks requiring attention",
     "restoreWarnings": {
       "potential-data-loss": "The backup is older than the current state: recent changes could be lost."
-    }
+    },
+    "failureStage": "Failure stage"
   },
   "members": {
     "title": "Team members",
