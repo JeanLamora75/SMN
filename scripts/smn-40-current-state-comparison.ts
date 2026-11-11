@@ -38,8 +38,23 @@ export async function compareCurrentDatabaseWithCandidate(source:string,candidat
    if(!version.rows[0]?.v.startsWith("18."))
     throw Error("migration-comparison-pg18-required");
   }
+  // Repeated checks close the easy race where a source keeps accepting
+  // application writes while the snapshot is being fingerprinted.
+  const sourceState=async()=>{
+   const sessions=await a.query<{busy:string}>(
+    "SELECT count(*)::text AS busy FROM pg_catalog.pg_stat_activity "+
+    "WHERE datname=current_database() AND pid<>pg_backend_pid()");
+   const wal=await a.query<{lsn:string}>(
+    "SELECT pg_current_wal_lsn()::text AS lsn");
+   if(sessions.rows[0]?.busy!=="0"||!wal.rows[0]?.lsn)
+    throw Error("migration-source-not-quiescent");
+   return wal.rows[0].lsn;
+  };
+  const walBefore=await sourceState();
   const sourceFingerprint=await fingerprintPublicTables(a);
   const candidateFingerprint=await fingerprintPublicTables(b);
+  const walAfter=await sourceState();
+  if(walBefore!==walAfter)throw Error("migration-source-wal-changed");
   const compared=compareFingerprints(sourceFingerprint,candidateFingerprint);
   return {mode:"read-only-state-comparison" as const,
    equivalent:compared.equivalent,
@@ -47,6 +62,7 @@ export async function compareCurrentDatabaseWithCandidate(source:string,candidat
    differingTables:compared.differences,
    sourceDigest:sourceFingerprint.digest,
    candidateDigest:candidateFingerprint.digest,
+   sourceQuiescentDuringComparison:true as const,
    sourceFreezeAttested:false as const,
    fileEquivalenceAttested:false as const,
    historicalErasureCoverageCertified:false as const,
