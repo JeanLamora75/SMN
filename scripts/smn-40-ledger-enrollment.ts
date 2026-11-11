@@ -55,7 +55,19 @@ async function inspect(){
   await db.query("ROLLBACK");
   const [ledgerExists,anchorExists,keyExists]=await Promise.all([
    exists(ledger),exists(anchor),exists(keyFile)]);
-  return {installed,ledger,anchor,keyFile,
+  let integrity:"not-enrolled"|"verified"|"unverifiable"="not-enrolled";
+  let coverageStart:string|null=null;
+  if(ledgerExists||anchorExists||keyExists){
+   integrity="unverifiable";
+   if(ledgerExists&&anchorExists&&keyExists){
+    try{
+     const state=await readErasureLedger();
+     coverageStart=state.coverageStart;
+     integrity="verified";
+    }catch{/* Tampered/missing material must remain unverified. */}
+   }
+  }
+  return {installed,ledger,anchor,keyFile,integrity,coverageStart,
    decision:assessLedgerEnrollment({guardsInstalled:installed,ledgerExists,
     anchorExists,keyExists,schemaVersion:state.schema_version,windows:true})};
  }finally{
@@ -97,6 +109,7 @@ async function main(){
  const state=await inspect();
  if(mode==="check"){
   process.stdout.write(JSON.stringify({mode:"check",guardsInstalled:state.installed,
+   ledgerIntegrity:state.integrity,coverageStart:state.coverageStart,
    ...state.decision})+"\n");
   return;
  }
