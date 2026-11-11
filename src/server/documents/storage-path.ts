@@ -38,8 +38,11 @@ export async function validatePrivateDocumentDirectory(
  if(dedicated){
   const data=join(app,"data");
   const parent=await lstat(data);
+  const physicalPath=await realpath(path),physicalParent=await realpath(data);
+  const equal=(a:string,b:string)=>process.platform==="win32"?
+   a.toLowerCase()===b.toLowerCase():a===b;
   if(!parent.isDirectory()||parent.isSymbolicLink()||
-   await realpath(path)!==path||await realpath(data)!==data)
+   !equal(physicalPath,path)||!equal(physicalParent,data))
    throw Error("smn-private-documents-path-unsafe");
  }
 }
