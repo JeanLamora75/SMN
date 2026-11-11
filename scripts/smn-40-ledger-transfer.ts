@@ -168,7 +168,7 @@ async function stdinPassphrase():Promise<string>{
 }
 async function main(){
  const args=process.argv.slice(2);
- if(args.length!==2||!["--export","--import","--check"].includes(args[0]))
+ if(!((args.length===1&&args[0]==="--check")||\n  (args.length===2&&["--export","--import"].includes(args[0]))))
   throw Error("transfer-arguments-invalid");
  if(args[0]==="--check"){
   if(process.platform!=="win32")throw Error("transfer-windows-required");
