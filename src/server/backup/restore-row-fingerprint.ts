@@ -32,17 +32,20 @@ export async function fingerprintPublicTables(db:Pick<Client,"query">):Promise<F
  for(const {tablename} of relations.rows){
   if(!tableName.test(tablename))throw Error("fingerprint-name-invalid");
   const ident='"'+tablename+'"';
-  // jsonb normalizes object keys; the row hash is based on all column values.
-  // The digest is order-independent, including tables lacking a primary key.
-  const result=await db.query<{rows:string;sha256:string}>(`
-   SELECT count(*)::text AS rows,
-    md5(coalesce(string_agg(md5(to_jsonb(t)::text),'' ORDER BY
-     md5(to_jsonb(t)::text)),'')) AS sha256
-   FROM public.${ident} t`);
-  const row=result.rows[0],count=Number(row?.rows);
-  if(!Number.isSafeInteger(count)||count<0||!row?.sha256)
-   throw Error("fingerprint-row-count-invalid");
-  tables.push({table:tablename,rows:count,sha256:row.sha256});
+  // Hash each normalized row inside PostgreSQL; never fetch raw values.
+  // A stable order preserves duplicates and does not need primary keys.
+  const result=await db.query<{row_hash:string}>(`
+   SELECT encode(sha256(convert_to(to_jsonb(t)::text,'UTF8')),'hex') AS row_hash
+   FROM public.${ident} t
+   ORDER BY row_hash`);
+  if(result.rows.length>200000)throw Error("fingerprint-table-too-large");
+  const hashes=createHash("sha256");
+  for(const row of result.rows){
+   if(!/^[a-f0-9]{64}$/.test(row.row_hash))
+    throw Error("fingerprint-row-hash-invalid");
+   hashes.update(row.row_hash+"\\n");
+  }
+  tables.push({table:tablename,rows:result.rows.length,sha256:hashes.digest("hex")});
  }
  const digest=createHash("sha256")
   .update(tables.map(t=>t.table+"|"+t.rows+"|"+t.sha256).join("\n")).digest("hex");
