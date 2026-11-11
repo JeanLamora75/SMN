@@ -30,3 +30,14 @@ test("the runner never executes the tests before physical cluster verification",
  assert.doesNotMatch(c,/DROP DATABASE|CREATE DATABASE|ALTER DATABASE|pg_restore/);
  assert.match(c,/productionRestoreEnabled:false/);
 });
+
+test("Windows REC-04 read-only diagnostic does not start disposable tests",()=>{
+ const source=readFileSync(new URL("../scripts/smn-40-windows-rollback-sandbox.ts",import.meta.url),"utf8");
+ assert.match(source,/argumentsText==="--check"/);
+ assert.match(source,/async\(\)=>0/);
+ assert.match(source,/disposableTestsStarted:false/);
+ assert.match(source,/stage:auditStage/);
+ assert.match(source,/invalid-credentials/);
+ assert.match(source,/isolated-database-permission-denied/);
+ assert.match(source,/productionRestoreEnabled:false/);
+});
