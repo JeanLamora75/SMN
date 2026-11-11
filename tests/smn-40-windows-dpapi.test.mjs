@@ -21,7 +21,8 @@ test("Windows: user-scoped DPAPI encrypt/decrypt round-trip for external HMAC ke
   const encrypted=spawnSync("powershell.exe",[
    "-NoProfile","-NonInteractive","-Command",encrypt
   ],{input:testSecret,encoding:"utf8",windowsHide:true,timeout:10000,maxBuffer:2048});
-  assert.equal(encrypted.status,0,"Windows DPAPI encryption must work");
+  assert.equal(encrypted.status,0,"Windows DPAPI encryption must work; "+
+   encrypted.stderr.replaceAll(testSecret,"[REDACTED]").slice(0,650));
   assert.match(encrypted.stdout.trim(),/^[0-9a-f]{80,2048}$/i);
   await writeFile(keyFile,encrypted.stdout.trim());
   await mkdir(ledger,{recursive:true});
