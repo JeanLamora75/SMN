@@ -43,6 +43,17 @@ test("SMN-40 PG18 — old clone refused, post-erasure clone verified, external l
   delete process.env.SMN_BACKUP_DIR;
   await mkdir(process.env.SMN_PRIVATE_DOCUMENTS_DIR,{recursive:true});
   await admin.connect();
+  // Pin the integration test to the physical disposable PostgreSQL cluster.
+  // A mismatch must stop before CREATE DATABASE.
+  const expectedCluster=process.env.SMN40_EXPECTED_CLUSTER_DIR;
+  if(expectedCluster){
+   const normalize=(s:string)=>s.replaceAll(String.fromCharCode(92),"/")
+    .replace(/\/$/,"").toLowerCase();
+   const actual=await admin.query<{path:string}>(
+    "SELECT current_setting('data_directory') AS path");
+   assert.equal(normalize(actual.rows[0]?.path??""),normalize(expectedCluster),
+    "SMN-40 isolated PostgreSQL cluster mismatch");
+  }
   const version=await admin.query<{v:string}>(
    "SELECT current_setting('server_version') AS v");
   assert.match(version.rows[0].v,/^18\./);
