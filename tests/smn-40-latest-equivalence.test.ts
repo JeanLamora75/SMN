@@ -26,7 +26,7 @@ test("SMN-40 equivalence: requires dedicated cluster different from active",()=>
   [rec04.replace("smn_restore_test_rec04_sandbox","smn"),live,folder],
   [rec04.replace("127.0.0.1","remote.example"),live,folder],
   [rec04,live.replace("5432","57186"),folder],
-  [rec04,live.replace("/smn","/postgres"),folder],
+  [rec04,live.replace(/\/smn$/, "/postgres"),folder],
   [rec04,live.replace("smn_active","smn_rec04_admin"),folder],
   [rec04,live.replace("smn_active","smn_restore_test_admin"),folder],
   [rec04,live,""]
