@@ -37,6 +37,16 @@ describe("SMN-40 — new computer sandbox scope",()=>{
  });
 });
 
+describe("fresh PC reconstruction does not depend on a source installation",()=>{
+ it("uses a disconnected validation sentinel and never opens the source database",()=>{
+  const script=readFileSync(new URL("../scripts/smn-40-newpc-reconstruct.ts",import.meta.url),"utf8");
+  assert.doesNotMatch(script,/installedDatabaseUri/);
+  assert.match(script,/smn_migration_sentinel/);
+  assert.match(script,/const target=process\.env\.SMN40_NEWPC_SANDBOX_URL/);
+  assert.match(script,/validNewComputerSandbox\(source,target\)/);
+  assert.match(script,/restorationAuthorized:false/);
+ });
+});
 describe("portable reconstruction Windows entrypoint",()=>{
  it("requires archive id and prevents reuse of protected REC-04 cluster",()=>{
   const script=readFileSync(new URL("../scripts/windows/smn-40-newpc-one-shot.ps1",import.meta.url),"utf8");
