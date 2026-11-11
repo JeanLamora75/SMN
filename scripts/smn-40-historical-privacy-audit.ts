@@ -117,7 +117,7 @@ async function main(){
    guardsInstalled:installed,
    archiveCandidates:counts?Object.values(counts).reduce((a,b)=>a+b,0):0,
    archivesVerified:archiveState==="verified",
-   ledgerState,historicDeletionEvidence:historicSignals!==null,collectivesReviewed:0
+   ledgerState,historicDeletionEvidence:false,collectivesReviewed:0
   });
   process.stdout.write(JSON.stringify({
    mode:"read-only",checkedAt:new Date().toISOString(),
