@@ -134,7 +134,7 @@ async function main(){
  process.stdout.write(JSON.stringify(result)+"\n");
 }
 if(process.argv[1]?.replaceAll("\\","/")
- .match(/\\/smn-40-managed-candidate-prepare\\.(?:ts|mjs)$/))
+ .match(/\/smn-40-managed-candidate-prepare\.(?:ts|mjs)$/))
  main().catch(()=>{
   process.stderr.write(JSON.stringify({status:"blocked",
    reason:"migration-candidate-unqualified",
