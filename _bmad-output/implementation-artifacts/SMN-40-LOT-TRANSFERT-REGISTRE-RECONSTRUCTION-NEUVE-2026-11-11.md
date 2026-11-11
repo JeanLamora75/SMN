@@ -222,3 +222,22 @@ Le contrôleur de comparaison est un **outil de preuve partielle**, pas un exéc
 Ne marquer l'Epic **Terminée** que lorsque les 13 stories satisfont leurs critères d'acceptation, que les CI ciblées et transversales sont réussies et qu'une installation neuve non reliée à la base source a réellement retrouvé les données et documents autorisés avec un retour arrière éprouvé. Jusqu'alors, conserver les Stories non qualifiées en **En cours**. La preuve de non-réintroduction des effacements historiques n'est **pas** obtenue à partir du seul registre entré en service le 11 novembre 2026.
 
 Le cas d'usage de migration intégrale de l'état actuel peut être développé sans anonymiser les membres ni falsifier la preuve historique ; le cas de restauration de versions anciennes reste bloqué séparément.
+
+## Incrément de finalisation — attestation de migration vérifiable entre deux PC
+
+### Implémentations sur `main`
+
+- `src/server/backup/current-managed-file-fingerprint.ts` : inventaire canonique haché de **tous les fichiers gérés** (documents, PDF de rapports, rapports et modèles Office) à partir des scanners déjà sécurisés de SMN. La méthode donne le **même digest** que `inspectRestoreFileTree` sur la candidate reconstruite. Les tests comparent effectivement ces deux calculs sur des fichiers temporaires, sans données personnelles.
+- `src/server/backup/current-state-transfer-receipt.ts` : attestation portable HMAC-SHA256 associant identité de la sauvegarde, horodatage, empreinte de toutes les tables, empreinte des fichiers, nombre de fichiers, couverture et tête du registre HMAC des effacements. Elle est signée avec la clé de sauvegarde chiffrée déjà protégée par la phrase de récupération. Aucune liste de noms de membres ou d'identités ne sort dans la preuve. La destination vérifie signature, archive, base, fichiers et registre ; toute divergence bloque.
+- `scripts/smn-40-cross-pc-receipt.ts` : outil séparé de **capture** sur le PC source et de **vérification** sur une base candidate PG18 sur le PC destination, sans liaison réseau entre les ordinateurs. La capture exige un marqueur de maintenance externe `offline-restore`, l'absence d'autres sessions PostgreSQL et un WAL inchangé pendant le relevé ; le registre est relu avant/après. Le contrôle destination exige le registre importé et la candidate isolée.
+- CI dédiée `epic2-migration-transfer.yml` enrichie avec les tests d'empreintes de fichiers, l'attestation portable, les chemins en lecture seule et les vérifications de refus.
+
+### Ce qui est prouvé et ce qui ne l'est pas
+
+Le rapport `currentStateMatched:true` signifie **seulement** que les empreintes et le registre correspondent à une capture source authentifiée. Il n'atteste pas que le PC source restera arrêté après la capture, qu'aucune autre copie externe ne sera activée, ni que les effacements antérieurs à l'enrôlement ont été exhaustivement documentés. Il ne constitue **jamais** une permission de restaurer une ancienne sauvegarde.
+
+Le statut `restorationAuthorized:false` reste obligatoire. La production exige une procédure de bascule hors ligne qui installe et relance le cluster PostgreSQL et tous les répertoires gérés dans le profil destination, réinitialise les sessions et assure un retour arrière vérifié sur vraie installation. **Ce mécanisme n'est pas encore livré.**
+
+### Clôture de l'Epic
+
+Une CI réussie sur des espaces jetables, même sous Windows et PG18 réels, est une preuve de non-régression technique et **pas** une recette de migration de poste à poste sur machine physique. Ne pas déclarer SMN-2 « Terminé » avant une activation bout en bout et sa recette, avec preuve d'absence de réintroduction des données effacées. La migration de l'état courant et la restauration d'une sauvegarde historique restent deux parcours distincts.
