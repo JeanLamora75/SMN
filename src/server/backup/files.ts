@@ -2,6 +2,8 @@ import {createHash,randomBytes} from "node:crypto";
 import {lstat,mkdir,readFile,readdir,rename,rm,writeFile} from "node:fs/promises";
 import {isAbsolute,join,relative,resolve,sep} from "node:path";
 import {seal,type RecoveryEnvelope} from "./crypto";
+import {isInstalledPrivateDocumentDirectory,validatePrivateDocumentDirectory}
+ from "../documents/storage-path";
 
 export const sha=(x:Buffer)=>createHash("sha256").update(x).digest("hex");
 export type BackupComponent=Readonly<{
@@ -16,10 +18,13 @@ export function outsideApp(root:string):boolean{
   &&(difference===".."||difference.startsWith(".."+sep)||isAbsolute(difference));
 }
 export async function privateFolder(dir:string,create=false):Promise<void>{
- if(!outsideApp(dir))throw new Error("backup-private-directory-invalid");
+ if(!outsideApp(dir)&&!isInstalledPrivateDocumentDirectory(dir))
+  throw new Error("backup-private-directory-invalid");
  if(create)await mkdir(dir,{recursive:true,mode:0o700});
  const info=await lstat(dir);
  if(!info.isDirectory()||info.isSymbolicLink())throw new Error("backup-private-directory-invalid");
+ if(isInstalledPrivateDocumentDirectory(dir))
+  await validatePrivateDocumentDirectory(dir);
 }
 export async function sealedFile(key:Buffer,bytes:Buffer,target:string,path:string):Promise<BackupComponent>{
  const encrypted=seal(key,bytes);
