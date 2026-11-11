@@ -767,6 +767,7 @@
       "current-documents-unavailable": "Impossible d'inventorier les documents privés actuels.",
       "current-unavailable": "État de l'installation actuelle indisponible."
     },
+    "migrationDownload": "Télécharger le paquet chiffré (.tar.gz)",
     "migrationStart": "Contrôler la migration vers un nouveau PC",
     "migrationRunning": "Contrôle du transfert…",
     "migrationTitle": "Préparation du transfert vers un nouveau PC",
