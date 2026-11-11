@@ -47,7 +47,12 @@ test("anciens détails de réunions restent fermés en v28",()=>{
   "src/app/api/team-calendar/meetings/[kind]/[id]/route.ts",
   "src/app/api/team-calendar/meetings/[kind]/[id]/outcomes/route.ts"
  ];
- for(const p of previous)assert.match(source(p),/withLegacyTeamApi\(/);
+ for(const p of previous){
+  const code=source(p);
+  assert.doesNotMatch(code,/withLegacyTeamApi\(/);
+  assert.match(code,/resolveAdminTeam/);
+  assert.match(code,/readCalendarMeeting/);
+ }
  assert.match(source("src/lib/team-context-readiness.ts"),
   /SMN_MULTI_TEAM_PILOT_ACK==="I_ACCEPT_UNVERIFIED_ISOLATION"/);
 });
