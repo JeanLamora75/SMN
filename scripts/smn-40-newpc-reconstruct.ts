@@ -123,5 +123,32 @@ async function main(){
  }
 }
 if(process.argv[1]?.replaceAll("\\","/").endsWith("/smn-40-newpc-reconstruct.ts"))
- main().catch(()=>{process.stderr.write("SMN-40 new-PC isolated reconstruction blocked or incomplete. No active restoration.\n");
-  process.exitCode=2;});
+ main().catch((error:unknown)=>{
+  // Deliberately permit only static operational codes, never SQL output,
+  // PostgreSQL URIs, Windows paths, archive contents or secret material.
+  const allowed=new Set(["newpc-arguments-invalid","newpc-target-invalid",
+   "newpc-archive-identity-mismatch","newpc-erasure-pending",
+   "newpc-erasure-reconciliation-required","newpc-target-not-empty-or-incompatible",
+   "newpc-stage-unconfigured","newpc-reconstruction-incomplete",
+   "restore-sandbox-denied","restore-file-staging-disposable-only",
+   "restore-file-staging-already-exists","sandbox-not-empty",
+   "restore-key-invalid","restore-key-or-recovery-phrase-required",
+   "restore-archive-unverified","restore-manifest-inconsistent",
+   "restore-document-name-invalid","restore-document-inventory-mismatch",
+   "restore-postgres-incompatible","pg-restore-unavailable",
+   "pg-restore-failed","restore-rehearsal-failed",
+   "restore-database-hash-mismatch","restore-schema-mismatch",
+   "restore-constraints-unvalidated","restore-pdf-references-missing",
+   "restore-stage-incomplete","restore-staged-files-missing",
+   "restore-file-root-untrusted","restore-file-folder-unexpected",
+   "restore-file-folder-untrusted","restore-file-name-invalid",
+   "restore-file-untrusted","restore-file-changed",
+   "restore-file-scope-limit","manifest-invalid",
+   "ciphertext-invalid","plaintext-invalid","document-too-large",
+   "restore-extra-archive-invalid"]);
+  const reason=error instanceof Error&&allowed.has(error.message)?
+   error.message:"newpc-unclassified";
+  process.stderr.write(JSON.stringify({status:"blocked",reason,
+   activeRestoration:false,rec04Modified:false})+"\n");
+  process.exitCode=2;
+ });
