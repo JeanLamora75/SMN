@@ -45,3 +45,14 @@ test("audit uses installed private store and independently inventories Office an
  assert.match(script,/privateStoreConfigured:archiveReason!==/);
  assert.match(script,/archiveState==="verified"\?null:archiveReason/);
 });
+
+test("legacy deletion signals are counts only, never an automatic authorization",()=>{
+ const script=readFileSync(new URL("../scripts/smn-40-historical-privacy-audit.ts",import.meta.url),"utf8");
+ assert.match(script,/removed_at < \$1::timestamptz/);
+ assert.match(script,/committed_at < \$1::timestamptz/);
+ assert.match(script,/preEnrollmentRecordedSignals:historicSignals/);
+ assert.match(script,/preEnrollmentSourcesComplete:false/);
+ assert.match(script,/historicDeletionEvidence:false/);
+ assert.match(script,/preEnrollmentHistoryAttested:false/);
+ assert.doesNotMatch(script,/SELECT\s+\*\s+FROM\s+public\.smn_member_removal_audit/i);
+});
