@@ -2,8 +2,8 @@
 param([string]$Archive='39b6262d-5f27-4bf8-a005-701dfd9cd9a2')
 $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
-$port=57188
-$root=Join-Path $env:LOCALAPPDATA 'SMN40-NewPC-Isolated-02'
+$port=57189
+$root=Join-Path $env:LOCALAPPDATA 'SMN40-NewPC-Isolated-03'
 $cluster=Join-Path $root 'cluster'
 $passFile=Join-Path $root 'initdb-password.tmp'
 $owner='smn40_newpc_owner'
@@ -42,14 +42,20 @@ function Find-PgBin {
 try {
  if($Archive -notmatch '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'){throw 'Archive invalide'}
  if(Test-Path -LiteralPath $root){throw 'Cible deja existante : refus de reutilisation'}
- if(Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue){throw 'Port 57188 deja utilise'}
+ if(Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue){throw 'Port 57189 deja utilise'}
  $bin=Find-PgBin
  $version=(& (Join-Path $bin 'postgres.exe') --version)
  if($LASTEXITCODE -ne 0 -or $version -notmatch 'PostgreSQL\)\s+18\.'){throw 'Version PostgreSQL 18 non confirmee'}
  New-Item -ItemType Directory -Path $root -ErrorAction Stop|Out-Null
  $password=New-Hex 32
  $database='smn_restore_test_newpc_'+(New-Hex 4)
- $stage=Join-Path ([IO.Path]::GetTempPath()) ('smn_restore_test_files_'+(New-Hex 6))
+ # The restore engine uses Node.js os.tmpdir(), NOT .NET GetTempPath().
+ # Compute the exact absolute staging path in Node and verify the same strict
+ # invariants BEFORE creating the PostgreSQL cluster (never relax the guard).
+ $stageName='smn_restore_test_files_'+(New-Hex 6)
+ $stageJs='const o=require("node:os"),p=require("node:path");const n=process.argv[1];const t=p.resolve(o.tmpdir());const s=p.resolve(t,n);const rel=p.relative(t,s);if(!/^smn_restore_test_files_[a-z0-9]{6,40}$/.test(p.basename(s))||rel!==n||!p.isAbsolute(s)){process.exit(2)}process.stdout.write(s)'
+ $stage=(& node -e $stageJs $stageName)
+ if($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($stage)){throw 'Repertoire temporaire Node non confirme'}
  if(Test-Path -LiteralPath $stage){throw 'Repertoire de staging deja present'}
  [IO.File]::WriteAllText($passFile,$password+[Environment]::NewLine,[Text.Encoding]::ASCII)
  Invoke-Pg (Join-Path $bin 'initdb.exe') @('-D',$cluster,'-U',$owner,'-A','scram-sha-256','--pwfile',$passFile,'--encoding','UTF8','--no-instructions')
