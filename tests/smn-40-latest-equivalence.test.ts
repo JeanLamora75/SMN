@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
+import {resolve} from "node:path";
 import {test} from "node:test";
 import {parseEquivalenceArgs,validateEquivalenceScope}
  from "../scripts/smn-40-latest-equivalence";
@@ -7,7 +8,7 @@ import {parseEquivalenceArgs,validateEquivalenceScope}
 const id="a710f9a7-8a48-4fbc-b3ae-17e3c14bed4d";
 const rec04="postgresql://smn_rec04_admin:secret@127.0.0.1:57186/smn_restore_test_rec04_sandbox";
 const live="postgresql://smn_active:active-secret@127.0.0.1:5432/smn";
-const folder="C:\\isolation\\cluster";
+const folder=resolve("isolated-pg18");
 
 test("SMN-40 equivalence: no implicit CREATE and exact confirm token",()=>{
  assert.deepEqual(parseEquivalenceArgs(["--archive",id,"--check"]),
