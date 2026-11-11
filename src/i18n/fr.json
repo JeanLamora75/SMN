@@ -796,7 +796,8 @@
     "restoreWarningsTitle": "Risques à prendre en compte",
     "restoreWarnings": {
       "potential-data-loss": "La sauvegarde est antérieure à l'état actuel : les données récentes pourraient être perdues."
-    }
+    },
+    "failureStage": "Étape de l'échec"
   },
   "members": {
     "title": "Membres de l'équipe",
