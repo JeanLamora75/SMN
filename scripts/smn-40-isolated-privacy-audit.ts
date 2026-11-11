@@ -9,6 +9,7 @@ import {resolve} from "node:path";
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {fingerprintPublicTables,compareFingerprints} from "../src/server/backup/restore-row-fingerprint";
 import {COLLECTIVE_FAMILIES,type CollectiveFamily} from "../src/server/backup/collective-retention-policy";
+import {assessMemberHistoryRestoration,recoveryDataHandling} from "../src/server/backup/restoration-fidelity-policy";
 
 const FIRST="smn_restore_test_latest_backup_20261111";
 const SECOND="smn_restore_test_latest_compare_20261111";
@@ -153,6 +154,7 @@ async function main(){
  const differences=compareFingerprints(a.fingerprints,b.fingerprints);
  const byTable=new Map(a.fingerprints.tables.map(t=>[t.table,t.rows]));
  const summary=summarizePrivacySignals(a.catalog,byTable);
+ const memberFidelity=assessMemberHistoryRestoration(a.fingerprints,b.fingerprints);
  // Only categories and counts leave the process; no raw names or data.
  const outcome={
   mode:"isolated-privacy-read-only",
@@ -162,6 +164,8 @@ async function main(){
   differingTablesCount:differences.differences.length,
   schemaMetadataConsistent:JSON.stringify(a.catalog)===JSON.stringify(b.catalog),
   familyInventory:summary,
+  recoveryDataHandling:recoveryDataHandling("computer-migration"),
+  memberHistoryFidelity:memberFidelity,
   unmappedTableCount:a.catalog.filter(c=>
    !COLLECTIVE_FAMILIES.some(f=>FAMILY_RULES[f].test(c.table))).length,
   coverage:"heuristic-not-exhaustive",
@@ -174,7 +178,8 @@ async function main(){
   restorationAuthorized:false
  };
  process.stdout.write(JSON.stringify(outcome,null,2)+"\n");
- if(!differences.equivalent||!outcome.schemaMetadataConsistent)process.exitCode=2;
+ if(!differences.equivalent||!outcome.schemaMetadataConsistent||
+  !memberFidelity.memberHistoryEvidenceEquivalent)process.exitCode=2;
 }
 if(process.argv[1]?.replaceAll("\\","/").endsWith("/smn-40-isolated-privacy-audit.ts"))
  main().catch((err:unknown)=>{
