@@ -35,7 +35,7 @@ export default function RegistryEditModal({id,teamId,onSaved,onDismiss}:{
  </span>:t("registryList.editRecord");
  return <RegistrySectionDialog title={label} onDismiss={onDismiss} wide submitFormId="registry-main-edit"
   deleteAction={identity?<RegistryDeleteAction id={id} title={identity.title} teamId={teamId}
-   onDeleted={onSaved} className="btn btn-outline-danger"/>:undefined}>
+   onDeleted={onSaved} compactLabel className="btn btn-outline-danger"/>:undefined}>
   <RegistryCreate key={id} itemId={id} teamId={teamId} canManage={true}
    initialType="risk" modalMode onSaved={onSaved}/>
  </RegistrySectionDialog>;
