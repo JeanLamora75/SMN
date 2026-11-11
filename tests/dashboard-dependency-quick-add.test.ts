@@ -10,7 +10,7 @@ describe("Dashboard — création directe d'une dépendance",()=>{
   const dashboard=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
   assert.match(dashboard,/\["all","risk","obstacle","dependency"\]/);
   assert.match(dashboard,/kind="dependencies"/);
-  assert.match(dashboard,/\+ Ajouter une dépendance/);
+  assert.match(dashboard,/dashboard\.operational\.addDependency/);
   assert.match(dashboard,/slot\.filters\?\.type==="dependency"\?"dependencies"/);
  });
  it("ouvre la fiche métier et verrouille son type",()=>{
