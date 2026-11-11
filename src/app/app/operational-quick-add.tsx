@@ -4,8 +4,9 @@ import {useEffect,useId,useRef,useState,type FormEvent} from "react";
 import {useRouter} from "next/navigation";
 import {useTranslation} from "@/i18n/client";
 import RegistryCreate from "./admin/registries/registry-create";
+import RegistryCreateModal from "./admin/registries/registry-create-modal";
 
-type Kind="obstacles"|"risks"|"events"|"notes";
+type Kind="obstacles"|"risks"|"dependencies"|"events"|"notes";
 type Sprint={id:string;status:string;startAt:string;endAt:string};
 
 function MeetingQuickForm({sprintId,onSaved}:{sprintId:string;onSaved:()=>void}){
@@ -120,6 +121,15 @@ export default function OperationalQuickAdd({kind,teamId,cycleId,label,onSaved}:
   if(opened&&dialog.current&&!dialog.current.open)dialog.current.showModal();
  },[opened]);
  const close=()=>dialog.current?.close();
+ if(kind==="dependencies")return <>
+  <button className="smn-operational-create-link" type="button" onClick={()=>setOpened(true)}>
+   {label}
+  </button>
+  {opened&&<RegistryCreateModal teamId={teamId} cycleId={cycleId}
+   initialType="dependency" restrictedTypes={["dependency"]}
+   onDismiss={()=>setOpened(false)}
+   onCreated={()=>{setOpened(false);onSaved?.();}}/>}
+ </>;
  return <>
   <button className="smn-operational-create-link" type="button" onClick={()=>setOpened(true)}>
    {label}
