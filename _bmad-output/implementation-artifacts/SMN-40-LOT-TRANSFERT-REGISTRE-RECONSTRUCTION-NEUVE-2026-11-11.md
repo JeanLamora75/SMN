@@ -203,3 +203,22 @@ pnpm exec tsx scripts/smn-40-migration-destination-check.ts --archive '<UUID>' -
 Le script `scripts/smn-40-newpc-reconstruct.ts` ne lit plus la configuration de la base de l'installation source pour créer une candidate sur une destination vierge. La valeur `sourceUri` ne sert qu'à la validation de séparation de clusters et est désormais un **comparateur constant jamais connecté**, différent du port/du rôle de la cible jetable. Aucune connexion au PC source ni base `smn` existante n'est requise sur le nouveau PC. Le seul client PostgreSQL effectivement connecté est celui de la base `smn_restore_test_newpc_*`, dans un cluster PG18 distinct ; les bases REC-04 restent interdites.
 
 Ce correctif ne constitue **pas** une activation active : l'étape opérateur en nouvelle installation, l'attestation des effacements historiques et le test inter-PC réel restent non qualifiés. Tests de non-régression ajoutés à `tests/smn-40-newpc-reconstruct.test.ts`, CI migration Windows/Linux à vérifier sur le commit contenant ce correctif.
+
+## Proposition de clôture sans fiction de preuve : migration d'état courant et restauration historique
+
+L'Epic SMN-2 comprend deux opérations différentes :
+
+1. **Migration d'état courant vers un PC vierge** : reprendre exactement le carnet tel qu'il existe *au moment de la migration*, avec les noms des membres, les affectations, calendriers, historiques et documents, sans réintroduire de données qui auraient disparu de ce même état source. La preuve nécessaire est une **équivalence intégrale et indépendante** entre source figée et candidate, avec tous les fichiers gérés, registre d'effacement signé synchronisé, absence d'opération postérieure, destination strictement vierge et compensation du basculement.
+2. **Restauration d'une sauvegarde historique** sur une installation déjà utilisée : elle reste soumise à la couverture historique exhaustive des effacements, ou à une procédure d'expurgation vérifiable. **Ne jamais réemployer la règle de migration d'état courant pour autoriser une ancienne sauvegarde.**
+
+Deux nouveaux modules accompagnent cette séparation :
+- `src/server/backup/fresh-computer-transfer-policy.ts` : politique pure qui refuse toute candidature à l'examen hors ligne sans empreintes PG18 et fichiers strictement égales, source figée, registre synchronisé, aucune suppression postérieure, destination vierge, sessions réinitialisables et retour arrière vérifié ; **aucun droit d'activation dans le navigateur ni le code d'API**.
+- `scripts/smn-40-current-state-comparison.ts` : empreintes de tables de la base source et de la candidate PG18 strictement isolée, requêtes SQL **READ ONLY**, retours anonymisés sous forme de hachages et différences de noms de tables ; ne vérifie ni le gel de la source ni les fichiers.
+
+Le contrôleur de comparaison est un **outil de preuve partielle**, pas un exécuteur de migration. Même un résultat `equivalent:true` n'implique pas une migration autorisée. Le contrôle des fichiers actifs, le gel effectif des écritures, le parcours opérateur final, l'activation encadrée et la recette réelle de reprise sur un deuxième PC restent nécessaires.
+
+### Critère final de livraison SMN-2
+
+Ne marquer l'Epic **Terminée** que lorsque les 13 stories satisfont leurs critères d'acceptation, que les CI ciblées et transversales sont réussies et qu'une installation neuve non reliée à la base source a réellement retrouvé les données et documents autorisés avec un retour arrière éprouvé. Jusqu'alors, conserver les Stories non qualifiées en **En cours**. La preuve de non-réintroduction des effacements historiques n'est **pas** obtenue à partir du seul registre entré en service le 11 novembre 2026.
+
+Le cas d'usage de migration intégrale de l'état actuel peut être développé sans anonymiser les membres ni falsifier la preuve historique ; le cas de restauration de versions anciennes reste bloqué séparément.
