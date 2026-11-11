@@ -2,6 +2,7 @@
 import {mkdirSync,lstatSync,realpathSync} from "node:fs";
 import path from "node:path";
 
+/** @param {string} [root] @param {Record<string,string|undefined>} [env] */
 export function ensureOfficeDirectories(root=process.cwd(),env=process.env){
  ensurePrivateDocumentsDirectory(root,env);
  const defaults=[
@@ -17,6 +18,7 @@ export function ensureOfficeDirectories(root=process.cwd(),env=process.env){
 }
 
 /** Persistent installation data, never in public/ or Next standalone app/. */
+/** @param {string} [root] @param {Record<string,string|undefined>} [env] */
 export function ensurePrivateDocumentsDirectory(root=process.cwd(),env=process.env){
  const base=path.resolve(root);
  const configured=env.SMN_PRIVATE_DOCUMENTS_DIR?.trim();
