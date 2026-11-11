@@ -67,8 +67,15 @@ export async function deleteRegistryItem(
   return {ok:true};
  }catch(error){
   await db.query("ROLLBACK").catch(()=>undefined);
-  if(error&&typeof error==="object"&&"code" in error&&error.code==="23503")
-   return {ok:false,error:"linked-data"};
+  if(error&&typeof error==="object"&&"code" in error){
+   const state=error.code;
+   if(state==="23503")return {ok:false,error:"linked-data"};
+   // Identifiers, SQL text, constraint names and values never enter logs or API.
+   if(typeof state==="string"&&/^[0-9A-Z]{5}$/.test(state))
+    console.error("smn-registry-delete-failed",{sqlState:state});
+  }else{
+   console.error("smn-registry-delete-failed",{kind:"non-sql-error"});
+  }
   throw error;
  }
 }
