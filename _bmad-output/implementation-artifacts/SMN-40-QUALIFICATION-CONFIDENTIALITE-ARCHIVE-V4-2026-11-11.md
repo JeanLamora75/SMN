@@ -1,5 +1,8 @@
 # SMN-40 — Qualification ciblée de l'archive v4 (11 novembre 2026)
 
+> **RECTIFICATIF FONCTIONNEL APPROUVÉ (11/11/2026) — prioritaire sur les prescriptions ci-dessous :** en migration vers un nouvel ordinateur ou en reprise après incident, les données nominatives légitimement présentes **doivent être conservées fidèlement**. L'audit des possibilités de réidentification ne justifie **ni anonymisation ni suppression automatique** dans ces scénarios. Les contrôles de réidentification des agrégats ci-dessous ne s'appliquent comme critère de conservation anonymisée **qu'au traitement exceptionnel d'un effacement définitif explicitement demandé**. La non-réintroduction d'effacements déjà accomplis reste impérative ; l'exécution réelle reste bloquée tant que les garanties opérationnelles ne sont pas acquises. Voir l'[ADR approuvée](../../planning-artifacts/architecture/ADR-SMN-EPIC2-RESTAURATION-FIDELE-VS-EFFACEMENT-2026-11-11.md).
+
+
 ## Objet et preuves techniques
 
 Archive : `a710f9a7-8a48-4fbc-b3ae-17e3c14bed4d`.
