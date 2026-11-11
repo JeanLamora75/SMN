@@ -4,6 +4,7 @@ import type {ImpactCategory,ImpactFinding,ErasureMode} from "./exceptional-erasu
 import {inspectMemberRelations,inspectTextCandidates,inspectArchiveCandidates,
  type TableImpact} from "./erasure-impact-graph";
 import {inspectPrivateDocuments} from "./erasure-private-documents";
+import {installedPrivateDocumentsDirectory} from "../documents/storage-path";
 import {inspectMemberForeignKeys} from "./erasure-fk-discovery";
 import {inspectVerifiedPdfArchiveText,inspectAiBriefText,inspectOfficeReportText}
  from "./erasure-report-binaries";
@@ -71,7 +72,7 @@ export async function previewMemberErasure(memberId:string,mode:ErasureMode):Pro
   ]);
   const assigned=await db.query<{team_id:string}>(`
    SELECT DISTINCT team_id FROM public.smn_member_assignment WHERE member_id::text=$1`,[memberId]);
-  const privateFiles=await inspectPrivateDocuments(process.env.SMN_PRIVATE_DOCUMENTS_DIR,
+  const privateFiles=await inspectPrivateDocuments(installedPrivateDocumentsDirectory(),
    names,new Set(assigned.rows.map(r=>r.team_id)));
   const teams=assigned.rows.map(r=>r.team_id);
   const tokens=names
