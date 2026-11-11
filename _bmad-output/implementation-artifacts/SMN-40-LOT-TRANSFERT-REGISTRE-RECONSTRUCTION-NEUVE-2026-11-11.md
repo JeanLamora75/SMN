@@ -241,3 +241,24 @@ Le statut `restorationAuthorized:false` reste obligatoire. La production exige u
 ### Clôture de l'Epic
 
 Une CI réussie sur des espaces jetables, même sous Windows et PG18 réels, est une preuve de non-régression technique et **pas** une recette de migration de poste à poste sur machine physique. Ne pas déclarer SMN-2 « Terminé » avant une activation bout en bout et sa recette, avec preuve d'absence de réintroduction des données effacées. La migration de l'état courant et la restauration d'une sauvegarde historique restent deux parcours distincts.
+
+## Développement de l'activation hors ligne dans une installation SMN vierge
+
+### Chemin technique désormais implémenté au code
+
+1. Depuis le PC source, une sauvegarde complète v4 **de l'état courant** et un registre externe vérifié sont préparés. Un opérateur fige le PC source (marqueur de maintenance, serveur arrêté) avant d'enregistrer l'attestation inter-PC HMAC `smn-40-cross-pc-receipt`. Les données des membres et leurs historiques **ne sont pas anonymisés ni supprimés**.
+2. Sur le PC neuf, `smn-40-portable-import` vérifie la phrase de récupération et installe les données **chiffrées** dans un stockage vierge ; `smn-40-ledger-transfer` importe séparément le registre HMAC sous le nouveau profil Windows (DPAPI local).
+3. `smn-40-managed-candidate-prepare` utilise le **PostgreSQL 18 portable déjà inclus dans la distribution** ; lorsque la base applicative `smn` est strictement vide, il restaure une candidate isolée **dans ce même cluster géré**, et vérifie les empreintes de tables, documents, PDF/Office et registre à l'aide de l'attestation source signée.
+4. `smn-40-fresh-install-activate` est un exécuteur **hors serveur web**, Windows uniquement, avec confirmation explicite, marqueur de maintenance, runtime géré vérifié, destination strictement vierge et aucun raccord à une route HTTP. Il refuse les répertoires personnalisés, dépose les fichiers dans des dossiers de préparation frères de leurs destinations, contrôle les empreintes après copie puis après promotion, met l'ancienne base `smn` (vide) et les anciens répertoires à l'abri sous des noms de retour arrière, puis promeut la candidate. Les sessions applicatives sont en mémoire et ne sont pas reprises lors du nouveau processus. Le marqueur de maintenance **n'est jamais levé automatiquement**.
+5. `src/server/backup/fresh-cutover-journal.ts` signe la chaîne de transitions de l'opération par HMAC-SHA256 ; une tentative de retour arrière vérifie l'état attendu avant compensation et refuse de poursuivre lorsque l'état est ambigu. **Aucune base ou archive originale n'est supprimée**.
+6. `scripts/windows/package-portable.mjs` prépare des bundles JS autonomes des utilitaires de migration sous `app/maintenance/migration`. `scripts/windows/verify-package.mjs` teste leur syntaxe et leur refus d'arguments invalides avec le **node.exe embarqué**, sans `pnpm`/`tsx`/IDE sur la destination.
+
+### Preuves attendues avant déclaration « Terminé »
+
+- La CI `Epic 2 — Migration inter-PC et paquet chiffré` doit passer sur Windows/Linux avec les tests de signatures et garde-fous.
+- La CI `Vérification I0` doit rester verte.
+- **La CI de packaging Windows** doit réussir la compilation autonome, le smoke du Node embarqué, le contrôle antivirus et la production du ZIP signé/vérifié.
+- Une recette de bout en bout sur un **nouveau profil Windows réellement vierge**, avec PostgreSQL 18, source figée, registre transféré, comparaison des empreintes, promotion, redémarrage et retour arrière forcé, est indispensable pour valider l'exécution **effective** de la bascule (les tests actuels ne démontrent pas encore cette recette). Ne pas utiliser l'installation active du développeur ni les bases REC-04 comme banc d'essai.
+- Une **restauration d'ancienne sauvegarde** sur installation existante reste un cas différent, volontairement bloqué par l'absence d'attestation exhaustive des effacements antérieurs au registre (en service depuis le 11 novembre 2026). La migration d'état courant ne constitue pas une dérogation générale.
+
+**Qualification actuelle : code développé, tests CI de l'incrément encore à confirmer, recette inter-PC physique non exécutée.** Il est interdit d'inscrire SMN-2 ou SMN-34/40 comme Terminée tant que ces preuves restent manquantes.
