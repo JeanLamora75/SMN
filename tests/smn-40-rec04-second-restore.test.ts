@@ -19,7 +19,8 @@ test("a live database, wrong PG server, wrong role or REC-04 alias is never writ
   [admin.replace("/postgres","/smn"),first,source],
   [admin,first.replace("smn_restore_test_rec04_sandbox","smn"),source],
   [admin,first,source.replace(":5432",":57186")],
-  [admin,first,source.replace("/smn","/smn_restore_test_rec04_second")],
+  [admin,first,source.replace(/\/smn$/,"/smn_restore_test_rec04_second")],
+  [admin,first,source.replace("smn_active","smn_restore_test_rec04_second_active")],
   [admin.replace("127.0.0.1","other-host.invalid"),first,source],
   [admin,first.replace("smn_rec04_admin","other-admin"),source],
   [admin,first,source.replace("smn_active","smn_rec04_admin")]
