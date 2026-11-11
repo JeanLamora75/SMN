@@ -116,3 +116,43 @@ n'est pas une preuve de retour arrière ni de conformité historique.
 La recette REC-04 a précédemment reconstruit un instantané dans un
 cluster isolé PG18, sans qualification définitive de restauration :
 cette preuve ne remplace pas un contrôle à jour de la sauvegarde active.
+
+
+## REC-04 — liaison de preuve non destructive avec la sauvegarde v4
+
+Recette locale antérieure : la sauvegarde v4
+`1a591fe3-f9c2-478f-a3fa-fdd7bfe37fb5` a été reconstruite dans
+le cluster PostgreSQL 18 isolé (port 57186), base
+`smn_restore_test_rec04_sandbox`, avec 192 tables.
+L'inventaire vérifié contient un rapport Office, un modèle Office, zéro PDF.
+
+Le nouveau `scripts/smn-40-rec04-evidence.ts --check` constate à nouveau
+le schéma, le répertoire physique du cluster, les versions et les composants
+de la sauvegarde, et refuse tout autre port, base ou cluster.
+Il utilise uniquement une transaction en lecture seule.
+
+### Exécution locale sécurisée
+
+La recette exige deux variables temporaires :
+`SMN40_REC04_DATABASE_URL` (connexion au seul cluster REC-04)
+et `SMN40_REC04_CLUSTER_DIR` (chemin exact du répertoire PGDATA).
+La première peut être définie avec un mot de passe saisi de manière masquée,
+puis doit être supprimée de la session. Ne jamais enregistrer sa valeur dans
+GitHub, les logs ou le dossier de preuves.
+
+```powershell
+pnpm exec tsx --test tests/smn-40-rec04-evidence.test.ts
+pnpm exec tsx scripts/smn-40-rec04-evidence.ts --check
+```
+
+**Portée de la preuve** : observation de la base REC-04 et réinspection
+cryptographique de l'archive locale ; pas de restauration supplémentaire,
+pas de comparaison exhaustive des lignes, pas de simulation d'arrêt du
+serveur Windows ni de basculement en production.
+
+**Statut opérationnel** : REC-04 est un élément utile du dossier de preuves,
+mais `snapshotRowEquivalenceProven=false`,
+`rollbackCutoverQualified=false` et
+`historicalErasureCoverageQualified=false`.
+Le statut reste **NO-GO** pour tout retour arrière destructif ou pour une
+mise en production non contrôlée.
