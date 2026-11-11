@@ -30,7 +30,7 @@ async function main(){
  process.stdout.write(JSON.stringify(result)+"\n");
 }
 if(process.argv[1]?.replaceAll("\\","/")
- .endsWith("/smn-40-fresh-install-activate.ts"))
+ .match(/\\/smn-40-fresh-install-activate\\.(?:ts|mjs)$/))
  main().catch(()=>{
   process.stderr.write(JSON.stringify({status:"blocked",
    reason:"fresh-install-offline-activation-unverified",
