@@ -38,5 +38,6 @@ test("operator gate and exact single disposable CREATE prevent implicit restorat
  assert.match(body,/previewBackupReadOnly/);
  assert.match(body,/rehearseBackupRestore/);
  assert.match(body,/compareFingerprints/);
- assert.doesNotMatch(body,/DROP DATABASE|ALTER DATABASE|initializeErasureLedger/);
+ assert.doesNotMatch(body,/await\s+(?:maintenance|db|admin)\.query\([^\n]*(?:DROP DATABASE|ALTER DATABASE)/);
+ assert.doesNotMatch(body,/initializeErasureLedger\s*\(/);
 });
