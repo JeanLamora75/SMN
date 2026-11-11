@@ -23,7 +23,7 @@ export function parseRegistryInput(value:unknown):RegistryInput|null{
  const type=v.type as RegistryType;
  if(typeof v.title!=="string"||!v.title.trim()||v.title.trim().length>240||
   typeof v.teamId!=="string"||!v.teamId||v.teamId.length>80||
-  (v.cycleId!==undefined&&(typeof v.cycleId!=="string"||!/^[a-f0-9-]{36}$/i.test(v.cycleId)||!["risk","obstacle"].includes(type)))||
+  (v.cycleId!==undefined&&(typeof v.cycleId!=="string"||!/^[a-f0-9-]{36}$/i.test(v.cycleId)||!["risk","obstacle","dependency"].includes(type)))||
   !validDate(v.occurredOn)||
   (v.status!==undefined&& (typeof v.status!=="string"||!registryStatuses[type].some(x=>x===v.status)))||
   !optional(v.description,4000)||!optional(v.owner,200)||!optional(v.comment,2000)||
