@@ -8,7 +8,7 @@
 ## 1. Principes et prérequis
 
 1. Synchroniser `main` avec GitHub Desktop. Ne pas exécuter `uv`, Codex CLI ou un programme tiers.
-2. Créer une **nouvelle sauvegarde v4** par le centre de sauvegarde SMN, vérifier son intégrité et conserver l'UUID. Effectuer une restauration indépendante sur une base **jetable** et conserver le procès-verbal. Les REC-04 précédents ne prouvent pas automatiquement l'état d'une nouvelle archive.
+2. Créer une **nouvelle sauvegarde v4 de moins de 24 heures**, issue de cette même installation, par le centre de sauvegarde SMN, vérifier son intégrité et conserver l'UUID. Effectuer une restauration indépendante sur une base **jetable** et conserver le procès-verbal. Les REC-04 précédents ne prouvent pas automatiquement l'état d'une nouvelle archive.
 3. Fermer le serveur Next, le lanceur propriétaire, les jobs et toutes les sessions PostgreSQL actives ; ne pas couper PostgreSQL, qui doit rester accessible au migrateur. Fermer le navigateur n'arrête pas nécessairement le serveur.
 4. Le port HTTP 3003 doit refuser la connexion. Aucune autre session ne doit occuper la base native. Un instantané « zéro connexion » ne prouve pas l'absence de futurs écrivains : maintien de la maintenance sous contrôle humain.
 5. Conserver le dossier `data/` et toutes les sauvegardes. **Ne jamais** copier une sauvegarde, un secret, le journal ou une archive privée vers GitHub/Jira.
@@ -30,7 +30,7 @@ Vérifier dans le rapport `verifiedArchive:true`, `schemaVersion:33`,
 `decision.readyForExplicitGuardsInstallation:true`.
 Si un champ échoue, **ARRÊTER**. Le précontrôle ne modifie pas la base et ne déclare jamais l'historique confidentiel complet.
 
-Le précontrôle teste exclusivement l'intégrité cryptographique du paquet et l'état instantané de l'installation : il **ne certifie ni la fraîcheur métier de la sauvegarde ni le retour arrière réel sur ce poste**. Ces preuves sont des prérequis opérateur indépendants.
+Le précontrôle exige un paquet de moins de 24 heures, de la même installation et intègre ; il **ne certifie ni l'absence de modifications métier depuis sa capture ni le retour arrière réel sur ce poste**. Ces preuves sont des prérequis opérateur indépendants.
 
 ## 3. Application contrôlée des sept protections
 
