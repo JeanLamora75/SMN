@@ -4,6 +4,7 @@ import {mkdtemp,rm} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {test} from "node:test";
+import type {Client} from "pg";
 import {initializeErasureLedger,readErasureLedger} from
  "../src/server/backup/erasure-ledger";
 import {hasUnresolvedErasureIntent} from "../src/server/backup/erasure-intent";
@@ -40,7 +41,7 @@ test("exceptional executor records a receipt and a durable external marker but n
     return {rows:[]};
    }
   };
-  const result=await withAuditedErasureTransaction(db,{
+  const result=await withAuditedErasureTransaction(db as unknown as Pick<Client,"query">,{
    scopeRevision:"a".repeat(64),operation:"erase",expectedRows:1,
    subjectId:"smn40-synthetic-member"
   },async()=>1);
@@ -90,7 +91,7 @@ test("uncertain database commit leaves a durable pending erasure intent",async()
    if(sql==="COMMIT")throw Error("simulated-disconnected-commit");
    return {rows:[]};
   }};
-  await assert.rejects(withAuditedErasureTransaction(db,{
+  await assert.rejects(withAuditedErasureTransaction(db as unknown as Pick<Client,"query">,{
    scopeRevision:"b".repeat(64),operation:"erase",expectedRows:1,
    subjectId:"smn40-synthetic-member"
   },async()=>1),/privacy-erasure-outcome-unresolved/);
