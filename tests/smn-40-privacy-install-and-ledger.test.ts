@@ -70,11 +70,11 @@ test("migration remains one transaction and requires real archive proof",()=>{
 test("Windows enrollment never stores raw signing key in .env or GitHub",()=>{
  const program=src("scripts/smn-40-ledger-enrollment.ts");
  const loader=src("scripts/windows/privacy-ledger-env.mjs");
- assert.match(program,/ConvertFrom-SecureString/);
+ assert.match(program,/ProtectedData\\]::Protect/);
  assert.match(program,/flag:"wx"/);
  assert.match(program,/initializeErasureLedger/);
  assert.match(program,/inspectPrivacyInstallPreflight/);
- assert.match(loader,/ConvertTo-SecureString/);
+ assert.match(loader,/ProtectedData\\]::Unprotect/);
  assert.match(loader,/privacy-ledger-enrollment-incomplete/);
  assert.doesNotMatch(program,/\.env\.local.*writeFile|DROP TABLE|DELETE FROM|UPDATE public/);
 });
