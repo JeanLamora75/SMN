@@ -25,6 +25,8 @@ export function assessRec04Observation(input:{
   deploymentAuthorized:false as const
  };
 }
+type AuditStage="arguments"|"source-archive"|"isolated-connect"|"isolated-read"|"cluster-identity";
+let auditStage:AuditStage="arguments";
 async function main(){
  if(process.argv.slice(2).join(" ")!=="--check")
   throw Error("rec04-check-only");
@@ -42,11 +44,14 @@ async function main(){
   throw Error("rec04-isolated-connection-invalid");
  const normalize=(s:string)=>s.replaceAll(String.fromCharCode(92),"/")
   .replace(/\/$/,"").toLowerCase();
+ auditStage="source-archive";
  const preview=await previewBackupReadOnly(ARCHIVE);
  const db=new Client({connectionString:uri,connectionTimeoutMillis:3500,
   statement_timeout:15000,application_name:"smn40-readonly-rec04"});
  try{
+  auditStage="isolated-connect";
   await db.connect();
+  auditStage="isolated-read";
   await db.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
   const info=await db.query<{db:string;pg_version:string;cluster:string;schema:number;
    tables:string}>(`
@@ -56,6 +61,7 @@ async function main(){
       (SELECT count(*)::text FROM information_schema.tables
        WHERE table_schema='public' AND table_type='BASE TABLE') AS tables`);
   const state=info.rows[0];
+  auditStage="cluster-identity";
   if(!state||state.db!==DB||normalize(state.cluster)!==normalize(expected))
    throw Error("rec04-physical-cluster-mismatch");
   const components=preview.archive.components;
@@ -86,7 +92,21 @@ async function main(){
 }
 if(process.argv[1]?.replaceAll(String.fromCharCode(92),"/")
  .endsWith("/smn-40-rec04-evidence.ts"))
- main().catch(()=>{
-  process.stderr.write("SMN-40 REC-04 evidence unavailable; no restore performed.\n");
+ main().catch((error:unknown)=>{
+  const pgCode=error&&typeof error==="object"&&"code" in error?
+   (error as {code?:unknown}).code:null;
+  // Do not print raw errors: PostgreSQL and URL failures can expose credentials.
+  const classified=pgCode==="28P01"?"invalid-credentials":
+   pgCode==="3D000"?"isolated-database-not-found":
+   pgCode==="ECONNREFUSED"?"isolated-server-unreachable":
+   error instanceof Error&&[
+    "rec04-isolated-connection-unconfigured",
+    "rec04-isolated-connection-invalid","rec04-physical-cluster-mismatch",
+    "rec04-check-only"
+   ].includes(error.message)?error.message:"unverified";
+  process.stderr.write(JSON.stringify({
+   mode:"read-only",result:"unverified",stage:auditStage,
+   reason:classified,noRestorePerformed:true
+  })+"\n");
   process.exitCode=2;
  });
