@@ -4643,7 +4643,10 @@
     "unavailable": "Suppression impossible pour le moment. Aucune suppression partielle n'a été appliquée.",
     "schemaMismatch": "La structure de la base de données ne correspond pas au traitement de suppression. Aucune suppression n’a été appliquée. Contactez l’administrateur.",
     "protectedOperation": "Une protection de sécurité de la base de données a refusé la suppression. Aucune donnée n’a été supprimée.",
-    "operationTimeout": "La suppression a dépassé le délai autorisé. Aucune suppression partielle n’a été appliquée."
+    "operationTimeout": "La suppression a dépassé le délai autorisé. Aucune suppression partielle n’a été appliquée.",
+    "readFailed": "Impossible de charger la fiche avant suppression (étape de lecture). Aucune suppression n'a été tentée.",
+    "readInvalidRevision": "Impossible de récupérer une révision valide pour cette fiche. La suppression n'a pas été tentée.",
+    "deleteFailed": "La suppression a été refusée par le serveur (étape DELETE). Aucune suppression partielle n'a été appliquée."
   },
   "sprintCeremoniesBulk": {
     "create": "Créer les cérémonies",
