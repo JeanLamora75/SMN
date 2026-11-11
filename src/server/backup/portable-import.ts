@@ -27,7 +27,10 @@ function parseHeader(raw:Buffer){
  if(!/^[0-7]{1,11}$/.test(digits)||!/^[0-7]{1,8}$/.test(checksum))
   throw Error("portable-tar-invalid");
  const size=parseInt(digits,8),expect=parseInt(checksum,8);
- if(!Number.isSafeInteger(size)||size<1||size>MAX_SIZE)
+ const limit=name==="index.json"?1024*1024:
+  name==="manifest.enc"?4*1024*1024:
+  name==="database.pgcustom.enc"?MAX_SIZE:20*1024*1024;
+ if(!Number.isSafeInteger(size)||size<1||size>limit)
   throw Error("portable-entry-size-invalid");
  const copy=Buffer.from(raw);
  copy.fill(32,148,156);
