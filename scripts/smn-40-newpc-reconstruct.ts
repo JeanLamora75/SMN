@@ -15,7 +15,7 @@ import {fingerprintPublicTables} from "../src/server/backup/restore-row-fingerpr
 import {join} from "node:path";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const TARGET=/^smn_restore_test_newpc_[a-f0-9]{8,20}$/;
+const TARGET=/^smn_restore_test_newpc_[a-f0-9]{8,16}$/;
 const CONFIRM="--confirm=RECONSTRUCT_EMPTY_NEWPC_SANDBOX_ONLY";
 export function validNewComputerSandbox(source:string,target:string):boolean{
  try{
@@ -94,7 +94,7 @@ async function main(){
  const result=await rehearseBackupRestore({sourceUri:source,sandboxUri:target,
   backupRoot:root,archiveId:args[1]});
  if(result.status!=="reconstructed-in-sandbox"||
-  !result.databaseAndDocumentsConsistent||result.missingDocumentReferences!==0)
+  !result.databaseAndDocumentsConsistent||result.missingDocumentReferences!==0||\n  !result.fileStagingRetained||!result.fileSnapshotSha256)
   throw Error("newpc-reconstruction-incomplete");
  const verify=new Client({connectionString:target,connectionTimeoutMillis:3500,
   statement_timeout:120000,application_name:"smn40-newpc-row-fingerprint"});
@@ -109,7 +109,7 @@ async function main(){
    verifiedOfficeReports:result.verifiedOfficeReports,
    verifiedOfficeTemplates:result.verifiedOfficeTemplates,
    fingerprintedTables:digest.tables.length,
-   rowFingerprintDigest:digest.digest,documentsConsistent:true,
+   rowFingerprintDigest:digest.digest,documentsConsistent:true,\n   stagedFileSnapshotSha256:result.fileSnapshotSha256,
    verifiedAgainstIndependentCandidate:false,
    historicalErasureCoverageCertified:false,restorationAuthorized:false,
    activeInstallationModified:false,rec04Modified:false},null,2)+"\n");
