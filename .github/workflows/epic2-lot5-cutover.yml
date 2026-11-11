@@ -23,6 +23,8 @@ on:
       - "tests/backup-restore-readiness.test.ts"
       - "tests/smn-34-restore-qualification.test.ts"
       - "tests/smn-34-live-restore-safety.test.ts"
+      - "scripts/smn-40-rec04-second-restore.ts"
+      - "tests/smn-40-rec04-second-restore.test.ts"
       - "tests/smn-34-audit-readonly.test.ts"
       - "tests/smn-34-recette-checklist.test.ts"
       - "scripts/windows/smn-34-recette-contract.mjs"
@@ -75,7 +77,7 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Restore readiness and cutover controls
-        run: pnpm exec tsx --test tests/backup-restore-readiness.test.ts tests/smn-34-restore-qualification.test.ts tests/smn-34-live-restore-safety.test.ts tests/smn-34-audit-readonly.test.ts tests/smn-34-recette-checklist.test.ts tests/smn-34-offline-operator-preflight.test.ts tests/smn-34-offline-cutover-sandbox.test.ts tests/smn-34-sandbox-maintenance-process.test.ts tests/smn-34-session-restart-http.test.ts tests/smn-34-windows-launch-maintenance.test.ts tests/smn-34-windows-launch-owner-e2e.test.ts tests/epic2-lot5-cutover-policy.test.ts tests/epic2-lot5-file-cutover.test.ts tests/epic2-lot5-session-reset.test.ts tests/epic2-lot5-maintenance.test.ts tests/epic2-lot9-maintenance-reset.test.ts tests/epic2-lot9-recovery-measurement.test.ts
+        run: pnpm exec tsx --test tests/backup-restore-readiness.test.ts tests/smn-34-restore-qualification.test.ts tests/smn-34-live-restore-safety.test.ts tests/smn-40-rec04-second-restore.test.ts tests/smn-34-audit-readonly.test.ts tests/smn-34-recette-checklist.test.ts tests/smn-34-offline-operator-preflight.test.ts tests/smn-34-offline-cutover-sandbox.test.ts tests/smn-34-sandbox-maintenance-process.test.ts tests/smn-34-session-restart-http.test.ts tests/smn-34-windows-launch-maintenance.test.ts tests/smn-34-windows-launch-owner-e2e.test.ts tests/epic2-lot5-cutover-policy.test.ts tests/epic2-lot5-file-cutover.test.ts tests/epic2-lot5-session-reset.test.ts tests/epic2-lot5-maintenance.test.ts tests/epic2-lot9-maintenance-reset.test.ts tests/epic2-lot9-recovery-measurement.test.ts
       - name: TypeScript
         run: pnpm typecheck
       - name: Translations
