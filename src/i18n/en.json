@@ -4643,7 +4643,10 @@
     "unavailable": "Unable to delete the record at this time. No partial deletion was applied.",
     "schemaMismatch": "The database structure does not match the deletion operation. Nothing has been deleted. Contact the administrator.",
     "protectedOperation": "A database security safeguard blocked deletion. No data was deleted.",
-    "operationTimeout": "The deletion exceeded the allowed time. No partial deletion was applied."
+    "operationTimeout": "The deletion exceeded the allowed time. No partial deletion was applied.",
+    "readFailed": "Unable to load the record before deletion (read step). No deletion was attempted.",
+    "readInvalidRevision": "Could not obtain a valid revision for this record. Deletion was not attempted.",
+    "deleteFailed": "The server rejected the deletion (DELETE step). No partial deletion was applied."
   },
   "sprintCeremoniesBulk": {
     "create": "Create ceremonies",
