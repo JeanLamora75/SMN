@@ -14,7 +14,7 @@ test("Tendances: le rendu partagé conserve les labels et les incline quand l'es
  assert.match(renderer,/const useRotation=heavy&&cycles\.length>6/);
  const scene=composeAdaptiveChart({target,cycles,series,type:"line",locale:"fr"});
  assert.ok(scene);
- assert.equal(scene.meta.rotated,true);
+ assert.equal("rotated" in scene.meta&&scene.meta.rotated,true);
  assert.match(scene.svg,/rotate\(-45/);
  assert.ok(scene.meta.labels.length===cycles.length);
  assert.ok(scene.meta.labels.every((v:string)=>v.startsWith("Sprint")));
@@ -30,8 +30,8 @@ test("Tendances: le PNG partagé respecte la géométrie et conserve les libell�
 
 test("Tendances: seules les visualisations avec axes ont des libellés inclinés",()=>{
  const axes=composeAdaptiveChart({target,cycles,series,type:"area",locale:"fr"});
- assert.equal(axes?.meta.rotated,true);
+ assert.equal(!!axes&&"rotated" in axes.meta&&axes.meta.rotated,true);
  const pie=composeAdaptiveChart({target,cycles,series,type:"pie",locale:"fr"});
  assert.ok(pie);
- assert.notEqual(pie.meta.rotated,true);
+ assert.notEqual("rotated" in pie.meta&&pie.meta.rotated,true);
 });
