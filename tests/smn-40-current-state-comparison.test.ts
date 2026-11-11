@@ -18,6 +18,10 @@ test("current-state comparison returns hashes only and refuses production writes
  assert.match(script,/fingerprintPublicTables\(a\)/);
  assert.match(script,/fingerprintPublicTables\(b\)/);
  assert.match(script,/READ ONLY/);
+ assert.match(script,/pg_stat_activity/);
+ assert.match(script,/pg_current_wal_lsn/);
+ assert.match(script,/walBefore!==walAfter/);
+ assert.match(script,/sourceFreezeAttested:false/);
  assert.match(script,/sourceFreezeAttested:false/);
  assert.match(script,/restorationAuthorized:false/);
  assert.doesNotMatch(script,/ALTER DATABASE|DROP DATABASE|CREATE DATABASE|\bDELETE FROM\b|pg_restore|writeFile\(/i);
