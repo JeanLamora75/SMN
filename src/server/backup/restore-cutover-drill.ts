@@ -73,7 +73,7 @@ export async function readCutoverDrillJournal(file:string,auditKeyHex:string):Pr
  let previous=ZERO;
  const allowed:Record<CutoverStage,readonly CutoverStage[]>={
   intent:["source-parked"],"source-parked":["candidate-promoted","rollback-started"],
-  "candidate-promoted":["verified","incident"],verified:[],
+  "candidate-promoted":["verified","rollback-started","incident"],verified:[],
   "rollback-started":["rolled-back","incident"],"rolled-back":[],incident:[]
  };
  for(let i=0;i<events.length;i++){
@@ -168,10 +168,30 @@ export async function rehearseOfflineDatabaseCutover(
    }
   }
   if(promoted){
-   await event("incident").catch(()=>undefined);
-   // After promotion the outcome requires independent inspection.
-   // Never reverse only files while PostgreSQL might be active.
-   throw Error("cutover-manual-recovery-required");
+   // A non-atomic database rename can be compensated ONLY in disposable
+   // namespaces after validating the exact three database names and that
+   // both involved databases have no active connections. Never drop either.
+   try{
+    const names=await databaseList(client,[input.original,input.candidate,input.rollback]);
+    if(!names.has(input.original)||names.has(input.candidate)||
+     !names.has(input.rollback))throw Error("cutover-state-ambiguous");
+    await noConnections(client,[input.original,input.rollback]);
+    await event("rollback-started");
+    await client.query("ALTER DATABASE "+quote(input.original)+" RENAME TO "+quote(input.candidate));
+    const afterFirst=await databaseList(client,[input.original,input.candidate,input.rollback]);
+    if(afterFirst.has(input.original)||!afterFirst.has(input.candidate)||
+     !afterFirst.has(input.rollback))throw Error("cutover-rollback-state-ambiguous");
+    await client.query("ALTER DATABASE "+quote(input.rollback)+" RENAME TO "+quote(input.original));
+    const restored=await databaseList(client,[input.original,input.candidate,input.rollback]);
+    if(!restored.has(input.original)||!restored.has(input.candidate)||
+     restored.has(input.rollback))throw Error("cutover-rollback-verification-failed");
+    await event("rolled-back");
+    return {journal:path,stage:"rolled-back",rollbackPreserved:false};
+   }catch{
+    await event("incident").catch(()=>undefined);
+    // Never reverse files in an ambiguous PostgreSQL state.
+    throw Error("cutover-manual-recovery-required");
+   }
   }
   const reason=error instanceof Error?error.message:"unknown";
   const allow=new Set(["cutover-open-connections","cutover-database-state-invalid",
