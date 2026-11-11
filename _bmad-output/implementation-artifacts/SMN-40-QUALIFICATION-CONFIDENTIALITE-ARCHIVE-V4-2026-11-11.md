@@ -106,3 +106,23 @@ pnpm exec tsx scripts/smn-40-isolated-privacy-audit.ts --check
 ```
 
 Ne pas détruire les deux bases après cet audit : elles restent les preuves de double reconstruction.
+
+
+## Audit sémantique REC-04 — approfondissement non destructif
+
+Nouveau script : `scripts/smn-40-isolated-semantic-audit.ts --check`. Il contrôle deux fois (une fois par restauration préservée) les éléments ci-dessous sur le cluster REC-04 identifié physiquement, dans des transactions `REPEATABLE READ READ ONLY` :
+- inventaire des tables et colonnes, présence des relations métier fondamentales membres/équipes/sprints/indicateurs v33 ;
+- relations déclarées sous forme de clés étrangères, tables non couvertes par ces FK ;
+- signaux de champs JSON et de liens aux personnes, par famille d'indicateurs ;
+- distribution anonymisée des effectifs historiques par équipe et des effectifs affectés pendant chaque sprint (0, 1, 2–4, ≥5), sans sortie d'identités, d'IDs ou d'effectifs précis par équipe ;
+- comparaison des **résultats agrégés** entre les deux restaurations, sans nouveau `CREATE` ni `DROP`.
+
+L'appartenance à un sprint est approximée par le recouvrement des dates d'affectation ; ce n'est pas la disponibilité réelle, l'allocation individuelle, ni une preuve d'absence de réidentification. La somme des règles par nom peut créer des recouvrements et des lacunes. L'absence de FK ne prouve pas l'absence de relation logique. Les cohortes d'un membre ou 2–4 membres doivent être examinées avec une attention accrue, sans conclure que les cohortes ≥5 sont automatiquement sûres.
+
+L'audit **n'inspecte pas** les valeurs personnelles des colonnes JSON, les documents Office ni les exports externes. Il ne constitue pas une autorisation d'effacement ou de restauration.
+
+```powershell
+pnpm exec tsx scripts/smn-40-isolated-semantic-audit.ts --check
+```
+
+Les variables `SMN40_REC04_DATABASE_URL` et `SMN40_REC04_CLUSTER_DIR` doivent être fournies localement, sans jamais publier d'identifiants. Les deux bases de preuve restent inchangées.
