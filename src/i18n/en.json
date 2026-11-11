@@ -767,6 +767,8 @@
       "current-documents-unavailable": "Current private documents could not be inventoried.",
       "current-unavailable": "Current installation state unavailable."
     },
+    "restorePlanStart": "Prepare secure restoration",
+    "restorePlanLocked": "Activation is prohibited until historical erasures and recovery safeguards are attested. No data will be changed.",
     "restorePreflightStart": "Check restore prerequisites",
     "restorePreflightRunning": "Checking prerequisites…",
     "restorePreflightFailed": "Unable to verify restore prerequisites. No changes were made.",
