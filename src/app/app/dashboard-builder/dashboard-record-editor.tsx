@@ -40,7 +40,7 @@ export default function DashboardRecordEditor({entry,teamId,onDismiss,onSaved}:{
  if(["ceremony","template","exceptional"].includes(entry.kind)){
   const meeting:CalendarMeeting={id:entry.id,kind:entry.kind,name:entry.label,
    startAt:"",endAt:"",href:"/app/team-calendar"};
-  return <CalendarMeetingModal meeting={meeting} isAdmin onClose={onDismiss} onSaved={onSaved}/>;
+  return <CalendarMeetingModal meeting={meeting} isAdmin teamId={teamId} onClose={onDismiss} onSaved={onSaved}/>;
  }
  if(!isNote)return <RegistryEditModal id={entry.id} teamId={teamId}
   onDismiss={onDismiss} onSaved={onSaved}/>;
