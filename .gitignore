@@ -33,6 +33,7 @@ Desktop.ini
 
 # Cluster PostgreSQL portable et données personnelles locales
 /data/postgres/
+/data/documents/
 
 # Paquets et staging de mises à jour locaux (pas de distribution dans Git)
 /updates/
