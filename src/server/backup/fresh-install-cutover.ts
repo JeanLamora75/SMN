@@ -67,12 +67,18 @@ async function fingerprintsByGroups(paths:readonly string[]){
     throw Error("migration-file-limit");
   }
  }
- return {sha256:createHash("sha256").update(rows.join("\\n")).digest("hex"),
+ return {sha256:createHash("sha256").update(rows.join("\n")).digest("hex"),
   count,bytes};
 }
 async function emptyFolder(path:string){
- const info=await exists(path);
- if(!info||!info.isDirectory()||info.isSymbolicLink()||
+ let info=await exists(path);
+ if(!info){
+  // Creating a previously absent EMPTY default directory is safe for a new
+  // installation; no existing data is ever removed or overwritten.
+  await mkdir(path,{recursive:true,mode:0o700});
+  info=await lstat(path);
+ }
+ if(!info.isDirectory()||info.isSymbolicLink()||
   (await readdir(path)).length!==0)throw Error("migration-destination-not-empty");
 }
 async function listDatabases(c:Client,names:string[]){
