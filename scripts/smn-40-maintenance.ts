@@ -83,10 +83,22 @@ async function main(){
    }finally{await db.query("ROLLBACK").catch(()=>undefined);}
    return;
   }
-  // The confirmation is only an execution gate, not a proof of historical privacy.
+  // A typed confirmation and a claimed backup are not sufficient evidence.
+  // Inspect the real current archive and quiescence before any SQL write.
+  const archiveId=process.env.SMN40_PRIVACY_BACKUP_ARCHIVE_ID;
+  if(!archiveId)throw Error("maintenance-verified-archive-required");
+  const {inspectPrivacyInstallPreflight}=await import("./smn-40-privacy-install-preflight");
+  const preflight=await inspectPrivacyInstallPreflight(archiveId);
+  if(!preflight.decision.readyForExplicitGuardsInstallation)
+   throw Error("maintenance-preflight-refused");
+  // Recheck actual concurrent sessions inside the write transaction.
   await db.query("BEGIN");
   try{
    await db.query("SET LOCAL lock_timeout='3s'");
+   const concurrent=await db.query<{n:string}>(`
+    SELECT count(*)::text AS n FROM pg_catalog.pg_stat_activity
+    WHERE datname=current_database() AND pid<>pg_backend_pid()`);
+   if(concurrent.rows[0]?.n!=="0")throw Error("maintenance-active-db-sessions");
    const before=await inspectPrivacySchema(db);
    if(before.delete_guard&&!before.receipt)
     throw Error("maintenance-existing-guard-inconsistent");
