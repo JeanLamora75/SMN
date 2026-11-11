@@ -99,3 +99,30 @@ Références : [ADR restauration fidèle](../planning-artifacts/architecture/ADR
 - **Non livré dans cet incrément** : import d'un paquet de sauvegarde externe dans un dossier privé, transaction de bascule sur installation active, compensation multi-fichiers, réauthentification après bascule, attestation historique indépendante. La restauration active reste interdite.
 
 **Critère de sécurité :** jamais de promotion d'une sauvegarde sur la seule base d'une réussite de reconstruction isolée. Aucun test de l'interface ne doit être présenté comme la qualification d'une restauration active.
+
+## Lot suivant — bascule compensable et qualification historique (11 novembre 2026)
+
+### Implémenté : retour arrière après promotion sur environnement jetable
+
+Le mécanisme existant `restore-cutover-drill.ts` conserve un **journal HMAC synchronisé**, écrit une intention avant le premier `ALTER DATABASE`, refuse les bases hors namespace `smn_restore_test_*` et conserve les originaux sous un nom de retour arrière.
+
+Nouvelle compensation du scénario où la promotion PostgreSQL a réussi mais où l'étape suivante échoue :
+1. Vérifier les trois noms de bases sur **la même instance PostgreSQL 18 isolée** : origine présente, candidate absente, sauvegarde de retour arrière présente ; refuser toute session concurrente.
+2. Journaliser `rollback-started` avec signature avant de renommer.
+3. Renvoyer la base promue vers son nom de candidate, vérifier l'état, puis remettre l'originale à son nom initial.
+4. Vérifier l'état final des trois noms, journaliser `rolled-back`; le coordinateur de fichiers rétablit alors les documents originaux et conserve l'ancienne candidate comme preuve.
+5. Si l'un de ces contrôles échoue, inscrire `incident` et **interdire la compensation automatisée des fichiers** : une divergence potentielle ne doit jamais être dissimulée.
+
+Tests mis à jour : `tests/epic2-lot5-cutover-pg.test.ts` et `tests/epic2-lot5-coordinated-pg.test.ts` avec injection d'échec **après promotion**. Les tests PostgreSQL 18 de la CI doivent être réellement exécutés et confirmés avant de considérer ce nouveau cas qualifié.
+
+**Limite fondamentale :** PostgreSQL `ALTER DATABASE RENAME` et plusieurs dossiers sur disque ne partagent pas une transaction atomique. C'est une **saga compensable et journalisée**, pas une transaction ACID globale. Le code est volontairement limité aux tests jetables : aucune bascule de l'installation active n'est activée par cette modification.
+
+### Qualification des effacements antérieurs au registre
+
+`scripts/smn-40-historical-privacy-audit.ts --check` recense désormais, en lecture seule et **sans identité ou contenu personnel**, les nombres de reçus d'effacement et de suppressions membres antérieurs à l'enrôlement, **uniquement si les deux tables d'audit sont disponibles**. L'état `preEnrollmentSourcesComplete:false` et `preEnrollmentHistoryAttested:false` reste obligatoire.
+
+Ces comptes **ne prouvent pas** l'absence d'autres suppressions par chemins historiques, de données hors registre ni de copies externes. Il est impossible de déduire rétroactivement une couverture exhaustive de la seule existence de sept gardes SQL installés aujourd'hui ou d'un registre portant zéro marqueur.
+
+**Décision d'architecture :** le contrôle `currentErasureEvidence` conserve `completeHistory:false`. Ni les commandes locales, ni un champ JSON fourni par l'utilisateur, ni la seule validation du registre depuis son démarrage ne peuvent le passer automatiquement à `true`. La qualification historique requiert des preuves indépendantes et exhaustives, ou un nouveau périmètre de migration conçu pour ne pas réintroduire des sujets effacés, attesté et testé séparément. Sans elles, `restorationAuthorized:false`.
+
+**Livrables distincts et non réalisés :** exécuteur de bascule production sécurisé, interruption des accès et sessions réelles, test inter-PC de l'import DPAPI, preuve de couverture historique exhaustive. Le présent lot ajoute le scénario de compensation du *drill* et des signaux d'audit, **sans activer** la restauration active.
