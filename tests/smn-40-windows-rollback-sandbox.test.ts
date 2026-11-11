@@ -22,12 +22,12 @@ test("the runner never executes the tests before physical cluster verification",
  assert.match(c,/data_directory/);
  assert.match(c,/isolated-postgres-identity-mismatch/);
  assert.match(c,/smn_restore_test_latest_backup_20261111/);
- assert.match(c,/smn_restore_test_rec04_second/);
+ assert.match(c,/smn_restore_test_latest_compare_20261111/);
+ assert.doesNotMatch(c,/DROP DATABASE|CREATE DATABASE|ALTER DATABASE|pg_restore/);
  assert.match(c,/--sandbox-only/);
  assert.match(c,/tests\/epic2-lot5-cutover-pg\.test\.ts/);
  assert.match(c,/tests\/epic2-lot5-file-cutover\.test\.ts/);
  assert.match(c,/tests\/smn-34-offline-cutover-cli-pg\.test\.ts/);
- assert.doesNotMatch(c,/DROP DATABASE|CREATE DATABASE|ALTER DATABASE|pg_restore/);
  assert.match(c,/productionRestoreEnabled:false/);
 });
 
