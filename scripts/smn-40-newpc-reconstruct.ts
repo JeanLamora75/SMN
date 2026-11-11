@@ -125,7 +125,7 @@ async function main(){
   await verify.end().catch(()=>undefined);
  }
 }
-if(process.argv[1]?.replaceAll("\\","/").match(/\\/smn-40-newpc-reconstruct\\.(?:ts|mjs)$/))
+if(process.argv[1]?.replaceAll("\\","/").match(/\/smn-40-newpc-reconstruct\.(?:ts|mjs)$/))
  main().catch((error:unknown)=>{
   // Deliberately permit only static operational codes, never SQL output,
   // PostgreSQL URIs, Windows paths, archive contents or secret material.
