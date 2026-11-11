@@ -75,7 +75,7 @@ describe("Réunion décalée : dates début et fin",()=>{
   const route=readFileSync(fileURLToPath(new URL("../src/app/api/team-calendar/meetings/[kind]/[id]/route.ts",import.meta.url)),"utf8");
   assert.match(modal,/setEnd\(e\.target\.value\)/);
   assert.match(modal,/durationBetweenLocal\(start,end,detail\.timeZone\)/);
-  assert.match(modal,/void patch\(api,\{startAt:iso,endAt:isoEnd,revision:detail\.revision\}\)/);
+  assert.match(modal,/void patch\(scopedApi,\{startAt:iso,endAt:isoEnd,revision:detail\.revision\}\)/);
   assert.match(route,/authorizeApi\(request,"write"/);
  });
  it("préserve le calcul autonome pour cérémonie et réunion exceptionnelle",async()=>{
