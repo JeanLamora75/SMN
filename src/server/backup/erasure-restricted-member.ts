@@ -6,6 +6,7 @@ import {officeReportsDirectory} from "../reports/office-storage";
 import {officeTemplatesDirectory} from "../reports/office-catalog";
 import {inspectExtraArchives} from "./extra-archives";
 import {withAuditedErasureTransaction} from "./erasure-transaction";
+import {installedPrivateDocumentsDirectory} from "../documents/storage-path";
 
 /**
  * Narrow, fail-closed executor for a provisional member never used anywhere.
@@ -45,9 +46,8 @@ async function emptyStore(path:string,mustExist=false):Promise<boolean>{
  */
 export async function managedBinaryScopeEmpty(
  db:Pick<Client,"query">):Promise<boolean>{
- if(!process.env.SMN_PRIVATE_DOCUMENTS_DIR)return false;
  try{
-  const privateDir=process.env.SMN_PRIVATE_DOCUMENTS_DIR;
+  const privateDir=installedPrivateDocumentsDirectory();
   if(!await emptyStore(privateDir,true))return false;
   for(const path of [pdfArchiveDirectory(),officeReportsDirectory(),
    officeTemplatesDirectory()])
