@@ -18,6 +18,9 @@ describe("SMN-34 — preflight refuse toute restauration non qualifiée",()=>{
   const decision=assessRestoreGate(baseline);
   assert.equal(decision.decision,"blocked");
   assert.equal(decision.canExecute,false);
+  assert.equal(decision.dataHandling.memberIdentity,"preserve");
+  assert.equal(decision.dataHandling.historicalAssignments,"preserve");
+  assert.equal(decision.dataHandling.automaticAnonymization,false);
   assert.ok(decision.blockers.includes("privacy-erasures-unverified"));
   assert.ok(decision.blockers.includes("isolated-restore-unverified"));
   assert.ok(decision.blockers.includes("rollback-checkpoint-unverified"));
