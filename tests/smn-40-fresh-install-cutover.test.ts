@@ -1,0 +1,46 @@
+import assert from "node:assert/strict";
+import {test} from "node:test";
+import {readFileSync} from "node:fs";
+import {join} from "node:path";
+import {tmpdir} from "node:os";
+import {validateFreshInstallPaths} from "../src/server/backup/fresh-install-cutover";
+
+const cwd=join(tmpdir(),"smn-epic2-fresh-fixture");
+const args={
+ archiveId:"39b6262d-5f27-4bf8-a005-701dfd9cd9a2",
+ candidateDb:"smn_restore_test_newpc_abcdef12",
+ stagedRoot:join(tmpdir(),"smn_restore_test_files_abcdef12"),
+ receiptPath:join(tmpdir(),"migration-current-state.json"),
+ operatorJournalDir:join(cwd,"data","migration-audit")
+};
+test("fresh activation scope permits only a disposable candidate and dedicated audit",()=>{
+ assert.equal(validateFreshInstallPaths(cwd,args),true);
+ assert.equal(validateFreshInstallPaths(cwd,{...args,candidateDb:"smn"}),false);
+ assert.equal(validateFreshInstallPaths(cwd,{...args,stagedRoot:cwd}),false);
+ assert.equal(validateFreshInstallPaths(cwd,{...args,
+  operatorJournalDir:join(cwd,"public","migration-audit")}),false);
+});
+test("fresh offline activation retains original DB/files and external maintenance fence",()=>{
+ const file=readFileSync(new URL("../src/server/backup/fresh-install-cutover.ts",import.meta.url),"utf8");
+ assert.match(file,/process\.platform!=="win32"/);
+ assert.match(file,/SMN40_FRESH_INSTALL_OFFLINE_CONFIRM/);
+ assert.match(file,/inspectOfflineRestoreMaintenance\(\)/);
+ assert.match(file,/existingManagedUri\(\)/);
+ assert.match(file,/migration-destination-database-not-empty/);
+ assert.match(file,/migration-destination-not-empty/);
+ assert.match(file,/comparePortableCurrentState\(proof,key/);
+ assert.match(file,/ledger\.markers\.some\(/);
+ assert.match(file,/fingerprintsByGroups\(operations\.map\(op=>op\.prepared\)\)/);
+ assert.match(file,/fingerprintsByGroups\(operations\.map\(op=>op\.active\)\)/);
+ assert.match(file,/ALTER DATABASE/);
+ assert.match(file,/migration-manual-recovery-required/);
+ assert.match(file,/maintenanceMustRemain:true/);
+ assert.doesNotMatch(file,/DROP DATABASE|TRUNCATE|DELETE FROM|rm\(|unlink\(/);
+});
+test("fresh activation command cannot run from browser and never removes the fence",()=>{
+ const file=readFileSync(new URL("../scripts/smn-40-fresh-install-activate.ts",import.meta.url),"utf8");
+ assert.match(file,/--confirm=PRISTINE_INSTALLATION_OFFLINE_ONLY/);
+ assert.match(file,/activateFreshManagedInstallation\(/);
+ assert.match(file,/maintenanceMustRemain:true/);
+ assert.doesNotMatch(file,/NextRequest|authorizeApi|fetch\(|unlink\(|rm\(/);
+});
