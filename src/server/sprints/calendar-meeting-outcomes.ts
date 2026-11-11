@@ -82,7 +82,8 @@ export async function createMeetingOutcome(
     JOIN public.smn_team t ON t.id=s.team_id
     JOIN public.smn_installation i ON i.id=t.installation_id
     WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton'
-      AND i.state='initialized' AND lower(i.mode)='scrum'
+      AND i.state='initialized'
+      AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))='scrum'
     FOR UPDATE OF s`,[meeting.sprintId]);
   const sprint=scoped.rows[0];
   if(!sprint){
