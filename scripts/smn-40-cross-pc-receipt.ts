@@ -169,7 +169,7 @@ async function main(){
  if("currentStateMatched" in result&&!result.currentStateMatched)process.exitCode=2;
 }
 if(process.argv[1]?.replaceAll("\\","/")
- .match(/\\/smn-40-cross-pc-receipt\\.(?:ts|mjs)$/))
+ .match(/\/smn-40-cross-pc-receipt\.(?:ts|mjs)$/))
  main().catch(()=>{
   process.stderr.write(JSON.stringify({status:"blocked",
    reason:"migration-receipt-unverifiable",
