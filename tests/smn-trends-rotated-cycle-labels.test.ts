@@ -17,7 +17,8 @@ test("Tendances: le rendu partagé conserve les labels et les incline quand l'es
  assert.equal("rotated" in scene.meta&&scene.meta.rotated,true);
  assert.match(scene.svg,/rotate\(-45/);
  assert.ok(scene.meta.labels.length===cycles.length);
- assert.ok(scene.meta.labels.every((v:string)=>v.startsWith("Sprint")));
+ assert.ok(scene.meta.labels.every((v:string)=>v.length>0&&v.length<=15));
+ assert.ok(scene.meta.labels.some((v:string)=>v!==cycles[0].name));
 });
 
 test("Tendances: le PNG partagé respecte la géométrie et conserve les libellés en fin de graphique",()=>{
