@@ -4640,7 +4640,10 @@
     "notFound": "Cette fiche n'existe plus ou n'est pas accessible.",
     "conflict": "La fiche a changé depuis son chargement. Actualisez la page et réessayez.",
     "linkedData": "Suppression refusée : une dépendance non prise en charge protège encore cette fiche. Aucune donnée n'a été supprimée.",
-    "unavailable": "Suppression impossible pour le moment. Aucune suppression partielle n'a été appliquée."
+    "unavailable": "Suppression impossible pour le moment. Aucune suppression partielle n'a été appliquée.",
+    "schemaMismatch": "La structure de la base de données ne correspond pas au traitement de suppression. Aucune suppression n’a été appliquée. Contactez l’administrateur.",
+    "protectedOperation": "Une protection de sécurité de la base de données a refusé la suppression. Aucune donnée n’a été supprimée.",
+    "operationTimeout": "La suppression a dépassé le délai autorisé. Aucune suppression partielle n’a été appliquée."
   },
   "sprintCeremoniesBulk": {
     "create": "Créer les cérémonies",
