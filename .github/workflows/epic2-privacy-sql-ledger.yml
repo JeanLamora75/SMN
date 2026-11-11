@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - "scripts/smn-40-maintenance.ts"
+      - "src/server/registries/delete-item.ts"
+      - "tests/registry-permanent-delete-pg18.test.ts"
       - "scripts/smn-40-finalize.ts"
       - "tests/smn-40-finalize.test.ts"
       - "scripts/smn-40-privacy-install-preflight.ts"
@@ -72,4 +74,4 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Additive migration with real PostgreSQL 18 disposable database
-        run: pnpm exec tsx --test tests/smn-40-privacy-migration-pg.test.ts
+        run: pnpm exec tsx --test tests/smn-40-privacy-migration-pg.test.ts tests/registry-permanent-delete-pg18.test.ts
