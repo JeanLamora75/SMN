@@ -36,12 +36,12 @@ test("live historical audit is read only and never prints names or fingerprints"
 });
 
 
-test("audit distinguishes missing private store from Office and PDF inventories",()=>{
+test("audit uses installed private store and independently inventories Office and PDF",()=>{
  const script=readFileSync(new URL("../scripts/smn-40-historical-privacy-audit.ts",import.meta.url),"utf8");
  assert.match(script,/inspectExtraArchives\(db\)/);
- assert.match(script,/private-store-unconfigured/);
+ assert.match(script,/installedPrivateDocumentsDirectory\(\)/);
  assert.match(script,/archive-validation-failed/);
  assert.match(script,/combined-inventory-unavailable/);
- assert.match(script,/privateStoreConfigured:!!privateRoot/);
+ assert.match(script,/privateStoreConfigured:archiveReason!==/);
  assert.match(script,/archiveState==="verified"\?null:archiveReason/);
 });
