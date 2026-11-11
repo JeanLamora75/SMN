@@ -35,7 +35,7 @@ export function loadPrivacyLedgerEnvironment(env=process.env){
  if(!st.isFile()||st.isSymbolicLink()||st.size<20||st.size>2048)
   throw Error("privacy-ledger-keyfile-untrusted");
  // The -Command is static. Only the path is inherited as an env value.
- const command=`$ErrorActionPreference='Stop'; $s=Get-Content -LiteralPath $env:SMN_PRIVACY_KEY_FILE -Raw; $v=ConvertTo-SecureString $s; $p=[Runtime.InteropServices.Marshal]::SecureStringToBSTR($v); try {[Console]::Out.Write([Runtime.InteropServices.Marshal]::PtrToStringBSTR($p))} finally {[Runtime.InteropServices.Marshal]::ZeroFreeBSTR($p)}`;
+ const command=`$ErrorActionPreference='Stop'; $s=(Get-Content -LiteralPath $env:SMN_PRIVACY_KEY_FILE -Raw).Trim(); $c=[Convert]::FromBase64String($s); $p=[Security.Cryptography.ProtectedData]::Unprotect($c,$null,[Security.Cryptography.DataProtectionScope]::CurrentUser); try {[Console]::Out.Write([Text.Encoding]::UTF8.GetString($p))} finally {[Array]::Clear($p,0,$p.Length)}`;
  const result=spawnSync("powershell.exe",["-NoProfile","-NonInteractive","-Command",command],{
   windowsHide:true,encoding:"utf8",timeout:10000,maxBuffer:2048,
   env:{...env,SMN_PRIVACY_KEY_FILE:keyFile}
