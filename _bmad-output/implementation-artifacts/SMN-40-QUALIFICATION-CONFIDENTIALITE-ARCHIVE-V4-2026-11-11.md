@@ -82,3 +82,27 @@ Cette commande ne modifie ni la base active, ni les bases REC-04, ni les archive
 | Autorisation de restauration active | **Interdite** |
 
 Aucune des étapes de ce document ne doit altérer les deux bases isolées conservées comme preuves.
+
+
+## Audit automatisé des deux restaurations — contrôle complémentaire
+
+Le script `scripts/smn-40-isolated-privacy-audit.ts` effectue une inspection **en lecture seule** de :
+- `smn_restore_test_latest_backup_20261111` ;
+- `smn_restore_test_latest_compare_20261111`.
+
+Il impose le cluster PostgreSQL 18 REC-04, son répertoire physique, le port 57186 et les deux noms exacts des bases. Il ouvre une transaction `REPEATABLE READ READ ONLY` par base, compare les empreintes normalisées de toutes les tables publiques, inventorie les colonnes à signaux de données personnelles, les champs de texte libre / JSON opaque, les tables peu fournies et les familles couvertes. Les résultats sont agrégés par famille. Il n'affiche ni lignes de données ni identités, noms de tables non prévus, clés ou hash de lignes.
+
+**Limites méthodologiques incontournables :**
+- Les règles de rattachement par noms de tables sont **heuristiques**, pas un catalogage sémantique exhaustif.
+- Un faible nombre d'enregistrements dans une table ne mesure **pas** le nombre de membres d'une équipe. Le résultat `smallRecordTableSignals` est seulement un signal.
+- Les références indirectes dans les JSONB, exports Office et rapports croisés ne sont pas toutes détectables par l'inspection du schéma.
+- Une correspondance parfaite entre restaurations n'exclut **pas** des données personnelles réintroduites ou une suppression oubliée.
+- Les familles restent **en attente de revue indépendante**. Aucun résultat de ce script n'active `restorationAuthorized`.
+
+Commande locale (variables REC-04 de la session à renseigner de façon sécurisée, sans les publier) :
+
+```powershell
+pnpm exec tsx scripts/smn-40-isolated-privacy-audit.ts --check
+```
+
+Ne pas détruire les deux bases après cet audit : elles restent les preuves de double reconstruction.
