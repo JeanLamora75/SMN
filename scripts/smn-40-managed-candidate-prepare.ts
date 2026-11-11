@@ -23,7 +23,6 @@ import {inspectOfflineRestoreMaintenance} from "../src/server/backup/restore-mai
 import {comparePortableCurrentState,type SignedCurrentStateReceipt}
  from "../src/server/backup/current-state-transfer-receipt";
 
-const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][0-9a-f]{3}-[89ab][0-9a-f]{3}-[a-f0-9]{12}$/i;
 const VALID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 export async function prepareFreshManagedCandidate(archiveId:string,receiptPath:string){
  if(process.platform!=="win32"||!VALID.test(archiveId)||
@@ -115,7 +114,8 @@ export async function prepareFreshManagedCandidate(archiveId:string,receiptPath:
   return {mode:"managed-candidate-prepared" as const,archiveId,
    candidateDb:name,stagedFiles:files,
    readyForOfflineCutoverReview:true as const,
-   restorationAuthorized:false as const,activeInstallationModified:false as const};
+   restorationAuthorized:false as const,activeDataModified:false as const,
+   managedClusterCandidateCreated:true as const};
  }finally{
   key.fill(0);
   if(liveConnected)await live.end().catch(()=>undefined);
