@@ -1,9 +1,12 @@
 # SMN-40 - one-shot Windows PG18 isolated reconstruction; never touches live/REC-04.
-param([string]$Archive='39b6262d-5f27-4bf8-a005-701dfd9cd9a2')
+param(
+ [Parameter(Mandatory=$true)][string]$Archive,
+ [ValidateRange(57190,57250)][int]$Port=57190
+)
 $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
-$port=57189
-$root=Join-Path $env:LOCALAPPDATA 'SMN40-NewPC-Isolated-03'
+$port=$Port
+$root=Join-Path $env:LOCALAPPDATA ('SMN40-NewPC-Isolated-Port-'+$port)
 $cluster=Join-Path $root 'cluster'
 $passFile=Join-Path $root 'initdb-password.tmp'
 $owner='smn40_newpc_owner'
@@ -41,8 +44,8 @@ function Find-PgBin {
 }
 try {
  if($Archive -notmatch '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'){throw 'Archive invalide'}
- # The previous failed attempt created this root before failing on Node quoting.
- # Reuse it ONLY if it is a genuine empty directory; never delete anything.
+ # A transport reconstruction always uses a dedicated, empty namespace.
+ # Never delete or overwrite a previous isolated database or REC-04 evidence.
  if(Test-Path -LiteralPath $root){
   $item=Get-Item -LiteralPath $root -Force
   if(-not $item.PSIsContainer -or ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -or
@@ -50,7 +53,7 @@ try {
    throw 'Cible non vide ou non fiable : refus de reutilisation'
   }
  }
- if(Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue){throw 'Port 57189 deja utilise'}
+ if(Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue){throw 'Port PG18 isole deja utilise'}
  $bin=Find-PgBin
  $version=(& (Join-Path $bin 'postgres.exe') --version)
  if($LASTEXITCODE -ne 0 -or $version -notmatch 'PostgreSQL\)\s+18\.'){throw 'Version PostgreSQL 18 non confirmee'}
