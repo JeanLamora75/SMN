@@ -64,7 +64,7 @@ export function buildPrivacyQualification(input:{
    protectedAggregatesMayBeReidentifying:true as const},
   erasure:{timeline,externalSourcesReconciled:false as const,
    unmatchedErasureEvidenceExcluded:false as const},
-  isolatedRestorationsPreserved:true as const,
+  isolatedRestorationsNotAccessedByThisCheck:true as const,
   restorationAuthorized:false as const
  };
 }
