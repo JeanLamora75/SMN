@@ -46,7 +46,7 @@ test("listes, cartes et fiche proposent une suppression confirmée sans action p
 test("messages de suppression traduits en français et en anglais",()=>{
  for(const language of ["fr","en"]){
   const locale=JSON.parse(read("src/i18n/"+language+".json"));
-  for(const key of ["button","deleting","confirm","notFound","conflict","linkedData","unavailable","schemaMismatch","protectedOperation","operationTimeout"])
+  for(const key of ["button","deleting","confirm","notFound","conflict","linkedData","unavailable","schemaMismatch","protectedOperation","operationTimeout","readFailed","readInvalidRevision","deleteFailed"])
    assert.equal(typeof locale.registryDelete[key],"string");
  }
 });
@@ -60,4 +60,10 @@ test("la suppression expose des catégories sûres sans informations SQL sensibl
  assert.match(action,/data\.error==="operation-timeout"/);
  assert.match(implementation,/smn-registry-delete-failed/);
  assert.doesNotMatch(api,/error\.detail|error\.constraint|error\.table/);
+});
+
+test("lecture pré-suppression et requête DELETE ont des diagnostics indépendants",()=>{
+ assert.match(action,/itemResponse\.status===404\?"notFound":"readFailed"/);
+ assert.match(action,/throw Error\("readInvalidRevision"\)/);
+ assert.match(action,/data\.error==="operation-timeout"\?"operationTimeout":"deleteFailed"/);
 });
