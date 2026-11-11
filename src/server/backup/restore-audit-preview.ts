@@ -3,6 +3,7 @@ import {join} from "node:path";
 import {backupRootPath} from "./runner";
 import {inspectBackup} from "./verification";
 import {scanDocuments} from "./files";
+import {installedPrivateDocumentsDirectory} from "../documents/storage-path";
 import {withSessionReadDb} from "../auth/database";
 import {evaluatePreview} from "./preview-policy";
 import type {RestorePreview} from "./preview";
@@ -40,8 +41,7 @@ export async function previewBackupReadOnly(id:string):Promise<RestorePreview>{
     applicationVersion:appPackage.version,documentCount:null as number|null};
   });
   let docs:number|null=null;
-  try{docs=process.env.SMN_PRIVATE_DOCUMENTS_DIR?
-    (await scanDocuments(process.env.SMN_PRIVATE_DOCUMENTS_DIR)).length/2:0;}
+  try{docs=(await scanDocuments(installedPrivateDocumentsDirectory())).length/2;}
   catch{/* Unknown cannot be treated as an empty inventory. */}
   const complete={...current,documentCount:docs};
   const issues=evaluatePreview(archive,complete);
