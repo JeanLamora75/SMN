@@ -87,3 +87,15 @@ Une restauration active, la fusion de journaux et la réinitialisation de compte
 - **Statut de la livraison :** export chiffré du registre et reconstruction isolée complète exécutés et attestés sur Windows 11 (preuve opérateur, voir bilan ci-dessous). Import DPAPI sur un autre profil Windows non exécuté, comparaison à une seconde candidate indépendante et qualification historique non attestées. **Aucune restauration active autorisée.**
 
 Références : [ADR restauration fidèle](../planning-artifacts/architecture/ADR-SMN-EPIC2-RESTAURATION-FIDELE-VS-EFFACEMENT-2026-11-11.md), `src/server/backup/restore-sandbox.ts`, `src/server/backup/erasure-ledger.ts`, `src/server/backup/restore-row-fingerprint.ts`.
+
+## Incrément de développement — parcours de restauration sécurisé
+
+**Périmètre livré au code :** prévisualisation, vérification de l'archive, contrôle du registre externe, agrégation des blocages et présentation dans un parcours à **un seul clic** par archive dans `Paramètres → Sauvegardes`.
+
+- API `POST /api/admin/backups/restore/plan` : requête limitée à l'identifiant UUID de l'archive, autorisation serveur `write/backups` obligatoire, évaluation de l'état réel via `previewBackup`, lecture de la preuve extérieure via `currentErasureEvidence` en transaction de lecture et politique `assessRestoreGate`. Code HTTP `409` et `canExecute:false` : il n'existe **aucun jeton d'activation**.
+- Interface `backups-admin.tsx` : un seul bouton par sauvegarde lance le plan et affiche le détail des impacts et conditions de confidentialité en FR/EN ; aucun bouton ne restaure, ne supprime ni ne remplace des données.
+- Tests `tests/smn-40-restore-plan.test.ts` : gardes d'autorisation, identité de l'archive, absence d'exécuteur dans la route et refus explicite d'une preuve cryptographique sans couverture historique intégrale.
+- **Verrou d'autorisation conservé** : le moteur `currentErasureEvidence` retourne aujourd'hui `completeHistory:false` de façon volontaire et justifiée. Les effacements antérieurs au début de couverture ne peuvent pas être authentifiés rétroactivement. Il serait trompeur de modifier ce verdict à `true` ou de présenter une bascule de production comme disponible.
+- **Non livré dans cet incrément** : import d'un paquet de sauvegarde externe dans un dossier privé, transaction de bascule sur installation active, compensation multi-fichiers, réauthentification après bascule, attestation historique indépendante. La restauration active reste interdite.
+
+**Critère de sécurité :** jamais de promotion d'une sauvegarde sur la seule base d'une réussite de reconstruction isolée. Aucun test de l'interface ne doit être présenté comme la qualification d'une restauration active.
