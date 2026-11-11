@@ -181,3 +181,19 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\smn-40
 Une exécution de cette commande **n'est pas demandée ici**. Le script prépare et inspecte un candidat isolé, mais ne change ni la destination de l'application, ni les sessions, ni les effacements historiques. Les gardes `restorationAuthorized:false` subsistent.
 
 **Recette encore ouverte :** import chiffré réel inter-PC, import du registre sur l'autre profil, reconstruction réelle sur ce second PC, et autorisation de reprise active selon preuves indépendantes. Les tests CI du paquet et du script ne remplacent pas ces preuves.
+
+### Contrôle de réception avant reconstruction — lot de migration
+
+L'outil `scripts/smn-40-migration-destination-check.ts` permet un contrôle **strictement en lecture seule** sur un PC de destination : il inspecte le paquet reçu avec sa clé locale de récupération, valide l'archive v4 et son schéma v33 via `inspectBackup`, lit le registre indépendant transféré, vérifie les intentions d'effacement non terminées et recherche des marqueurs postérieurs à l'archive.
+
+Il retourne séparément `packageVerified`, `externalLedgerVerified`, `candidateReconstructionAllowed` et les raisons de blocage. Les champs `historicalCoverageCertified:false`, `restorationAuthorized:false` et `activeInstallationModified:false` sont invariants : **le feu vert de reconstruction isolée n'est jamais un droit d'activation**.
+
+La recette dédiée `Epic 2 — Migration inter-PC et paquet chiffré` exécute export/import, mauvaise phrase, refus d'écrasement, protections des chemins, gardes de reconstruction et ce contrôle de réception sous Windows et Linux. L'exécution réelle de ces contrôles sur une nouvelle machine avec ses propres données n'est pas attestée par cette CI.
+
+Référence d'utilisation future, après import du paquet chiffré **et** import séparé du registre signé sur un nouveau profil Windows :
+
+```powershell
+pnpm exec tsx scripts/smn-40-migration-destination-check.ts --archive '<UUID>' --check
+```
+
+**Ne pas lancer cette commande sur le PC source ni sur REC-04 dans le cadre des présentes vérifications.** Aucune activation, reprise de session ou compensation de production n'est disponible à ce stade.
