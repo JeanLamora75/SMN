@@ -4640,7 +4640,10 @@
     "notFound": "This record no longer exists or cannot be accessed.",
     "conflict": "The record has changed. Refresh and try again.",
     "linkedData": "Deletion was blocked by an unsupported dependency. No data was deleted.",
-    "unavailable": "Unable to delete the record at this time. No partial deletion was applied."
+    "unavailable": "Unable to delete the record at this time. No partial deletion was applied.",
+    "schemaMismatch": "The database structure does not match the deletion operation. Nothing has been deleted. Contact the administrator.",
+    "protectedOperation": "A database security safeguard blocked deletion. No data was deleted.",
+    "operationTimeout": "The deletion exceeded the allowed time. No partial deletion was applied."
   },
   "sprintCeremoniesBulk": {
     "create": "Create ceremonies",
