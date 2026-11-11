@@ -1,6 +1,6 @@
 import {randomBytes,createHash} from "node:crypto";
 import {open,lstat,readdir,mkdir,cp,rename,readFile,realpath} from "node:fs/promises";
-import {join,resolve,relative,isAbsolute,basename} from "node:path";
+import {join,resolve,relative,isAbsolute,basename,sep} from "node:path";
 import {tmpdir} from "node:os";
 import {Client} from "pg";
 import {existingManagedUri} from "../bootstrap/portable";
@@ -43,6 +43,33 @@ async function exists(path:string){
   throw e;
  }
 }
+async function fingerprintsByGroups(paths:readonly string[]){
+ if(paths.length!==4)throw Error("migration-file-groups-invalid");
+ const rows:string[]=[];let count=0,bytes=0;
+ for(let i=0;i<paths.length;i++){
+  const info=await lstat(paths[i]);
+  if(!info.isDirectory()||info.isSymbolicLink())
+   throw Error("migration-file-root-untrusted");
+  const names=(await readdir(paths[i])).sort();
+  for(const name of names){
+   if(!/^[A-Za-z0-9_. -]{1,220}$/.test(name)||
+    name.startsWith(".")||name===".."||name===".")
+    throw Error("migration-file-name-untrusted");
+   const path=join(paths[i],name),file=await lstat(path);
+   if(!file.isFile()||file.isSymbolicLink()||file.size<1||
+    file.size>20*1024*1024)throw Error("migration-file-untrusted");
+   const data=await readFile(path);
+   if(data.length!==file.size)throw Error("migration-file-changed");
+   rows.push(FILES[i]+"/"+name+"|"+
+    createHash("sha256").update(data).digest("hex")+"|"+data.length);
+   count++;bytes+=data.length;
+   if(count>2800||bytes>600*1024*1024)
+    throw Error("migration-file-limit");
+  }
+ }
+ return {sha256:createHash("sha256").update(rows.join("\\n")).digest("hex"),
+  count,bytes};
+}
 async function emptyFolder(path:string){
  const info=await exists(path);
  if(!info||!info.isDirectory()||info.isSymbolicLink()||
@@ -71,12 +98,11 @@ export function validateFreshInstallPaths(
   ![a.stagedRoot,a.receiptPath,a.operatorJournalDir].every(
    p=>isAbsolute(p)&&resolve(p)===p))return false;
  const temp=resolve(tmpdir()),diff=relative(temp,a.stagedRoot);
- if(!diff||diff===".."||diff.startsWith(".."+requireSep())||
+ if(!diff||diff===".."||diff.startsWith(".."+sep)||
   isAbsolute(diff)||!/^smn_restore_test_files_[a-z0-9]{6,40}$/.test(
    basename(a.stagedRoot)))return false;
  return resolve(a.operatorJournalDir)===join(resolve(cwd),"data","migration-audit");
 }
-function requireSep(){return process.platform==="win32"?"\\":"\x2f";}
 /**
  * No injected boolean can override the signed proof or the observed pristine
  * destination. On failure, the coordinator attempts reverse renames and
@@ -205,6 +231,12 @@ export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs
    if(await exists(op.prepared)||await exists(op.rollback))
     throw Error("migration-cutover-path-occupied");
   }
+  const physicalTemp=await realpath(tmpdir());
+  const physicalStage=await realpath(a.stagedRoot);
+  const physicalDiff=relative(physicalTemp,physicalStage);
+  if(!physicalDiff||physicalDiff===".."||
+   physicalDiff.startsWith(".."+sep)||isAbsolute(physicalDiff))
+   throw Error("migration-staging-physical-path-invalid");
   await admin.connect();adminReady=true;
   const initial=await listDatabases(admin,["smn",a.candidateDb,rollbackDb]);
   if(!initial.has("smn")||!initial.has(a.candidateDb)||initial.has(rollbackDb))
@@ -235,6 +267,10 @@ export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs
     await cp(sourceFolder,op.prepared,{recursive:true,force:false,errorOnExist:true});
    }else await mkdir(op.prepared,{mode:0o700});
   }
+  const copied=await fingerprintsByGroups(operations.map(op=>op.prepared));
+  if(copied.sha256!==staged.sha256||copied.count!==staged.count||
+   copied.bytes!==staged.bytes)
+   throw Error("migration-prepared-files-differ");
   // Database lock prevents another SMN offline cutover in the managed cluster.
   const l=await admin.query<{ok:boolean}>(
    "SELECT pg_try_advisory_lock(20261111,40) AS ok");
@@ -246,6 +282,10 @@ export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs
    await rename(op.active,op.rollback);op.state="parked";
    await rename(op.prepared,op.active);op.state="promoted";
   }
+  const promotedFiles=await fingerprintsByGroups(operations.map(op=>op.active));
+  if(promotedFiles.sha256!==staged.sha256||
+   promotedFiles.count!==staged.count||promotedFiles.bytes!==staged.bytes)
+   throw Error("migration-promoted-files-differ");
   await record("files-promoted");
   await admin.query("ALTER DATABASE "+safeDbIdent("smn")+
    " RENAME TO "+safeDbIdent(rollbackDb));
