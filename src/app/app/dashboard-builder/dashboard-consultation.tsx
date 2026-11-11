@@ -11,6 +11,7 @@ import type {DashboardCycle} from "@/server/dashboard-builder/cycles";
 import type {DashboardLayout,DashboardBlock,DashboardSlot} from "@/server/dashboard-builder/layout";
 import type {BatchRequest} from "@/server/dashboard-builder/batch";
 import {useDashboardBatch} from "./use-dashboard-batch";
+import {useTranslation} from "@/i18n/client";
 import {DashboardVisualization} from "./dashboard-visualization";
 import type {VisualizationModel} from "@/server/dashboard-builder/visualizations";
 import {getDashboardTemplate} from "@/lib/dashboard-builder/templates";
@@ -59,6 +60,7 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
  layout:DashboardLayout;teamId:string;teamName?:string|null;navigation:{current:DashboardCycle|null;previous:string|null;next:string|null};
  mode:"scrum"|"kanban";locale?:string;personalizing?:boolean;canManage?:boolean;headerActions?:ReactNode;
 }){
+ const t=useTranslation();
  const cycleId=navigation.current?.id??null;
  const cycleLink=(id:string)=>`/app/dashboard-builder?teamId=${encodeURIComponent(teamId)}&cycleId=${encodeURIComponent(id)}`;
  const date=(value:string)=>new Intl.DateTimeFormat(locale,{day:"2-digit",month:"short",year:"numeric"}).format(new Date(value));
@@ -93,12 +95,12 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
         {slot.source==="registry:items"&&(!slot.filters?.type||slot.filters.type==="all")?<div className="d-flex flex-wrap justify-content-center gap-3">
          <OperationalQuickAdd kind="risks" teamId={teamId} cycleId={String(slot.filters?.cycleIdOverride??cycleId??"")} label="+ Ajouter un risque" onSaved={refresh}/>
          <OperationalQuickAdd kind="obstacles" teamId={teamId} cycleId={String(slot.filters?.cycleIdOverride??cycleId??"")} label="+ Ajouter un obstacle" onSaved={refresh}/>
-         <OperationalQuickAdd kind="dependencies" teamId={teamId} cycleId={String(slot.filters?.cycleIdOverride??cycleId??"")} label="+ Ajouter une dépendance" onSaved={refresh}/>
+         <OperationalQuickAdd kind="dependencies" teamId={teamId} cycleId={String(slot.filters?.cycleIdOverride??cycleId??"")} label={t("dashboard.operational.addDependency")} onSaved={refresh}/>
         </div>:<OperationalQuickAdd
          kind={slot.source==="notes:sprint"?"notes":slot.source==="calendar:ceremonies"?"events":slot.filters?.type==="risk"?"risks":slot.filters?.type==="dependency"?"dependencies":"obstacles"}
          teamId={teamId}
          cycleId={String(slot.filters?.cycleIdOverride??cycleId??"")}
-         label={slot.source==="notes:sprint"?"+ Ajouter une note":slot.source==="calendar:ceremonies"?"+ Ajouter un événement":slot.filters?.type==="risk"?"+ Ajouter un risque":slot.filters?.type==="dependency"?"+ Ajouter une dépendance":"+ Ajouter un obstacle"}
+         label={slot.source==="notes:sprint"?"+ Ajouter une note":slot.source==="calendar:ceremonies"?"+ Ajouter un événement":slot.filters?.type==="risk"?"+ Ajouter un risque":slot.filters?.type==="dependency"?t("dashboard.operational.addDependency"):"+ Ajouter un obstacle"}
          onSaved={refresh}/>}
        </div>}
      </section>;
