@@ -244,6 +244,7 @@
       "capacityDiagnosis": "Check capacity"
     },
     "operational": {
+      "addDependency": "+ Add a dependency",
       "heading": "Operational overview",
       "subtitle": "Selected cycle overview — verified collective data only.",
       "obstacles": "Impediments",
