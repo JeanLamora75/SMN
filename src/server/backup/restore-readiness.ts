@@ -1,8 +1,10 @@
 import type {RestorePreview} from "./preview";
 import {evaluateErasureProtection,type ErasureEvidence} from "./erasure-protection";
+import {recoveryDataHandling,type RestoreDataHandling} from "./restoration-fidelity-policy";
 
 export type RestoreGate={
  decision:"blocked";archiveId:string;checkedAt:string;
+ dataHandling:RestoreDataHandling;
  blockers:readonly string[];warnings:readonly string[];
  approval:"required-after-qualification";canExecute:false;
 };
@@ -47,5 +49,6 @@ export function assessRestoreGate(preview:RestorePreview,
  blockers.add("atomic-cutover-unverified");
  blockers.add("session-reset-unverified");
  return {decision:"blocked",archiveId:preview.id,checkedAt:new Date().toISOString(),
+  dataHandling:recoveryDataHandling("incident-recovery"),
   blockers:[...blockers],warnings,approval:"required-after-qualification",canExecute:false};
 }
