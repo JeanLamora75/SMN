@@ -38,7 +38,7 @@ test("PG18 native v33 + SMN-40: delete risk with audit, comments, relation and a
    const sql=readFileSync(new URL("../prisma/migrations/"+name+"/migration.sql",import.meta.url),"utf8");
    await db.query(sql);
   }
-  const team=randomUUID(),id=randomUUID(),action=randomUUID(),comment=randomUUID();
+  const team="team_legacy_registry_01",id=randomUUID(),action=randomUUID(),comment=randomUUID();
   const relation=randomUUID(),relationAudit=randomUUID();
   await db.query("INSERT INTO public.smn_team(id,installation_id,name,agile_mode) VALUES($1,'singleton','Registry test','scrum')",[team]);
   for(const [rid,type,title] of [[id,"risk","Qualité des données"],[action,"action","Livrer une correction"]] as const){
