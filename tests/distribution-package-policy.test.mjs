@@ -7,7 +7,7 @@ import {auditWindowsDistribution} from "../scripts/windows/distribution-package-
 const L="@echo off\r\n\"%~dp0runtime\\node\\node.exe\" \"%~dp0runtime\\launcher.mjs\" %*\r\n";
 async function fixture(){
  const root=await mkdtemp(path.join(os.tmpdir(),"smn-minimal-layout-"));
- for(const x of ["app","runtime/node","data","updates"])
+ for(const x of ["app","runtime/node","data/documents","updates"])
   await mkdir(path.join(root,x),{recursive:true});
  for(const [p,text] of Object.entries({
   "Demarrer SMN.bat":L,"app/server.js":"compiled",
@@ -48,5 +48,15 @@ test("missing runtime and unauthorized launcher are rejected",async()=>{
   await writeFile(path.join(root,"runtime","node","node.exe"),"node");
   await writeFile(path.join(root,"Demarrer SMN.bat"),"echo nothing");
   await assert.rejects(auditWindowsDistribution(root),/distribution-launcher-incomplete/);
+ }finally{await rm(root,{recursive:true,force:true})}
+});
+
+test("distribution rejects bundled private document content",async()=>{
+ const root=await fixture();
+ try{
+  const document=path.join(root,"data","documents","private.txt");
+  await writeFile(document,"a confidential user document");
+  await assert.rejects(auditWindowsDistribution(root),
+   /distribution-private-documents-not-empty/);
  }finally{await rm(root,{recursive:true,force:true})}
 });
