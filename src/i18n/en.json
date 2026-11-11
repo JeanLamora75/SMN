@@ -767,6 +767,22 @@
       "current-documents-unavailable": "Current private documents could not be inventoried.",
       "current-unavailable": "Current installation state unavailable."
     },
+    "migrationStart": "Check migration to a new PC",
+    "migrationRunning": "Checking transfer…",
+    "migrationTitle": "New computer transfer preparation",
+    "migrationCandidate": "Backup and ledger qualify for transfer preparation. This does not authorize restoration.",
+    "migrationBlocked": "Transfer on hold: a security check failed.",
+    "migrationFailed": "Transfer could not be checked. No data was changed.",
+    "migrationHistoricalWarning": "New computer verification and historical erasure qualification are still mandatory before activation.",
+    "migrationBlockers": {
+      "archive-unverified": "The complete v33 / PostgreSQL 18 backup is not verified.",
+      "archive-date-unverified": "The backup date is not trustworthy.",
+      "ledger-unverified": "The independent erasure ledger is not verified.",
+      "archive-before-ledger-coverage": "The backup predates the ledger coverage.",
+      "erasure-pending": "An erasure operation is still pending.",
+      "post-archive-erasures-unverified": "Erasures after the backup could not be checked.",
+      "backup-predates-erasure": "An erasure occurred after this backup: use a newer backup."
+    },
     "restorePlanStart": "Prepare secure restoration",
     "restorePlanLocked": "Activation is prohibited until historical erasures and recovery safeguards are attested. No data will be changed.",
     "restorePreflightStart": "Check restore prerequisites",
