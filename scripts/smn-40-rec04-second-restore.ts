@@ -37,7 +37,8 @@ export function validateSecondRestoreScope(
     decodeURIComponent(active.pathname.slice(1)))&&
    validateSandboxTarget(activeUri,second.toString())&&
    active.port!=="57186"&&
-   active.username!==admin.username&&active.hostname==="127.0.0.1";
+   active.username!==admin.username&&!active.username.startsWith("smn_restore_test_")&&
+   active.hostname==="127.0.0.1";
  }catch{return false;}
 }
 
