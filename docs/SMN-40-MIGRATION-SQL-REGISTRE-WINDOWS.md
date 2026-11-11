@@ -5,6 +5,45 @@
 **Périmètre : sept protections SQL additives SMN-39/40 et journal HMAC à compter de son enrôlement.**
 **Interdits : réinitialiser la base, restaurer en production, conclure à un effacement historique complet.**
 
+## Parcours simplifié : script unique
+
+Pour éviter de lancer manuellement les scripts techniques les uns après les
+autres, le point d'entrée `scripts/smn-40-finalize.ts` exécute le précontrôle,
+la migration additive, l'enrôlement du registre et les vérifications finales.
+
+Sur Windows 11, arrêter SMN mais **conserver PostgreSQL en cours d'exécution**.
+L'archive doit être de la même installation et dater de moins de 24 h.
+
+Contrôle sans écriture :
+
+```powershell
+pnpm exec tsx scripts/smn-40-finalize.ts --check --archive 1a591fe3-f9c2-478f-a3fa-fdd7bfe37fb5
+```
+
+**N'utiliser la commande suivante qu'après avoir réellement restauré cette
+archive sur un PostgreSQL 18 isolé et qualifié le scénario de retour arrière.**
+Le paramètre `--isolated-restore-and-rollback-verified=YES` est une
+**attestation de l'opérateur**, pas un test automatique ni une permission de
+restaurer d'anciennes données personnelles.
+
+```powershell
+pnpm exec tsx scripts/smn-40-finalize.ts --apply --archive 1a591fe3-f9c2-478f-a3fa-fdd7bfe37fb5 --isolated-restore-and-rollback-verified=YES --confirm=INSTALL_GUARDS_AND_ENROLL_NEW_LEDGER
+```
+
+**Résultat attendu** : `guardsInstalled:7`, `ledger:"verified"`,
+`historicalHistoryAttested:false` et `restorationAuthorized:false`.
+L'installation SQL est transactionnelle mais l'enrôlement du registre est une
+seconde opération distincte. Si celui-ci échoue après le COMMIT, les protections
+SQL restent actives. Le script peut reprendre leur configuration si et
+seulement si les sept protections sont intégralement présentes et si aucun
+registre externe (complet ou partiel) n'a déjà été créé. **Ne jamais supprimer
+manuellement des preuves pour relancer l'enrôlement.**
+
+Si l'archive dépasse 24 h, une nouvelle sauvegarde doit être créée et
+indépendamment qualifiée avant l'application. L'enrôlement ne reconstitue
+pas l'historique antérieur : le NO-GO des restaurations historiques reste en
+vigueur.
+
 ## 1. Principes et prérequis
 
 1. Synchroniser `main` avec GitHub Desktop. Ne pas exécuter `uv`, Codex CLI ou un programme tiers.
