@@ -279,7 +279,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   </div>}
   {selectedMeeting&&selectedMeeting.kind==="kanban"&&<div className="smn-member-modal-backdrop" role="presentation"><div className="smn-member-modal p-4" role="dialog" aria-modal="true" aria-label="Réunion Kanban"><h2 className="h5">{selectedMeeting.name}</h2><p>{selectedMeeting.startAt} — {selectedMeeting.endAt}</p><p>Statut : {selectedMeeting.status??"Non renseigné"}</p><button className="btn btn-outline-secondary" onClick={()=>setSelectedMeeting(null)}>Fermer</button></div></div>}
   {selectedMeeting&&selectedMeeting.kind!=="kanban"&&<CalendarMeetingModal key={selectedMeeting.kind+":"+selectedMeeting.id}
-   meeting={selectedMeeting} isAdmin={isAdmin} onClose={()=>setSelectedMeeting(null)}
+   meeting={selectedMeeting} isAdmin={isAdmin} teamId={initialTeamId} onClose={()=>setSelectedMeeting(null)}
    onSaved={()=>{setStatus("loading");setRefreshToken(n=>n+1);}}/>}
   {absenceEditor&&<div className="smn-member-modal-backdrop" role="presentation">
    <div className="smn-member-modal p-4" role="dialog" aria-modal="true"
