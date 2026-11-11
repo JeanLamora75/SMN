@@ -42,19 +42,22 @@ test("SMN-396: zero, null and missing observations remain distinct",()=>{
  assert.equal(extent.min,-3);
  assert.equal(extent.max,20);
 });
-test("SMN-396: form multi-check, chart styles, legends, table and PNG",()=>{
+test("SMN-396: multi-selection delegates all styles and PNG to the shared renderer",()=>{
+ const chart=readFileSync(new URL("../src/app/app/admin/indicators/shared-trend-chart.tsx",import.meta.url),"utf8");
+ const endpoint=readFileSync(new URL("../src/app/api/admin/reports/charts/render/route.ts",import.meta.url),"utf8");
  assert.match(source,/indicators\.map\(id=>report\?\.columns/);
  assert.match(source,/type="checkbox" checked=\{indicators\.includes\(column\.id\)\}/);
  assert.match(source,/validateTrendSelection\(indicators,report\.columns\)/);
  assert.match(source,/MAX_TREND_SERIES/);
  assert.match(source,/disabled=\{indicators\.length>1&&\["pie","donut","gauge"\]\.includes\(s\)\}/);
- assert.match(source,/series\.map\(\(item,j\)=>/);
- assert.match(source,/style==="bar"/);
- assert.match(source,/style==="area"/);
- assert.match(source,/trendSegments\(item\.values\)/);
- assert.match(source,/item\.column\.name\.length>39/);
+ assert.match(source,/series\.map\(item=>\(\{name:item\.column\.name/);
+ assert.match(source,/<SharedTrendChart payload=/);
  assert.match(source,/activeColumns\.map\(column=><th/);
  assert.match(source,/series\.map\(item=><td/);
- assert.match(source,/canvas\.height=1180/);
- assert.match(source,/rotate\(-45/);
+ assert.match(chart,/\/api\/admin\/reports\/charts\/render/);
+ assert.match(chart,/downloadName\+"\.png"/);
+ assert.match(endpoint,/renderAdaptiveChartPng/);
+ assert.match(endpoint,/validTrendRenderRequest/);
+ assert.match(endpoint,/authorizeApi/);
+ assert.doesNotMatch(source,/<svg/);
 });
