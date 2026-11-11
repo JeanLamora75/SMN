@@ -20,6 +20,16 @@ describe("SMN-34 — cible de restauration uniquement isolée",()=>{
    "file:///tmp/smn_restore_test_abcdef1234"
   ])assert.equal(validateSandboxTarget(source,unsafe),false,unsafe);
  });
+ it("accepte un cluster local distinct avec port et role dedies",()=>{
+  const dedicated="postgresql://smn_rec04_admin:test-secret@127.0.0.1:57186/smn_restore_test_rec04_sandbox";
+  assert.equal(validateSandboxTarget(source,dedicated),true);
+  assert.equal(validateSandboxTarget(source,dedicated.replace(":57186",":5432")),false);
+  assert.equal(validateSandboxTarget(source,dedicated.replace("smn_rec04_admin","smn_ci")),false);
+  assert.equal(validateSandboxTarget(source,dedicated.replace("smn_restore_test_","smn_")),false);
+  assert.equal(validateSandboxTarget(source,dedicated.replace("127.0.0.1","localhost")),false);
+  assert.equal(validateSandboxTarget(source,dedicated+"?options=-csearch_path%3Dpublic"),false);
+  assert.equal(validateSandboxTarget(source,dedicated.replace("127.0.0.1","remote.invalid")),false);
+ });
  it("refuse une URL mal formée ou une cible sans mot de passe",()=>{
   assert.equal(validateSandboxTarget(source,"invalid"),false);
   assert.equal(validateSandboxTarget(source,target.replace(":secret@","@")),false);
