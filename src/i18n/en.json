@@ -767,6 +767,7 @@
       "current-documents-unavailable": "Current private documents could not be inventoried.",
       "current-unavailable": "Current installation state unavailable."
     },
+    "migrationDownload": "Download encrypted package (.tar.gz)",
     "migrationStart": "Check migration to a new PC",
     "migrationRunning": "Checking transfer…",
     "migrationTitle": "New computer transfer preparation",
