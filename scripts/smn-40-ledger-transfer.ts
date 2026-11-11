@@ -175,9 +175,31 @@ async function main(){
  if(args[0]==="--check"){
   if(process.platform!=="win32")throw Error("transfer-windows-required");
   const p=privacyLedgerPaths();
-  process.stdout.write(JSON.stringify({mode:"check",
-   sourcePresent:!await absent(join(p.ledger,"erasure-ledger.jsonl")),
-   destinationPristine:await absent(p.ledger)&&await absent(p.anchor),
+  const sourcePresent=!await absent(join(p.ledger,"erasure-ledger.jsonl"));
+  const destinationPristine=await absent(p.ledger)&&await absent(p.anchor);
+  let ledgerIntegrity:"verified"|"unverifiable"="unverifiable";
+  let pendingErasure:"none"|"unresolved"|"unverifiable"="unverifiable";
+  let ledgerBusy:"yes"|"no"|"unverifiable"="unverifiable";
+  try{
+   await readErasureLedger();
+   ledgerIntegrity="verified";
+  }catch{/* Fail closed without emitting sensitive diagnostics. */}
+  try{
+   pendingErasure=await hasUnresolvedErasureIntent()?"unresolved":"none";
+  }catch{/* An unreadable intent cannot be treated as absent. */}
+  try{
+   const config=erasureLedgerConfig();
+   if(config){
+    try{
+     ledgerBusy=!await absent(join(config.anchor,".erasure-ledger.lock"))||
+      !await absent(join(config.anchor,".erasure-finalize.lock"))?"yes":"no";
+    }finally{config.key.fill(0);}
+   }
+  }catch{/* Unverifiable is not ready. */}
+  process.stdout.write(JSON.stringify({mode:"check",sourcePresent,
+   destinationPristine,ledgerIntegrity,pendingErasure,ledgerBusy,
+   exportPreflightReady:sourcePresent&&ledgerIntegrity==="verified"&&
+    pendingErasure==="none"&&ledgerBusy==="no",
    restorationAuthorized:false})+"\n");
   return;
  }
@@ -187,5 +209,16 @@ async function main(){
  process.stdout.write(JSON.stringify(result)+"\n");
 }
 if(process.argv[1]?.replaceAll("\\","/").endsWith("/smn-40-ledger-transfer.ts"))
- main().catch(()=>{process.stderr.write("SMN-40 ledger transfer blocked; no active restoration performed.\n");
-  process.exitCode=2;});
+ main().catch((error:unknown)=>{
+  // Fixed error codes only: no paths, exception internals, keys or PII.
+  const safe=new Set(["transfer-export-target-invalid","transfer-pending-erasure",
+   "transfer-ledger-unconfigured","transfer-ledger-busy","transfer-ledger-changed",
+   "transfer-passphrase-invalid","transfer-evidence-invalid","transfer-anchor-invalid",
+   "transfer-count-invalid","transfer-chain-invalid","transfer-windows-required",
+   "transfer-arguments-invalid","transfer-destination-not-pristine",
+   "transfer-envelope-invalid","transfer-file-untrusted"]);
+  const reason=error instanceof Error&&safe.has(error.message)?error.message:"unclassified";
+  process.stderr.write(JSON.stringify({status:"blocked",reason,
+   activeRestoration:false,rec04Modified:false})+"\n");
+  process.exitCode=2;
+ });
