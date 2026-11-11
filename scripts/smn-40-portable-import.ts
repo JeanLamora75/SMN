@@ -6,6 +6,9 @@ import {importPortableBackup} from "../src/server/backup/portable-import";
 
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 async function main(){
+ if(!process.env.SMN_BACKUP_DIR){
+  try{process.loadEnvFile(".env.local");}catch{/* Standard Windows backup root remains available. */}
+ }
  const args=process.argv.slice(2);
  if(args.length!==4||args[0]!=="--archive"||!UUID.test(args[1])||
   args[2]!=="--file"||typeof args[3]!=="string")
