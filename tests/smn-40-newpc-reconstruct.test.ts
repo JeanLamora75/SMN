@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
 import {describe,it} from "node:test";
 import {assessNewComputerErasureWindow,validNewComputerSandbox}
  from "../scripts/smn-40-newpc-reconstruct";
@@ -33,5 +34,17 @@ describe("SMN-40 — new computer sandbox scope",()=>{
   assert.equal(report.restorationAuthorized,false);
   assert.equal(assessNewComputerErasureWindow("2026-11-11T12:00:00.000Z",
    "2026-11-11T13:36:18.984Z",[]).candidateReconstructionAllowed,false);
+ });
+});
+
+describe("portable reconstruction Windows entrypoint",()=>{
+ it("requires archive id and prevents reuse of protected REC-04 cluster",()=>{
+  const script=readFileSync(new URL("../scripts/windows/smn-40-newpc-one-shot.ps1",import.meta.url),"utf8");
+  assert.match(script,/Parameter\(Mandatory=\$true\)/);
+  assert.match(script,/ValidateRange\(57190,57250\)/);
+  assert.match(script,/SMN40-NewPC-Isolated-Port-/);
+  assert.match(script,/Get-ChildItem -LiteralPath \$root -Force/);
+  assert.match(script,/RECONSTRUCT_EMPTY_NEWPC_SANDBOX_ONLY/);
+  assert.doesNotMatch(script,/\bDROP DATABASE\b|\bRemove-Item -LiteralPath \$cluster\b/i);
  });
 });
