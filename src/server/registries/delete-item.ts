@@ -1,6 +1,9 @@
 import type {Client} from "pg";
 
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// Team identifiers are text keys and may predate UUID-based team creation.
+// Use the same contract as resolveAdminTeam, not the registry-item UUID rule.
+const teamIdentifier=/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/;
 
 /**
  * Permanently removes a live registry item and its owned data in one transaction.
@@ -10,7 +13,7 @@ const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export async function deleteRegistryItem(
  db:Client, id:string, teamId:string, revision:number
 ):Promise<{ok:true}|{ok:false;error:"invalid-input"|"not-found"|"conflict"|"linked-data"}>{
- if(!uuid.test(id)||!uuid.test(teamId)||!Number.isSafeInteger(revision)||revision<1)
+ if(!uuid.test(id)||!teamIdentifier.test(teamId)||!Number.isSafeInteger(revision)||revision<1)
   return {ok:false,error:"invalid-input"};
  await db.query("BEGIN");
  try{
