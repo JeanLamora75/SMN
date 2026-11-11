@@ -126,3 +126,16 @@ Ces comptes **ne prouvent pas** l'absence d'autres suppressions par chemins hist
 **Décision d'architecture :** le contrôle `currentErasureEvidence` conserve `completeHistory:false`. Ni les commandes locales, ni un champ JSON fourni par l'utilisateur, ni la seule validation du registre depuis son démarrage ne peuvent le passer automatiquement à `true`. La qualification historique requiert des preuves indépendantes et exhaustives, ou un nouveau périmètre de migration conçu pour ne pas réintroduire des sujets effacés, attesté et testé séparément. Sans elles, `restorationAuthorized:false`.
 
 **Livrables distincts et non réalisés :** exécuteur de bascule production sécurisé, interruption des accès et sessions réelles, test inter-PC de l'import DPAPI, preuve de couverture historique exhaustive. Le présent lot ajoute le scénario de compensation du *drill* et des signaux d'audit, **sans activer** la restauration active.
+
+## Développement migration inter-PC — incrément source
+
+L'interface `Paramètres → Sauvegardes` propose désormais, pour chaque archive, **« Contrôler la migration vers un nouveau PC »**, indépendamment du parcours de restauration sur l'instance courante. L'API `POST /api/admin/backups/migration/source` n'accepte qu'un UUID et effectue :
+
+- Inventaire chiffré revérifié depuis le stockage géré (v4, cohérence, SMN v33, PostgreSQL 18, origine de l'installation).
+- Validation du registre d'effacements ancré hors base, présence d'opérations non terminées et comparaison de la date de l'archive avec le début de couverture et les éventuels effacements ultérieurs.
+- Verdict `exportCandidate` réservé au **paquet sortant** : transport techniquement admissible, **jamais** autorisation d'activation (`restorationAuthorized:false` invariant).
+- Messages FR/EN et tests `tests/smn-40-migration-source.test.ts` ; aucune donnée privée ou clé n'est transmise au navigateur.
+
+**Limites de livraison explicites :** le bouton ne télécharge pas encore un bundle portable ni n'installe les données sur le PC destination. Le contrôle de destination vierge, le transfert chiffré du registre, la récupération de la clé depuis la phrase de récupération, l'orchestration sécurisée de la bascule et la qualification de l'histoire antérieure au registre restent nécessaires. Ne pas décrire ce contrôle de sortie comme une migration de bout en bout.
+
+La règle métier confirmée reste la **conservation des noms des membres, de leurs affectations et de l'historique** ; aucune anonymisation automatique ne doit intervenir lors du transfert.
