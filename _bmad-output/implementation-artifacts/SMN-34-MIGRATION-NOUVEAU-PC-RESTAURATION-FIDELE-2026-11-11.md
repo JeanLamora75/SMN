@@ -56,3 +56,18 @@ La comparaison d'identité entre deux installations ne doit pas à elle seule re
 Les booléens de preuve utilisés par la fonction pure sont des **résultats attendus de validations serveur**, jamais des champs acceptables d'un utilisateur ou d'une API. Aucun endpoint d'exécution n'est exposé à ce stade. La préparation du transfert chiffré du registre externe et sa vérification sur le nouveau PC restent à implémenter. Le script de sauvegarde ordinaire ne doit pas embarquer le secret HMAC du registre dans l'archive.
 
 Tests : `tests/new-computer-migration-policy.test.ts`. Contrôles : refuse destination existante, fichiers ou tables déjà présents, registre existant, version PG incompatible, paquet incomplet, preuve de registre absente. Aucun effet sur les bases REC-04.
+
+
+## Lot suivant — enveloppe chiffrée du registre externe (format, sans installation)
+
+Le module `src/server/backup/migration-erasure-envelope.ts` fournit une **enveloppe indépendante** de la sauvegarde métier. Il valide l'ancre HMAC et la chaîne des marqueurs, puis chiffre le lot avec une phrase dédiée (scrypt / AES-256-GCM avec données associées de domaine). Le déchiffrement authentifié permet un précontrôle **sans écrire ni installer** un nouveau registre : la sortie donne seulement couverture, nombre d'événements et exigences encore non satisfaites.
+
+**Sécurité et limites :**
+- Ne jamais publier sur GitHub l'enveloppe réelle, la phrase secrète, le registre ou sa clé.
+- Ne jamais copier la clé du registre dans le paquet standard de sauvegarde SMN.
+- La lecture authentique de l'enveloppe ne prouve **pas** son actualité face à une copie différente ou des effacements ultérieurs. Une réconciliation indépendante au moment de la migration est indispensable.
+- Aucune commande d'export/import vers le stockage du nouveau PC n'est encore branchée. Aucun fichier ni base réelle n'a été écrit par le code publié : il s'agit du format sécurisé et de sa validation en mémoire.
+- Un mode de déplacement vers la destination devra vérifier qu'elle est vierge, interdire l'écrasement d'un registre préexistant, utiliser des fichiers à permissions restreintes et contrôler l'ancre **après** installation.
+- Le module n'attribue jamais `restorationAuthorized:true`.
+
+Tests de sécurité : `tests/migration-erasure-envelope.test.ts` (chaîne vide/non vide, authenticité, phrase incorrecte, altération, absence d'autorisation de bascule).
