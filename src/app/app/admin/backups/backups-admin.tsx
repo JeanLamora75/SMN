@@ -20,6 +20,9 @@ type RestorePreview={
 };
 type RestoreGate={decision:"blocked";archiveId:string;checkedAt:string;
  blockers:string[];warnings:string[];approval:string;canExecute:false};
+type MigrationSourceReport={mode:"computer-migration-source";archiveId:string;
+ exportCandidate:boolean;restorationAuthorized:false;
+ blockers:string[];warnings:string[];ledgerCoverageStart:string|null};
 type Retention={days:number;revision:number;updatedAt:string;eligibleIds:string[]};
 type State={needsRecoveryPhrase:boolean;last:Outcome|null;inventory:InventoryEntry[];retention:Retention};
 
@@ -31,6 +34,9 @@ export default function BackupsAdmin(){
  const [previewBusy,setPreviewBusy]=useState<string|null>(null);
  const [previewError,setPreviewError]=useState("");
  const [restoreGate,setRestoreGate]=useState<RestoreGate|null>(null);
+ const [migrationPlan,setMigrationPlan]=useState<MigrationSourceReport|null>(null);
+ const [migrationBusy,setMigrationBusy]=useState<string|null>(null);
+ const [migrationError,setMigrationError]=useState("");
  const [gateBusy,setGateBusy]=useState(false);
  const [busy,setBusy]=useState(false);
  const [checking,setChecking]=useState(false);
@@ -62,6 +68,24 @@ export default function BackupsAdmin(){
   }).catch(()=>{if(active)setError(t("backups.unavailable"));});
   return ()=>{active=false;};
  },[t]);
+ async function prepareMigration(id:string){
+  if(migrationBusy||previewBusy||gateBusy||busy||checking||cleaning||savingRetention)return;
+  setMigrationBusy(id);setMigrationPlan(null);setMigrationError("");
+  try{
+   const response=await fetch("/api/admin/backups/migration/source",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({id}),cache:"no-store"
+   });
+   if(response.status!==200&&response.status!==409)throw Error("unavailable");
+   const plan=await response.json() as MigrationSourceReport;
+   if(plan.mode!=="computer-migration-source"||plan.archiveId!==id||
+    plan.restorationAuthorized!==false||!Array.isArray(plan.blockers)||
+    !Array.isArray(plan.warnings)||plan.exportCandidate!==(response.status===200))
+    throw Error("invalid");
+   setMigrationPlan(plan);
+  }catch{setMigrationError(t("backups.migrationFailed"));}
+  finally{setMigrationBusy(null);}
+ }
  async function prepareRestore(id:string){
   if(previewBusy||gateBusy||busy||checking||cleaning||savingRetention)return;
   setPreviewBusy(id);setPreview(null);setRestoreGate(null);setPreviewError("");
@@ -289,7 +313,25 @@ export default function BackupsAdmin(){
        onClick={()=>prepareRestore(item.id)}>
        {previewBusy===item.id?t("backups.previewRunning"):t("backups.restorePlanStart")}
       </button>
+      <button type="button" className="btn btn-outline-secondary btn-sm ms-2"
+       disabled={!!migrationBusy||!!previewBusy||gateBusy||busy||checking||cleaning||savingRetention}
+       onClick={()=>prepareMigration(item.id)}>
+       {migrationBusy===item.id?t("backups.migrationRunning"):t("backups.migrationStart")}
+      </button>
      </div>
+     {migrationPlan?.archiveId===item.id&&<section role="status" className="border rounded p-3 mt-3">
+      <h4 className="h6">{t("backups.migrationTitle")}</h4>
+      <p className={migrationPlan.exportCandidate?"text-success":"text-warning"}>
+       {t(migrationPlan.exportCandidate?"backups.migrationCandidate":"backups.migrationBlocked")}
+      </p>
+      {migrationPlan.blockers.length>0&&<ul className="small">
+       {migrationPlan.blockers.map(code=><li key={code}>
+        {t(("backups.migrationBlockers."+code) as TranslationKey)}
+       </li>)}
+      </ul>}
+      <p className="small text-secondary mb-0">{t("backups.migrationHistoricalWarning")}</p>
+     </section>}
+     {migrationError&&<p role="alert" className="alert alert-warning mt-2">{migrationError}</p>}
      {preview?.id===item.id&&<section className="border rounded p-3 mt-3" aria-label={t("backups.previewTitle")}>
       <h4 className="h6">{t("backups.previewTitle")}</h4>
       <p className="small">{t("backups.previewNoWrite")}</p>
