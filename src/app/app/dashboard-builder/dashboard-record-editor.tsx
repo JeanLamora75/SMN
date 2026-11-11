@@ -5,6 +5,7 @@ import RegistryEditModal from "../admin/registries/registry-edit-modal";
 import RegistrySectionDialog from "../admin/registries/registry-section-dialog";
 import CalendarMeetingModal from "../team-calendar/calendar-meeting-modal";
 import "../team-calendar/calendar-cockpit.css";
+import "../admin/registries/registry-cockpit.css";
 import type {CalendarMeeting} from "../team-calendar/calendar-option-b";
 
 type Entry={id:string;kind:string;label:string;cycleId:string};
