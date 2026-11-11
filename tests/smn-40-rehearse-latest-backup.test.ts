@@ -28,7 +28,7 @@ test("latest v4 rehearsal: scope only on physically distinct REC-04 cluster and 
   [rec04.replace(":57186",":5432"),live,directory],
   [rec04.replace("smn_restore_test_rec04_sandbox","smn"),live,directory],
   [rec04,live.replace(":5432",":57186"),directory],
-  [rec04,live.replace("/smn","/postgres"),directory],
+  [rec04,live.replace(/\/smn$/, "/postgres"),directory],
   [rec04,live.replace("smn_active","smn_rec04_admin"),directory],
   [rec04,live.replace("smn_active","smn_restore_test_fake"),directory],
   [rec04.replace("127.0.0.1","remote.example"),live,directory],
