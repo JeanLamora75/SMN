@@ -10,12 +10,15 @@ import {privacyLedgerPaths} from "./windows/privacy-ledger-env.mjs";
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {inspectPrivacySchema} from "./smn-40-maintenance";
 import {initializeErasureLedger,readErasureLedger} from "../src/server/backup/erasure-ledger";
-import {isSafeNativeDatabase,protectionKeys} from "./smn-40-privacy-install-preflight";
+import {isSafeNativeDatabase,protectionKeys,
+ inspectPrivacyInstallPreflight} from "./smn-40-privacy-install-preflight";
 
 const CONFIRM="--confirm=ENROLL_NEW_HISTORY_FROM_TODAY";
+const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 export function parseLedgerEnrollmentArgs(args:readonly string[]){
  if(args.length===1&&args[0]==="--check")return "check";
- if(args.length===2&&args[0]==="--enroll"&&args[1]===CONFIRM)
+ if(args.length===4&&args[0]==="--enroll"&&args[1]==="--archive"&&
+  UUID.test(args[2])&&args[3]===CONFIRM)
   return "enroll";
  throw Error("privacy-ledger-enrollment-arguments-invalid");
 }
@@ -97,6 +100,11 @@ async function main(){
    ...state.decision})+"\n");
   return;
  }
+ // Refuse enrollment while the app is reachable, the SQL connection is
+ // shared, or the exact archive cannot be authenticated.
+ const preflight=await inspectPrivacyInstallPreflight(process.argv[4]);
+ if(!preflight.decision.readyForExplicitGuardsInstallation)
+  throw Error("privacy-ledger-offline-preflight-refused");
  const outcome=await enroll(state);
  process.stdout.write(JSON.stringify({mode:"enrollment",...outcome,
   restorationAuthorized:false})+"\n");
