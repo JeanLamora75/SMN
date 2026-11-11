@@ -16,6 +16,6 @@ export function validateSandboxTarget(source:string,target:string):boolean{
    a.pathname!==b.pathname&&
    b.password.length>0&&
    (sameClusterCandidate||independentClusterCandidate)&&
-   !a.search&&!a.hash&&!b.search&&!b.hash;
+   !b.search&&!b.hash;
  }catch{return false;}
 }
