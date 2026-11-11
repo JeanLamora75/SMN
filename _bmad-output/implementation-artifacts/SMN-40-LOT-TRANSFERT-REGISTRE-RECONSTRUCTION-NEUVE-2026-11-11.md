@@ -167,3 +167,17 @@ try {
 Les commandes ci-dessus sont **documentaires** et n'ont pas été exécutées sur un second PC. Tests `tests/smn-40-portable-import.test.ts` : paquet authentique, mauvaise phrase, magasin de destination vierge, non-écrasement et maintien de `restorationAuthorized:false`.
 
 **Limite fonctionnelle inchangée :** importer un paquet chiffré dans l'inventaire du nouveau PC n'est pas activer ses données dans PostgreSQL. Le transfert du registre d'effacement externe doit être exécuté séparément et la qualification de l'historique ancien reste bloquante. Le parcours de migration de bout en bout ne peut pas être déclaré terminé à cette étape.
+
+### Raccordement à la reconstruction isolée après import portable
+
+`scripts/windows/smn-40-newpc-one-shot.ps1` accepte désormais obligatoirement `-Archive <UUID>` et éventuellement `-Port <57190-57250>`. Il crée un cluster **neuf** dans `%LOCALAPPDATA%\SMN40-NewPC-Isolated-Port-<port>` sans effacer les clusters antérieurs, et déclenche les contrôles du candidat sous `smn-40-newpc-reconstruct.ts`. Les répertoires déjà occupés sont refusés. **Ne jamais diriger ce script vers la base active ni les bases REC-04.**
+
+Après import préalable du paquet chiffré dans le stockage de sauvegardes du nouveau PC **et transfert/import séparé du registre HMAC sur un profil Windows vierge**, le candidat peut être reconstruit dans une base PostgreSQL 18 indépendante avec le script déjà éprouvé. À titre de référence documentaire uniquement, depuis un poste entièrement préparé :
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\smn-40-newpc-one-shot.ps1 -Archive '<UUID>'
+```
+
+Une exécution de cette commande **n'est pas demandée ici**. Le script prépare et inspecte un candidat isolé, mais ne change ni la destination de l'application, ni les sessions, ni les effacements historiques. Les gardes `restorationAuthorized:false` subsistent.
+
+**Recette encore ouverte :** import chiffré réel inter-PC, import du registre sur l'autre profil, reconstruction réelle sur ce second PC, et autorisation de reprise active selon preuves indépendantes. Les tests CI du paquet et du script ne remplacent pas ces preuves.
