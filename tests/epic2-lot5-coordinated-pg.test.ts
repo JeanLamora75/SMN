@@ -123,12 +123,13 @@ test("SMN-34 real PG18 and files: coordinated offline cutover with rollback",
   assert.equal(await checkDb(restoredCandidateDb),"candidate-failure");
   assert.equal(await readFile(join(paths.originalRoot,"documents","record.txt"),"utf8"),
    "restored");
-  // A failure AFTER candidate promotion must never trigger files-only undo.
+  // A failure after promotion is compensated only after verified disposable
+  // database state checks. The file cutover must then reverse as well.
   const postRollbackDb="smn_restore_test_post_"+name;
   const postCandidateFiles=join(root,"smn_restore_test_postfiles");
   const postFileRollback=join(root,"smn_restore_test_postback");
   await fileData(postCandidateFiles,"post-promotion-candidate");
-  await assert.rejects(rehearseCoordinatedOfflineCutover({
+  const afterPromotion=await rehearseCoordinatedOfflineCutover({
    database:{
     maintenanceUri:maintenance,original:names.original,
     candidate:restoredCandidateDb,rollback:postRollbackDb,
@@ -140,14 +141,14 @@ test("SMN-34 real PG18 and files: coordinated offline cutover with rollback",
     rollbackRoot:postFileRollback
    },
    recoveredFilesRoot:join(root,"smn_restore_test_postrecovered")
-  }),/coordinated-manual-recovery-required/);
-  assert.equal(await checkDb(names.original),"candidate-failure");
-  assert.equal(await checkDb(postRollbackDb),"restored");
+  });
+  assert.equal(afterPromotion.state,"rolled-back");
+  assert.equal(await checkDb(names.original),"restored");
+  assert.equal(await checkDb(restoredCandidateDb),"candidate-failure");
   assert.equal(await readFile(join(paths.originalRoot,"documents","record.txt"),"utf8"),
-   "post-promotion-candidate");
-  assert.equal(await readFile(join(postFileRollback,"documents","record.txt"),"utf8"),
    "restored");
-  owned.push(postRollbackDb);
+  assert.equal(await readFile(join(root,"smn_restore_test_postrecovered",
+   "documents","record.txt"),"utf8"),"post-promotion-candidate");
   process.stdout.write("SMN34-COORDINATED: DB and files consistent; injected failure recovered\n");
  }finally{
   for(const n of [...owned,names.rollback]){
