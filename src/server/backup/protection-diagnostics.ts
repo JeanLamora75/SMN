@@ -6,16 +6,15 @@ import {backupInventory} from "./verification";
 import {backupRootPath} from "./runner";
 import {classifyBackupEvidence,reconcileCleanupEvidence,blockedOperation,
  type OperationEvidence,unresolvedOperation} from "./operation-diagnostics";
-import {inspectUnfinishedBackupArtifacts,unresolvedArtifactCounts} from "./operation-artifacts";
+import {inspectUnfinishedBackupArtifacts,unresolvedArtifactCounts,isManagedBackupId} from "./operation-artifacts";
 import {verifyRemovedRetentionPackage} from "./retention-evidence";
-const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 type Marker={id:string;createdAt:string;status:"running"|"success"|"failed"|"cancelled"};
 async function marker(root:string):Promise<Marker|null>{
  try{
   const file=join(root,"last-attempt.json"),stat=await lstat(file);
   if(!stat.isFile()||stat.isSymbolicLink()||stat.size>1024)return null;
   const x=JSON.parse(await readFile(file,"utf8")) as Partial<Marker>;
-  if(!UUID.test(x.id??"")||!["running","success","failed","cancelled"].includes(x.status??"")||
+  if(!isManagedBackupId(x.id??"")||!["running","success","failed","cancelled"].includes(x.status??"")||
    typeof x.createdAt!=="string"||!Number.isFinite(Date.parse(x.createdAt)))return null;
   return x as Marker;
  }catch{return null;}
@@ -28,7 +27,7 @@ async function cleanupMarker(root:string):Promise<CleanupMarker|null>{
   const file=join(root,"last-cleanup.json"),stat=await lstat(file);
   if(!stat.isFile()||stat.isSymbolicLink()||stat.size>25000)return null;
   const x=JSON.parse(await readFile(file,"utf8")) as Partial<CleanupMarker>;
-  if(!UUID.test(x.operationId??"")||typeof x.startedAt!=="string"||
+  if(!isManagedBackupId(x.operationId??"")||typeof x.startedAt!=="string"||
    !Number.isFinite(Date.parse(x.startedAt))||
    !["running","success","partial","failed"].includes(x.status??"")||
    ![x.planned,x.processed,x.failed].every(v=>Number.isSafeInteger(v)&&
@@ -37,9 +36,9 @@ async function cleanupMarker(root:string):Promise<CleanupMarker|null>{
    !Array.isArray(x.plannedIds)||!Array.isArray(x.processedIds)||
    x.plannedIds.length!==x.planned||x.processedIds.length!==x.processed||
    x.plannedIds.length>200||x.processedIds.length>200||
-   x.plannedIds.some(id=>typeof id!=="string"||!UUID.test(id))||
-   x.processedIds.some(id=>typeof id!=="string"||!UUID.test(id))||
-   x.inFlight!==null&&(typeof x.inFlight!=="string"||!UUID.test(x.inFlight))||
+   x.plannedIds.some(id=>typeof id!=="string"||!isManagedBackupId(id))||
+   x.processedIds.some(id=>typeof id!=="string"||!isManagedBackupId(id))||
+   x.inFlight!==null&&(typeof x.inFlight!=="string"||!isManagedBackupId(x.inFlight))||
    new Set(x.plannedIds).size!==x.plannedIds.length||
    new Set(x.processedIds).size!==x.processedIds.length||
    x.processedIds.some(id=>!x.plannedIds!.includes(id)))return null;
