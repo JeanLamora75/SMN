@@ -68,13 +68,14 @@ export function openTransfer(value:unknown,passphrase:string):Payload{
   typeof v.ciphertext!=="string"||v.ciphertext.length>24*1024*1024||
   !/^[A-Za-z0-9+/]*={0,2}$/.test(v.ciphertext))
   throw Error("transfer-envelope-invalid");
- const key=derive(passphrase,Buffer.from(v.salt,"hex"));
+ const checked=v as Envelope;
+ const key=derive(passphrase,Buffer.from(checked.salt,"hex"));
  let decrypted:Buffer|undefined;
  try{
-  const decipher=createDecipheriv("aes-256-gcm",key,Buffer.from(v.iv,"hex"));
+  const decipher=createDecipheriv("aes-256-gcm",key,Buffer.from(checked.iv,"hex"));
   decipher.setAAD(Buffer.from("SMN-40-LEDGER-TRANSFER-V1"));
-  decipher.setAuthTag(Buffer.from(v.tag,"hex"));
-  decrypted=Buffer.concat([decipher.update(Buffer.from(v.ciphertext,"base64")),decipher.final()]);
+  decipher.setAuthTag(Buffer.from(checked.tag,"hex"));
+  decrypted=Buffer.concat([decipher.update(Buffer.from(checked.ciphertext,"base64")),decipher.final()]);
   const payload=JSON.parse(decrypted.toString("utf8")) as Payload;
   verifyPayload(payload);
   return payload;
