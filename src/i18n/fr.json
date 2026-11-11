@@ -767,6 +767,22 @@
       "current-documents-unavailable": "Impossible d'inventorier les documents privés actuels.",
       "current-unavailable": "État de l'installation actuelle indisponible."
     },
+    "migrationStart": "Contrôler la migration vers un nouveau PC",
+    "migrationRunning": "Contrôle du transfert…",
+    "migrationTitle": "Préparation du transfert vers un nouveau PC",
+    "migrationCandidate": "Sauvegarde et registre éligibles à la préparation du transfert. Il ne s'agit pas d'une autorisation de restauration.",
+    "migrationBlocked": "Transfert suspendu : un contrôle de sécurité a échoué.",
+    "migrationFailed": "Le contrôle du transfert n'a pas pu être réalisé. Aucune donnée n'a été modifiée.",
+    "migrationHistoricalWarning": "La vérification sur un nouveau PC et la qualification des effacements historiques restent obligatoires avant toute activation.",
+    "migrationBlockers": {
+      "archive-unverified": "La sauvegarde complète v33 / PostgreSQL 18 n'est pas vérifiée.",
+      "archive-date-unverified": "La date de la sauvegarde n'est pas fiable.",
+      "ledger-unverified": "Le registre indépendant des effacements n'a pas été vérifié.",
+      "archive-before-ledger-coverage": "La sauvegarde est antérieure au début du registre.",
+      "erasure-pending": "Une opération d'effacement reste en attente.",
+      "post-archive-erasures-unverified": "Les effacements postérieurs à la sauvegarde ne sont pas vérifiables.",
+      "backup-predates-erasure": "Un effacement a été réalisé après la sauvegarde : utiliser une sauvegarde plus récente."
+    },
     "restorePlanStart": "Préparer une restauration sécurisée",
     "restorePlanLocked": "Activation interdite tant que les effacements historiques et la reprise de sécurité ne sont pas attestés. Aucune donnée ne sera modifiée.",
     "restorePreflightStart": "Contrôler les prérequis de restauration",
