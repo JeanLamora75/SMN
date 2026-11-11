@@ -50,12 +50,15 @@ async function main(){
    "member_audit","member_audit_immutable","delete_guard"
   ] as const;
   const guardCount=guardKeys.filter(key=>state[key]===true).length;
-  const counts=await db.query<{members:string;pdf_archives:string;removal_audits:string}>(
+  const counts=await db.query<{members:string;pdf_archives:string}>(
    "SELECT (SELECT count(*)::text FROM public.smn_member) AS members,"+
-   " (SELECT count(*)::text FROM public.smn_report_pdf_archive) AS pdf_archives,"+
-   " (SELECT count(*)::text FROM public.smn_member_removal_audit) AS removal_audits"
-  ).catch(()=>({rows:[{members:"unavailable",pdf_archives:"unavailable",
-   removal_audits:"unavailable"}]}));
+   " (SELECT count(*)::text FROM public.smn_report_pdf_archive) AS pdf_archives");
+  let removalAudits="not-installed";
+  if(state.member_audit){
+   const audit=await db.query<{total:string}>(
+    "SELECT count(*)::text AS total FROM public.smn_member_removal_audit");
+   removalAudits=audit.rows[0]?.total??"unavailable";
+  }
   let ledger:"unconfigured"|"unverifiable"|"verified"="unconfigured";
   let pending:boolean|null=null;
   try{
@@ -73,7 +76,7 @@ async function main(){
    historicalCoverageComplete:false,backupIndependentlyVerified:false});
   process.stdout.write(JSON.stringify({mode:"read-only",checkedAt:new Date().toISOString(),
    schemaVersion:state.schema_version,protections:state,
-   counts:counts.rows[0],externalLedger:ledger,decision},null,2)+"\n");
+   counts:{...counts.rows[0],removal_audits:removalAudits},externalLedger:ledger,decision},null,2)+"\n");
   await db.query("ROLLBACK");
  }finally{
   await db.query("ROLLBACK").catch(()=>undefined);
