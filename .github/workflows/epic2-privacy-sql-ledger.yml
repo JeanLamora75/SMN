@@ -11,6 +11,7 @@ on:
       - "src/server/backup/restore-audit-preview.ts"
       - "tests/smn-40-privacy-install-and-ledger.test.ts"
       - "tests/smn-40-privacy-migration-pg.test.ts"
+      - "tests/smn-40-windows-dpapi.test.mjs"
       - "docs/SMN-40-MIGRATION-SQL-REGISTRE-WINDOWS.md"
       - ".github/workflows/epic2-privacy-sql-ledger.yml"
   workflow_dispatch:
@@ -37,6 +38,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Check privacy maintenance contracts
         run: pnpm exec tsx --test tests/smn-40-privacy-install-and-ledger.test.ts tests/smn-40-maintenance.test.ts tests/epic2-lot4-erasure-ledger.test.ts
+      - name: Windows DPAPI credential proof
+        run: node --test tests/smn-40-windows-dpapi.test.mjs
       - name: Typecheck
         run: pnpm typecheck
   pg18-isolated:
