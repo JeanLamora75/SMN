@@ -3,13 +3,19 @@ const LOCAL=new Set(["localhost","127.0.0.1","::1","[::1]"]);
 export function validateSandboxTarget(source:string,target:string):boolean{
  try{
   const a=new URL(source),b=new URL(target);
+  const sourcePort=a.port||"5432",targetPort=b.port||"5432";
+  const sameClusterCandidate=sourcePort===targetPort&&a.username===b.username;
+  // A second local cluster must use a separate port AND a dedicated role.
+  // A different database name alone is never sufficient for that mode.
+  const independentClusterCandidate=sourcePort!==targetPort&&
+   a.username!==b.username;
   return (a.protocol==="postgres:"||a.protocol==="postgresql:")&&
    (b.protocol==="postgres:"||b.protocol==="postgresql:")&&
-   LOCAL.has(a.hostname)&&LOCAL.has(b.hostname)&&
+   LOCAL.has(a.hostname)&&LOCAL.has(b.hostname)&&a.hostname===b.hostname&&
    DB.test(decodeURIComponent(b.pathname.slice(1)))&&
    a.pathname!==b.pathname&&
-   a.hostname===b.hostname&&(a.port||"5432")===(b.port||"5432")&&
-   a.username===b.username&&b.password.length>0&&
-   !b.searchParams.has("options");
+   b.password.length>0&&
+   (sameClusterCandidate||independentClusterCandidate)&&
+   !a.search&&!a.hash&&!b.search&&!b.hash;
  }catch{return false;}
 }
