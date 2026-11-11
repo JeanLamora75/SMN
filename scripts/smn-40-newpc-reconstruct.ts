@@ -91,10 +91,13 @@ async function main(){
   return;
  }
  // Only the pre-created disposable target is written; all active paths stay untouched.
+ const stage=process.env.SMN40_NEWPC_STAGING_DIR;
+ if(!stage)throw Error("newpc-stage-unconfigured");
  const result=await rehearseBackupRestore({sourceUri:source,sandboxUri:target,
-  backupRoot:root,archiveId:args[1]});
+  backupRoot:root,archiveId:args[1],stagingFilesOutput:stage});
  if(result.status!=="reconstructed-in-sandbox"||
-  !result.databaseAndDocumentsConsistent||result.missingDocumentReferences!==0||\n  !result.fileStagingRetained||!result.fileSnapshotSha256)
+  !result.databaseAndDocumentsConsistent||result.missingDocumentReferences!==0||
+  !result.fileStagingRetained||!result.fileSnapshotSha256)
   throw Error("newpc-reconstruction-incomplete");
  const verify=new Client({connectionString:target,connectionTimeoutMillis:3500,
   statement_timeout:120000,application_name:"smn40-newpc-row-fingerprint"});
@@ -109,7 +112,8 @@ async function main(){
    verifiedOfficeReports:result.verifiedOfficeReports,
    verifiedOfficeTemplates:result.verifiedOfficeTemplates,
    fingerprintedTables:digest.tables.length,
-   rowFingerprintDigest:digest.digest,documentsConsistent:true,\n   stagedFileSnapshotSha256:result.fileSnapshotSha256,
+   rowFingerprintDigest:digest.digest,documentsConsistent:true,
+   stagedFileSnapshotSha256:result.fileSnapshotSha256,
    verifiedAgainstIndependentCandidate:false,
    historicalErasureCoverageCertified:false,restorationAuthorized:false,
    activeInstallationModified:false,rec04Modified:false},null,2)+"\n");
