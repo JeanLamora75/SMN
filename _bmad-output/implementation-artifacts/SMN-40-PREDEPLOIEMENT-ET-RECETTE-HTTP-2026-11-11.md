@@ -156,3 +156,65 @@ mais `snapshotRowEquivalenceProven=false`,
 `historicalErasureCoverageQualified=false`.
 Le statut reste **NO-GO** pour tout retour arrière destructif ou pour une
 mise en production non contrôlée.
+
+
+## Qualification de l'équivalence des lignes et retour arrière Windows
+
+### Calcul d'empreintes comparables
+
+`src/server/backup/restore-row-fingerprint.ts` calcule pour chaque table
+publique une empreinte SHA-256 des empreintes de toutes les lignes
+normalisées, triées sans dépendre de l'ordre physique ni d'une clé primaire.
+Les colonnes et les valeurs ne sont jamais sorties de PostgreSQL en clair :
+le processus Node ne reçoit que les empreintes SHA-256 des lignes.
+La comparaison échoue si une table manque, si le nombre de lignes varie,
+ou si une empreinte diffère. L'analyse refuse les tables dépassant 200 000
+lignes ; une telle limite bloque la qualification plutôt que d'ignorer les
+données. Une comparaison identique de deux restaurations issues de la même
+archive prouve leur cohérence entre elles, **pas** l'exactitude de l'archive
+vis-à-vis du serveur originel au moment de la capture.
+
+`scripts/smn-40-rec04-row-compare.ts --check` exige deux bases
+distinctes sur le même cluster isolé PG18/57186 : REC-04 et une seconde base
+`smn_restore_test_*` restaurée indépendamment à partir de l'archive v4.
+Il exige `SMN40_REC04_DATABASE_URL`,
+`SMN40_SECOND_RESTORE_URL` et `SMN40_REC04_CLUSTER_DIR`.
+Il ne crée ni ne modifie de base. Une seconde restauration indépendante
+**n'a pas encore été exécutée** pour cette étape. Ne pas fournir l'URL
+de la base SMN active, même pour un test.
+
+### Procédure Windows de retour arrière — documentation, pas d'exécution
+
+La procédure doit s'appliquer uniquement après une nouvelle autorisation
+opérationnelle et un inventaire des écritures en cours :
+
+1. Effectuer une sauvegarde v4 de l'installation active et une vérification
+   indépendante des fichiers PostgreSQL, PDF, rapports, modèles et documents.
+2. Préserver le registre d'effacement externe, son ancre et les intentions
+   en attente en **dehors** du périmètre de restauration. Ne jamais réinitialiser
+   ou réduire son historique après un retour arrière.
+3. Établir un arrêt effectif du serveur HTTP, des tâches programmées, des
+   processus Node et des écrivains PostgreSQL externes. Le simple comptage
+   des connexions n'est pas une garantie suffisante.
+4. Rejouer le scénario de basculement dans des bases jetables uniquement,
+   avec les fonctions existantes `restore-cutover-drill.ts`,
+   `restore-file-cutover-drill.ts` et
+   `restore-offline-operator-preflight.ts`.
+5. Vérifier le journal d'intention persistant avant tout renommage de base,
+   le maintien d'un exemplaire de rollback, les empreintes des dossiers et
+   la réponse aux incidents entre les phases SQL et fichiers.
+6. Contrôler les 14 scénarios Windows de la procédure de recette transversale
+   et le mécanisme de blocage de démarrage de
+   `scripts/windows/restore-launch-gate.mjs`. Documenter les résultats
+   réellement observés sur l'hôte Windows.
+7. En cas d'échec ou d'incertitude, conserver les données originales et
+   les traces de sécurité. **Aucun retour arrière vers une sauvegarde
+   contenant des données effacées ne doit être activé** tant que la
+   preuve de confidentialité historique est incomplète.
+
+Aucune de ces actions de basculement n'a été effectuée sur la base active.
+Le dossier de preuve REC-04 reste limité à une restauration isolée vérifiée
+structurellement et cryptographiquement, sans équivalence exhaustive
+qualifiée avec la sauvegarde d'origine.
+
+**Statut : NO-GO déploiement et restauration historique.**
