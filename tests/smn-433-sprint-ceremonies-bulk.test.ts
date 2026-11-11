@@ -3,7 +3,7 @@ import {readFileSync} from "node:fs";
 import {test} from "node:test";
 const read=(name:string)=>readFileSync(new URL("../"+name,import.meta.url),"utf8");
 const server=read("src/server/sprints/ceremonies-bulk.ts");
-const route=read("src/app/api/admin/sprints/[sprintId]/ceremonies-bulk/route.ts");
+const route=read("src/app/api/admin/sprints/[id]/ceremonies-bulk/route.ts");
 const panel=read("src/app/app/admin/sprints/[sprintId]/sprint-ceremonies-panel.tsx");
 const action=read("src/app/app/admin/sprints/[sprintId]/sprint-ceremonies-bulk-action.tsx");
 const schema=read("prisma/baseline/v33/schema.sql");
@@ -63,7 +63,7 @@ test("les tables de dépendances du schéma v33 sont prévues",()=>{
 test("traductions des actions en FR et EN",()=>{
  for(const lang of ["fr","en"]){
   const messages=JSON.parse(read("src/i18n/"+lang+".json")).sprintCeremoniesBulk;
-  for(const key of ["create","deleteAll","confirmDelete","working","created","deleted",
+  for(const key of ["create","deleteAll","confirmSelected","working","created","deleted",
    "protected","state-changed","linked-data","no-templates","incomplete-schema","unavailable"])
    assert.equal(typeof messages[key],"string");
   for(const kind of ["planning","daily","review","retrospective","custom","exceptional"])
