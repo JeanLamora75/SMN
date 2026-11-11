@@ -91,11 +91,33 @@ async function main(){
     if(!unresolvedIntent)ledgerState="verified";
    }
   }catch{ledgerState="unverifiable";}
+  // Count pre-enrollment deletion signals without exposing subject identity.
+  // Presence or absence of these rows is NOT proof of complete legacy history.
+  let historicSignals:{legacyRemovals:number;receipts:number}|null=null;
+  if(coverageStart&&ledgerState==="verified"){
+   try{
+    const installed=await db.query<{legacy:boolean;receipts:boolean}>(`
+     SELECT to_regclass('public.smn_member_removal_audit') IS NOT NULL AS legacy,
+      to_regclass('public.smn_privacy_erasure_receipt') IS NOT NULL AS receipts`);
+    const presence=installed.rows[0];
+    if(presence?.legacy&&presence.receipts){
+     const legacy=await db.query<{n:string}>(`
+      SELECT count(*)::text AS n FROM public.smn_member_removal_audit
+      WHERE removed_at < $1::timestamptz`,[coverageStart]);
+     const receipts=await db.query<{n:string}>(`
+      SELECT count(*)::text AS n FROM public.smn_privacy_erasure_receipt
+      WHERE committed_at < $1::timestamptz`,[coverageStart]);
+     const l=Number(legacy.rows[0]?.n),r=Number(receipts.rows[0]?.n);
+     if(Number.isSafeInteger(l)&&l>=0&&Number.isSafeInteger(r)&&r>=0)
+      historicSignals={legacyRemovals:l,receipts:r};
+    }
+   }catch{/* Unknown or missing legacy audit remains unqualified. */}
+  }
   const decision=historicalPrivacyDecision({
    guardsInstalled:installed,
    archiveCandidates:counts?Object.values(counts).reduce((a,b)=>a+b,0):0,
    archivesVerified:archiveState==="verified",
-   ledgerState,historicDeletionEvidence:false,collectivesReviewed:0
+   ledgerState,historicDeletionEvidence:historicSignals!==null,collectivesReviewed:0
   });
   process.stdout.write(JSON.stringify({
    mode:"read-only",checkedAt:new Date().toISOString(),
@@ -105,7 +127,9 @@ async function main(){
     privateStoreConfigured:archiveReason!=="combined-inventory-unavailable"&&
      archiveState==="verified",humanReviewStatus:"not-attested"},
    erasureEvidence:{ledgerState,coverageStart,recordedEvents,
-    unresolvedIntent,preEnrollmentHistoryAttested:false},
+    unresolvedIntent,preEnrollmentHistoryAttested:false,
+    preEnrollmentRecordedSignals:historicSignals,
+    preEnrollmentSourcesComplete:false},
    collectiveRetention:{families:COLLECTIVE_FAMILIES,
     independentlyReviewed:0,complete:false},
    decision
