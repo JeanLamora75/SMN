@@ -47,7 +47,7 @@ async function main(){
   statement_timeout:15000,application_name:"smn40-readonly-rec04"});
  try{
   await db.connect();
-  await db.query("BEGIN TRANSACTION REPEATABLE READ READ ONLY");
+  await db.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
   const info=await db.query<{db:string;pg_version:string;cluster:string;schema:number;
    tables:string}>(`
     SELECT current_database() AS db,current_setting('server_version') AS pg_version,
