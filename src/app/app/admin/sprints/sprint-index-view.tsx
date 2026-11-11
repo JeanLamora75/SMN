@@ -32,7 +32,12 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
   const ctrl=new AbortController();
   const params=new URLSearchParams({search:deferredSearch,status:filter,sort,page:String(page)});
   if(teamId)params.set("teamId",teamId);
-  void fetch("/api/sprints/index?"+params.toString(),{cache:"no-store",signal:ctrl.signal})
+  const sync=canManage?fetch("/api/sprints/reconcile",{
+   method:"POST",headers:{"content-type":"application/json"},
+   body:JSON.stringify(teamId?{teamId}:{}),cache:"no-store",signal:ctrl.signal
+  }).then(response=>{if(!response.ok)throw Error("reconciliation-unavailable");})
+   .catch(()=>{if(!ctrl.signal.aborted)setNotice(t("sprintsIndex.stateUnverified"));}):Promise.resolve();
+  void sync.then(()=>fetch("/api/sprints/index?"+params.toString(),{cache:"no-store",signal:ctrl.signal}))
    .then(async response=>{
     if(!response.ok)throw Error("index-unavailable");
     return response.json() as Promise<Result>;
@@ -45,7 +50,7 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
    })
    .catch(()=>{if(!ctrl.signal.aborted){setLoading(false);setError(true);}});
   return()=>ctrl.abort();
- },[deferredSearch,filter,sort,page,refresh,teamId]);
+ },[deferredSearch,filter,sort,page,refresh,teamId,canManage,t]);
  useEffect(()=>{
   const ctrl=new AbortController();
   if(!teamId||!isTeamPermitted)return()=>ctrl.abort();
