@@ -244,6 +244,7 @@
       "capacityDiagnosis": "Vérifier la capacité"
     },
     "operational": {
+      "addDependency": "+ Ajouter une dépendance",
       "heading": "Suivi opérationnel",
       "subtitle": "Synthèse du cycle sélectionné — données collectives disponibles uniquement.",
       "obstacles": "Obstacles",
