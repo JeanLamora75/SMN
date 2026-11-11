@@ -42,14 +42,14 @@ function parseHeader(raw:Buffer){
 async function extract(input:string,destination:string):Promise<void>{
  const stream=createReadStream(input).pipe(createGunzip());
  const iterator=stream[Symbol.asyncIterator]();
- let buffer=Buffer.alloc(0),exhausted=false,total=0;
+ let buffer=Buffer.alloc(0),total=0;
  const read=async(length:number):Promise<Buffer>=>{
   const fragments:Buffer[]=[];
   let remaining=length;
   while(remaining>0){
    if(buffer.length===0){
     const next=await iterator.next();
-    if(next.done){exhausted=true;throw Error("portable-tar-truncated");}
+    if(next.done)throw Error("portable-tar-truncated");
     buffer=Buffer.isBuffer(next.value)?next.value:Buffer.from(next.value);
    }
    const take=Math.min(buffer.length,remaining);
