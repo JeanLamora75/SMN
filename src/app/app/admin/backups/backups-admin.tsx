@@ -62,33 +62,28 @@ export default function BackupsAdmin(){
   }).catch(()=>{if(active)setError(t("backups.unavailable"));});
   return ()=>{active=false;};
  },[t]);
- async function previewRestore(id:string){
-  if(previewBusy||busy||checking||cleaning||savingRetention)return;
+ async function prepareRestore(id:string){
+  if(previewBusy||gateBusy||busy||checking||cleaning||savingRetention)return;
   setPreviewBusy(id);setPreview(null);setRestoreGate(null);setPreviewError("");
   try{
-   const response=await fetch("/api/admin/backups/preview?id="+encodeURIComponent(id),{cache:"no-store"});
-   if(!response.ok)throw new Error("preview-unavailable");
-   const data=await response.json() as RestorePreview;
-   if(data.id!==id||!Array.isArray(data.issues))throw new Error("preview-invalid");
-   setPreview(data);
-  }catch{setPreviewError(t("backups.previewFailed"));}
-  finally{setPreviewBusy(null);}
- }
- async function runRestorePreflight(id:string){
-  if(gateBusy||busy||checking||cleaning||savingRetention)return;
-  setGateBusy(true);setRestoreGate(null);setPreviewError("");
-  try{
-   const response=await fetch("/api/admin/backups/restore/preflight",{
-    method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id}),
-    cache:"no-store"
+   const response=await fetch("/api/admin/backups/restore/plan",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({id}),cache:"no-store"
    });
-   if(response.status!==409)throw new Error("unexpected-preflight-state");
-   const data=await response.json() as {gate:RestoreGate};
-   if(data.gate?.archiveId!==id||data.gate.canExecute!==false||
-    !Array.isArray(data.gate.blockers))throw new Error("invalid-preflight");
+   if(response.status!==409)throw new Error("restore-plan-unavailable");
+   const data=await response.json() as {
+    mode?:string;preview?:RestorePreview;gate?:RestoreGate;
+    privacyHistoryComplete?:boolean;canExecute?:boolean;
+   };
+   if(data.mode!=="read-only-restore-plan"||data.preview?.id!==id||
+    data.gate?.archiveId!==id||data.gate.canExecute!==false||
+    data.canExecute!==false||!Array.isArray(data.gate.blockers)||
+    !Array.isArray(data.preview.issues))
+    throw new Error("restore-plan-invalid");
+   setPreview(data.preview);
    setRestoreGate(data.gate);
   }catch{setPreviewError(t("backups.restorePreflightFailed"));}
-  finally{setGateBusy(false);}
+  finally{setPreviewBusy(null);}
  }
  async function recheck(){
   if(busy||checking)return;
@@ -290,9 +285,9 @@ export default function BackupsAdmin(){
      </p>}
      <div className="mt-3">
       <button type="button" className="btn btn-outline-primary btn-sm"
-       disabled={!!previewBusy||busy||checking||cleaning||savingRetention}
-       onClick={()=>previewRestore(item.id)}>
-       {previewBusy===item.id?t("backups.previewRunning"):t("backups.previewStart")}
+       disabled={!!previewBusy||gateBusy||busy||checking||cleaning||savingRetention}
+       onClick={()=>prepareRestore(item.id)}>
+       {previewBusy===item.id?t("backups.previewRunning"):t("backups.restorePlanStart")}
       </button>
      </div>
      {preview?.id===item.id&&<section className="border rounded p-3 mt-3" aria-label={t("backups.previewTitle")}>
@@ -324,10 +319,7 @@ export default function BackupsAdmin(){
        </li>)}</ul>
       </div>}
       <p className="small fw-semibold">{t("backups.previewNotRestorable")}</p>
-      <button type="button" className="btn btn-outline-primary btn-sm mb-2" disabled={gateBusy}
-       onClick={()=>runRestorePreflight(item.id)}>
-       {gateBusy?t("backups.restorePreflightRunning"):t("backups.restorePreflightStart")}
-      </button>
+      <p className="small fw-semibold" role="status">{t("backups.restorePlanLocked")}</p>
       {restoreGate?.archiveId===item.id&&<div role="status" className="alert alert-warning">
        <strong>{t("backups.restorePreflightBlocked")}</strong>
        <ul className="mt-2 mb-0">{restoreGate.blockers.map(blocker=><li key={blocker}>
