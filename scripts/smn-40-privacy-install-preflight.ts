@@ -76,9 +76,14 @@ export async function inspectPrivacyInstallPreflight(archiveId:string){
   let verifiedArchive=false;
   try{
    const preview=await previewBackupReadOnly(archiveId);
+   const createdAt=preview.archive.createdAt;
+   const ageMs=createdAt?Date.now()-Date.parse(createdAt):NaN;
    verifiedArchive=preview.archive.status==="verified"&&
     preview.archive.integrityVerified===true&&
-    preview.archive.schemaVersion===33;
+    preview.archive.schemaVersion===33&&
+    preview.archive.installationSource===preview.current.installationSource&&
+    preview.current.schemaVersion===33&&
+    Number.isFinite(ageMs)&&ageMs>=0&&ageMs<=24*60*60*1000;
   }catch{/* Integrity must not be guessed. */}
   const decision=privacyInstallDecision({
    v33:state.schema_version===33,verifiedArchive,
