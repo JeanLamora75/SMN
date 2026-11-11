@@ -3,6 +3,7 @@ import type {Client} from "pg";
 import {erasureLedgerConfig,readErasureLedger} from "./erasure-ledger";
 import {hasUnresolvedErasureIntent} from "./erasure-intent";
 import {collectArchiveReviewInventory} from "./erasure-archive-review";
+import {installedPrivateDocumentsDirectory} from "../documents/storage-path";
 export type ErasureIntegrity=Readonly<{
  complete:boolean;checkedAt:string;reason:string;events:number
 }>;
@@ -60,7 +61,7 @@ export async function verifyErasureIntegrity(db:Pick<Client,"query">):Promise<Er
   // Without a verified human review and revocation of non-empty archives,
   // automatic qualification must remain blocked regardless of name searches.
   const inventory=await collectArchiveReviewInventory(
-   db,process.env.SMN_PRIVATE_DOCUMENTS_DIR);
+   db,installedPrivateDocumentsDirectory());
   if(inventory.candidates.length!==0)return deny("archive-review-required",count);
   return {complete:true,checkedAt:new Date().toISOString(),
    reason:"qualified-empty-archives-and-guarded-member-erasure",events:count};
