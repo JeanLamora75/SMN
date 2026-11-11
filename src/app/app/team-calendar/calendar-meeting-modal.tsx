@@ -184,6 +184,23 @@ export default function CalendarMeetingModal({meeting,isAdmin,teamId,onClose,onS
   }catch{setError(t("calendarMeeting.outcomeSaveError"));}
   finally{setBusy(false);}
  }
+ const remove=async()=>{
+  if(!canEdit||!teamId||!detail||busy||
+   !window.confirm(t("dashboardRecordDelete.confirm",{title:detail.name})))return;
+  setBusy(true);setError("");setNotice("");
+  try{
+   const response=await fetch(scopedApi,{method:"DELETE"});
+   if(!response.ok){
+    const data=await response.json().catch(()=>({error:"unavailable"})) as {error?:string};
+    throw Error(data.error??"unavailable");
+   }
+   onClose();onSaved();
+  }catch(reason){
+   const code=reason instanceof Error?reason.message:"";
+   setError(t(code==="closed-period"?"dashboardRecordDelete.closed":
+    code==="linked-data"?"dashboardRecordDelete.linked":"dashboardRecordDelete.failed"));
+  }finally{setBusy(false);}
+ };
  const saveButton=(name:string,action:()=>void,disabled:boolean)=>
   <button type="button" className="btn btn-outline-primary btn-sm smn-cal-save-icon"
    disabled={busy||disabled} aria-label={name} title={name} onClick={action}>
@@ -304,7 +321,11 @@ export default function CalendarMeetingModal({meeting,isAdmin,teamId,onClose,onS
    {notice&&<p role="status" className="alert alert-success py-2 mt-2">{notice}</p>}
    {error&&<p role="alert" className="alert alert-warning py-2 mt-2">{error}</p>}
    </div>
-   <footer className="d-flex justify-content-end mt-2 smn-cockpit-modal-footer">
+   <footer className="d-flex justify-content-end mt-2 smn-cockpit-modal-footer gap-2">
+    {canEdit&&teamId&&<button className="btn btn-outline-danger btn-sm" type="button"
+     disabled={busy} onClick={()=>void remove()}>
+     {busy?t("dashboardRecordDelete.deleting"):t("dashboardRecordDelete.button")}
+    </button>}
     <button className="btn btn-outline-secondary btn-sm" type="button" onClick={close} disabled={busy}>
      {t("calendarOptionB.close")}</button>
    </footer>
