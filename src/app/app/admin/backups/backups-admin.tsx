@@ -112,6 +112,7 @@ export default function BackupsAdmin(){
  async function recheck(){
   if(busy||checking)return;
   setChecking(true);setError("");setPreview(null);setRestoreGate(null);
+  setMigrationPlan(null);setMigrationError("");
   try{await refresh();}
   catch{setError(t("backups.unavailable"));}
   finally{setChecking(false);}
