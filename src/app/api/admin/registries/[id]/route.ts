@@ -95,7 +95,13 @@ export async function DELETE(req:NextRequest,{params}:{params:Promise<{id:string
    result.error==="conflict"||result.error==="linked-data"?409:
    result.error==="unsupported-schema"?503:400;
   return jsonResult(result,code);
- }catch{
-  return jsonResult({error:"service-unavailable"},503);
+ }catch(error){
+  // Only expose stable categories. PostgreSQL details and record identifiers
+  // stay on the server; the atomic deletion has already rolled back.
+  const code=error&&typeof error==="object"&&"code" in error?error.code:null;
+  const reason=code==="42P01"||code==="42703"?"schema-mismatch":
+   code==="55000"?"protected-operation":
+   code==="57014"?"operation-timeout":"service-unavailable";
+  return jsonResult({error:reason},503);
  }
 }
