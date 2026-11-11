@@ -83,13 +83,21 @@ test("routes capacités et détails de réunion : garde v28",()=>{
   "src/app/api/admin/capacity-openings/route.ts",
   "src/app/api/admin/capacity-history/route.ts",
   "src/app/api/admin/capacity-replanning/route.ts",
-  "src/app/api/team-calendar/meetings/[kind]/[id]/route.ts",
-  "src/app/api/team-calendar/meetings/[kind]/[id]/outcomes/route.ts",
   "src/app/api/admin/kanban-meetings/route.ts",
  ];
  for(const file of files){
   const content=readFileSync(new URL("../"+file,import.meta.url),"utf8");
   assert.match(content,/withLegacyTeamApi\(/,file);
   assert.doesNotMatch(content,/withAuthDb\(/,file);
+ }
+ for(const file of [
+  "src/app/api/team-calendar/meetings/[kind]/[id]/route.ts",
+  "src/app/api/team-calendar/meetings/[kind]/[id]/outcomes/route.ts"
+ ]){
+  const content=readFileSync(new URL("../"+file,import.meta.url),"utf8");
+  assert.doesNotMatch(content,/withLegacyTeamApi\(/,file);
+  assert.match(content,/resolveAdminTeam/);
+  assert.match(content,/readCalendarMeeting/);
+  assert.match(content,/withAuthDb\(/);
  }
 });
