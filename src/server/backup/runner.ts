@@ -19,7 +19,7 @@ import {safeBackupFailureStage,type BackupFailureStage} from "./failure-stage";
 
 type Admin=Readonly<{id:string;role:string;password_hash:string}>;
 export type BackupState=Readonly<{
- needsRecoveryPhrase:boolean;last:Readonly<{status:"running"|"success"|"failed"|"cancelled";id?:string;createdAt:string}>|null;
+ needsRecoveryPhrase:boolean;last:Readonly<{status:"running"|"success"|"failed"|"cancelled";id?:string;createdAt:string;failureStage?:string}>|null;
 }>;
 export function backupRootPath():string{
  const custom=process.env.SMN_BACKUP_DIR;
@@ -86,7 +86,9 @@ async function readLast(root:string):Promise<BackupState["last"]>{
    !["running","success","failed","cancelled"].includes(data.status)||
    typeof data.createdAt!=="string")return null;
   const status=data.status as "running"|"success"|"failed"|"cancelled";
-  return {status,id:typeof data.id==="string"?data.id:undefined,createdAt:data.createdAt};
+  return {status,id:typeof data.id==="string"?data.id:undefined,createdAt:data.createdAt,
+   ...(status==="failed"&&typeof data.failureStage==="string"?
+    {failureStage:safeBackupFailureStage(data.failureStage)}:{})};
  }catch{return null;}
 }
 export async function backupState():Promise<BackupState>{
