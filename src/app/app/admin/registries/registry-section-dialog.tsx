@@ -6,8 +6,8 @@ import RegistryDialogPortal,{useRegistryPortalReady} from "./registry-dialog-por
 
 /** Native modal: only ask to discard after a user actually changes a field.
  * The child editor owns the server transaction and calls onSaved after success. */
-export default function RegistrySectionDialog({title,onDismiss,children,wide=false,submitFormId}:{
- title:ReactNode;onDismiss:()=>void;children:ReactNode;wide?:boolean;submitFormId?:string;
+export default function RegistrySectionDialog({title,onDismiss,children,wide=false,submitFormId,deleteAction}:{
+ title:ReactNode;onDismiss:()=>void;children:ReactNode;wide?:boolean;submitFormId?:string;deleteAction?:ReactNode;
 }){
  const t=useTranslation(),tr=(key:string)=>t(("registryEdit."+key) as Parameters<typeof t>[0]);
  const portalReady=useRegistryPortalReady();
@@ -53,6 +53,7 @@ export default function RegistrySectionDialog({title,onDismiss,children,wide=fal
    </div>
    <footer className="smn-registry-section-dialog-footer smn-cockpit-modal-footer">
     {submitFormId&&<button type="submit" form={submitFormId} className="btn btn-primary">{t("common.save")}</button>}
+    {deleteAction}
     <button type="button" className="btn btn-outline-secondary" onClick={close}
      >{tr("cancel")}</button>
    </footer>
