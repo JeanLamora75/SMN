@@ -15,7 +15,7 @@ import {hasUnresolvedErasureIntent} from "../src/server/backup/erasure-intent";
 const kinds=["pdf","office-report","office-template","private-file"] as const;
 type ArchiveCounts=Record<(typeof kinds)[number],number>;
 export function historicalPrivacyDecision(input:{
- guardsInstalled:number;archivesReviewed:number;archivesVerified:boolean;
+ guardsInstalled:number;archiveCandidates:number;archivesVerified:boolean;
  ledgerState:"unconfigured"|"unverifiable"|"verified";
  historicDeletionEvidence:boolean;collectivesReviewed:number;
 }){
@@ -23,7 +23,7 @@ export function historicalPrivacyDecision(input:{
   ...(input.guardsInstalled===7?[]:["sql-guards-not-installed"]),
   ...(input.ledgerState==="verified"?[]:["external-ledger-unqualified"]),
   ...(input.archivesVerified?[]:["archive-inventory-unverified"]),
-  ...(input.archivesReviewed===0?[]:["human-archive-review-required"]),
+  ...(input.archiveCandidates===0?[]:["human-archive-review-required"]),
   ...(input.historicDeletionEvidence?[]:["historical-deletion-attestation-missing"]),
   ...(input.collectivesReviewed===COLLECTIVE_FAMILIES.length?
    []:["collective-retention-review-missing"])
@@ -81,7 +81,7 @@ async function main(){
   }catch{ledgerState="unverifiable";}
   const decision=historicalPrivacyDecision({
    guardsInstalled:installed,
-   archivesReviewed:counts?Object.values(counts).reduce((a,b)=>a+b,0):0,
+   archiveCandidates:counts?Object.values(counts).reduce((a,b)=>a+b,0):0,
    archivesVerified:archiveState==="verified",
    ledgerState,historicDeletionEvidence:false,collectivesReviewed:0
   });
