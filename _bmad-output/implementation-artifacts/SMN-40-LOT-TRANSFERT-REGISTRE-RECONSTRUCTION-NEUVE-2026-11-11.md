@@ -197,3 +197,9 @@ pnpm exec tsx scripts/smn-40-migration-destination-check.ts --archive '<UUID>' -
 ```
 
 **Ne pas lancer cette commande sur le PC source ni sur REC-04 dans le cadre des présentes vérifications.** Aucune activation, reprise de session ou compensation de production n'est disponible à ce stade.
+
+### Correctif d'autonomie du nouveau PC
+
+Le script `scripts/smn-40-newpc-reconstruct.ts` ne lit plus la configuration de la base de l'installation source pour créer une candidate sur une destination vierge. La valeur `sourceUri` ne sert qu'à la validation de séparation de clusters et est désormais un **comparateur constant jamais connecté**, différent du port/du rôle de la cible jetable. Aucune connexion au PC source ni base `smn` existante n'est requise sur le nouveau PC. Le seul client PostgreSQL effectivement connecté est celui de la base `smn_restore_test_newpc_*`, dans un cluster PG18 distinct ; les bases REC-04 restent interdites.
+
+Ce correctif ne constitue **pas** une activation active : l'étape opérateur en nouvelle installation, l'attestation des effacements historiques et le test inter-PC réel restent non qualifiés. Tests de non-régression ajoutés à `tests/smn-40-newpc-reconstruct.test.ts`, CI migration Windows/Linux à vérifier sur le commit contenant ce correctif.
