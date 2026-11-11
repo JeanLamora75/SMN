@@ -24,6 +24,12 @@ export async function auditWindowsDistribution(root){
   if(!stat.isDirectory()||stat.isSymbolicLink())
    throw Error("distribution-root-unsafe");
  }
+ // Installation-owned private documents must be an empty directory in ZIPs.
+ const privateDocs=path.join(root,"data","documents");
+ const privateStat=await lstat(privateDocs).catch(()=>null);
+ if(!privateStat||!privateStat.isDirectory()||privateStat.isSymbolicLink()||
+  (await readdir(privateDocs)).length!==0)
+  throw Error("distribution-private-documents-not-empty");
  const batch=await lstat(path.join(root,ROOT_FILES[0]));
  if(!batch.isFile()||batch.isSymbolicLink())throw Error("distribution-launcher-unsafe");
  const text=await readFile(path.join(root,ROOT_FILES[0]),"utf8");
