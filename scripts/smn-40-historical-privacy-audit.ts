@@ -23,7 +23,7 @@ export function historicalPrivacyDecision(input:{
   ...(input.guardsInstalled===7?[]:["sql-guards-not-installed"]),
   ...(input.ledgerState==="verified"?[]:["external-ledger-unqualified"]),
   ...(input.archivesVerified?[]:["archive-inventory-unverified"]),
-  ...(input.archiveCandidates===0?[]:["human-archive-review-required"]),
+  "human-archive-review-required",
   ...(input.historicDeletionEvidence?[]:["historical-deletion-attestation-missing"]),
   ...(input.collectivesReviewed===COLLECTIVE_FAMILIES.length?
    []:["collective-retention-review-missing"])
