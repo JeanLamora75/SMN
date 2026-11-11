@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {test} from "node:test";
-import {assessRestoreGate} from "../src/server/backup/restore-readiness";
 import {evaluateErasureProtection} from "../src/server/backup/erasure-protection";
 
 const route=readFileSync(new URL("../src/app/api/admin/backups/restore/plan/route.ts",import.meta.url),"utf8");
