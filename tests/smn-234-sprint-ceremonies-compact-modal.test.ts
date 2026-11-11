@@ -3,6 +3,7 @@ import {describe,it} from "node:test";
 import {readFileSync} from "node:fs";
 import {renderToStaticMarkup} from "react-dom/server";
 import {createElement} from "react";
+import {AppRouterContext} from "next/dist/shared/lib/app-router-context.shared-runtime";
 import type {Client} from "pg";
 import SprintCeremoniesPanel from "../src/app/app/admin/sprints/[sprintId]/sprint-ceremonies-panel";
 import {readDashboardEvent,updateDashboardEvent} from "../src/server/dashboard/event-edit";
@@ -23,10 +24,12 @@ const data=(items:readonly SprintCeremony[],source:"recorded-events"|"closure-sn
  pageSize:25,snapshotVersion:source==="closure-snapshot"?2:null,missingSources:[]
 });
 const render=(items:readonly SprintCeremony[],canManage=true,source:"recorded-events"|"closure-snapshot"="recorded-events")=>
- renderToStaticMarkup(createElement(SprintCeremoniesPanel,{
+ renderToStaticMarkup(createElement(AppRouterContext.Provider,{
+  value:{back(){},forward(){},refresh(){},push(){},replace(){},prefetch(){}}
+ },createElement(SprintCeremoniesPanel,{
   sprintId,teamId:"team-1",timeZone:"Europe/Paris",locale:"fr",canManage,
   data:data(items,source),t:text
- }));
+ })));
 
 describe("SMN-234 — densification de l'onglet Cérémonies",()=>{
  it("date localisée sur un même jour sans répétition (et deux dates si nécessaire)",()=>{
