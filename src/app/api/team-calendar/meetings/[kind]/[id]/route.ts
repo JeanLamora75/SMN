@@ -1,6 +1,7 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {withLegacyTeamApi} from "@/server/teams/legacy";
+import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {updateCalendarMeetingSchedule} from "@/server/sprints/calendar-meeting-reschedule";
 import {readCalendarMeeting,validCalendarMeetingRef} from "@/server/sprints/calendar-meeting-detail";
@@ -15,7 +16,7 @@ export async function GET(request:NextRequest,{params}:Context){
  const {kind,id}=await params;
  if(!validCalendarMeetingRef(kind,id))return jsonResult({error:"invalid-input"},400);
  try{
-  const meeting=await withLegacyTeamApi(db=>readCalendarMeeting(db,kind,id));
+  const meeting=await withSprintIndexDb(db=>readCalendarMeeting(db,kind,id));
   return meeting?jsonResult({meeting}):jsonResult({error:"not-found"},404);
  }catch{
   console.error("calendar-meeting-detail-read-failed");
