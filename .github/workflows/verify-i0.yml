@@ -77,13 +77,6 @@ jobs:
         run: node scripts/run-ci-unit-tests.mjs --run
       - name: Matrice traçabilité BMAD — preuves de tests exécutés
         run: pnpm test:coverage-matrix
-      - name: Archiver la matrice de couverture
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: smn-bmad-coverage-matrix
-          path: audit-output/coverage-matrix.json
-          if-no-files-found: warn
       - name: Valider le schéma Prisma
         run: pnpm exec prisma validate
       - name: Diagnostic de port et de prérequis
@@ -98,6 +91,17 @@ jobs:
         run: pnpm build
       - name: HTTP production et diagnostics PostgreSQL
         run: node scripts/verify-http-ci.mjs
+      # The coverage matrix is already validated above. Publishing it is a
+      # diagnostic convenience: an artifact-service HTML/5xx response must
+      # never prevent Prisma, production build or HTTP tests from running.
+      - name: Archiver la matrice de couverture
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: smn-bmad-coverage-matrix
+          path: audit-output/coverage-matrix.json
+          if-no-files-found: warn
 
   windows-smoke:
     runs-on: windows-latest
