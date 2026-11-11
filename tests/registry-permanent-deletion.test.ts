@@ -46,7 +46,18 @@ test("listes, cartes et fiche proposent une suppression confirmée sans action p
 test("messages de suppression traduits en français et en anglais",()=>{
  for(const language of ["fr","en"]){
   const locale=JSON.parse(read("src/i18n/"+language+".json"));
-  for(const key of ["button","deleting","confirm","notFound","conflict","linkedData","unavailable"])
+  for(const key of ["button","deleting","confirm","notFound","conflict","linkedData","unavailable","schemaMismatch","protectedOperation","operationTimeout"])
    assert.equal(typeof locale.registryDelete[key],"string");
  }
+});
+
+test("la suppression expose des catégories sûres sans informations SQL sensibles",()=>{
+ assert.match(api,/code==="42P01"\|\|code==="42703"/);
+ assert.match(api,/code==="55000"/);
+ assert.match(api,/code==="57014"/);
+ assert.match(action,/data\.error==="schema-mismatch"/);
+ assert.match(action,/data\.error==="protected-operation"/);
+ assert.match(action,/data\.error==="operation-timeout"/);
+ assert.match(implementation,/smn-registry-delete-failed/);
+ assert.doesNotMatch(api,/error\.detail|error\.constraint|error\.table/);
 });
