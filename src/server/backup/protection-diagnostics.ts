@@ -8,7 +8,7 @@ import {classifyBackupEvidence,reconcileCleanupEvidence,blockedOperation,
  type OperationEvidence,unresolvedOperation} from "./operation-diagnostics";
 import {inspectUnfinishedBackupArtifacts,unresolvedArtifactCounts} from "./operation-artifacts";
 import {verifyRemovedRetentionPackage} from "./retention-evidence";
-const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
+const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 type Marker={id:string;createdAt:string;status:"running"|"success"|"failed"|"cancelled"};
 async function marker(root:string):Promise<Marker|null>{
  try{
