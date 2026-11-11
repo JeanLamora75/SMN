@@ -145,3 +145,25 @@ La règle métier confirmée reste la **conservation des noms des membres, de le
 Une fois la candidature au transfert vérifiée, le parcours affiche **« Télécharger le paquet chiffré (.tar.gz) »**. Le serveur `GET /api/admin/backups/migration/export?id=<UUID>` renouvelle l'authentification administrative et les contrôles de registre et de sauvegarde avant d'émettre, en flux gzip, les seuls fichiers chiffrés `database.pgcustom.enc`, `manifest.enc`, `index.json` et les composants chiffrés listés dans le manifeste vérifié. Il **n'inclut jamais** `.backup-key`, les fichiers DPAPI ni le registre d'effacement externe. Les chemins sont limités aux composants connus ; dossiers symboliques et composants inattendus sont refusés. `Cache-Control: no-store` et `Content-Disposition: attachment`.
 
 La destination doit transférer le registre par le mécanisme chiffré séparé, revalider le manifeste et récupérer la clé via la phrase de récupération. **Ne pas extraire ce paquet dans les fichiers actifs ou dans le répertoire de données PostgreSQL.** Aucun import automatique ou activation sur le nouveau PC n'est livré à ce stade. Tests : `tests/smn-40-portable-package.test.ts`.
+
+### Réception d'un paquet portable sur PC vierge — livrée au code, recette CI attendue
+
+Le module `src/server/backup/portable-import.ts` décompresse en flux la sauvegarde `.tar.gz` dans un dossier privé temporaire, refuse les chemins inattendus/traversées/entrées dupliquées/liens symboliques, limite chaque composant et contrôle les métadonnées USTAR. Il utilise la **phrase de récupération existante** pour retrouver la clé chiffrée dans `index.json`, vérifie intégralement le paquet v4 via `inspectBackup`, puis installe **uniquement le paquet chiffré**, sa clé locale et son enveloppe de récupération dans un magasin de sauvegardes **strictement inexistant**. Aucune modification de PostgreSQL, des fichiers métiers actifs, des sessions ou du registre indépendant.
+
+L'outil `scripts/smn-40-portable-import.ts` reçoit la phrase **sur stdin** ; il refuse toute destination déjà initialisée. Exemple opérateur pour une installation vierge (la phrase ne doit jamais être saisie en argument ou journalisée) :
+
+```powershell
+$secure = Read-Host 'Phrase de récupération de la sauvegarde' -AsSecureString
+$ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+try {
+  $phrase = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr)
+  $phrase | pnpm exec tsx scripts/smn-40-portable-import.ts --archive <UUID> --file 'C:\Transfert\SMN-backup-<UUID>.tar.gz'
+} finally {
+  [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
+  Remove-Variable phrase, secure -ErrorAction SilentlyContinue
+}
+```
+
+Les commandes ci-dessus sont **documentaires** et n'ont pas été exécutées sur un second PC. Tests `tests/smn-40-portable-import.test.ts` : paquet authentique, mauvaise phrase, magasin de destination vierge, non-écrasement et maintien de `restorationAuthorized:false`.
+
+**Limite fonctionnelle inchangée :** importer un paquet chiffré dans l'inventaire du nouveau PC n'est pas activer ses données dans PostgreSQL. Le transfert du registre d'effacement externe doit être exécuté séparément et la qualification de l'historique ancien reste bloquante. Le parcours de migration de bout en bout ne peut pas être déclaré terminé à cette étape.
