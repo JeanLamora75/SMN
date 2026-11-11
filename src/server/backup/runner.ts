@@ -15,6 +15,7 @@ import {inspectExtraArchives,encryptExtraArchives,pdfArchiveDirectory}
 import {officeReportsDirectory} from "../reports/office-storage";
 import {officeTemplatesDirectory} from "../reports/office-catalog";
 import {captureFenceUnchanged} from "./capture-fence";
+import {safeBackupFailureStage,type BackupFailureStage} from "./failure-stage";
 
 type Admin=Readonly<{id:string;role:string;password_hash:string}>;
 export type BackupState=Readonly<{
@@ -110,7 +111,7 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
   connectionTimeoutMillis:3500,statement_timeout:10000,query_timeout:10000});
  const id=randomUUID(),createdAt=new Date().toISOString(),packages=join(root,"packages");
  let locked=false,staging="";
- let failureStage="connection";
+ let failureStage:BackupFailureStage="connection";
  try{
   await client.connect();
   failureStage="schema-check";
@@ -205,7 +206,7 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
   }finally{key.fill(0);}
  }catch(error){
   if(locked)await safeAtomicJson(join(root,"last-attempt.json"),{
-   status:"failed",id,createdAt,failureStage
+   status:"failed",id,createdAt,failureStage:safeBackupFailureStage(failureStage)
   }).catch(()=>undefined);
   // Diagnostic opt-in for disposable CI only. Never leak arbitrary SQL,
   // paths, exception messages, credentials or user content.
