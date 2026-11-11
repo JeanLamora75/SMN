@@ -3,6 +3,7 @@
  * An intact archive is a prerequisite, not authorization for active restore.
  */
 import {Client} from "pg";
+import {connect} from "node:net";
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {previewBackupReadOnly} from "../src/server/backup/restore-audit-preview";
 import {inspectPrivacySchema} from "./smn-40-maintenance";
@@ -38,18 +39,19 @@ export function isSafeNativeDatabase(url:string){
  }catch{return false;}
 }
 async function httpStopped(){
- try{
-  // Any open listener is conservatively considered active, even if not SMN.
-  const response=await fetch("http://127.0.0.1:3003",{
-   signal:AbortSignal.timeout(1300)});
-  await response.body?.cancel();
-  return false;
- }catch(error){
-  // Timeout or HTTP error can also mean a live listener. Never equate it
-  // with a proven stoppage; this is only a provisional diagnostic.
-  const reason=error instanceof Error?error.message:"";
-  return /ECONNREFUSED/.test(reason)||/ECONNREFUSED/.test(String((error as {cause?:unknown})?.cause));
- }
+ // A refused TCP connection is the only supported negative observation.
+ // An HTTP error, open port or timeout does not establish that SMN stopped.
+ return new Promise<boolean>(resolveResult=>{
+  const socket=connect({host:"127.0.0.1",port:3003});
+  let settled=false;
+  const finish=(refused:boolean)=>{
+   if(settled)return;settled=true;socket.destroy();resolveResult(refused);
+  };
+  socket.setTimeout(1300,()=>finish(false));
+  socket.once("connect",()=>finish(false));
+  socket.once("error",(error:NodeJS.ErrnoException)=>
+   finish(error.code==="ECONNREFUSED"));
+ });
 }
 export async function inspectPrivacyInstallPreflight(archiveId:string){
  if(!UUID.test(archiveId))throw Error("privacy-install-archive-invalid");
