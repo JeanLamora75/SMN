@@ -1,9 +1,9 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import {indicatorTeams} from "@/server/indicators/team-access";
 import {resolveAdminTeam} from "@/server/teams/resolve";
+import {withAuthDb} from "@/server/auth/database";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {updateCalendarMeetingSchedule} from "@/server/sprints/calendar-meeting-reschedule";
 import {readCalendarMeeting,validCalendarMeetingRef} from "@/server/sprints/calendar-meeting-detail";
@@ -56,9 +56,21 @@ export async function PATCH(request:NextRequest,{params}:Context){
   Object.keys(payload).sort().join(",")!=="endAt,revision,startAt")
   return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withLegacyTeamApi(db=>updateCalendarMeetingSchedule(db,actor.id,{
-   kind,id,startAt:payload.startAt,endAt:payload.endAt,revision:payload.revision
-  }));
+  const teamId=request.nextUrl.searchParams.get("teamId");
+  const result=await withAuthDb(async db=>{
+   const version=(await db.query<{schema_version:number}>(
+    "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'"
+   )).rows[0]?.schema_version??0;
+   if(version>=28){
+    if(!teamId||actor.role!=="admin")return {ok:false as const,error:"not-found" as const};
+    const team=await resolveAdminTeam(db,{accountId:actor.id,role:"admin"},teamId);
+    if(team.mode!=="scrum"||!await readCalendarMeeting(db,kind,id,team.team_id))
+     return {ok:false as const,error:"not-found" as const};
+   }
+   return updateCalendarMeetingSchedule(db,actor.id,{
+    kind,id,startAt:payload.startAt,endAt:payload.endAt,revision:payload.revision
+   });
+  });
   if(result.ok)return jsonResult(result,200);
   const status=result.error==="not-found"?404:
    result.error==="conflict"||result.error==="closed-period"?409:
