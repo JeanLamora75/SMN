@@ -259,3 +259,59 @@ sont cohérentes entre elles. Cela ne prouve **ni** le caractère
 licite d'une restauration historique, **ni** la possibilité d'un
 basculement de l'installation Windows active. Le déploiement
 demeure NO-GO.
+
+
+## Reprise Windows — recette coordonnée sur données exclusivement jetables
+
+Le lanceur `scripts/smn-40-windows-rollback-sandbox.ts --sandbox-only`
+est réservé à Windows et requiert le même cluster physique PG18/57186
+que REC-04, avec présence des bases
+`smn_restore_test_rec04_sandbox` et `smn_restore_test_rec04_second`.
+Il ne renomme et ne supprime aucune de ces deux bases. Le rôle PostgreSQL
+doit permettre aux tests de créer puis de supprimer leurs propres bases
+jetables à noms aléatoires.
+
+Le lanceur exécute les tests existants :
+- `tests/epic2-lot5-cutover-pg.test.ts` : promotion d'une base candidate,
+  conservation de la source, retour arrière, injection de panne avant
+  promotion et refus en présence d'une connexion concurrente ;
+- `tests/epic2-lot5-file-cutover.test.ts` : bascule des fichiers temporaires
+  et restauration de l'original après injection de panne ;
+- `tests/smn-34-offline-cutover-cli-pg.test.ts` : lanceur Node séparé,
+  bascule coordonnée SQL/fichiers et présence des deux copies rollback.
+
+Chaque scénario travaille avec des bases `smn_restore_test_*` et des
+dossiers sous le répertoire temporaire Windows. Les bases de test
+peuvent être créées/supprimées par leur propre test ; aucune donnée active
+n'est visée. Les résultats ne démontrent pas l'arrêt des écrivains de
+l'application réelle ou la sécurité d'une restauration historique.
+
+### Commandes locales
+
+Après synchronisation de `main` :
+
+```powershell
+pnpm exec tsx --test tests/smn-40-windows-rollback-sandbox.test.ts
+```
+
+Renseigner provisoirement `SMN40_REC04_DATABASE_URL` vers la base
+`smn_restore_test_rec04_sandbox` et `SMN40_REC04_CLUSTER_DIR` vers
+le PGDATA réel (comme pour le contrôle REC-04 précédent), puis :
+
+```powershell
+pnpm exec tsx scripts/smn-40-windows-rollback-sandbox.ts --sandbox-only
+```
+
+Le script exige le port 57186, la base administrative `postgres`
+et le répertoire physique PGDATA. Si l'identité ne correspond pas,
+**aucun test créant une base n'est lancé**. Ne jamais copier les
+variables d'environnement contenant le mot de passe dans un compte rendu.
+
+**Critère de sortie de cette sous-étape :** trois suites de tests réussies
+sur l'hôte Windows isolé, journal d'essai sans secrets, aucun incident
+PG ou fichiers. Même dans ce cas, `windowsProductionRollbackQualified`
+et `productionRestoreEnabled` restent `false`.
+
+La CI I0 générale, la recette complète REC-01 à REC-14, le contrôle des
+archives historiques et les attestations externes de suppressions doivent
+être traités séparément. **NO-GO inchangé**.
