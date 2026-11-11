@@ -218,3 +218,44 @@ structurellement et cryptographiquement, sans équivalence exhaustive
 qualifiée avec la sauvegarde d'origine.
 
 **Statut : NO-GO déploiement et restauration historique.**
+
+
+## Deuxième restauration indépendante — recette REC-04
+
+Un lanceur à deux modes, `scripts/smn-40-rec04-second-restore.ts`,
+permet de réaliser sans commande SQL manuelle une deuxième restauration
+indépendante du paquet v4 dans `smn_restore_test_rec04_second` sur
+le cluster isolé port 57186. Il ne lance aucun traitement automatiquement.
+
+- `--check` vérifie l'identité physique du cluster, la présence et
+  l'accessibilité de REC-04, l'absence de la base cible, le schéma
+  et l'intégrité de l'archive sans créer de base.
+- `--restore --confirm=RESTORE_SECOND_DISPOSABLE_ONLY` est une
+  opération **avec écriture exclusivement dans une nouvelle base
+  jetable**. Elle exécute le moteur `rehearseBackupRestore` existant,
+  compare des empreintes ligne par ligne puis conserve la base cible
+  pour vérification. Elle n'efface et ne renomme aucune base.
+- Le rôle PostgreSQL doit avoir `CREATEDB` sur le cluster REC-04.
+  Le binaire `pg_restore` PostgreSQL 18 doit être accessible via
+  SMN ou `SMN_PG_RESTORE_PATH`. Un échec après création laisse la
+  base temporaire en place pour expertise, sans nettoyage destructif
+  automatique. Toute répétition est alors refusée tant que la cible existe.
+
+Avant d'exécuter `--restore`, il faut obtenir un succès de :
+
+```powershell
+pnpm exec tsx --test tests/smn-40-rec04-second-restore.test.ts
+pnpm exec tsx scripts/smn-40-rec04-second-restore.ts --check
+```
+
+Les variables d'environnement temporaires sont :
+`SMN40_REC04_DATABASE_URL` (base REC-04 sur 57186) et
+`SMN40_REC04_CLUSTER_DIR` (PGDATA exact du cluster).
+Il est interdit de publier l'URL avec son mot de passe. Le
+fichier `.env.local` ne doit pas être envoyé.
+
+À l'issue d'une deuxième restauration réussie, les deux bases
+sont cohérentes entre elles. Cela ne prouve **ni** le caractère
+licite d'une restauration historique, **ni** la possibilité d'un
+basculement de l'installation Windows active. Le déploiement
+demeure NO-GO.
