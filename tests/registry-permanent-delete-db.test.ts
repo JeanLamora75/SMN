@@ -52,3 +52,15 @@ test("entrée invalide : pas de transaction",async()=>{
  assert.deepEqual(await deleteRegistryItem(db,"invalid",teamId,3),{ok:false,error:"invalid-input"});
  assert.deepEqual(calls,[]);
 });
+
+test("team identifier follows multi-team contract rather than UUID-only restriction",async()=>{
+ const legacyTeam="team_myincident_01";
+ const {db,calls}=fakeDb();
+ assert.deepEqual(await deleteRegistryItem(db,id,legacyTeam,3),{ok:true});
+ assert.deepEqual(calls.find(call=>call.sql.includes("DELETE FROM public.smn_registry_item WHERE"))?.params,[id,legacyTeam]);
+ for(const invalidTeam of ["","../other","invalid team","a".repeat(81)]){
+  const other=fakeDb();
+  assert.deepEqual(await deleteRegistryItem(other.db,id,invalidTeam,3),{ok:false,error:"invalid-input"});
+  assert.equal(other.calls.length,0);
+ }
+});
