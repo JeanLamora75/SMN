@@ -88,16 +88,17 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
        onEdit={canManage&&!personalizing&&navigation.current?.status!=="closed"?item=>setEditing({id:item.id,kind:item.kind,label:item.label,cycleId:String(slot.filters?.cycleIdOverride??cycleId??"")}):undefined}/>
       {canManage&&mode==="scrum"&&cycleId&&!personalizing&&navigation.current?.status!=="closed"&&
        (slot.source==="calendar:ceremonies"||slot.source==="notes:sprint"||
-        (slot.source==="registry:items"&&["all","risk","obstacle"].includes(String(slot.filters?.type??"all"))))&&
+        (slot.source==="registry:items"&&["all","risk","obstacle","dependency"].includes(String(slot.filters?.type??"all"))))&&
        <div className="border-top mt-3 pt-2 text-center">
         {slot.source==="registry:items"&&(!slot.filters?.type||slot.filters.type==="all")?<div className="d-flex flex-wrap justify-content-center gap-3">
          <OperationalQuickAdd kind="risks" teamId={teamId} cycleId={String(slot.filters?.cycleIdOverride??cycleId??"")} label="+ Ajouter un risque" onSaved={refresh}/>
          <OperationalQuickAdd kind="obstacles" teamId={teamId} cycleId={String(slot.filters?.cycleIdOverride??cycleId??"")} label="+ Ajouter un obstacle" onSaved={refresh}/>
+         <OperationalQuickAdd kind="dependencies" teamId={teamId} cycleId={String(slot.filters?.cycleIdOverride??cycleId??"")} label="+ Ajouter une dépendance" onSaved={refresh}/>
         </div>:<OperationalQuickAdd
-         kind={slot.source==="notes:sprint"?"notes":slot.source==="calendar:ceremonies"?"events":slot.filters?.type==="risk"?"risks":"obstacles"}
+         kind={slot.source==="notes:sprint"?"notes":slot.source==="calendar:ceremonies"?"events":slot.filters?.type==="risk"?"risks":slot.filters?.type==="dependency"?"dependencies":"obstacles"}
          teamId={teamId}
          cycleId={String(slot.filters?.cycleIdOverride??cycleId??"")}
-         label={slot.source==="notes:sprint"?"+ Ajouter une note":slot.source==="calendar:ceremonies"?"+ Ajouter un événement":slot.filters?.type==="risk"?"+ Ajouter un risque":"+ Ajouter un obstacle"}
+         label={slot.source==="notes:sprint"?"+ Ajouter une note":slot.source==="calendar:ceremonies"?"+ Ajouter un événement":slot.filters?.type==="risk"?"+ Ajouter un risque":slot.filters?.type==="dependency"?"+ Ajouter une dépendance":"+ Ajouter un obstacle"}
          onSaved={refresh}/>}
        </div>}
      </section>;
