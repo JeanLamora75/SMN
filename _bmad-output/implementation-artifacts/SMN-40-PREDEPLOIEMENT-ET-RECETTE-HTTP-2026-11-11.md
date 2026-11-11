@@ -397,3 +397,57 @@ pnpm exec tsx scripts/smn-40-historical-privacy-audit.ts --check
 Le code de sortie 2 reste attendu. Ne jamais renseigner un chemin
 de documents fictif, vide, ou créé uniquement pour satisfaire ce contrôle.
 Ne pas publier de configuration personnelle ou de noms de documents.
+
+
+## Décision stockage privé — installation SMN/data/documents (11/11/2026)
+
+Décision utilisateur : le stockage privé doit rester dans le répertoire
+d'installation SMN, **pas** sous `%LOCALAPPDATA%`.
+
+### Contrat technique
+
+- Emplacement par défaut : `<racine SMN>/data/documents`. Le répertoire
+  est créé sans destruction du contenu au démarrage normal local et du
+  lanceur Windows, et créé vide dans les nouveaux packages portables.
+- Le lanceur portable conserve `process.cwd()` à la racine SMN malgré
+  le remplacement autonome de `app/`. Les mises à jour ne doivent
+  jamais effacer `data/documents`.
+- `.gitignore` exclut `/data/documents/`. Aucune copie de document
+  existant ne doit entrer dans le ZIP de distribution ou GitHub.
+- Le stockage reste hors `public/` et hors de `app/`. Un accès HTTP
+  passe uniquement par la route authentifiée et les contrôles
+  d'autorisation, sans URL statique de fichier.
+- Les symlinks de `data/` et `data/documents/` sont refusés ; une
+  configuration explicite héritée, avec un chemin absolu **extérieur**
+  à l'installation, continue de fonctionner pour éviter une perte
+  silencieuse de documents existants.
+- La sauvegarde chiffrée v4 et l'inventaire SMN-40 utilisent le
+  même emplacement effectif. La restauration reste sandbox-only.
+- Les documents privés n'étaient pas configurés sur la machine examinée ;
+  les recherches locales effectuées n'ont trouvé aucun `*.meta.json`
+  dans deux périmètres inspectés. Cette observation **ne qualifie pas**
+  un effacement historique complet.
+
+### Contrôles locaux à réaliser après Pull
+
+```powershell
+pnpm exec tsx --test tests/smn-private-documents-installation.test.ts tests/private-documents.test.ts tests/smn-40-historical-privacy-audit.test.ts
+pnpm exec tsx scripts/smn-40-historical-privacy-audit.ts --check
+```
+
+Le dernier audit doit rester `deploymentAuthorized:false`,
+`historicalRestoreAuthorized:false`. La disponibilité d'un nouveau
+répertoire vide ne constitue ni une revue humaine ni une preuve
+d'absence de suppression antérieure. Le code de sortie 2 reste attendu.
+
+### Risques et limites
+
+- Un stockage *dans* l'installation augmente la nécessité de protéger
+  le répertoire contre les copies accidentelles de ZIP, les exports
+  manuels et les règles de mise à jour ; ce répertoire est exclu du
+  paquet de transport standard.
+- Le propriétaire de l'installation doit conserver l'intégralité de
+  `data/` lors des mises à jour et déplacements.
+- La réussite des tests unitaires ne prouve pas encore la recette
+  d'une installation physique Windows ayant réellement des documents
+  privés. Les préconditions SMN-38/39/40 et le statut NO-GO restent.
