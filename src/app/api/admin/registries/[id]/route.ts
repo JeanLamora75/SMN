@@ -102,6 +102,7 @@ export async function DELETE(req:NextRequest,{params}:{params:Promise<{id:string
   const reason=code==="42P01"||code==="42703"?"schema-mismatch":
    code==="55000"?"protected-operation":
    code==="57014"?"operation-timeout":"service-unavailable";
-  return jsonResult({error:reason},503);
+  const diagnosticCode=typeof code==="string"&&/^[0-9A-Z]{5}$/.test(code)?"PG-"+code:null;
+  return jsonResult({error:reason,diagnosticCode},503);
  }
 }
