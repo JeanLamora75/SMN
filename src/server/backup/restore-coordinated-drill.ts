@@ -36,9 +36,17 @@ export async function rehearseCoordinatedOfflineCutover(
     rollbackRoot:input.recoveredFilesRoot
    });
    if(rollback.status!=="verified")throw Error("file-reversal-rejected");
-   const original=await inspectRestoreFileTree(input.files.originalRoot);
-   if(original.sha256!==files.source.sha256)
-    throw Error("file-source-fingerprint-mismatch");
+   const [original,parkedCandidate]=await Promise.all([
+    inspectRestoreFileTree(input.files.originalRoot),
+    inspectRestoreFileTree(input.recoveredFilesRoot)
+   ]);
+   if(original.sha256!==files.source.sha256||
+    original.count!==files.source.count||
+    original.bytes!==files.source.bytes||
+    parkedCandidate.sha256!==files.candidate.sha256||
+    parkedCandidate.count!==files.candidate.count||
+    parkedCandidate.bytes!==files.candidate.bytes)
+    throw Error("file-rollback-fingerprint-mismatch");
   }catch{throw Error("coordinated-manual-recovery-required");}
  };
  try{
