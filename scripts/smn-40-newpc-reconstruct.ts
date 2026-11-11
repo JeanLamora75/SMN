@@ -5,7 +5,7 @@
  */
 import {readFile} from "node:fs/promises";
 import {Client} from "pg";
-import {installedDatabaseUri} from "../src/server/auth/database";
+
 import {backupRootPath} from "../src/server/backup/runner";
 import {rehearseBackupRestore} from "../src/server/backup/restore-sandbox";
 import {validateSandboxTarget} from "../src/server/backup/restore-sandbox-policy";
@@ -51,7 +51,10 @@ async function main(){
  if(!process.env.SMN_DATABASE_URL){
   try{process.loadEnvFile(".env.local");}catch{/* Optional local configuration. */}
  }
- const source=await installedDatabaseUri();
+ // The independent destination has no installed source database by design.
+ // This URI is a validation sentinel, never opened or used for data access.
+ // Its local port and role differ from the dedicated, disposable PG18 target.
+ const source="postgresql://smn_migration_sentinel:unused@127.0.0.1:5432/smn";
  const target=process.env.SMN40_NEWPC_SANDBOX_URL;
  if(!target||!validNewComputerSandbox(source,target))
   throw Error("newpc-target-invalid");
