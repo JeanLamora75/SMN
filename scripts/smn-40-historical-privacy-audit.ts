@@ -7,6 +7,7 @@ import {Client} from "pg";
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {inspectPrivacySchema} from "./smn-40-maintenance";
 import {collectArchiveReviewInventory} from "../src/server/backup/erasure-archive-review";
+import {inspectExtraArchives} from "../src/server/backup/extra-archives";
 import {COLLECTIVE_FAMILIES} from "../src/server/backup/collective-retention-policy";
 import {erasureLedgerConfig,readErasureLedger}
  from "../src/server/backup/erasure-ledger";
@@ -58,13 +59,25 @@ async function main(){
   const installed=guards.filter(k=>schema[k]===true).length;
   let archiveState:"verified"|"unverifiable"="unverifiable";
   let counts:ArchiveCounts|null=null;
+  let archiveReason:"private-store-unconfigured"|"archive-validation-failed"|
+   "combined-inventory-unavailable"|null=null;
+  const privateRoot=process.env.SMN_PRIVATE_DOCUMENTS_DIR;
+  // Independently inventory Office/PDF even if private documents are unconfigured.
   try{
-   const inventory=await collectArchiveReviewInventory(
-    db,process.env.SMN_PRIVATE_DOCUMENTS_DIR);
-   counts={pdf:0,"office-report":0,"office-template":0,"private-file":0};
-   for(const candidate of inventory.candidates)counts[candidate.kind]++;
-   archiveState=inventory.complete?"verified":"unverifiable";
-  }catch{/* Unavailable is NOT an empty inventory. */}
+   const extras=await inspectExtraArchives(db);
+   counts={pdf:extras.pdf.length,"office-report":extras.office.length,
+    "office-template":extras.templates.length,"private-file":0};
+  }catch{archiveReason="archive-validation-failed";}
+  if(!privateRoot){
+   archiveReason=archiveReason??"private-store-unconfigured";
+  }else if(counts){
+   try{
+    const inventory=await collectArchiveReviewInventory(db,privateRoot);
+    counts={pdf:0,"office-report":0,"office-template":0,"private-file":0};
+    for(const candidate of inventory.candidates)counts[candidate.kind]++;
+    archiveState=inventory.complete?"verified":"unverifiable";
+   }catch{archiveReason="combined-inventory-unavailable";}
+  }
   let ledgerState:"unconfigured"|"unverifiable"|"verified"="unconfigured";
   let coverageStart:string|null=null,recordedEvents:number|null=null;
   let unresolvedIntent:boolean|null=null;
@@ -89,7 +102,8 @@ async function main(){
    mode:"read-only",checkedAt:new Date().toISOString(),
    schemaVersion:schema.schema_version,installedGuards:installed,
    archiveInventory:{status:archiveState,counts,
-    humanReviewStatus:"not-attested"},
+    reason:archiveState==="verified"?null:archiveReason,
+    privateStoreConfigured:!!privateRoot,humanReviewStatus:"not-attested"},
    erasureEvidence:{ledgerState,coverageStart,recordedEvents,
     unresolvedIntent,preEnrollmentHistoryAttested:false},
    collectiveRetention:{families:COLLECTIVE_FAMILIES,
