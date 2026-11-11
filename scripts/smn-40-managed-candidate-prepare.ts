@@ -10,7 +10,7 @@ import {lstat,readFile} from "node:fs/promises";
 import {join} from "node:path";
 import {tmpdir} from "node:os";
 import {Client} from "pg";
-import {existingManagedUri} from "../src/server/bootstrap/portable";
+import {existingManagedUri,prepareManaged} from "../src/server/bootstrap/portable";
 import {backupRootPath} from "../src/server/backup/runner";
 import {inspectBackup} from "../src/server/backup/verification";
 import {rehearseBackupRestore} from "../src/server/backup/restore-sandbox";
@@ -30,8 +30,16 @@ export async function prepareFreshManagedCandidate(archiveId:string,receiptPath:
  const marker=await inspectOfflineRestoreMaintenance();
  if(!marker||marker.purpose!=="offline-restore")
   throw Error("migration-maintenance-required");
- const uri=await existingManagedUri();
- if(!uri)throw Error("migration-managed-cluster-unavailable");
+ let uri=await existingManagedUri();
+ if(!uri){
+  // Fresh profile only. Use the PostgreSQL binaries ALREADY bundled in the
+  // SMN distribution; never download a runtime during offline migration.
+  const pg=join(process.cwd(),"runtime","postgres","postgres.zip");
+  const present=await lstat(pg);
+  if(!present.isFile()||present.isSymbolicLink()||present.size<1024*1024)
+   throw Error("migration-postgres-bundle-unavailable");
+  uri=await prepareManaged(()=>{},false);
+ }
  const parsed=new URL(uri);
  if(parsed.hostname!=="127.0.0.1"||
   decodeURIComponent(parsed.pathname)!=="/smn")throw Error("migration-managed-db-invalid");
