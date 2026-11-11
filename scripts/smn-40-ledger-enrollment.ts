@@ -79,12 +79,12 @@ async function inspect(){
 async function enroll(state:Awaited<ReturnType<typeof inspect>>){
  if(!state.decision.canEnrollNewHistory)throw Error("privacy-ledger-enrollment-denied");
  const secret=randomBytes(32).toString("hex");
- const command=`$ErrorActionPreference='Stop'; $s=[Console]::In.ReadToEnd().Trim(); if($s -notmatch '^[a-f0-9]{64}$'){throw 'invalid-key'}; $v=ConvertTo-SecureString -String $s -AsPlainText -Force; [Console]::Out.Write((ConvertFrom-SecureString -SecureString $v))`;
+ const command=`$ErrorActionPreference='Stop'; $s=[Console]::In.ReadToEnd().Trim(); if($s -notmatch '^[a-f0-9]{64}$'){throw 'invalid-key'}; $p=[Text.Encoding]::UTF8.GetBytes($s); try {$c=[Security.Cryptography.ProtectedData]::Protect($p,$null,[Security.Cryptography.DataProtectionScope]::CurrentUser); [Console]::Out.Write([Convert]::ToBase64String($c))} finally {[Array]::Clear($p,0,$p.Length)}`;
  const result=spawnSync("powershell.exe",["-NoProfile","-NonInteractive","-Command",command],{
   windowsHide:true,encoding:"utf8",input:secret,timeout:10000,maxBuffer:2048
  });
  const encrypted=result.status===0?result.stdout.trim():"";
- if(!/^[0-9a-f]{80,2048}$/i.test(encrypted))
+ if(!/^[A-Za-z0-9+/=]{80,2048}$/.test(encrypted))
   throw Error("privacy-ledger-dpapi-encryption-failed");
  // Exclusive creation ensures existing history/key cannot be reset silently.
  await mkdir(dirname(state.ledger),{recursive:true,mode:0o700});
