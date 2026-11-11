@@ -32,7 +32,7 @@ test("native migration blocks remote, production-like or option-injected URLs",(
  const ok="postgresql://smn:test@127.0.0.1:5432/smn";
  assert.equal(isSafeNativeDatabase(ok),true);
  for(const bad of [ok.replace("127.0.0.1","example.org"),
-  ok.replace("/smn","/postgres"),ok+"?options=-csearch_path%3Dpublic",
+  ok.replace(":5432/smn",":5432/postgres"),ok+"?options=-csearch_path%3Dpublic",
   ok.replace("smn:test@","smn:@")])
   assert.equal(isSafeNativeDatabase(bad),false);
 });
