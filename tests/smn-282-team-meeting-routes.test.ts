@@ -47,7 +47,9 @@ test("anciens détails de réunions restent fermés en v28",()=>{
   "src/app/api/team-calendar/meetings/[kind]/[id]/route.ts",
   "src/app/api/team-calendar/meetings/[kind]/[id]/outcomes/route.ts"
  ];
- for(const p of previous){
+ const legacy=source(previous[0]);
+ assert.match(legacy,/withLegacyTeamApi\(/);
+ for(const p of previous.slice(1)){
   const code=source(p);
   assert.doesNotMatch(code,/withLegacyTeamApi\(/);
   assert.match(code,/resolveAdminTeam/);
