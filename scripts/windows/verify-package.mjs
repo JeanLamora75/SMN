@@ -27,6 +27,34 @@ for(const file of [
  "app/maintenance/windows/update-backup-policy.mjs",
  "app/maintenance/windows/verify-delivery.mjs",
 ]) assert.ok(existsSync(path.join(root,file)), "Composant de maintenance Windows absent : "+file);
+// The distributed migration workflow must run on the BUNDLED node.exe,
+// without pnpm, tsx, TypeScript sources or any additional installation.
+for(const name of [
+ "smn-40-portable-import",
+ "smn-40-ledger-transfer",
+ "smn-40-migration-destination-check",
+ "smn-40-cross-pc-receipt",
+ "smn-40-managed-candidate-prepare",
+ "smn-40-fresh-install-activate",
+ "smn-40-newpc-reconstruct"
+]){
+ const file=path.join(root,"app","maintenance","migration",name+".mjs");
+ assert.ok(existsSync(file),"Migration Windows autonome absente : "+name);
+ const syntax=spawnSync(path.join(root,"runtime","node","node.exe"),["--check",file],{
+  cwd:root,windowsHide:true,encoding:"utf8",timeout:15000
+ });
+ assert.equal(syntax.status,0,"Bundle migration invalide : "+name+" "+syntax.stderr);
+ const rejected=spawnSync(path.join(root,"runtime","node","node.exe"),
+  [file,"--invalid-test-arguments"],{
+  cwd:root,windowsHide:true,encoding:"utf8",timeout:15000,
+  env:{...process.env,SMN_DATABASE_URL:"",SMN40_FRESH_INSTALL_OFFLINE_CONFIRM:""}
+ });
+ assert.equal(rejected.status,2,
+  "Le bundle doit refuser des paramètres invalides sans toucher aux données : "+name+
+  " "+rejected.stderr);
+ assert.match(rejected.stderr,/blocked/,
+  "Le CLI doit fournir un refus explicite : "+name);
+}
 for(const file of [
  "app/prisma/baseline/v33/schema.sql",
  "app/prisma/baseline/v32/schema.sql",
