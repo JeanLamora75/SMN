@@ -19,8 +19,12 @@ export function loadPrivacyLedgerEnvironment(env=process.env){
  if(process.platform!=="win32")return false;
  const vars=["SMN_ERASURE_LEDGER_DIR","SMN_ERASURE_ANCHOR_DIR",
   "SMN_ERASURE_LEDGER_KEY_HEX"];
- if(vars.every(k=>!!env[k]))return true; // explicit legacy configuration
+ if(vars.every(k=>!!env[k]))return true; // explicit legacy/test configuration
  if(vars.some(k=>!!env[k]))throw Error("privacy-ledger-partial-configuration");
+ // Never auto-bind an installation's real evidence to an unconfigured test
+ // runner; tests must supply their own explicit disposable ledger paths.
+ if(env.NODE_ENV==="test"||env.NODE_TEST_CONTEXT||
+  process.execArgv.includes("--test"))return false;
  const {ledger,anchor,keyFile}=privacyLedgerPaths(env);
  if(!existsSync(keyFile)){
   if(existsSync(ledger)||existsSync(anchor))
