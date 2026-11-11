@@ -97,8 +97,10 @@ async function snapshot(uri:string,expected:string){
    ![FIRST,SECOND].includes(r.rows[0].name))
    throw Error("isolated-snapshot-identity-mismatch");
   const columns=await db.query<Column>(`
-   SELECT table_name,column_name,data_type,udt_name FROM information_schema.columns
-   WHERE table_schema='public' ORDER BY table_name,ordinal_position`);
+   SELECT c.table_name,c.column_name,c.data_type,c.udt_name
+   FROM information_schema.columns c
+   JOIN pg_catalog.pg_tables t ON t.schemaname='public' AND t.tablename=c.table_name
+   WHERE c.table_schema='public' ORDER BY c.table_name,c.ordinal_position`);
   const fingerprints=await fingerprintPublicTables(db);
   const catalog=catalogFromColumns(columns.rows);
   if(fingerprints.tables.length!==catalog.length||
