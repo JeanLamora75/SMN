@@ -2,6 +2,9 @@ import {lstat,readdir} from "node:fs/promises";
 import {join} from "node:path";
 
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
+export function isManagedBackupId(value:unknown):value is string{
+ return typeof value==="string"&&UUID.test(value);
+}
 const BACKUP=/^\.([a-f0-9-]{36})\.partial$/i;
 const PURGE=/^\.retention-removing-([a-f0-9-]{36})$/i;
 export type UnfinishedArtifacts=Readonly<{
