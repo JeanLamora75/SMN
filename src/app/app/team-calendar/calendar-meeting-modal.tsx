@@ -33,7 +33,7 @@ export default function CalendarMeetingModal({meeting,isAdmin,teamId,onClose,onS
  const dialogRef=useRef<HTMLDivElement>(null);
  const api="/api/team-calendar/meetings/"+encodeURIComponent(meeting.kind)+"/"+encodeURIComponent(meeting.id);
  const scopedApi=api+(teamId?"?"+new URLSearchParams({teamId}):"");
- const outcomeApi=api+"/outcomes";
+ const outcomeApi=api+"/outcomes"+(teamId?"?"+new URLSearchParams({teamId}):"");
  function apply(item:CalendarMeetingDetail){
   setDetail(item);
   setStart(formatCalendarLocalTime(item.startAt,item.timeZone));
@@ -144,7 +144,7 @@ export default function CalendarMeetingModal({meeting,isAdmin,teamId,onClose,onS
     startAt:iso,minutes:draftMinutes,scope,revision:detail.revision
    });return;
   }
-  void patch(api,{startAt:iso,endAt:isoEnd,revision:detail.revision});
+  void patch(scopedApi,{startAt:iso,endAt:isoEnd,revision:detail.revision});
  };
  const saveActual=()=>{
   if(!canEdit||!detail||!Number.isSafeInteger(actual)||actual<0||actual>1440)return;
