@@ -15,6 +15,12 @@ describe("Dashboard — édition modale des registres et notes",()=>{
   assert.match(edit,/<RegistrySectionDialog/);
   assert.match(edit,/<CalendarMeetingModal/);
  });
+ it("charge les styles ROAM et matrice de criticité hors des pages registres",()=>{
+  const css=read("src/app/app/admin/registries/registry-cockpit.css");
+  assert.match(edit,/import "\.\.\/admin\/registries\/registry-cockpit\.css"/);
+  for(const selector of [".smn-risk-roam-grid",".smn-risk-roam-tile",".smn-risk-matrix",".smn-risk-matrix-cell"])
+   assert.ok(css.includes(selector),selector);
+ });
  it("respecte les permissions et ne modifie pas un cycle clôturé",()=>{
   assert.match(consultation,/canManage&&!personalizing&&navigation\.current\?\.status!=="closed"/);
   assert.match(edit,/method:"PATCH"/);
