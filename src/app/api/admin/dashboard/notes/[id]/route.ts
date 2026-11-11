@@ -3,7 +3,7 @@ import {authorizeApi} from "@/server/auth/authorization";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {withAuthDb} from "@/server/auth/database";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
-import {readDashboardNote,updateDashboardNote} from "@/server/dashboard/notes";
+import {readDashboardNote,updateDashboardNote,deleteDashboardNote} from "@/server/dashboard/notes";
 export const dynamic="force-dynamic";
 export const runtime="nodejs";
 type Context={params:Promise<{id:string}>};
@@ -28,5 +28,18 @@ export async function PATCH(req:NextRequest,context:Context){
   const result=await withAuthDb(db=>updateDashboardNote(db,actor.id,id,raw));
   return jsonResult(result,result.ok?200:result.error==="conflict"?409:
    result.error==="closed-period"?409:result.error==="not-found"?404:400);
+ }catch{return jsonResult({error:"unavailable"},503);}
+}
+
+export async function DELETE(req:NextRequest,context:Context){
+ const actor=await authorizeApi(req,"write",{type:"settings",exists:true,inScope:true});
+ if(!actor||actor.role!=="admin")return jsonResult({error:"forbidden"},403);
+ const {id}=await context.params;
+ const raw=await readJsonObject(req);
+ if(!raw)return jsonResult({error:"invalid-input"},400);
+ try{
+  const result=await withAuthDb(db=>deleteDashboardNote(db,actor.id,id,raw));
+  return jsonResult(result,result.ok?200:result.error==="not-found"?404:
+   result.error==="conflict"||result.error==="closed-period"?409:400);
  }catch{return jsonResult({error:"unavailable"},503);}
 }
