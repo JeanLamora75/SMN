@@ -71,9 +71,9 @@ export async function currentErasureEvidence(
   if(state.coverageStart>backupCreatedAt)
    return {state:"unavailable",reason:"ledger-untrusted"};
   const subsequent=state.markers.filter(entry=>entry.occurredAt>backupCreatedAt);
-  // No destructive SMN-39 executor or SMN-36 audit bridge is wired yet.
-  // Therefore the cryptographic chain is authentic but NOT a complete
-  // history of every possible personal-data deletion in this installation.
+  // The restricted SMN-39 executor exists, but legacy deletion paths and
+  // pre-enrollment history have not been independently reconciled. A sound
+  // cryptographic chain alone cannot prove complete historical coverage.
   const checked=db?
    await (await import("./erasure-completeness")).verifyErasureIntegrity(db):null;
   const memberScopeVerified=checked?.complete===true&&
