@@ -88,3 +88,46 @@ export async function updateDashboardNote(db:Client,actorId:string,id:string,raw
   return {ok:true as const,id};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
+
+/** Suppression atomique d'une seule note, refusée si le Sprint est clôturé.
+ * Les archives de clôture et sauvegardes ne sont jamais modifiées. */
+export async function deleteDashboardNote(db:Client,actorId:string,id:string,raw:unknown){
+ if(!actorId||!uuid.test(id)||!raw||typeof raw!=="object"||Array.isArray(raw))
+  return {ok:false as const,error:"invalid-input" as const};
+ const o=raw as Record<string,unknown>;
+ if(Object.keys(o).sort().join(",")!=="expectedBody,expectedStatus,sprintId,teamId"||
+  typeof o.teamId!=="string"||!o.teamId||typeof o.sprintId!=="string"||
+  !uuid.test(o.sprintId)||typeof o.expectedBody!=="string"||
+  typeof o.expectedStatus!=="string")
+  return {ok:false as const,error:"invalid-input" as const};
+ await db.query("BEGIN");
+ try{
+  const found=await db.query<{body:string;status:string;sprint_status:string}>(`
+   SELECT n.body,n.status,s.status AS sprint_status
+   FROM public.smn_dashboard_note n JOIN public.smn_sprint s
+    ON s.id=n.sprint_id AND s.team_id=n.team_id
+   JOIN public.smn_team t ON t.id=s.team_id
+   JOIN public.smn_installation i ON i.id=t.installation_id
+   WHERE n.id=$1 AND n.sprint_id=$2 AND n.team_id=$3
+    AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
+    AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))='scrum'
+   FOR UPDATE OF s,n`,[id,o.sprintId,o.teamId]);
+  const previous=found.rows[0];
+  if(!previous){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
+  if(previous.sprint_status==="closed"){
+   await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};
+  }
+  if(previous.body!==o.expectedBody||previous.status!==o.expectedStatus){
+   await db.query("ROLLBACK");return {ok:false as const,error:"conflict" as const};
+  }
+  await assertDashboardTable(db,"smn_dashboard_note_audit");
+  await assertDashboardTable(db,"smn_dashboard_note_edit_audit");
+  await db.query("DELETE FROM public.smn_dashboard_note_edit_audit WHERE note_id=$1",[id]);
+  await db.query("DELETE FROM public.smn_dashboard_note_audit WHERE note_id=$1",[id]);
+  const removed=await db.query("DELETE FROM public.smn_dashboard_note WHERE id=$1 AND team_id=$2 AND sprint_id=$3 RETURNING id",
+   [id,o.teamId,o.sprintId]);
+  if(removed.rowCount!==1)throw Error("dashboard-note-delete-lost-lock");
+  await db.query("COMMIT");
+  return {ok:true as const};
+ }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
+}
