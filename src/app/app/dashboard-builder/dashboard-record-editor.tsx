@@ -3,6 +3,8 @@ import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import RegistryEditModal from "../admin/registries/registry-edit-modal";
 import RegistrySectionDialog from "../admin/registries/registry-section-dialog";
+import CalendarMeetingModal from "../team-calendar/calendar-meeting-modal";
+import type {CalendarMeeting} from "../team-calendar/calendar-option-b";
 
 type Entry={id:string;kind:string;label:string;cycleId:string};
 type Note={id:string;body:string;status:string};
@@ -35,6 +37,11 @@ export default function DashboardRecordEditor({entry,teamId,onDismiss,onSaved}:{
    .finally(()=>{if(!ctrl.signal.aborted)setLoading(false);});
   return()=>ctrl.abort();
  },[isNote,entry.id,entry.cycleId,teamId,t]);
+ if(["ceremony","template","exceptional"].includes(entry.kind)){
+  const meeting:CalendarMeeting={id:entry.id,kind:entry.kind,name:entry.label,
+   startAt:"",endAt:"",href:"/app/team-calendar"};
+  return <CalendarMeetingModal meeting={meeting} isAdmin onClose={onDismiss} onSaved={onSaved}/>;
+ }
  if(!isNote)return <RegistryEditModal id={entry.id} teamId={teamId}
   onDismiss={onDismiss} onSaved={onSaved}/>;
  const save=async(event:FormEvent<HTMLFormElement>)=>{
