@@ -4633,6 +4633,15 @@
     "loadError": "Informations de maintenance indisponibles.",
     "unauthorized": "Opération réservée aux administrateurs."
   },
+  "dashboardRecordDelete": {
+    "button": "Supprimer",
+    "deleting": "Suppression…",
+    "confirm": "Supprimer définitivement « {title} » ? Cette opération ne pourra pas être annulée.",
+    "failed": "La suppression a été refusée. Aucune modification partielle n'a été appliquée.",
+    "closed": "Suppression interdite : le sprint est clôturé.",
+    "conflict": "Les données ont été modifiées. Rechargez la fiche avant de supprimer.",
+    "linked": "Suppression impossible : une donnée associée est protégée."
+  },
   "registryDelete": {
     "button": "Supprimer définitivement",
     "deleting": "Suppression…",
