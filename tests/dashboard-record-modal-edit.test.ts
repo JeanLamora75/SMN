@@ -8,11 +8,12 @@ describe("Dashboard — édition modale des registres et notes",()=>{
  const consultation=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
  const edit=read("src/app/app/dashboard-builder/dashboard-record-editor.tsx");
  it("ouvre une modale pour risque obstacle dépendance et note",()=>{
-  for(const kind of ["risk","obstacle","dependency","note"])assert.ok(list.includes('"'+kind+'"'));
+  for(const kind of ["risk","obstacle","dependency","note","ceremony","template","exceptional"])assert.ok(list.includes('"'+kind+'"'));
   assert.match(list,/onClick=\{\(\)=>onEdit\(item\)\}/);
   assert.match(consultation,/<DashboardRecordEditor/);
   assert.match(edit,/<RegistryEditModal/);
   assert.match(edit,/<RegistrySectionDialog/);
+  assert.match(edit,/<CalendarMeetingModal/);
  });
  it("respecte les permissions et ne modifie pas un cycle clôturé",()=>{
   assert.match(consultation,/canManage&&!personalizing&&navigation\.current\?\.status!=="closed"/);
