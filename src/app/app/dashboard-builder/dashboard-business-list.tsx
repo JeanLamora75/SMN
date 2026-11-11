@@ -45,8 +45,8 @@ function statusLabel(kind:string,status:string,locale:string):string{
  const labels=ceremonyStatusLabels[canonical];
  return labels?(locale.toLowerCase().startsWith("fr")?labels.fr:labels.en):status;
 }
-export function DashboardBusinessList({data,columns,locale="fr"}:{
- data:DashboardListPayload;columns?:readonly string[];locale?:string;
+export function DashboardBusinessList({data,columns,locale="fr",onEdit}:{
+ data:DashboardListPayload;columns?:readonly string[];locale?:string;onEdit?:(item:DashboardListPayload["rows"][number])=>void;
 }){
  const formatDate=(raw:string)=>{
   const onlyDate=/^\d{4}-\d{2}-\d{2}$/.test(raw);
@@ -61,7 +61,10 @@ export function DashboardBusinessList({data,columns,locale="fr"}:{
  return <div>
   <ul className={styles.businessList}>{data.rows.map(item=><li className={styles.businessItem} key={item.id}>
    <div className={styles.businessItemTop}>
-    <Link href={item.href} className={styles.businessItemTitle}>{ceremonyIcon(item.kind,item.label,item.icon)&&<span className="me-2" style={{color:ceremonyIconColorHex(item.iconColor)??"inherit"}}><SMNIcon name={ceremonyIcon(item.kind,item.label,item.icon)!}/></span>}{item.label}</Link>
+    {onEdit&&["risk","obstacle","dependency","note"].includes(item.kind)?
+     <button type="button" className={styles.businessItemTitle} style={{background:"none",border:0,padding:0,textAlign:"left",cursor:"pointer"}}
+      onClick={()=>onEdit(item)}>{item.label}</button>:
+     <Link href={item.href} className={styles.businessItemTitle}>{ceremonyIcon(item.kind,item.label,item.icon)&&<span className="me-2" style={{color:ceremonyIconColorHex(item.iconColor)??"inherit"}}><SMNIcon name={ceremonyIcon(item.kind,item.label,item.icon)!}/></span>}{item.label}</Link>}
     {visible.has("status")&&item.status&&<span className={styles.businessBadge}>{statusLabel(item.kind,item.status,locale)}</span>}
    </div>
    {(visible.has("kind")||visible.has("date"))&&<span className={styles.businessItemMeta}>
