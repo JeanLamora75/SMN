@@ -53,3 +53,12 @@ test("migration source endpoint never exports bytes or modifies installed data",
  assert.match(src,/hasUnresolvedErasureIntent\(\)/);
  assert.doesNotMatch(src,/pg_restore|CREATE DATABASE|DROP DATABASE|rename\(|writeFile\(|appendFile\(/);
 });
+
+test("new computer migration entry is available in UI without allowing activation",()=>{
+ const ui=readFileSync(new URL("../src/app/app/admin/backups/backups-admin.tsx",import.meta.url),"utf8");
+ assert.match(ui,/onClick=\{\(\)=>prepareMigration\(item\.id\)\}/);
+ assert.match(ui,/\/api\/admin\/backups\/migration\/source/);
+ assert.match(ui,/restorationAuthorized!==false/);
+ assert.match(ui,/migrationHistoricalWarning/);
+ assert.doesNotMatch(ui,/\/api\/admin\/backups\/migration\/activate/);
+});
