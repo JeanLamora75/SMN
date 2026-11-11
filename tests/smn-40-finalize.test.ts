@@ -38,7 +38,7 @@ test("real mutation occurs only after preflight, never after failed enrollment",
  assert.match(s,/finalize-ledger-already-exists/);
  const preflight=s.indexOf("const before=await inspectPrivacyInstallPreflight");
  const sql=s.indexOf('runStep("smn-40-maintenance.ts"');
- const ledger=s.indexOf('runStep("smn-40-ledger-enrollment.ts",[');
+ const ledger=s.lastIndexOf('runStep("smn-40-ledger-enrollment.ts",[');
  assert.ok(preflight>=0&&preflight<sql&&sql<ledger);
  assert.match(s,/if\(before\.guardsInstalled===0\)/);
  assert.match(s,/if\(count!==7\)/);
