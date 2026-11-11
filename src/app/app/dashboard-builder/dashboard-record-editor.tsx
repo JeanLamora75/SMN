@@ -62,7 +62,31 @@ export default function DashboardRecordEditor({entry,teamId,onDismiss,onSaved}:{
     t("dashboard.operational.quickAdd.saveFailed"):t("dashboard.operational.quickAdd.unavailable"));
   }finally{setBusy(false);}
  };
- return <RegistrySectionDialog wide title={entry.label} onDismiss={onDismiss} submitFormId="dashboard-note-edit">
+ const remove=async()=>{
+  if(!note||busy||!window.confirm(t("dashboardRecordDelete.confirm",{title:entry.label})))return;
+  setBusy(true);setError(null);
+  try{
+   const response=await fetch("/api/admin/dashboard/notes/"+encodeURIComponent(entry.id),{
+    method:"DELETE",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({teamId,sprintId:entry.cycleId,
+     expectedBody:note.body,expectedStatus:note.status})
+   });
+   if(!response.ok){
+    const data=await response.json().catch(()=>({error:"unavailable"})) as {error?:string};
+    throw Error(data.error??"unavailable");
+   }
+   onSaved();
+  }catch(reason){
+   const code=reason instanceof Error?reason.message:"";
+   setError(t(code==="closed-period"?"dashboardRecordDelete.closed":
+    code==="conflict"?"dashboardRecordDelete.conflict":"dashboardRecordDelete.failed"));
+  }finally{setBusy(false);}
+ };
+ return <RegistrySectionDialog wide title={entry.label} onDismiss={onDismiss} submitFormId="dashboard-note-edit"
+  deleteAction={note?<button type="button" className="btn btn-outline-danger"
+   disabled={busy} onClick={()=>void remove()}>
+   {busy?t("dashboardRecordDelete.deleting"):t("dashboardRecordDelete.button")}
+  </button>:undefined}>
   {loading?<p role="status">{t("dashboard.operational.quickAdd.loading")}</p>:
    error&&!note?<p role="alert" className="alert alert-warning">{error}</p>:
    <form id="dashboard-note-edit" onSubmit={save} className="d-grid gap-3">
