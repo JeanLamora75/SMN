@@ -2,6 +2,7 @@ import {createHmac,randomBytes,timingSafeEqual} from "node:crypto";
 import {appendFile,lstat,mkdir,open,readFile,rename,rm,writeFile} from "node:fs/promises";
 import {isAbsolute,join,resolve,sep} from "node:path";
 import {installedPrivateDocumentsDirectory} from "../documents/storage-path";
+import {loadPrivacyLedgerEnvironment} from "../../../scripts/windows/privacy-ledger-env.mjs";
 import {createErasureMarker,verifyErasureChain,ERASURE_GENESIS_MAC,
  type ErasureMarker} from "./erasure-evidence-format";
 
@@ -28,6 +29,7 @@ const nested=(a:string,b:string)=>{
 };
 
 export function erasureLedgerConfig():{ledger:string;anchor:string;key:Buffer}|null{
+ loadPrivacyLedgerEnvironment();
  const left=process.env.SMN_ERASURE_LEDGER_DIR;
  const right=process.env.SMN_ERASURE_ANCHOR_DIR;
  const secret=process.env.SMN_ERASURE_LEDGER_KEY_HEX;
