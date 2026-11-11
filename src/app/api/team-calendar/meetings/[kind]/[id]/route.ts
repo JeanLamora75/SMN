@@ -2,6 +2,8 @@ import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
+import {indicatorTeams} from "@/server/indicators/team-access";
+import {resolveAdminTeam} from "@/server/teams/resolve";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {updateCalendarMeetingSchedule} from "@/server/sprints/calendar-meeting-reschedule";
 import {readCalendarMeeting,validCalendarMeetingRef} from "@/server/sprints/calendar-meeting-detail";
@@ -12,11 +14,30 @@ type Context={params:Promise<{kind:string;id:string}>};
 const target={type:"collective",exists:true,inScope:true} as const;
 
 export async function GET(request:NextRequest,{params}:Context){
- if(!await authorizeApi(request,"read",target))return jsonResult({error:"forbidden"},403);
+ const actor=await authorizeApi(request,"read",target);
+ if(!actor)return jsonResult({error:"forbidden"},403);
  const {kind,id}=await params;
  if(!validCalendarMeetingRef(kind,id))return jsonResult({error:"invalid-input"},400);
+ const teamId=request.nextUrl.searchParams.get("teamId");
+ if(teamId!==null&&!/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/.test(teamId))
+  return jsonResult({error:"invalid-input"},400);
  try{
-  const meeting=await withSprintIndexDb(db=>readCalendarMeeting(db,kind,id));
+  const meeting=await withSprintIndexDb(async db=>{
+   const result=await db.query<{schema_version:number}>(
+    "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+   const version=result.rows[0]?.schema_version??0;
+   if(version>=28){
+    if(!teamId)return null;
+    if(actor.role==="admin"){
+     const team=await resolveAdminTeam(db,{accountId:actor.id,role:"admin"},teamId);
+     if(team.mode!=="scrum")return null;
+    }else if(version===33){
+     const teams=await indicatorTeams(db,{accountId:actor.id,role:actor.role});
+     if(!teams.some(team=>team.id===teamId))return null;
+    }else return null;
+   }
+   return readCalendarMeeting(db,kind,id,version>=28?teamId:null);
+  });
   return meeting?jsonResult({meeting}):jsonResult({error:"not-found"},404);
  }catch{
   console.error("calendar-meeting-detail-read-failed");
