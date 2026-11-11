@@ -329,6 +329,11 @@ export default function BackupsAdmin(){
         {t(("backups.migrationBlockers."+code) as TranslationKey)}
        </li>)}
       </ul>}
+      {migrationPlan.exportCandidate&&<a
+       className="btn btn-outline-primary btn-sm mb-2"
+       href={"/api/admin/backups/migration/export?id="+encodeURIComponent(item.id)}>
+       {t("backups.migrationDownload")}
+      </a>}
       <p className="small text-secondary mb-0">{t("backups.migrationHistoricalWarning")}</p>
      </section>}
      {migrationError&&<p role="alert" className="alert alert-warning mt-2">{migrationError}</p>}
