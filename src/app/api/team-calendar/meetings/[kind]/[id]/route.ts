@@ -4,6 +4,7 @@ import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import {indicatorTeams} from "@/server/indicators/team-access";
 import {resolveAdminTeam} from "@/server/teams/resolve";
 import {withAuthDb} from "@/server/auth/database";
+import {deleteCalendarMeeting} from "@/server/sprints/calendar-meeting-delete";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {updateCalendarMeetingSchedule} from "@/server/sprints/calendar-meeting-reschedule";
 import {readCalendarMeeting,validCalendarMeetingRef} from "@/server/sprints/calendar-meeting-detail";
@@ -79,5 +80,27 @@ export async function PATCH(request:NextRequest,{params}:Context){
  }catch{
   console.error("calendar-meeting-schedule-update-failed");
   return jsonResult({error:"service-unavailable"},503);
+ }
+}
+
+/** Only the selected, authorized occurrence is deleted; bulk deletion is separate. */
+export async function DELETE(request:NextRequest,{params}:Context){
+ const actor=await authorizeApi(request,"write",{type:"settings",exists:true,inScope:true});
+ if(!actor||actor.role!=="admin")return jsonResult({error:"forbidden"},403);
+ const {kind,id}=await params;
+ if(!validCalendarMeetingRef(kind,id))return jsonResult({error:"invalid-input"},400);
+ const teamId=request.nextUrl.searchParams.get("teamId");
+ if(!teamId)return jsonResult({error:"invalid-input"},400);
+ try{
+  const result=await withAuthDb(async db=>{
+   const team=await resolveAdminTeam(db,{accountId:actor.id,role:"admin"},teamId);
+   if(team.mode!=="scrum")return {ok:false as const,error:"not-found" as const};
+   return deleteCalendarMeeting(db,team.team_id,kind,id);
+  });
+  return jsonResult(result,result.ok?200:result.error==="not-found"?404:
+   ["closed-period","linked-data"].includes(result.error)?409:
+   result.error==="incomplete-schema"?503:400);
+ }catch{
+  return jsonResult({error:"unavailable"},503);
  }
 }
