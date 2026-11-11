@@ -5,6 +5,11 @@ on:
     paths:
       - "scripts/smn-40-maintenance.ts"
       - "src/server/registries/delete-item.ts"
+      - "src/app/api/admin/registries/[id]/route.ts"
+      - "src/app/app/admin/registries/registry-delete-action.tsx"
+      - "src/i18n/fr.json"
+      - "src/i18n/en.json"
+      - "tests/registry-permanent-deletion.test.ts"
       - "tests/registry-permanent-delete-pg18.test.ts"
       - "scripts/smn-40-finalize.ts"
       - "tests/smn-40-finalize.test.ts"
@@ -41,7 +46,7 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Check privacy maintenance contracts
-        run: pnpm exec tsx --test tests/smn-40-privacy-install-and-ledger.test.ts tests/smn-40-finalize.test.ts tests/smn-40-maintenance.test.ts tests/epic2-lot4-erasure-ledger.test.ts
+        run: pnpm exec tsx --test tests/smn-40-privacy-install-and-ledger.test.ts tests/smn-40-finalize.test.ts tests/smn-40-maintenance.test.ts tests/epic2-lot4-erasure-ledger.test.ts tests/registry-permanent-deletion.test.ts tests/registry-permanent-delete-db.test.ts tests/registry-row-delete-layout.test.ts
       - name: Windows DPAPI credential proof
         run: node --test tests/smn-40-windows-dpapi.test.mjs
       - name: Typecheck
