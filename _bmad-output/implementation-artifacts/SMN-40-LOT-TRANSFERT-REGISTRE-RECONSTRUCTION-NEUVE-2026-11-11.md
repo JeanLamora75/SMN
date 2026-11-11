@@ -139,3 +139,9 @@ L'interface `Paramètres → Sauvegardes` propose désormais, pour chaque archiv
 **Limites de livraison explicites :** le bouton ne télécharge pas encore un bundle portable ni n'installe les données sur le PC destination. Le contrôle de destination vierge, le transfert chiffré du registre, la récupération de la clé depuis la phrase de récupération, l'orchestration sécurisée de la bascule et la qualification de l'histoire antérieure au registre restent nécessaires. Ne pas décrire ce contrôle de sortie comme une migration de bout en bout.
 
 La règle métier confirmée reste la **conservation des noms des membres, de leurs affectations et de l'historique** ; aucune anonymisation automatique ne doit intervenir lors du transfert.
+
+### Export transportable du paquet chiffré
+
+Une fois la candidature au transfert vérifiée, le parcours affiche **« Télécharger le paquet chiffré (.tar.gz) »**. Le serveur `GET /api/admin/backups/migration/export?id=<UUID>` renouvelle l'authentification administrative et les contrôles de registre et de sauvegarde avant d'émettre, en flux gzip, les seuls fichiers chiffrés `database.pgcustom.enc`, `manifest.enc`, `index.json` et les composants chiffrés listés dans le manifeste vérifié. Il **n'inclut jamais** `.backup-key`, les fichiers DPAPI ni le registre d'effacement externe. Les chemins sont limités aux composants connus ; dossiers symboliques et composants inattendus sont refusés. `Cache-Control: no-store` et `Content-Disposition: attachment`.
+
+La destination doit transférer le registre par le mécanisme chiffré séparé, revalider le manifeste et récupérer la clé via la phrase de récupération. **Ne pas extraire ce paquet dans les fichiers actifs ou dans le répertoire de données PostgreSQL.** Aucun import automatique ou activation sur le nouveau PC n'est livré à ce stade. Tests : `tests/smn-40-portable-package.test.ts`.
