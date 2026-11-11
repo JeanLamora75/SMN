@@ -28,11 +28,14 @@ export default function RegistryDeleteAction({id,title,teamId,onDeleted,classNam
    if(!response.ok){
     const data=await response.json().catch(()=>({error:"unavailable"})) as {error?:string};
     throw Error(response.status===409?data.error==="linked-data"?"linkedData":"conflict":
-     response.status===404?"notFound":"unavailable");
+     response.status===404?"notFound":
+     data.error==="schema-mismatch"?"schemaMismatch":
+     data.error==="protected-operation"?"protectedOperation":
+     data.error==="operation-timeout"?"operationTimeout":"unavailable");
    }
    onDeleted();
   }catch(reason){
-   const key=reason instanceof Error&&["notFound","conflict","linkedData"].includes(reason.message)?
+   const key=reason instanceof Error&&["notFound","conflict","linkedData","schemaMismatch","protectedOperation","operationTimeout"].includes(reason.message)?
     reason.message:"unavailable";
    setError(tr(key));
   }finally{setBusy(false);}
