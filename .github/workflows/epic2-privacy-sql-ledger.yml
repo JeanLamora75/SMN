@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - "scripts/smn-40-maintenance.ts"
+      - "scripts/smn-40-finalize.ts"
+      - "tests/smn-40-finalize.test.ts"
       - "scripts/smn-40-privacy-install-preflight.ts"
       - "scripts/smn-40-ledger-enrollment.ts"
       - "scripts/windows/privacy-ledger-env.mjs"
@@ -37,7 +39,7 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Check privacy maintenance contracts
-        run: pnpm exec tsx --test tests/smn-40-privacy-install-and-ledger.test.ts tests/smn-40-maintenance.test.ts tests/epic2-lot4-erasure-ledger.test.ts
+        run: pnpm exec tsx --test tests/smn-40-privacy-install-and-ledger.test.ts tests/smn-40-finalize.test.ts tests/smn-40-maintenance.test.ts tests/epic2-lot4-erasure-ledger.test.ts
       - name: Windows DPAPI credential proof
         run: node --test tests/smn-40-windows-dpapi.test.mjs
       - name: Typecheck
