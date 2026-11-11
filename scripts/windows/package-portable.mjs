@@ -123,6 +123,38 @@ for(const file of [
  "verify-delivery.mjs"
 ])await copyFile(path.join("scripts","windows",file),
   path.join(appDir,"maintenance","windows",file));
+// Ship the complete OFFLINE migration operator without pnpm, tsx, an IDE,
+// or TypeScript sources on the destination. The bundled runtime/node/node.exe
+// executes self-contained JavaScript that uses the app's traced pg dependency.
+const tsxRuntime=createRequire(import.meta.url).resolve("tsx");
+const esbuild=createRequire(tsxRuntime)("esbuild");
+const migrationScripts=[
+ "smn-40-portable-import",
+ "smn-40-ledger-transfer",
+ "smn-40-migration-destination-check",
+ "smn-40-cross-pc-receipt",
+ "smn-40-managed-candidate-prepare",
+ "smn-40-fresh-install-activate",
+ "smn-40-newpc-reconstruct"
+];
+const migrationDir=path.join(appDir,"maintenance","migration");
+await mkdir(migrationDir,{recursive:true});
+await esbuild.build({
+ entryPoints:migrationScripts.map(name=>"scripts/"+name+".ts"),
+ outdir:migrationDir,entryNames:"[name]",
+ outExtension:{".js":".mjs"},
+ bundle:true,platform:"node",format:"esm",target:"node24",
+ external:["pg","pg-native"],
+ banner:{js:"import {createRequire as __smnCreateRequire} from 'node:module'; const require=__smnCreateRequire(import.meta.url);"},
+ logLevel:"warning"
+});
+for(const name of migrationScripts){
+ const bundle=path.join(migrationDir,name+".mjs");
+ const info=await lstat(bundle);
+ if(!info.isFile()||info.isSymbolicLink()||info.size<1024||
+  info.size>8*1024*1024)
+  throw Error("migration-offline-bundle-invalid");
+}
 for(const name of ["templates","reports"])await mkdir(path.join(target,"data","office",name),{recursive:true});
 // Storage location is part of the installation; never bundle local private files.
 const privateDocs=path.join(target,"data","documents");
