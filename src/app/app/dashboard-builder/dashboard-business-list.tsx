@@ -61,7 +61,7 @@ export function DashboardBusinessList({data,columns,locale="fr",onEdit}:{
  return <div>
   <ul className={styles.businessList}>{data.rows.map(item=><li className={styles.businessItem} key={item.id}>
    <div className={styles.businessItemTop}>
-    {onEdit&&["risk","obstacle","dependency","note"].includes(item.kind)?
+    {onEdit&&["risk","obstacle","dependency","note","ceremony","template","exceptional"].includes(item.kind)?
      <button type="button" className={styles.businessItemTitle} style={{background:"none",border:0,padding:0,textAlign:"left",cursor:"pointer"}}
       onClick={()=>onEdit(item)}>{item.label}</button>:
      <Link href={item.href} className={styles.businessItemTitle}>{ceremonyIcon(item.kind,item.label,item.icon)&&<span className="me-2" style={{color:ceremonyIconColorHex(item.iconColor)??"inherit"}}><SMNIcon name={ceremonyIcon(item.kind,item.label,item.icon)!}/></span>}{item.label}</Link>}
