@@ -19,6 +19,7 @@ import {pdfArchiveDirectory} from "./extra-archives";
 import {officeReportsDirectory} from "../reports/office-storage";
 import {officeTemplatesDirectory} from "../reports/office-catalog";
 import {inspectOfflineRestoreMaintenance} from "./restore-maintenance";
+import {freshCutoverMac,FRESH_CUTOVER_GENESIS} from "./fresh-cutover-journal";
 
 /**
  * External-operator ONLY. Promotes a VERIFIED candidate already restored into
@@ -166,15 +167,18 @@ export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs
  }));
  let locked=false,adminReady=false,sourceReady=false,targetReady=false;
  let parkedDb=false,promotedDb=false,writing=false;
- let journal:string|null=null;
+ let journal:string|null=null,previousMac=FRESH_CUTOVER_GENESIS;
  const record=async(stage:Stage)=>{
   if(!journal)throw Error("migration-journal-missing");
+  const unsigned={version:1 as const,id:session,archiveId:a.archiveId,
+   candidateDb:a.candidateDb,rollbackDb,
+   stage,at:new Date().toISOString(),previousMac};
+  const mac=freshCutoverMac(key,unsigned);
   const handle=await open(journal,"a",0o600);
   try{
-   await handle.writeFile(JSON.stringify({
-    version:1,archiveId:a.archiveId,stage,at:new Date().toISOString()
-   })+"\n");
+   await handle.writeFile(JSON.stringify({...unsigned,mac})+"\n");
    await handle.sync();
+   previousMac=mac;
   }finally{await handle.close();}
  };
  const rollbackFiles=async()=>{
