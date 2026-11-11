@@ -59,7 +59,7 @@ test("isolated PG18: additive privacy protections install 7/7 without changing v
     VALUES($1,'singleton','Test privacy','scrum')`,[team]);
   await db.query(`INSERT INTO public.smn_member_batch
     (id,installation_id,team_id,requested_count)
-    VALUES($1,'singleton',$2,1)`,[batch,team]);
+    VALUES($1,'singleton',$2,3)`,[batch,team]);
   await db.query(`INSERT INTO public.smn_member
     (id,installation_id,batch_id,member_number,display_name)
     VALUES($1,'singleton',$2,1,'Synthetic privacy')`,[member,batch]);
