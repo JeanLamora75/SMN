@@ -4633,6 +4633,15 @@
     "loadError": "Maintenance information unavailable.",
     "unauthorized": "Administrators only."
   },
+  "dashboardRecordDelete": {
+    "button": "Delete",
+    "deleting": "Deleting…",
+    "confirm": "Permanently delete “{title}”? This action cannot be undone.",
+    "failed": "Deletion was refused. No partial change was applied.",
+    "closed": "Cannot delete: the sprint is closed.",
+    "conflict": "The data changed. Reload the record before deleting.",
+    "linked": "Cannot delete: related data is protected."
+  },
   "registryDelete": {
     "button": "Delete permanently",
     "deleting": "Deleting…",
