@@ -21,7 +21,9 @@ test("Journal : date/heure séparées, type, contenu, icônes accessibles",()=>{
 test("Journal : suppression limitée au retrait logique de commentaire, sans fausse API DELETE de fiche",()=>{
  const api=read("src/app/api/admin/registries/[id]/route.ts");
  const ui=read("src/app/app/admin/registries/registry-journal.tsx");
- assert.doesNotMatch(api,/export async function DELETE/);
+ assert.match(api,/export async function DELETE/);
+ assert.match(api,/resolveRegistryReadContext/);
+ assert.match(api,/deleteRegistryItem/);
  assert.match(ui,/entry\.kind==="comment"\?!entry\.comment\.withdrawn/);
  assert.match(ui,/RegistryEditModal/);
  assert.match(ui,/commentsText\("confirmWithdraw"\)/);
