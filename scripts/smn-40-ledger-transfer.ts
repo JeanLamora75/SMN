@@ -208,7 +208,7 @@ async function main(){
   await exportLedger(args[1],phrase):await importLedger(args[1],phrase);
  process.stdout.write(JSON.stringify(result)+"\n");
 }
-if(process.argv[1]?.replaceAll("\\","/").match(/\\/smn-40-ledger-transfer\\.(?:ts|mjs)$/))
+if(process.argv[1]?.replaceAll("\\","/").match(/\/smn-40-ledger-transfer\.(?:ts|mjs)$/))
  main().catch((error:unknown)=>{
   // Fixed error codes only: no paths, exception internals, keys or PII.
   const safe=new Set(["transfer-export-target-invalid","transfer-pending-erasure",
