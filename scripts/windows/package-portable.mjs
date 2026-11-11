@@ -124,6 +124,8 @@ for(const file of [
 ])await copyFile(path.join("scripts","windows",file),
   path.join(appDir,"maintenance","windows",file));
 for(const name of ["templates","reports"])await mkdir(path.join(target,"data","office",name),{recursive:true});
+// Storage location is part of the installation; never bundle local private files.
+await mkdir(path.join(target,"data","documents"),{recursive:true});
 await mkdir(path.join(target,"updates"), { recursive: true });
 await copyFile("scripts/recover-admin.mjs", path.join(appDir, "recover-admin.mjs"));
 const launch = "@echo off\r\nsetlocal\r\ncd /d \"%~dp0\"\r\nif not exist \"%~dp0runtime\\node\\node.exe\" (echo SMN : Node.js absent. & pause & exit /b 1)\r\nif /I \"%~1\"==\"--recover-admin\" (\r\n \"%~dp0runtime\\node\\node.exe\" \"%~dp0app\\recover-admin.mjs\"\r\n) else (\r\n \"%~dp0runtime\\node\\node.exe\" \"%~dp0runtime\\launcher.mjs\"\r\n)\r\nif errorlevel 1 pause\r\n";
