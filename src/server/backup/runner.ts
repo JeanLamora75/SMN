@@ -10,6 +10,7 @@ import {seal,wrapRecoveryKey,recoverKey,type RecoveryEnvelope} from "./crypto";
 import {privateFolder,scanDocuments,encryptDocuments,sha,safeAtomicJson,
  type PublicBackupResult,type BackupIndex,type BackupComponent} from "./files";
 import {encryptedPgDump} from "./postgres";
+import {installedPrivateDocumentsDirectory} from "../documents/storage-path";
 import {inspectExtraArchives,encryptExtraArchives,pdfArchiveDirectory}
  from "./extra-archives";
 import {officeReportsDirectory} from "../reports/office-storage";
@@ -103,7 +104,7 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
  if(actor.role!=="admin")throw new Error("backup-forbidden");
  const root=backupRootPath();
  await privateFolder(root,true);
- const source=process.env.SMN_PRIVATE_DOCUMENTS_DIR;
+ const source=installedPrivateDocumentsDirectory();
  if(source&&sameOrNested(root,source))throw new Error("backup-root-overlaps-documents");
  for(const folder of [pdfArchiveDirectory(),officeReportsDirectory(),officeTemplatesDirectory()])
   if(sameOrNested(root,folder)||source&&sameOrNested(source,folder))
