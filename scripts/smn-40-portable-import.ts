@@ -30,7 +30,7 @@ async function main(){
   process.stdout.write(JSON.stringify(outcome)+"\n");
  }finally{secret.fill(0);parts.forEach(b=>b.fill(0));}
 }
-if(process.argv[1]?.replaceAll("\\","/").endsWith("/smn-40-portable-import.ts"))
+if(process.argv[1]?.replaceAll("\\","/").match(/\\/smn-40-portable-import\\.(?:ts|mjs)$/))
  main().catch(()=>{
   process.stderr.write(JSON.stringify({status:"blocked",reason:"portable-import-unverified",
    activeInstallationModified:false,restorationAuthorized:false})+"\n");
