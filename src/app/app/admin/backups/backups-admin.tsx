@@ -3,7 +3,7 @@ import type {TranslationKey} from "@/i18n/catalog";
 import {useCallback,useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 
-type Outcome={status:"running"|"success"|"failed"|"cancelled"|"interrupted"|"unverifiable";id?:string;createdAt:string};
+type Outcome={status:"running"|"success"|"failed"|"cancelled"|"interrupted"|"unverifiable";id?:string;createdAt:string;failureStage?:string};
 type Component={path:string;kind:"database"|"document"|"report-pdf"|"office-report"|"office-template";size:number;
  encryptedSize:number;encryptedSha256:string};
 type InventoryEntry={
@@ -158,7 +158,8 @@ export default function BackupsAdmin(){
    catch{setError(t("backups.unavailable"));}
   }catch{
    setError(t("backups.failed"));
-   setState(v=>v?{...v,last:{status:"failed",createdAt:new Date().toISOString()}}:v);
+   try{await refresh();}
+   catch{setState(v=>v?{...v,last:{status:"failed",createdAt:new Date().toISOString()}}:v);}
   }finally{setPhrase("");setBusy(false);}
  }
  return <div className="d-grid gap-4">
@@ -173,6 +174,9 @@ export default function BackupsAdmin(){
       state.last.status==="unverifiable"?"backups.unverifiable":"backups.failedStatus")}
     {" · "}{new Date(state.last.createdAt).toLocaleString()}
     {state.last.id&&<> · {t("backups.identifier")}: <code>{state.last.id}</code></>}
+    {state.last.status==="failed"&&state.last.failureStage&&<>
+     {" · "}{t("backups.failureStage")}: <code>{state.last.failureStage}</code>
+    </>}
    </p>}
    <form className="d-grid gap-3" onSubmit={submit} aria-describedby={error?"backups-error":undefined}>
     {state?.needsRecoveryPhrase&&<div>
