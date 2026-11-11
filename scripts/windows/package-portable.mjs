@@ -1,6 +1,6 @@
 // Paquet Windows autonome pour un pilote. N'installe aucun service Windows.
 // À exécuter uniquement après pnpm build (Next standalone) sous GitHub Actions.
-import { cp, copyFile, mkdir, writeFile, readFile, stat, rm } from "node:fs/promises";
+import { cp, copyFile, mkdir, writeFile, readFile, stat, rm, readdir, lstat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import {createRequire} from "node:module";
@@ -125,7 +125,14 @@ for(const file of [
   path.join(appDir,"maintenance","windows",file));
 for(const name of ["templates","reports"])await mkdir(path.join(target,"data","office",name),{recursive:true});
 // Storage location is part of the installation; never bundle local private files.
-await mkdir(path.join(target,"data","documents"),{recursive:true});
+const privateDocs=path.join(target,"data","documents");
+if(existsSync(privateDocs)){
+ const info=await lstat(privateDocs);
+ if(!info.isDirectory()||info.isSymbolicLink()||
+  (await readdir(privateDocs)).length!==0)
+  throw Error("distribution-private-documents-not-empty");
+}
+await mkdir(privateDocs,{recursive:true});
 await mkdir(path.join(target,"updates"), { recursive: true });
 await copyFile("scripts/recover-admin.mjs", path.join(appDir, "recover-admin.mjs"));
 const launch = "@echo off\r\nsetlocal\r\ncd /d \"%~dp0\"\r\nif not exist \"%~dp0runtime\\node\\node.exe\" (echo SMN : Node.js absent. & pause & exit /b 1)\r\nif /I \"%~1\"==\"--recover-admin\" (\r\n \"%~dp0runtime\\node\\node.exe\" \"%~dp0app\\recover-admin.mjs\"\r\n) else (\r\n \"%~dp0runtime\\node\\node.exe\" \"%~dp0runtime\\launcher.mjs\"\r\n)\r\nif errorlevel 1 pause\r\n";
