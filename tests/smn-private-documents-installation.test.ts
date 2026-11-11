@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {test} from "node:test";
 import {mkdtemp,mkdir,rm,symlink,writeFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
-import {join,resolve} from "node:path";
+import {join} from "node:path";
 import {createRequire} from "node:module";
 import {installedPrivateDocumentsDirectory,isInstalledPrivateDocumentDirectory,
  validatePrivateDocumentDirectory} from "../src/server/documents/storage-path";
