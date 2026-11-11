@@ -16,10 +16,10 @@ export default function RegistryDeleteAction({id,title,teamId,onDeleted,classNam
   try{
    const itemResponse=await fetch("/api/admin/registries/"+encodeURIComponent(id)+
     "?teamId="+encodeURIComponent(teamId),{cache:"no-store"});
-   if(!itemResponse.ok)throw Error(itemResponse.status===404?"notFound":"unavailable");
+   if(!itemResponse.ok)throw Error(itemResponse.status===404?"notFound":"readFailed");
    const payload=await itemResponse.json() as {item?:{revision?:number;title?:string}};
    const revision=payload.item?.revision;
-   if(!Number.isSafeInteger(revision)||!revision||revision<1)throw Error("unavailable");
+   if(!Number.isSafeInteger(revision)||!revision||revision<1)throw Error("readInvalidRevision");
    if(!window.confirm(tr("confirm",{title:payload.item?.title??title})))return;
    const response=await fetch("/api/admin/registries/"+encodeURIComponent(id),{
     method:"DELETE",headers:{"Content-Type":"application/json"},
@@ -31,7 +31,7 @@ export default function RegistryDeleteAction({id,title,teamId,onDeleted,classNam
      response.status===404?"notFound":
      data.error==="schema-mismatch"?"schemaMismatch":
      data.error==="protected-operation"?"protectedOperation":
-     data.error==="operation-timeout"?"operationTimeout":"unavailable";
+     data.error==="operation-timeout"?"operationTimeout":"deleteFailed";
     const diagnostic=typeof data.diagnosticCode==="string"&&/^PG-[0-9A-Z]{5}$/.test(data.diagnosticCode)?
      " ["+data.diagnosticCode+"]":"";
     throw Error(key+diagnostic);
@@ -40,7 +40,7 @@ export default function RegistryDeleteAction({id,title,teamId,onDeleted,classNam
   }catch(reason){
    const message=reason instanceof Error?reason.message:"";
    const [candidate,diagnostic]=message.split(" [");
-   const key=["notFound","conflict","linkedData","schemaMismatch","protectedOperation","operationTimeout"].includes(candidate)?
+   const key=["notFound","conflict","linkedData","schemaMismatch","protectedOperation","operationTimeout","readFailed","readInvalidRevision","deleteFailed"].includes(candidate)?
     candidate:"unavailable";
    setError(tr(key)+(diagnostic&&/^PG-[0-9A-Z]{5}\]$/.test(diagnostic)?" ["+diagnostic:""));
   }finally{setBusy(false);}
