@@ -110,25 +110,34 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
   connectionTimeoutMillis:3500,statement_timeout:10000,query_timeout:10000});
  const id=randomUUID(),createdAt=new Date().toISOString(),packages=join(root,"packages");
  let locked=false,staging="";
+ let failureStage="connection";
  try{
   await client.connect();
+  failureStage="schema-check";
   await ensureAccountsSchema(client);
+  failureStage="advisory-lock";
   const acquired=await client.query<{acquired:boolean}>(
    "SELECT pg_try_advisory_lock(20261021,30) AS acquired");
   if(acquired.rows[0]?.acquired!==true)throw new Error("backup-already-running");
   locked=true;
   // Persist intent before touching any component; a crash leaves 'running',
   // reconciled on the next read using the actual advisory lock and package.
+  failureStage="record-start";
   await safeAtomicJson(join(root,"last-attempt.json"),{
    status:"running",id,createdAt
   });
+  failureStage="encryption-key";
   const {key,recovery}=await getOrCreateKey(root,phrase,actor.password_hash);
   try{
+   failureStage="private-documents";
    const inventory=await scanDocuments(source);
+   failureStage="office-pdf-inventory";
    const extras=await inspectExtraArchives(client);
+   failureStage="staging";
    await privateFolder(packages,true);
    staging=join(packages,"."+id+".partial");
    await mkdir(staging,{mode:0o700});
+   failureStage="installation-metadata";
    const meta=await client.query<{schema_version:number;pg_version:string;installation_created_at:Date}>(`
     SELECT i.schema_version,i.created_at AS installation_created_at,
            current_setting('server_version') AS pg_version
@@ -136,16 +145,22 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    if(meta.rowCount!==1)throw new Error("backup-installation-invalid");
    // A conservative consistency fence: reject any PostgreSQL WAL activity
    // between dump start and final file verification, even if unrelated.
+   failureStage="wal-start";
    const begin=await client.query<{lsn:string}>("SELECT pg_current_wal_lsn()::text AS lsn");
    if(!begin.rows[0]?.lsn)throw Error("backup-wal-unavailable");
+   failureStage="pg-dump";
    const database=await encryptedPgDump(uri,key,join(staging,"database.pgcustom.enc"));
+   failureStage="document-encryption";
    const documents=await encryptDocuments(source,inventory,join(staging,"documents"),key);
+   failureStage="archive-encryption";
    const archiveFiles=await encryptExtraArchives(extras,key,staging);
+   failureStage="source-recheck";
    const after=await scanDocuments(source);
    if(JSON.stringify(inventory)!==JSON.stringify(after))
     throw new Error("backup-documents-changed");
    if(JSON.stringify(extras)!==JSON.stringify(await inspectExtraArchives(client)))
     throw new Error("backup-extra-archives-changed");
+   failureStage="wal-consistency";
    const end=await client.query<{lsn:string}>("SELECT pg_current_wal_lsn()::text AS lsn");
    if(!captureFenceUnchanged({walLsn:begin.rows[0].lsn,documents:inventory,archives:extras},
     {walLsn:end.rows[0]?.lsn??"",documents:after,archives:await inspectExtraArchives(client)}))
@@ -159,6 +174,7 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
     })),reportPdfs:archiveFiles.pdf,officeReports:archiveFiles.office,
     officeTemplates:archiveFiles.templates,
     consistency:{method:"wal-fence-v1",walLsn:begin.rows[0].lsn}};
+   failureStage="manifest-encryption";
    const sealed=seal(key,Buffer.from(JSON.stringify(manifest),"utf8"));
    await writeFile(join(staging,"manifest.enc"),sealed.ciphertext,{flag:"wx",mode:0o600});
    const encryptedManifest:Omit<BackupComponent,"path">={
@@ -170,6 +186,7 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    await writeFile(join(staging,"index.json"),JSON.stringify(index),{flag:"wx",mode:0o600});
    // Final conservative fence immediately before publication. This cannot
    // make external file writes transactional, but prevents known drift.
+   failureStage="publication-fence";
    const finalDocs=await scanDocuments(source);
    const finalArchives=await inspectExtraArchives(client);
    const finalWal=await client.query<{lsn:string}>(
@@ -177,6 +194,7 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    if(!captureFenceUnchanged({walLsn:begin.rows[0].lsn,documents:inventory,archives:extras},
     {walLsn:finalWal.rows[0]?.lsn??"",documents:finalDocs,archives:finalArchives}))
     throw Error("backup-scope-changed-before-publication");
+   failureStage="publish";
    await rename(staging,join(packages,id));
    staging="";
    // Après la publication atomique, une panne du fichier de statut ne doit pas
@@ -187,7 +205,7 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
   }finally{key.fill(0);}
  }catch(error){
   if(locked)await safeAtomicJson(join(root,"last-attempt.json"),{
-   status:"failed",id,createdAt
+   status:"failed",id,createdAt,failureStage
   }).catch(()=>undefined);
   // Diagnostic opt-in for disposable CI only. Never leak arbitrary SQL,
   // paths, exception messages, credentials or user content.
