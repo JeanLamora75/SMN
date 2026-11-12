@@ -680,6 +680,23 @@
     }
   },
   "backups": {
+    "transfer": {
+        "title": "Importer depuis un autre PC",
+        "intro": "Sélectionnez le fichier ZIP créé sur l'autre installation SMN. La vérification n'écrase jamais les données de ce PC.",
+        "file": "Fichier ZIP de sauvegarde",
+        "invalidFile": "Sélectionnez un fichier SMN .zip valide de moins de 2 Go.",
+        "upload": "Envoyer le ZIP",
+        "sending": "Téléversement en cours…",
+        "uploaded": "Fichier reçu, en attente de vérification :",
+        "uploadFailed": "L'envoi ou la lecture du ZIP a échoué. Aucune donnée active n'a été modifiée.",
+        "verify": "Vérifier la sauvegarde",
+        "verifying": "Vérification du chiffrement…",
+        "verificationFailed": "Impossible de vérifier le fichier avec cette phrase de récupération. La restauration n'a pas démarré.",
+        "verified": "Sauvegarde vérifiée et lisible.",
+        "archive": "Sauvegarde",
+        "notActivated": "La base active n'a pas été remplacée. Le parcours de bascule automatique et de retour arrière reste à qualifier avant activation.",
+        "safety": "Ne supprimez pas votre installation actuelle. Un ZIP importé n'est pas automatiquement restauré."
+      },
     "title": "Sauvegarde manuelle",
     "intro": "Créer un paquet chiffré de la base PostgreSQL et des documents privés réellement présents.",
     "back": "Retour au tableau de bord",
