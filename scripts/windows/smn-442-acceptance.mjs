@@ -259,6 +259,15 @@ async function waitOutcome(token,expected,limit=360000){
  },"migrated state "+expected,limit);
 }
 async function verifyDestinationIdentity(expect){
+ // The worker records the durable outcome before the Windows launcher has
+ // necessarily restarted its web child. An HTTP connection refused here is
+ // expected during this transition, not evidence of a failed rollback.
+ await waitFor(async()=>{
+  if(launcher?.exitCode!==null&&launcher?.exitCode!==undefined)
+   throw Error("Owner launcher exited during restoration");
+  const res=await http("/").catch(()=>null);
+  return res?.status===200;
+ },"SMN web restart after offline migration",120000);
  const src=await login("admin",sourcePass);
  const target=await login("destination-ci",targetPass);
  if(expect==="source"){
