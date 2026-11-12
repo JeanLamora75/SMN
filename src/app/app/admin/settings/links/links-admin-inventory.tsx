@@ -16,7 +16,7 @@ export default function LinksAdminInventory(){
   .catch(()=>{if(!controller.signal.aborted)setError(true);}).finally(()=>{if(!controller.signal.aborted)setLoading(false);});return()=>controller.abort();},[reload]);
  const categories=useMemo(()=>Array.from(new Map(items.map(i=>[i.categoryId,i.categoryName])).entries()),[items]);
  const shown=useMemo(()=>items.filter(i=>(!search||[i.title,i.url,i.categoryName,i.teamName].some(v=>v?.toLocaleLowerCase().includes(search.toLocaleLowerCase())))&&(team==="all"||i.teamId===team)&&(scope==="all"||i.scope===scope)&&(category==="all"||i.categoryId===category)),[items,search,team,scope,category]);
- return <section className="smn-links-admin-inventory d-grid gap-3"><header className="smn-links-admin-hero"><p className="smn-links-admin-eyebrow">{t("settingsCatalog.navigation.linksEyebrow")}</p><h2 className="h5">{t("linksAdmin.title")}</h2></header>
+ return <section className="smn-links-admin-inventory d-grid gap-3" aria-label={t("linksAdmin.title")}>
   {loading?<p role="status">{t("links.loading")}</p>:error?<p className="alert alert-warning" role="alert">{t("links.error")}</p>:<>
   <div className="smn-links-admin-panel"><div className="smn-links-admin-filters">
    <input type="search" className="form-control" style={{maxWidth:300}} aria-label={t("links.search")} placeholder={t("links.search")} value={search} onChange={e=>setSearch(e.target.value)}/>
