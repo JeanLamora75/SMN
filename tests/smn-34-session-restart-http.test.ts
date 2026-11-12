@@ -5,11 +5,11 @@ import {once} from "node:events";
 import {mkdtemp,mkdir,rm} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
-import {fileURLToPath} from "node:url";
+import {fileURLToPath,pathToFileURL} from "node:url";
 import {createRequire} from "node:module";
 
 const sourceRoot=fileURLToPath(new URL("../",import.meta.url));
-const tsxLoader=createRequire(join(sourceRoot,"package.json")).resolve("tsx");
+const tsxLoader=pathToFileURL(createRequire(join(sourceRoot,"package.json")).resolve("tsx")).href;
 const fixture=fileURLToPath(new URL("./fixtures/smn-34-session-worker.ts",import.meta.url));
 const supervisor=fileURLToPath(new URL("../scripts/smn-34-sandbox-maintenance.ts",import.meta.url));
 
