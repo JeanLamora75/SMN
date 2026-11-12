@@ -1,0 +1,157 @@
+/**
+ * SMN-442 — recovery after process/Windows interruption.
+ * Owned by the launcher, never called from an HTTP request. If and ONLY if
+ * the original data are fingerprint-identical, safely remove the fence.
+ * If a signed verified cutover is present, finish verification/release or
+ * restore the parked original. Ambiguous partial renames stay fenced.
+ */
+import {readFile,lstat,readdir,rename} from "node:fs/promises";
+import {join} from "node:path";
+import {tmpdir} from "node:os";
+import {readFreshCutoverJournal} from "../src/server/backup/fresh-cutover-journal";
+import {inspectOfflineCutoverJournal} from "./smn-40-cutover-postcheck";
+import {rollbackVerifiedNewComputerCutover}
+ from "../src/server/backup/fresh-cutover-rollback";
+import {releaseVerifiedNewComputerCutover}
+ from "../src/server/backup/fresh-cutover-release";
+import {parkGuiPrivacyEvidence} from "../src/server/backup/gui-privacy-install";
+import {localRestoreMaintenanceLockPath}
+ from "../src/server/backup/restore-maintenance";
+import {signedJob,identity,fingerprintDestination,cancelSafeFence,
+ archivePending,status,type Job} from "./smn-gui-offline-restore";
+
+const root=process.cwd();
+const updates=join(root,"updates");
+const pending=join(updates,"migration-pending.json");
+const exists=async(path:string)=>lstat(path).then(()=>true).catch(e=>{
+ if((e as NodeJS.ErrnoException).code==="ENOENT")return false;
+ throw e;
+});
+async function verifyOriginal(job:Job){
+ try{
+  if(await identity()!==job.destination)return false;
+  const current=await fingerprintDestination();
+  return current.database===job.destinationDigest&&
+   current.files===job.destinationFilesDigest&&
+   current.count===job.destinationFilesCount;
+ }catch{return false;}
+}
+async function cancelPartialFence(job:Job){
+ const local=localRestoreMaintenanceLockPath();
+ const external=process.env.SMN_RESTORE_MAINTENANCE_MARKER!;
+ if(!await exists(local))throw Error("gui-recovery-local-fence-missing");
+ const st=await lstat(local);
+ if(!st.isFile()||st.isSymbolicLink()||st.size<20||st.size>2048)
+  throw Error("gui-recovery-local-fence-untrusted");
+ const record=JSON.parse(await readFile(local,"utf8")) as {
+  version?:number;operationId?:string;purpose?:string
+ };
+ if(record.version!==1||record.purpose!=="offline-restore"||
+  !/^[a-f0-9-]{36}$/i.test(record.operationId??""))
+  throw Error("gui-recovery-local-fence-invalid");
+ if(await exists(external)){
+  const remote=await lstat(external);
+  if(!remote.isFile()||remote.isSymbolicLink()||
+   remote.size<20||remote.size>2048)
+   throw Error("gui-recovery-external-fence-untrusted");
+  const mark=JSON.parse(await readFile(external,"utf8")) as {
+   operationId?:string;purpose?:string
+  };
+  if(mark.operationId!==record.operationId||
+   mark.purpose!=="offline-restore")
+   throw Error("gui-recovery-fence-mismatch");
+  await rename(external,external+".cancelled-"+job.token);
+ }
+ await rename(local,local+".cancelled-"+job.token);
+}
+async function lastVerifiedJournal(job:Job,key:Buffer){
+ const folder=join(root,"data","migration-audit");
+ const names=await readdir(folder).catch(e=>{
+  if((e as NodeJS.ErrnoException).code==="ENOENT")return [] as string[];
+  throw e;
+ });
+ const matching:string[]=[];
+ for(const name of names){
+  if(!/^migration-[a-f0-9]{12}\.jsonl$/.test(name))continue;
+  const file=join(folder,name),stat=await lstat(file);
+  if(!stat.isFile()||stat.isSymbolicLink()||stat.size>128*1024)
+   throw Error("gui-recovery-journal-untrusted");
+  const first=(await readFile(file,"utf8")).split("\n",1)[0];
+  let event:unknown;
+  try{event=JSON.parse(first);}catch{throw Error("gui-recovery-journal-corrupt");}
+  if((event as {archiveId?:string})?.archiveId!==job.archiveId)continue;
+  const events=await readFreshCutoverJournal(file,key);
+  if(events.at(-1)?.stage==="verified")matching.push(file);
+ }
+ if(matching.length>1)throw Error("gui-recovery-journal-ambiguous");
+ return matching[0]??null;
+}
+export async function recoverGuiOfflineRestore(){
+ if(process.platform!=="win32"||process.env.SMN_DATABASE_URL||
+  !await exists(pending))throw Error("gui-recovery-not-applicable");
+ const job=await signedJob();
+ process.env.SMN_BACKUP_DIR=join(root,"data","migration-work",job.token);
+ process.env.SMN_RESTORE_MAINTENANCE_MARKER=join(tmpdir(),
+  "smn-gui-restore-"+job.token+".marker");
+ const local=localRestoreMaintenanceLockPath();
+ const fenced=await exists(local);
+ const key=await readFile(join(process.env.SMN_BACKUP_DIR,".backup-key"));
+ try{
+  if(key.length!==32)throw Error("gui-recovery-key-untrusted");
+  if(!fenced){
+   // The release may have succeeded immediately before the process crashed.
+   // Never retry destructive work solely because a pending file remains.
+   const state=JSON.parse(await readFile(join(updates,"migration-status.json"),
+    "utf8")) as {stage?:string};
+   if(state.stage!=="complete")
+    throw Error("gui-recovery-unfenced-pending-ambiguous");
+   await archivePending(job,"complete");
+   return {state:"complete" as const,cutoverRetried:false as const};
+  }
+  if(await verifyOriginal(job)){
+   await parkGuiPrivacyEvidence(job.token);
+   await cancelPartialFence(job);
+   await status(job.token,"rolled-back");
+   await archivePending(job,"failed");
+   return {state:"rolled-back" as const,originalPreserved:true as const};
+  }
+  const journal=await lastVerifiedJournal(job,key);
+  if(!journal)throw Error("gui-recovery-cutover-ambiguous");
+  const receipt=join(root,"data","migration-inbox",
+   job.token+".tar.gz.receipt.json");
+  try{
+   await inspectOfflineCutoverJournal(journal,receipt);
+   process.env.SMN40_RELEASE_OFFLINE_CONFIRM=
+    "INDEPENDENT_SOURCE_RETIRED_AND_REAUTH_APPROVED";
+   await releaseVerifiedNewComputerCutover(journal,receipt);
+   await status(job.token,"complete");
+   await archivePending(job,"complete");
+   return {state:"complete" as const,cutoverRetried:false as const};
+  }catch{
+   process.env.SMN40_ROLLBACK_OFFLINE_CONFIRM=
+    "ROLLBACK_VERIFIED_NEWPC_CUTOVER";
+   await rollbackVerifiedNewComputerCutover(journal,receipt);
+   if(!await verifyOriginal(job))
+    throw Error("gui-recovery-rollback-digest-mismatch");
+   await parkGuiPrivacyEvidence(job.token);
+   await cancelSafeFence(job.token);
+   await status(job.token,"rolled-back");
+   await archivePending(job,"failed");
+   return {state:"rolled-back" as const,originalPreserved:true as const};
+  }
+ }finally{
+  key.fill(0);
+  for(const variable of ["SMN_BACKUP_DIR","SMN_RESTORE_MAINTENANCE_MARKER",
+   "SMN40_RELEASE_OFFLINE_CONFIRM","SMN40_ROLLBACK_OFFLINE_CONFIRM"])
+   delete process.env[variable];
+ }
+}
+if(process.argv[1]?.replaceAll("\\","/")
+ .match(/\/smn-gui-offline-recover\.(?:ts|mjs)$/))
+ recoverGuiOfflineRestore().then(v=>{
+  process.stdout.write(JSON.stringify(v)+"\n");
+ }).catch(()=>{
+  process.stderr.write(JSON.stringify({state:"incident",
+   reason:"gui-recovery-remains-fenced"})+"\n");
+  process.exitCode=2;
+ });
