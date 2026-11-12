@@ -39,7 +39,7 @@ test("SMN-441: browser ZIP GET requires admin permission but no Origin header",(
  const source=read("src/app/api/admin/backups/migration/export/route.ts");
  assert.match(source,/authorizeApi\(request,"read",target\)/);
  assert.match(source,/canAccess\(actor,"write",target\)/);
- assert.match(source,/wrapEncryptedBackupInZip\(compressed,id\)/);
+ assert.match(source,/wrapPortableTransferZip\(compressed,id/);
 });
 
 test("SMN-442: existing destination is inspected and never overwritten by an unqualified ZIP",()=>{
