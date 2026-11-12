@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { describe, it, before, after } from "node:test";
 import { Client } from "pg";
 import { randomUUID } from "node:crypto";
 import { diagnoseInstallation } from "../src/server/installation/diagnostic";
@@ -9,8 +9,12 @@ import { probePostgres } from "../src/server/db/probe";
 // Tests avec écritures de FIXTURES : interdits sur les bases personnelles.
 // Seul le service smn_ci éphémère du runner CI est autorisé.
 const ci = process.env.CI === "true" && process.env.GITHUB_ACTIONS === "true";
-const uri = ci ? process.env.SMN_TEST_DATABASE_URL : undefined;
-if (ci && (!uri || !parseConnectionSettings(uri).ok || !/^postgresql:\/\/smn_ci:[^@]+@127\.0\.0\.1:5432\/smn_ci$/.test(uri))) {
+const sourceUri = ci ? process.env.SMN_TEST_DATABASE_URL : undefined;
+const isolatedDatabase = "smn_ci_probe_" + randomUUID().replace(/-/g,"").slice(0,12);
+const isolatedUrl = sourceUri ? new URL(sourceUri) : undefined;
+if(isolatedUrl)isolatedUrl.pathname = "/" + isolatedDatabase;
+const uri = isolatedUrl?.toString();
+if (ci && (!sourceUri || !parseConnectionSettings(sourceUri).ok || !/^postgresql:\/\/smn_ci:[^@]+@127\.0\.0\.1:5432\/smn_ci$/.test(sourceUri))) {
   throw new Error("CI : base temporaire smn_ci obligatoire, sans base utilisateur.");
 }
 
@@ -26,6 +30,27 @@ async function withConnection<T>(fn: (client: Client) => Promise<T>): Promise<T>
 }
 
 describe("SMN-11 — probe PostgreSQL réel (CI et base éphémère exclusivement)", { skip: !ci }, () => {
+  let databaseCreated=false;
+  const maintenance=sourceUri?new URL(sourceUri):undefined;
+  if(maintenance)maintenance.pathname="/postgres";
+  before(async()=>{
+    assert.ok(maintenance);
+    const client=new Client({connectionString:maintenance.toString()});
+    try{
+      await client.connect();
+      await client.query('CREATE DATABASE "'+isolatedDatabase+'"');
+      databaseCreated=true;
+    }finally{await client.end().catch(()=>undefined);}
+  });
+  after(async()=>{
+    if(!databaseCreated||!maintenance)return;
+    const client=new Client({connectionString:maintenance.toString()});
+    try{
+      await client.connect();
+      await client.query('DROP DATABASE IF EXISTS "'+isolatedDatabase+'" WITH (FORCE)');
+    }finally{await client.end().catch(()=>undefined);}
+  });
+
   it("appelle le véritable probe sur une base vide", async () => {
     assert.ok(uri);
     const snapshot = await probePostgres(uri);
@@ -92,7 +117,7 @@ describe("SMN-11 — probe PostgreSQL réel (CI et base éphémère exclusivemen
     try {
       await withConnection(async (client) => {
       await client.query(`CREATE ROLE ${username} LOGIN PASSWORD 'temporary-ci-test-password'`);
-      await client.query(`GRANT CONNECT ON DATABASE smn_ci TO ${username}`);
+      await client.query(`GRANT CONNECT ON DATABASE ${isolatedDatabase} TO ${username}`);
       await client.query(`GRANT USAGE ON SCHEMA public TO ${username}`);
       });
       settings.username = username;
@@ -104,7 +129,7 @@ describe("SMN-11 — probe PostgreSQL réel (CI et base éphémère exclusivemen
     } finally {
       await withConnection(async (client) => {
         await client.query(`REVOKE USAGE ON SCHEMA public FROM ${username}`).catch(() => undefined);
-        await client.query(`REVOKE CONNECT ON DATABASE smn_ci FROM ${username}`).catch(() => undefined);
+        await client.query(`REVOKE CONNECT ON DATABASE ${isolatedDatabase} FROM ${username}`).catch(() => undefined);
         await client.query(`DROP ROLE IF EXISTS ${username}`);
       });
     }
