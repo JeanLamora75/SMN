@@ -22,7 +22,7 @@ export default function CadenceForm(){
  }
  const days=[1,2,3,4,5,6,7];
  return <section className="smn-panel p-4">
-  <h1 className="h3">{t("scrumCadence.title")}</h1>
+  <h2 className="h5">{t("scrumCadence.title")}</h2>
   <p className="text-secondary">{t("scrumCadence.intro")}</p>
   {draft&&<form onSubmit={submit} className="d-grid gap-3">
    <div><label htmlFor="cadence-weeks" className="form-label">{t("scrumCadence.weeks")}</label>
