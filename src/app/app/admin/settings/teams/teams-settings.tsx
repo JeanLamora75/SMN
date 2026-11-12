@@ -94,7 +94,7 @@ export default function TeamsSettings(){
  }
  async function submit(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
-  if(saving||loading||!canWrite||!hasName||!dirty&&current)return;
+  if(saving||loading||!canWrite||current?.isArchived||!hasName||(!dirty&&current))return;
   setSaving(true);setError("");setNotice("");
   const body={
    ...(current?{teamId:current.id,revision:current.revision,agileMode:values.agileMode}:{agileMode:values.agileMode}),
