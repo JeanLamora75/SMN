@@ -93,7 +93,7 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   const saved=await db(target.toString(),async client=>(await client.query(
    "SELECT reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'")).rows[0]);
   assert.equal(saved.reference_country,"DE");
-  assert.equal(saved.revision,2);
+  assert.equal(saved.revision,1,"La première modification incrémente la révision depuis 0");
   const unauthorized=await fetch(origin+"/api/admin/sprints/templates");
   assert.equal(unauthorized.status,403);
   const ceremonyPage=await page.goto(origin+"/app/admin/settings/ceremonies",{waitUntil:"domcontentloaded"});
