@@ -152,3 +152,40 @@ export async function importPortableBackup(input:string,id:string,phrase:string)
   await rm(scratch,{recursive:true,force:true}).catch(()=>undefined);
  }
 }
+
+/** GUI preflight: decrypt and authenticate an uploaded archive in an isolated
+ * temporary folder. Does NOT modify the destination backup store or live DB.
+ */
+export async function verifyUploadedPortableBackup(input:string,phrase:string){
+ const source=await lstat(input);
+ if(!source.isFile()||source.isSymbolicLink()||source.size<1||
+  source.size>MAX_SIZE||phrase.length<20||phrase.length>256)
+  throw Error("migration-upload-untrusted");
+ const scratch=await mkdtemp(join(tmpdir(),"smn-upload-review-"));
+ const incoming=join(scratch,"packages","incoming");
+ let key:Buffer|null=null;
+ try{
+  await mkdir(incoming,{recursive:true,mode:0o700});
+  await extract(input,incoming);
+  const text=await readFile(join(incoming,"index.json"),"utf8");
+  if(text.length>1024*1024)throw Error("migration-upload-index-too-large");
+  const index=JSON.parse(text) as {id?:string;recovery?:RecoveryEnvelope};
+  if(!index.id||!UUID.test(index.id)||!index.recovery)
+   throw Error("migration-upload-index-invalid");
+  await rename(incoming,join(scratch,"packages",index.id));
+  key=recoverKey(index.recovery,phrase);
+  const result=await inspectBackup(scratch,index.id,key);
+  if(result.status!=="verified"||!result.integrityVerified||
+   !result.scopeComplete||result.schemaVersion!==33||
+   !result.postgresVersion?.startsWith("18."))
+   throw Error("migration-upload-integrity-invalid");
+  return {archiveId:index.id,createdAt:result.createdAt,
+   schemaVersion:result.schemaVersion,postgresVersion:result.postgresVersion,
+   documents:result.documentCount,components:result.components.length,
+   verification:"verified" as const,
+   restorationAuthorized:false as const};
+ }finally{
+  key?.fill(0);
+  await rm(scratch,{recursive:true,force:true}).catch(()=>undefined);
+ }
+}
