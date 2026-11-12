@@ -1,10 +1,10 @@
-import Link from "next/link";
 import {redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import TeamsSettings from "./teams-settings";
+import SettingsPageShell from "../settings-page-shell";
 
 export const dynamic="force-dynamic";
 
@@ -16,14 +16,9 @@ export default async function TeamsSettingsPage(){
  if(!canAccess(account,"read",{type:"settings",exists:true,inScope:true}))
   redirect("/app");
  const locale=await requestLocale();
- return <main className="smn-page container-fluid py-4 px-3 px-lg-4">
-  <header className="mb-4">
-   <Link href="/app/admin/settings" className="btn btn-link px-0 mb-2">
-    ← {translate(locale,"teamSettings.back")}
-   </Link>
-   <h1 className="h3">{translate(locale,"teamSettings.title")}</h1>
-   <p className="text-secondary">{translate(locale,"teamSettings.intro")}</p>
-  </header>
+ return <SettingsPageShell title={translate(locale,"teamSettings.title")}
+  description={translate(locale,"teamSettings.intro")}
+  eyebrow={translate(locale,"settingsCatalog.navigation.adminEyebrow")}>
   <TeamsSettings/>
- </main>;
+ </SettingsPageShell>;
 }
