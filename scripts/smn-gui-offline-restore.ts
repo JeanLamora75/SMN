@@ -34,7 +34,7 @@ import {releaseVerifiedNewComputerCutover}
  from "../src/server/backup/fresh-cutover-release";
 
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
-type Job={version:1;token:string;archiveId:string;destination:string;
+export type Job={version:1;token:string;archiveId:string;destination:string;
  destinationDigest:string;destinationFilesDigest:string;
  destinationFilesCount:number;
  requestedAt:string;operation:"gui-portable-restore"};
@@ -48,13 +48,13 @@ const statFile=async(path:string,max:number)=>{
  if(!st.isFile()||st.isSymbolicLink()||st.size<20||st.size>max)
   throw Error("gui-migration-operator-file-untrusted");
 };
-const status=async(token:string,stage:Stage)=>{
+export const status=async(token:string,stage:Stage)=>{
  const tmp=join(updates,"migration-status-"+token+".tmp");
  await writeFile(tmp,JSON.stringify({version:1,token,stage,
   recordedAt:new Date().toISOString()})+"\n",{flag:"wx",mode:0o600});
  await rename(tmp,statusFile);
 };
-async function identity(){
+export async function identity(){
  const uri=await existingManagedUri();
  if(!uri)throw Error("gui-migration-owned-db-required");
  const db=new Client({connectionString:uri,connectionTimeoutMillis:3500,
@@ -71,7 +71,7 @@ async function identity(){
   return "singleton:"+new Date(row.created_at).toISOString();
  }finally{await db.end().catch(()=>undefined);}
 }
-async function fingerprintDestination(){
+export async function fingerprintDestination(){
  const uri=await existingManagedUri();
  if(!uri)throw Error("gui-migration-target-unavailable");
  const db=new Client({connectionString:uri,connectionTimeoutMillis:3500,
@@ -88,7 +88,7 @@ async function fingerprintDestination(){
   await db.end().catch(()=>undefined);
  }
 }
-async function signedJob():Promise<Job>{
+export async function signedJob():Promise<Job>{
  await statFile(pending,4096);
  const serialized=JSON.parse(await readFile(pending,"utf8")) as {
   version?:number;sealed?:string
@@ -111,7 +111,7 @@ async function signedJob():Promise<Job>{
 /** Archive both fences on a known-safe pre-cutover failure or a verified
  * rollback. Do not call this when the database state is ambiguous.
  */
-async function cancelSafeFence(token:string){
+export async function cancelSafeFence(token:string){
  const marker=await inspectOfflineRestoreMaintenance();
  const external=restoreMaintenanceMarkerPath();
  if(!marker||marker.purpose!=="offline-restore"||!external)
@@ -124,7 +124,7 @@ async function cancelSafeFence(token:string){
  await rename(external,external+".cancelled-"+token);
  await rename(local,local+".cancelled-"+token);
 }
-async function archivePending(job:Job,outcome:"complete"|"failed"){
+export async function archivePending(job:Job,outcome:"complete"|"failed"){
  await rename(pending,join(updates,
   "migration-pending."+outcome+"-"+job.token+".json"));
 }
