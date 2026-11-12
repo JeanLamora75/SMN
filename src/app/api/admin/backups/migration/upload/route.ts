@@ -20,14 +20,13 @@ export async function POST(request:NextRequest){
  const partial=join(dir,token+".partial");
  const zip=join(dir,token+".zip");
  const tar=join(dir,token+".tar.gz");
- let written=0,opened=false;
+ let written=0;
  try{
   await mkdir(dir,{recursive:true,mode:0o700});
   const stat=await lstat(dir);
   if(!stat.isDirectory()||stat.isSymbolicLink())
    throw Error("migration-untrusted-directory");
   const handle=await open(partial,"wx",0o600);
-  opened=true;
   try{
    const reader=request.body.getReader();
    while(true){
@@ -41,7 +40,7 @@ export async function POST(request:NextRequest){
    if(written!==size)throw Error("migration-upload-length-mismatch");
    await handle.sync();
   }finally{await handle.close();}
-  await rename(partial,zip);opened=false;
+  await rename(partial,zip);
   const result=await extractSmnEncryptedZip(zip,tar);
   await rm(zip,{force:true});
   await writeFile(join(dir,token+".json"),JSON.stringify({
