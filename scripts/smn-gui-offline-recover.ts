@@ -39,6 +39,37 @@ async function verifyOriginal(job:Job){
    current.count===job.destinationFilesCount;
  }catch{return false;}
 }
+/** A crash between release's two renames leaves the local fence in
+ * place and the external marker in its signed archive. Restore ONLY that
+ * external marker so the normal signed postcheck/rollback can resume.
+ */
+async function repairHalfReleasedFence(job:Job){
+ const local=localRestoreMaintenanceLockPath();
+ if(!await exists(local))return;
+ const stat=await lstat(local);
+ if(!stat.isFile()||stat.isSymbolicLink()||stat.size<20||stat.size>2048)
+  throw Error("gui-recovery-local-fence-untrusted");
+ const record=JSON.parse(await readFile(local,"utf8")) as {
+  operationId?:string;purpose?:string;version?:number
+ };
+ if(record.version!==1||record.purpose!=="offline-restore"||
+  !/^[a-f0-9-]{36}$/i.test(record.operationId??""))
+  throw Error("gui-recovery-local-fence-invalid");
+ const active=process.env.SMN_RESTORE_MAINTENANCE_MARKER!;
+ if(await exists(active))return;
+ const parked=active+".released-"+record.operationId;
+ if(!await exists(parked))return;
+ const old=await lstat(parked);
+ if(!old.isFile()||old.isSymbolicLink()||old.size<20||old.size>2048)
+  throw Error("gui-recovery-parked-fence-untrusted");
+ const proof=JSON.parse(await readFile(parked,"utf8")) as {
+  operationId?:string;purpose?:string;version?:number
+ };
+ if(proof.operationId!==record.operationId||proof.version!==1||
+  proof.purpose!=="offline-restore")
+  throw Error("gui-recovery-parked-fence-mismatch");
+ await rename(parked,active);
+}
 async function cancelPartialFence(job:Job){
  const local=localRestoreMaintenanceLockPath();
  const external=process.env.SMN_RESTORE_MAINTENANCE_MARKER!;
@@ -171,6 +202,7 @@ export async function recoverGuiOfflineRestore(){
    }
    throw Error("gui-recovery-unfenced-pending-ambiguous");
   }
+  await repairHalfReleasedFence(job);
   if(await verifyOriginal(job)){
    await parkGuiPrivacyEvidence(job.token);
    await cancelPartialFence(job);
