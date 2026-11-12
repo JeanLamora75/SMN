@@ -11,7 +11,7 @@ const target={type:"settings",exists:true,inScope:true} as const;
 type Scope={params:Promise<{code:string}>};
 
 export async function GET(req:NextRequest,{params}:Scope){
- const actor=await authorizeApi(req,"write",target);
+ const actor=await authorizeApi(req,"read",target);
  if(!actor)return jsonResult({error:"forbidden"},403);
  const {code}=await params;
  if(!isValidCountry(code))return jsonResult({error:"invalid-input"},400);
