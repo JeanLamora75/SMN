@@ -339,7 +339,8 @@ export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs
   // Leave the externally-owned maintenance marker in place. All old SMN
   // sessions were in the now-stopped web process, never transferred.
   return {mode:"fresh-install-offline-cutover" as const,archiveId:a.archiveId,
-   state:"verified" as const,rollbackDatabasePreserved:true as const,
+   state:"verified" as const,journalPath:journal!,
+   rollbackDatabasePreserved:true as const,
    rollbackFilesPreserved:true as const,maintenanceMustRemain:true as const,
    externalOperatorReviewRequired:true as const};
  }catch{
