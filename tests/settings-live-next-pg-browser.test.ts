@@ -144,11 +144,17 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
    "SELECT name FROM public.smn_country WHERE code='BE'")).rows[0]);
   assert.equal(countryInDb?.name,"Belgique navigateur");
   // Calendrier national : ajout manuel avec justification depuis le dialogue réel.
-  await page.evaluate(()=>{
+  await page.waitForFunction(()=>Array.from(document.querySelectorAll("table tbody tr"))
+   .some(row=>row.textContent?.includes("Belgique navigateur")),{timeout:15000});
+  const opened=await page.evaluate(()=>{
    const country=Array.from(document.querySelectorAll("table tbody tr"))
     .find(row=>row.textContent?.includes("Belgique navigateur"));
-   (country?.querySelector("td button") as HTMLButtonElement|null)?.click();
+   const button=country?.querySelector<HTMLButtonElement>("td button");
+   if(!button)return false;
+   button.click();
+   return true;
   });
+  assert.equal(opened,true,"La ligne du pays doit être prête avant ouverture du calendrier");
   await page.waitForSelector("#smn-country-modal-year",{timeout:15000});
   await page.select("#smn-country-modal-year","2026");
   await page.waitForSelector('[data-country-year="BE:2026"]',{timeout:15000});
