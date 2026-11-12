@@ -4756,5 +4756,34 @@
       "orange": "Orange",
       "red": "Rouge"
     }
+  },
+  "settingsCollections": {
+    "searchTeams": "Rechercher une équipe",
+    "searchAbsences": "Rechercher une catégorie",
+    "searchUsers": "Rechercher un utilisateur",
+    "searchTemplates": "Rechercher une cérémonie",
+    "filterStatus": "Statut",
+    "filterRole": "Rôle",
+    "all": "Tous",
+    "active": "Actifs",
+    "inactive": "Inactifs",
+    "archived": "Archivés",
+    "allRoles": "Tous les rôles",
+    "results": "{count} résultat(s) sur {total}",
+    "noMatches": "Aucun résultat pour les filtres sélectionnés.",
+    "reset": "Effacer les filtres",
+    "archiveTeamConfirm": "Archiver cette équipe ? Elle restera consultable et pourra être réactivée.",
+    "reactivateTeamConfirm": "Réactiver cette équipe ?",
+    "lastActiveTeam": "La dernière équipe active ne peut pas être archivée.",
+    "hasCycles": "Le mode ne peut plus être modifié : au moins un cycle existe pour cette équipe.",
+    "archivedTeam": "Réactivez cette équipe avant de modifier son mode Agile.",
+    "teamServiceUnavailable": "Erreur serveur pendant la modification de l’équipe (HTTP {status}). Consultez les journaux du serveur.",
+    "archiveTeam": "Archiver l’équipe",
+    "reactivateTeam": "Réactiver l’équipe",
+    "ceremonyIcon": "Icône de la cérémonie",
+    "ceremonyIconHelp": "Facultative. L’icône et sa couleur s’appliquent au modèle, sans modifier les réunions existantes.",
+    "ceremonyIconPicker": "du modèle de cérémonie",
+    "ceremonyPreview": "Aperçu de la cérémonie",
+    "ceremonyPreviewHelp": "Le modèle sélectionné reste accessible même lorsque les filtres changent."
   }
 }
