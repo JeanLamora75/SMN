@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {useTranslation} from "@/i18n/client";
+import {filterSettingsUsers} from "@/lib/settings-collection-filter";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 import {reconcileAccountEdits,editedAccount} from "@/lib/account-drafts";
 
@@ -31,11 +32,7 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
   const [query,setQuery]=useState("");
   const [statusFilter,setStatusFilter]=useState<"all"|"active"|"inactive">("all");
   const [roleFilter,setRoleFilter]=useState<"all"|Role>("all");
-  const displayed=useMemo(()=>accounts.filter(account=>
-    (statusFilter==="all"||(statusFilter==="active"?account.is_active:!account.is_active))&&
-    (roleFilter==="all"||account.role===roleFilter)&&
-    (!query.trim()||[account.username,account.email].some(value=>value.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())))
-  ),[accounts,query,statusFilter,roleFilter]);
+  const displayed=useMemo(()=>filterSettingsUsers(accounts,query,statusFilter,roleFilter),[accounts,query,statusFilter,roleFilter]);
   const refresh=useCallback(async(savedId?:string,preserveDrafts=true):Promise<boolean>=>{
     try {
       const response=await fetch("/api/admin/accounts",{cache:"no-store"});
