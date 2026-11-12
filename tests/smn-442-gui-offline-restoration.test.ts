@@ -82,3 +82,11 @@ test("SMN-442: restore status is read-only and all new controls are translated",
  }
  assert.deepEqual(Object.keys(fr.stages).sort(),Object.keys(en.stages).sort());
 });
+
+test("SMN-442: disposable dual-install acceptance rotates both admin passwords before transfer",()=>{
+ const e2e=read("scripts/windows/smn-442-acceptance.mjs");
+ assert.match(e2e,/await finishOnboarding\("admin",sourceSetupPass,sourcePass\)/);
+ assert.match(e2e,/await finishOnboarding\("destination-ci",targetSetupPass,targetPass\)/);
+ assert.match(e2e,/await waitOutcome\(first,"failed"\)/);
+ assert.match(e2e,/await waitOutcome\(next,"complete"\)/);
+});
