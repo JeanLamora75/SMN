@@ -165,9 +165,6 @@ export default function ChartStyleEditor({id,canEdit}:{id:string;canEdit:boolean
  }
  const select=(key:string,values:readonly string[])=>values.map(value=>({value,label:tr(key+"."+value)}));
  return <div className="smn-chart-m2">
-  <nav aria-label={tr("breadcrumb")}>
-   <Link href={BACK} className="btn btn-link px-0" onClick={e=>{if(!discard())e.preventDefault()}}>{tr("back")}</Link>
-  </nav>
   <header className="smn-chart-style-hero mb-4">
    <p className="smn-chart-style-eyebrow">COCKPIT AGILE · M2</p>
    <h1>{tr("heading")}</h1>
