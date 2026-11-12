@@ -1,5 +1,5 @@
 import {randomBytes,randomUUID} from "node:crypto";
-import {existsSync} from "node:fs";
+import {existsSync,readdirSync} from "node:fs";
 import {lstat,mkdir,readFile,readdir,rename,rm,writeFile} from "node:fs/promises";
 import {join,isAbsolute,resolve,sep} from "node:path";
 import {Client} from "pg";
@@ -35,7 +35,11 @@ export function backupRootPath():string{
   join(process.env.LOCALAPPDATA,"ScrumMasterNotebook","backups"):null;
  // A new installation stores everything under SMN/. Existing users retain
  // their original archives and key; never recreate a conflicting backup key.
- if(existsSync(local))return local;
+ if(existsSync(local)){
+  // An empty placeholder must not hide an established legacy archive store.
+  // A partially written nonempty local store is deliberately not bypassed.
+  if(readdirSync(local).length>0||!legacy||!existsSync(legacy))return local;
+ }
  if(legacy&&existsSync(legacy))return legacy;
  return local;
 }
