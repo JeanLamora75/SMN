@@ -138,7 +138,8 @@ const migrationScripts=[
  "smn-40-newpc-reconstruct",
  "smn-40-cutover-postcheck",
  "smn-40-cutover-rollback",
- "smn-40-cutover-release"
+ "smn-40-cutover-release",
+ "smn-40-offline-maintenance"
 ];
 const migrationDir=path.join(appDir,"maintenance","migration");
 await mkdir(migrationDir,{recursive:true});
