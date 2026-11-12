@@ -17,7 +17,7 @@ const transitions:Record<FreshCutoverStage,readonly FreshCutoverStage[]>={
  "files-promoted":["source-parked","rollback-started","incident"],
  "source-parked":["candidate-promoted","rollback-started","incident"],
  "candidate-promoted":["verified","rollback-started","incident"],
- verified:[], "rollback-started":["rolled-back","incident"],
+ verified:["rollback-started"], "rollback-started":["rolled-back","incident"],
  "rolled-back":[],incident:[]
 };
 function valid(v:FreshCutoverEvent){
