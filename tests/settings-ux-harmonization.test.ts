@@ -71,3 +71,19 @@ test("accounts catalogue appears before the creation form without changing autho
  assert.match(source,/disabled=\{busy\|\|self\}/);
  assert.match(source,/role:edit\.role,isActive:edit\.isActive/);
 });
+
+test("settings tabs preserve hash deep links, keyboard navigation and authorized fallback",()=>{
+ const tabs=read("src/app/app/admin/settings/settings-tabs.tsx");
+ assert.match(tabs,/window\.location\.hash\.slice\(1\)/);
+ assert.match(tabs,/setActive\(ids\.includes\(hash\)\?hash:/);
+ assert.match(tabs,/const selected=available\?active:/);
+ assert.match(tabs,/window\.history\.replaceState\(window\.history\.state/);
+ assert.match(tabs,/\["ArrowRight","ArrowLeft","Home","End"\]/);
+ assert.match(tabs,/role="tabpanel"/);
+ assert.match(tabs,/tabIndex=\{0\} hidden=\{selected!==section\.id\}/);
+ const maintenance=read("src/app/app/admin/settings/maintenance/page.tsx");
+ assert.match(maintenance,/\.\.\.\(backups\?/);
+ assert.match(maintenance,/\.\.\.\(audit\?/);
+ const calendar=read("src/app/app/admin/settings/holidays-closures/page.tsx");
+ assert.match(calendar,/canAccess\(account,"write"/);
+});
