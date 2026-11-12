@@ -109,3 +109,23 @@ test("archived teams keep read-only details and remain reactivatable",()=>{
  assert.match(source,/settingsCollections\.reactivateTeam/);
  assert.match(source,/current\.isArchived\?"settingsCollections\.reactivateTeam"/);
 });
+
+test("settings detail panels span the available width with a themed white surface",()=>{
+ const css=read("src/app/app/admin/settings/settings-page-shell.css");
+ assert.match(css,/\.smn-settings-detail-content-narrow\{width:100%;max-width:none/);
+ assert.match(css,/\.smn-settings-detail-content :is\(\.smn-panel,\.card\)/);
+ assert.match(css,/background-color:var\(--bs-body-bg,#fff\)/);
+ assert.match(css,/\[role="tabpanel"\] > :is\(\.smn-panel,\.card\)/);
+ for(const path of [
+  "src/app/app/admin/settings/general/page.tsx",
+  "src/app/app/admin/scrum-cadence/page.tsx",
+  "src/app/app/admin/kanban-cadence/page.tsx",
+  "src/app/app/admin/settings/ceremonies/page.tsx",
+  "src/app/app/admin/settings/working-days/page.tsx",
+  "src/app/app/security/page.tsx"
+ ]){
+  const source=read(path);
+  assert.match(source,/<SettingsPageShell\b/,path);
+  assert.doesNotMatch(source,/\bconstrained(?=>)/,path);
+ }
+});
