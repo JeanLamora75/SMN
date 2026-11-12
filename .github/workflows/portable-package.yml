@@ -120,6 +120,10 @@ jobs:
           if ($current -ne $env:GITHUB_SHA) { throw 'Checkout modifié pendant le build' }
       - name: Contrôler le lancement autonome du paquet
         run: node scripts/windows/verify-package.mjs
+      - name: SMN-442 — Recette réelle ZIP, destination remplie, rollback et réauthentification
+        env:
+          SMN442_E2E_DISPOSABLE: "YES"
+        run: node scripts/windows/smn-442-acceptance.mjs
       - name: Analyser les fichiers distribués avec Microsoft Defender
         shell: pwsh
         run: ./scripts/windows/scan-distribution.ps1 -Stage directory -Target '_package/SMN-Windows'
