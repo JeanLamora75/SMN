@@ -24,7 +24,8 @@ export default async function BackupsPage(){
    <Link href="/app" className="btn btn-outline-secondary">{translate(locale,"backups.back")}</Link>
   </header>
   <BackupsAdmin/>
-  <div className="mt-4"><MigrationImportAdmin/></div>
+  {canAccess(account,"write",{type:"backups",exists:true,inScope:true})&&
+   <div className="mt-4"><MigrationImportAdmin/></div>}
   <div className="mt-4"><ProtectionOperations/></div>
   <div className="mt-4"><ErasureImpactAdmin/></div>
   <div className="mt-4"><InstallationResetPreview/></div>
