@@ -681,6 +681,17 @@
   },
   "backups": {
     "transfer": {
+      "destinationTitle": "Contrôle de l'installation de destination",
+      "destinationExisting": "Cette installation contient déjà des données. Elles devront être conservées comme point de retour arrière avant tout remplacement.",
+      "destinationEmpty": "Aucune table métier détectée dans la destination.",
+      "blockers": {
+        "source-receipt-not-in-zip": "Preuve signée de l'état source absente du ZIP.",
+        "independent-erasure-evidence-not-in-zip": "Registre d'effacement indépendant absent du ZIP.",
+        "automatic-cutover-supervisor-not-qualified": "Superviseur de restauration et de retour arrière non encore qualifié.",
+        "destination-not-managed": "La base PostgreSQL locale n'est pas gérée par SMN.",
+        "destination-schema-incompatible": "Version du schéma de destination incompatible.",
+        "destination-maintenance-active": "Une opération de maintenance bloque actuellement la restauration."
+      },
         "title": "Importer depuis un autre PC",
         "intro": "Sélectionnez le fichier ZIP créé sur l'autre installation SMN. La vérification n'écrase jamais les données de ce PC.",
         "file": "Fichier ZIP de sauvegarde",
