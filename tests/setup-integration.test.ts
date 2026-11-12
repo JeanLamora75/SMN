@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { Client } from "pg";
+import { randomUUID } from "node:crypto";
 import { installExpress } from "../src/server/installation/install";
 import { classifySnapshot } from "../src/server/installation/diagnostic";
 import { probePostgres } from "../src/server/db/probe";
@@ -20,8 +21,15 @@ const source = process.env.SMN_TEST_DATABASE_URL;
 const enabled = process.env.GITHUB_ACTIONS === "true" && process.env.CI === "true" &&
   !!source && /^postgresql:\/\/smn_ci:[^@]+@127\.0\.0\.1:5432\/smn_ci$/.test(source);
 const input = { password: "MotDePasseTest2026Solide" };
+// Database names are per-run unique, so parallel disposable CI jobs cannot collide.
+const runSuffix = randomUUID().replace(/-/g,"").slice(0,12);
+const dbNames = {
+  setup: "smn_ci_setup_" + runSuffix,
+  invalid: "smn_ci_invalid_" + runSuffix,
+  race: "smn_ci_race_" + runSuffix
+};
 const target = enabled ? new URL(source!) : undefined;
-if (target) target.pathname = "/smn_ci_setup";
+if (target) target.pathname = "/" + dbNames.setup;
 async function createTestDatabase(name: string): Promise<void> {
  assert.ok(source);
  const maintenance=new URL(source);maintenance.pathname="/postgres";
@@ -72,12 +80,12 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
   it("rejette l'installation non valide avant de créer une base", async () => {
     assert.ok(source && target);
     const unknown = new URL(target);
-    unknown.pathname = "/smn_ci_invalid";
+    unknown.pathname = "/" + dbNames.invalid;
     const result = await installExpress({ ...input, adminEmail: "not-an-email" }, unknown.toString());
     assert.deepEqual(result, { ok: false, status: "invalid-input" });
     const maintenance = new URL(source); maintenance.pathname = "/postgres";
     const present = await withClient(maintenance.toString(), async (client) => {
-      const check = await client.query<{ present: boolean }>("SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname='smn_ci_invalid') AS present");
+      const check = await client.query<{ present: boolean }>("SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname=$1) AS present", [dbNames.invalid]);
       return check.rows[0].present;
     });
     assert.equal(present, false);
@@ -86,10 +94,10 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
   it("n'autorise qu'une installation concurrente sur une base neuve", async () => {
     assert.ok(source && target);
     const targetRace = new URL(target);
-    targetRace.pathname = "/smn_ci_race";
+    targetRace.pathname = "/" + dbNames.race;
     const maintenance = new URL(source); maintenance.pathname = "/postgres";
     try {
-      await createTestDatabase("smn_ci_race");
+      await createTestDatabase(dbNames.race);
       const results = await Promise.all([installExpress(input, targetRace.toString()), installExpress(input, targetRace.toString())]);
       assert.equal(results.filter((r) => r.ok).length, 1, "Une seule initialisation doit réussir");
       const count = await withClient(targetRace.toString(), async (client) => {
@@ -99,7 +107,7 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
       assert.equal(count, "1");
     } finally {
       await withClient(maintenance.toString(), async (client) => {
-        await client.query("DROP DATABASE IF EXISTS smn_ci_race WITH (FORCE)");
+        await client.query('DROP DATABASE IF EXISTS "' + dbNames.race + '" WITH (FORCE)');
       });
     }
   });
@@ -111,12 +119,12 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
     // Précondition : instance CI jetable connue. Ne supprimer que la base de test réservée.
     await withClient(maintenance.toString(), async (client) => {
       const check = await client.query<{ present: boolean }>(
-        "SELECT EXISTS (SELECT 1 FROM pg_database WHERE datname='smn_ci_setup') AS present",
+        "SELECT EXISTS (SELECT 1 FROM pg_database WHERE datname=$1) AS present", [dbNames.setup],
       );
       assert.equal(check.rows[0].present, false, "La base de test doit être absente avant essai.");
     });
     try {
-      await createTestDatabase("smn_ci_setup");
+      await createTestDatabase(dbNames.setup);
       const first = await installExpress(input, target.toString());
       assert.deepEqual(first, { ok: true });
       const snapshot = await probePostgres(target.toString());
@@ -186,7 +194,7 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
       });
     } finally {
       await withClient(maintenance.toString(), async (client) => {
-        await client.query("DROP DATABASE IF EXISTS smn_ci_setup WITH (FORCE)");
+        await client.query('DROP DATABASE IF EXISTS "' + dbNames.setup + '" WITH (FORCE)');
       });
     }
   });
