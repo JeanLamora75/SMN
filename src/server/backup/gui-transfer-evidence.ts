@@ -106,7 +106,7 @@ export async function captureGuiTransferEvidence(archiveId:string){
 }
 export function inspectGuiLedgerEvidence(
  encrypted:unknown,key:Buffer
-):{coverageStart:string;markers:number;headMac:string;ledgerKey:Buffer}{
+):{coverageStart:string;markers:number;headMac:string;latestEventAt:string|null;ledgerKey:Buffer}{
  const e=encrypted as {version?:unknown;purpose?:unknown;
   algorithm?:unknown;nonce?:string;tag?:string;ciphertext?:string;sha256?:string};
  if(!e||e.version!==1||e.purpose!=="migration-erasure-evidence"||
@@ -134,6 +134,7 @@ export function inspectGuiLedgerEvidence(
    throw Error("migration-ledger-chain-invalid");
   }
   return {coverageStart:payload.coverageStart,markers:payload.markers.length,
-   headMac:payload.markers.at(-1)?.mac??ERASURE_GENESIS_MAC,ledgerKey};
+   headMac:payload.markers.at(-1)?.mac??ERASURE_GENESIS_MAC,
+   latestEventAt:payload.markers.at(-1)?.occurredAt??null,ledgerKey};
  }finally{plain.fill(0);}
 }
