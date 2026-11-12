@@ -681,6 +681,17 @@
   },
   "backups": {
     "transfer": {
+      "destinationTitle": "Destination safety check",
+      "destinationExisting": "This installation already contains data. It must be preserved as a rollback point before replacement.",
+      "destinationEmpty": "No existing application tables detected in the destination.",
+      "blockers": {
+        "source-receipt-not-in-zip": "Signed source-state receipt is missing from the ZIP.",
+        "independent-erasure-evidence-not-in-zip": "Independent erasure evidence is missing from the ZIP.",
+        "automatic-cutover-supervisor-not-qualified": "Automatic restore and rollback supervisor has not yet been qualified.",
+        "destination-not-managed": "Local PostgreSQL is not managed by SMN.",
+        "destination-schema-incompatible": "Destination schema version is incompatible.",
+        "destination-maintenance-active": "Maintenance is already blocking restoration."
+      },
         "title": "Import from another computer",
         "intro": "Select the ZIP file exported from the other SMN installation. Verification never overwrites this PC's data.",
         "file": "SMN backup ZIP file",
