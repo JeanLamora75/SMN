@@ -2,9 +2,12 @@
 import {useEffect,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 type UploadResponse={token:string;archiveId:string;state:string};
-type ReadinessResponse={archiveId:string;restorationAuthorized:false;blockers:string[];destination:{initialized:boolean;schemaVersion:number;containsExistingTables:boolean}};
+type ReadinessResponse={archiveId:string;restorationAuthorized:false;
+ mayStartOfflineRestore:boolean;sourceEvidenceVerified:boolean;blockers:string[];
+ destination:{initialized:boolean;schemaVersion:number;containsExistingTables:boolean}};
 type VerifiedResponse={state:string;archiveId:string;createdAt:string|null;
- schemaVersion:number;postgresVersion:string;documents:number;components:number};
+ schemaVersion:number;postgresVersion:string;documents:number;components:number;
+ sourceEvidenceVerified:boolean};
 export default function MigrationImportAdmin(){
  const t=useTranslation();
  const [file,setFile]=useState<File|null>(null);
@@ -15,10 +18,33 @@ export default function MigrationImportAdmin(){
  const [readiness,setReadiness]=useState<ReadinessResponse|null>(null);
  const [phrase,setPhrase]=useState("");
  const [message,setMessage]=useState("");
+ const [confirmed,setConfirmed]=useState(false);
+ const [scheduled,setScheduled]=useState(false);
+ const [restoreStage,setRestoreStage]=useState<string|null>(null);
  const request=useRef<XMLHttpRequest|null>(null);
  useEffect(()=>()=>{request.current?.abort();},[]);
+ useEffect(()=>{
+  if(!scheduled)return;
+  const poll=async()=>{
+   try{
+    const response=await fetch("/api/admin/backups/migration/restore/status",{
+     cache:"no-store"
+    });
+    if(response.status===403){window.location.assign("/login");return;}
+    if(response.ok){
+     const payload=await response.json() as {stage?:string};
+     setRestoreStage(payload.stage??null);
+    }
+   }catch{/* Expected while the launcher stops and restarts the web server. */}
+  };
+  void poll();
+  const timer=window.setInterval(()=>void poll(),2500);
+  return()=>window.clearInterval(timer);
+ },[scheduled]);
  const acceptFile=(next:File|null)=>{
-  setResult(null);setVerified(null);setReadiness(null);setPhrase("");setProgress(0);setMessage("");
+  setResult(null);setVerified(null);setReadiness(null);setPhrase("");
+  setConfirmed(false);setScheduled(false);setRestoreStage(null);
+  setProgress(0);setMessage("");
   if(next&&(!next.name.toLowerCase().endsWith(".zip")||
    next.size<150||next.size>2*1024*1024*1024)){
    setFile(null);setMessage(t("backups.transfer.invalidFile"));return;
@@ -46,6 +72,22 @@ export default function MigrationImportAdmin(){
   xhr.onerror=()=>{setBusy(false);request.current=null;setMessage(t("backups.transfer.uploadFailed"));};
   xhr.onabort=()=>{setBusy(false);request.current=null;};
   xhr.send(file);
+ };
+ const beginRestore=async()=>{
+  if(!result||!verified?.sourceEvidenceVerified||
+   !readiness?.mayStartOfflineRestore||!confirmed||busy||scheduled)return;
+  if(!window.confirm(t("backups.transfer.confirmDialog")))return;
+  setBusy(true);setMessage("");
+  try{
+   const response=await fetch("/api/admin/backups/migration/restore",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({token:result.token,
+     confirm:"REPLACE_CURRENT_SMN_WITH_VERIFIED_BACKUP"})
+   });
+   if(response.status!==202)throw Error("migration-restore-not-queued");
+   setScheduled(true);setRestoreStage("queued");
+  }catch{setMessage(t("backups.transfer.restoreRejected"));}
+  finally{setBusy(false);}
  };
  const verify=async()=>{
   if(!result||phrase.length<20||busy)return;
@@ -107,6 +149,28 @@ export default function MigrationImportAdmin(){
     <p className="small mb-1">{readiness.destination.containsExistingTables?
      t("backups.transfer.destinationExisting"):t("backups.transfer.destinationEmpty")}</p>
     <ul className="small mb-0">{readiness.blockers.map(code=><li key={code}>{t(("backups.transfer.blockers."+code) as import("@/i18n/catalog").TranslationKey)}</li>)}</ul>
+   </div>}
+   {readiness?.mayStartOfflineRestore&&verified.sourceEvidenceVerified&&!scheduled&&
+    <div className="mt-3 border-top pt-3">
+     <p className="fw-semibold">{t("backups.transfer.restoreTitle")}</p>
+     <p>{t("backups.transfer.restoreImpact")}</p>
+     <div className="form-check">
+      <input className="form-check-input" type="checkbox"
+       id="smn-migration-confirm" checked={confirmed}
+       onChange={e=>setConfirmed(e.target.checked)}/>
+      <label className="form-check-label" htmlFor="smn-migration-confirm">
+       {t("backups.transfer.restoreConsent")}
+      </label>
+     </div>
+     <button type="button" className="btn btn-danger mt-3"
+      disabled={!confirmed||busy} onClick={()=>void beginRestore()}>
+      {t("backups.transfer.restoreStart")}
+     </button>
+    </div>}
+   {scheduled&&<div role="status" className="alert alert-warning mt-3">
+    <p className="fw-semibold mb-1">{t("backups.transfer.restoreQueued")}</p>
+    <p className="small mb-0">{t("backups.transfer.restoreProgress")}</p>
+    {restoreStage&&<p className="small mb-0">{t("backups.transfer.stageLabel")}: {t(("backups.transfer.stages."+restoreStage) as import("@/i18n/catalog").TranslationKey)}</p>}
    </div>}
   </div>}
   {message&&<p role="alert" className="alert alert-warning">{message}</p>}
