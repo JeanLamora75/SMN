@@ -270,6 +270,7 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
     ["/api/admin/settings","PATCH",{locale:"fr",theme:"light",palette:"ocean",
      referenceCountry:"FR",revision:1}],
     ["/api/admin/accounts","GET",undefined],
+    ["/api/admin/countries/BE/lifecycle","GET",undefined],
     ["/api/admin/accounts","POST",{username:"forbidden",email:"forbidden@example.test",
      password:"Blocked-2026",role:"admin"}],
     ["/api/admin/countries/BE","PATCH",{name:"Modification interdite",revision:0}],
