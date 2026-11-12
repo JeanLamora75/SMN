@@ -67,7 +67,11 @@ test("ceremony template editor protects drafts and resets after successful save"
 });
 test("accounts catalogue appears before the creation form without changing authorization",()=>{
  const source=read("src/app/app/admin/users/users-admin.tsx");
- assert.ok(source.indexOf('t("accounts.existing")')<source.indexOf('t("accounts.createTitle")'));
+ const existing='t("accounts.existing")';
+ const create='t("accounts.createTitle")';
+ assert.notEqual(source.indexOf(existing),-1,"Existing-account heading must exist");
+ assert.notEqual(source.indexOf(create),-1,"Create-account heading must exist");
+ assert.ok(source.indexOf(existing)<source.indexOf(create),"Existing accounts must precede creation");
  assert.match(source,/disabled=\{busy\|\|self\}/);
  assert.match(source,/role:edit\.role,isActive:edit\.isActive/);
 });
