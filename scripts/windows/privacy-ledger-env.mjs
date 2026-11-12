@@ -3,11 +3,42 @@
  * Never writes keys to disk in plaintext or prints them in application logs.
  * An absent enrollment leaves all privacy-restore gates unchanged.
  */
-import {existsSync,lstatSync} from "node:fs";
+import {existsSync,lstatSync,readFileSync} from "node:fs";
+import {createDecipheriv} from "node:crypto";
 import {join,resolve} from "node:path";
 import {spawnSync} from "node:child_process";
 
 const HEX=/^[a-f0-9]{64}$/;
+export function privacyLocalPaths(cwd=process.cwd()){
+ const base=resolve(cwd,"config");
+ return {ledger:join(base,"privacy-ledger"),
+  anchor:join(base,"privacy-anchor"),keyFile:join(base,"privacy-ledger.key.enc"),
+  settingsKey:join(base,".settings-key")};
+}
+function localPrivateKey(paths){
+ for(const name of [paths.keyFile,paths.settingsKey]){
+  const stat=lstatSync(name);
+  if(!stat.isFile()||stat.isSymbolicLink()||stat.size<20||stat.size>16384)
+   throw Error("privacy-local-key-untrusted");
+ }
+ const key=readFileSync(paths.settingsKey);
+ if(key.length!==32)throw Error("privacy-local-settings-key-invalid");
+ try{
+  const parts=readFileSync(paths.keyFile,"utf8").trim().split(":");
+  if(parts.length!==3||!/^[a-f0-9]{24}$/.test(parts[0])||
+   !/^[a-f0-9]{32}$/.test(parts[1])||
+   !/^(?:[a-f0-9]{2})+$/.test(parts[2]))
+   throw Error("privacy-local-key-invalid");
+  const cipher=createDecipheriv("aes-256-gcm",key,Buffer.from(parts[0],"hex"));
+  cipher.setAuthTag(Buffer.from(parts[1],"hex"));
+  const clear=Buffer.concat([cipher.update(Buffer.from(parts[2],"hex")),cipher.final()]);
+  try{
+   const value=clear.toString("utf8");
+   if(!HEX.test(value))throw Error("privacy-local-key-invalid");
+   return value;
+  }finally{clear.fill(0);}
+ }finally{key.fill(0);}
+}
 export function privacyLedgerPaths(env=process.env){
  if(!env.LOCALAPPDATA||!env.APPDATA)throw Error("privacy-user-profile-unavailable");
  const ledger=resolve(env.LOCALAPPDATA,"ScrumMasterNotebook","privacy-ledger");
@@ -25,6 +56,17 @@ export function loadPrivacyLedgerEnvironment(env=process.env){
  // runner; tests must supply their own explicit disposable ledger paths.
  if(env.NODE_ENV==="test"||env.NODE_TEST_CONTEXT||
   process.execArgv.includes("--test"))return false;
+ const local=privacyLocalPaths();
+ const localPresent=existsSync(local.keyFile)||existsSync(local.ledger)||
+  existsSync(local.anchor);
+ if(localPresent){
+  if(!existsSync(local.keyFile)||!existsSync(local.ledger)||
+   !existsSync(local.anchor))throw Error("privacy-local-enrollment-incomplete");
+  env.SMN_ERASURE_LEDGER_DIR=local.ledger;
+  env.SMN_ERASURE_ANCHOR_DIR=local.anchor;
+  env.SMN_ERASURE_LEDGER_KEY_HEX=localPrivateKey(local);
+  return true;
+ }
  const {ledger,anchor,keyFile}=privacyLedgerPaths(env);
  if(!existsSync(keyFile)){
   if(existsSync(ledger)||existsSync(anchor))
