@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { privateSettingsDirectory } from "./settings";
 
 export function managedStorageRoot(): string {
   return path.join(process.cwd(), "data", "postgres");
@@ -9,11 +10,11 @@ export function legacyManagedStorageRoot(): string {
   return path.join(process.env.LOCALAPPDATA, "ScrumMasterNotebook");
 }
 export function managedRuntimeManifestPath(): string {
-  return path.join(legacyManagedStorageRoot(), "runtime.json");
+  return path.join(privateSettingsDirectory(), "runtime.json");
 }
 /** Resolve only locally computed paths; a manifest may not inject filesystem paths. */
 export function managedPostgresExecutable(name: "pg_dump.exe" | "pg_restore.exe"): string | null {
-  if (process.platform !== "win32" || !process.env.LOCALAPPDATA) return null;
+  if (process.platform !== "win32") return null;
   try {
     const config=JSON.parse(readFileSync(managedRuntimeManifestPath(),"utf8"));
     const root=config.version===1?legacyManagedStorageRoot():config.version===2?managedStorageRoot():null;
