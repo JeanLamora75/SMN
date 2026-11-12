@@ -57,6 +57,27 @@ describe("SMN-14 — limitation des tentatives et protections d'origine", () => 
     limiter.success("ADMIN");
     assert.equal(limiter.blocked("admin", now + 15 * 60 * 1000 + 1), false);
   });
+  it("limitation: le quatrième échec reste autorisé, le cinquième bloque, puis la fenêtre expire", () => {
+    const limiter = new LoginLimiter();
+    const start = 2_000_000;
+    for (let i = 0; i < 4; i++) limiter.failure("ADMIN", start + i);
+    assert.equal(limiter.blocked("admin", start + 4), false);
+    limiter.failure("ADMIN", start + 4);
+    assert.equal(limiter.blocked("admin", start + 5), true);
+    assert.equal(limiter.blocked("other", start + 5), false,
+      "An unrelated account must not inherit another account's lockout");
+    assert.equal(limiter.blocked("admin", start + 15 * 60 * 1000 - 1), true);
+    assert.equal(limiter.blocked("admin", start + 15 * 60 * 1000), false);
+  });
+  it("une révocation globale invalide les sessions sans affecter un nouveau jeton", () => {
+    const store = new SessionStore();
+    const previous = [store.issue("admin","hash",100),store.issue("user","hash",100)];
+    assert.equal(store.revokeAll(),2);
+    for(const token of previous) assert.equal(store.get(token,101),null);
+    const fresh=store.issue("admin","hash",102);
+    assert.ok(store.get(fresh,103));
+    for(const token of previous) assert.notEqual(fresh,token);
+  });
   it("n'accepte que l'origine identique et les hosts loopback", () => {
     assert.equal(validMutationOrigin("localhost:3003","http://localhost:3003"), true);
     assert.equal(validMutationOrigin("127.0.0.1:3003","http://127.0.0.1:3003"), true);
