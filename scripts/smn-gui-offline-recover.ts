@@ -159,7 +159,7 @@ if(process.argv[1]?.replaceAll("\\","/")
  recoverGuiOfflineRestore().then(v=>{
   process.stdout.write(JSON.stringify(v)+"\n");
  }).catch(()=>{
-  process.stderr.write(JSON.stringify({state:"incident",
+  process.stderr.write(JSON.stringify({status:"blocked",state:"incident",
    reason:"gui-recovery-remains-fenced"})+"\n");
   process.exitCode=2;
  });
