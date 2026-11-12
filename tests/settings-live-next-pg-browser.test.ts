@@ -4,7 +4,7 @@ import {spawn,type ChildProcess} from "node:child_process";
 import {createServer} from "node:net";
 import test from "node:test";
 import {Client} from "pg";
-import puppeteer from "puppeteer-core";
+import puppeteer,{type Page} from "puppeteer-core";
 import {installExpress} from "../src/server/installation/install";
 import {detectChrome} from "../scripts/report-chrome.mjs";
 
@@ -30,6 +30,17 @@ async function waitServer(child:ChildProcess){
   await pause(500);
  }
  throw Error("SMN did not become ready");
+}
+async function callSettingsApi(page:Page,url:string,method:string,body?:unknown){
+ return page.evaluate(async options=>{
+  const response=await fetch(options.url,{
+   method:options.method,headers:{"Content-Type":"application/json"},
+   ...(options.body===undefined?{}:{body:JSON.stringify(options.body)})
+  });
+  let payload:unknown=null;
+  try{payload=await response.json();}catch{}
+  return {status:response.status,payload};
+ },{url,method,body});
 }
 async function portFree(){
  return new Promise<boolean>(resolve=>{
@@ -204,6 +215,99 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
    "SELECT enabled,revision FROM public.smn_automatic_highlight_settings WHERE category='criticalRisk' AND installation_id='singleton'")).rows[0]);
   assert.equal(highlight?.enabled,!previousHighlight);
   assert.equal(highlight?.revision,1);
+
+  // Modifications, validation administrative et suppression d'un jour férié réel.
+  const countryRoute="/api/admin/countries/BE";
+  const nationalValidation=countryRoute+"/calendar/validate?year=2026";
+  const originalYear=await callSettingsApi(page,nationalValidation,"GET");
+  assert.equal(originalYear.status,200);
+  const fingerprint=(originalYear.payload as {diagnostic:{fingerprint:string}}).diagnostic.fingerprint;
+  const updateHoliday=await callSettingsApi(page,countryRoute+"/holidays","POST",{
+   action:"update",originalDate:"2026-05-12",date:"2026-05-12",
+   name:"Journée de recette modifiée",reason:"Correction de libellé vérifiée",
+   expectedYears:{"2026":fingerprint}
+  });
+  assert.equal(updateHoliday.status,200,JSON.stringify(updateHoliday.payload));
+  const staleHoliday=await callSettingsApi(page,countryRoute+"/holidays","POST",{
+   action:"delete",originalDate:"2026-05-12",
+   reason:"Tentative avec ancienne empreinte",expectedYears:{"2026":fingerprint}
+  });
+  assert.equal(staleHoliday.status,409,"Une empreinte périmée ne doit rien supprimer");
+  const changedYear=await callSettingsApi(page,nationalValidation,"GET");
+  assert.equal(changedYear.status,200);
+  const latest=(changedYear.payload as {diagnostic:{fingerprint:string}}).diagnostic.fingerprint;
+  const invalidCertification=await callSettingsApi(page,countryRoute+"/calendar/validate","POST",{
+   year:2026,source:"manual-review",confirmComplete:false,fingerprint:latest
+  });
+  assert.equal(invalidCertification.status,400,"La validation exige une confirmation explicite");
+  const certified=await callSettingsApi(page,countryRoute+"/calendar/validate","POST",{
+   year:2026,source:"manual-review",confirmComplete:true,fingerprint:latest
+  });
+  assert.equal(certified.status,200,JSON.stringify(certified.payload));
+  const validationDb=await db(target.toString(),async client=>(await client.query(
+   "SELECT administrative_validated_at FROM public.smn_national_calendar_coverage WHERE country_code='BE' AND calendar_year=2026")).rows[0]);
+  assert.ok(validationDb.administrative_validated_at,"La validation est persistée");
+  const validatedYear=await callSettingsApi(page,nationalValidation,"GET");
+  assert.equal(validatedYear.status,200);
+  const deleteHoliday=await callSettingsApi(page,countryRoute+"/holidays","POST",{
+   action:"delete",originalDate:"2026-05-12",
+   reason:"Suppression confirmée du jour férié de test",
+   expectedYears:{"2026":(validatedYear.payload as {diagnostic:{fingerprint:string}}).diagnostic.fingerprint}
+  });
+  assert.equal(deleteHoliday.status,200,JSON.stringify(deleteHoliday.payload));
+  const removed=await db(target.toString(),async client=>{
+   const row=await client.query("SELECT count(*)::int AS count FROM public.smn_national_holiday WHERE country_code='BE'");
+   const year=await client.query("SELECT administrative_validated_at FROM public.smn_national_calendar_coverage WHERE country_code='BE' AND calendar_year=2026");
+   return {count:row.rows[0].count,validated:year.rows[0].administrative_validated_at};
+  });
+  assert.equal(removed.count,0);
+  assert.equal(removed.validated,null,"La suppression invalide la certification annuelle");
+  const emptyYear=await callSettingsApi(page,nationalValidation,"GET");
+  assert.equal(emptyYear.status,200);
+  const blockedYear=await callSettingsApi(page,countryRoute+"/calendar/validate","POST",{
+   year:2026,source:"manual-review",confirmComplete:true,
+   fingerprint:(emptyYear.payload as {diagnostic:{fingerprint:string}}).diagnostic.fingerprint
+  });
+  assert.equal(blockedYear.status,422,"Un calendrier national vide ne peut être certifié");
+
+  // Éditer puis archiver / réactiver un pays sans détruire son historique.
+  const renamed=await callSettingsApi(page,countryRoute,"PATCH",{
+   name:"Belgique modifiée",revision:0
+  });
+  assert.equal(renamed.status,200,JSON.stringify(renamed.payload));
+  const renameConflict=await callSettingsApi(page,countryRoute,"PATCH",{
+   name:"Révision périmée",revision:0
+  });
+  assert.equal(renameConflict.status,409);
+  const referenceImpact=await callSettingsApi(page,"/api/admin/countries/DE/lifecycle","GET");
+  assert.equal(referenceImpact.status,200);
+  const referenceRevision=(referenceImpact.payload as {impact:{country:{revision:number}}}).impact.country.revision;
+  const cannotArchiveReference=await callSettingsApi(page,"/api/admin/countries/DE/lifecycle","POST",{
+   action:"archive",confirmed:true,revision:referenceRevision
+  });
+  assert.equal(cannotArchiveReference.status,409,"Le pays de référence ne doit pas être archivé");
+  const missingConfirmation=await callSettingsApi(page,countryRoute+"/lifecycle","POST",{
+   action:"archive",confirmed:false,revision:1
+  });
+  assert.equal(missingConfirmation.status,400);
+  const archived=await callSettingsApi(page,countryRoute+"/lifecycle","POST",{
+   action:"archive",confirmed:true,revision:1
+  });
+  assert.equal(archived.status,200,JSON.stringify(archived.payload));
+  const noEditArchived=await callSettingsApi(page,countryRoute,"PATCH",{
+   name:"Interdit pendant archivage",revision:2
+  });
+  assert.equal(noEditArchived.status,409);
+  const reactivated=await callSettingsApi(page,countryRoute+"/lifecycle","POST",{
+   action:"reactivate",confirmed:true,revision:2
+  });
+  assert.equal(reactivated.status,200,JSON.stringify(reactivated.payload));
+  const countryAfter=await db(target.toString(),async client=>(await client.query(
+   "SELECT name,revision,archived_at FROM public.smn_country WHERE code='BE'")).rows[0]);
+  assert.equal(countryAfter.name,"Belgique modifiée");
+  assert.equal(countryAfter.revision,3);
+  assert.equal(countryAfter.archived_at,null);
+
 
   // Deux onglets tentent la même révision : un seul doit être accepté.
   const concurrency=await page.evaluate(async()=>{
