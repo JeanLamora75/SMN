@@ -76,3 +76,34 @@ test("SMN-441/442: complete transfer ZIP preserves a signed receipt and encrypte
   assert.deepEqual(await readFile(result.ledgerPath!),ledger);
  }finally{await rm(root,{recursive:true,force:true});}
 });
+
+test("SMN-442: malformed ZIP boundaries are rejected and leave no extracted archive",async()=>{
+ const root=await mkdtemp(join(tmpdir(),"smn-zip-negative-"));
+ const source=join(root,"input.zip"),output=join(root,"extracted.tar.gz");
+ const payload=Buffer.from("synthetic encrypted archive with bounded content");
+ const chunks:Buffer[]=[];
+ try{
+  for await(const chunk of wrapEncryptedBackupInZip(Readable.from([payload]),id))
+   chunks.push(Buffer.from(chunk));
+  const original=Buffer.concat(chunks);
+  const nameBytes=Buffer.byteLength("SMN-backup-"+id+".tar.gz");
+  const dataStart=30+nameBytes;
+  const descriptor=dataStart+payload.length;
+  const central=descriptor+16;
+  const cases:{name:string;edit:(b:Buffer)=>Buffer;error:RegExp}[]=[
+   {name:"unexpected leading entry signature",edit:b=>{b.writeUInt32LE(0xdeadbeef,0);return b;},error:/migration-zip-local-untrusted/},
+   {name:"unknown compression method",edit:b=>{b.writeUInt16LE(8,8);return b;},error:/migration-zip-local-untrusted/},
+   {name:"central directory member size changed",edit:b=>{b.writeUInt32LE(payload.length+1,central+20);return b;},error:/migration-zip-compressed-member|migration-zip-descriptor-invalid/},
+   {name:"CRC32 mismatch",edit:b=>{b[dataStart]^=1;return b;},error:/migration-zip-checksum-invalid/},
+   {name:"missing end-of-central-directory",edit:b=>b.subarray(0,-22),error:/migration-zip-footer-invalid/},
+   {name:"appended bytes after footer",edit:b=>Buffer.concat([b,Buffer.from("garbage")]),error:/migration-zip-footer-invalid/},
+   {name:"unexpected ZIP member filename",edit:b=>{b[central+46]^=1;return b;},error:/migration-zip-entry-untrusted/}
+  ];
+  for(const scenario of cases){
+   const corrupted=scenario.edit(Buffer.from(original));
+   await writeFile(source,corrupted);
+   await assert.rejects(extractSmnEncryptedZip(source,output),scenario.error,scenario.name);
+   await assert.rejects(readFile(output),{code:"ENOENT"},scenario.name+" should clean up extracted data");
+  }
+ }finally{await rm(root,{recursive:true,force:true});}
+});
