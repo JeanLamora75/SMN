@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { Client } from "pg";
+import { randomUUID } from "node:crypto";
 import { diagnoseInstallation } from "../src/server/installation/diagnostic";
 import { parseConnectionSettings } from "../src/server/db/config";
 import { probePostgres } from "../src/server/db/probe";
@@ -83,7 +84,8 @@ describe("SMN-11 — probe PostgreSQL réel (CI et base éphémère exclusivemen
   it("identifie l'absence de droits CREATE du compte local restreint", async () => {
     assert.ok(uri);
     const settings = new URL(uri);
-    const username = "smn_ci_restricted";
+    // Un identifiant unique évite les conflits entre deux exécutions du même scénario.
+    const username = "smn_ci_restricted_" + randomUUID().replace(/-/g,"").slice(0,12);
     try {
       await withConnection(async (client) => {
       await client.query(`CREATE ROLE ${username} LOGIN PASSWORD 'temporary-ci-test-password'`);
