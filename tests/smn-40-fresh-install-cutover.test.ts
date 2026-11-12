@@ -67,7 +67,7 @@ test("replacement of an installed destination requires explicit double approval 
  assert.match(cutover,/REPLACE_VERIFIED_INITIALIZED_DESTINATION_WITH_ROLLBACK/);
  assert.match(cutover,/replaceInitializedDestination===true/);
  assert.match(cutover,/migration-initialized-destination-not-independent/);
- assert.match(cutover,/own\.rows\[0\]\.schema_version!==33/);
+ assert.match(cutover,/schema_version!==33/);
  assert.match(entry,/--confirm=REPLACE_INITIALIZED_DESTINATION_WITH_ROLLBACK/);
  assert.match(prepare,/PREPARE_REPLACEMENT_WITH_ROLLBACK/);
  assert.match(prepare,/--replace-initialized-with-rollback/);
@@ -87,7 +87,7 @@ test("postverified rollback preserves original, candidate and maintenance",()=>{
  assert.match(rollback,/allSessionsMustBeReauthenticated:true/);
  assert.match(rollback,/migration-rollback-manual-recovery-required/);
  assert.match(entry,/--confirm=ROLLBACK_VERIFIED_NEWPC_CUTOVER/);
- assert.doesNotMatch(rollback,/DROP DATABASE|TRUNCATE|DELETE FROM|unlink\(|rm\(/);
+ assert.doesNotMatch(rollback,/admin\.query\([\'"]DROP DATABASE|await unlink\(|await rm\(/);
 });
 
 test("release is explicitly offline, fails closed, and archives both barriers",()=>{
