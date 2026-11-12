@@ -1,6 +1,7 @@
 import {NextRequest} from "next/server";
 import {Readable} from "node:stream";
 import {authorizeApi} from "@/server/auth/authorization";
+import {canAccess} from "@/server/access-policy";
 import {jsonResult} from "@/server/auth/request";
 import {backupRootPath} from "@/server/backup/runner";
 import {backupInventory} from "@/server/backup/verification";
@@ -15,8 +16,11 @@ export const dynamic="force-dynamic";
 const ID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 
 export async function GET(request:NextRequest){
- const actor=await authorizeApi(request,"write",{type:"backups",exists:true,inScope:true});
- if(!actor)return jsonResult({error:"forbidden"},403);
+ const target={type:"backups",exists:true,inScope:true} as const;
+ // Browser downloads are GET navigations and do not send Origin. The user
+ // must still have write/admin privilege, but GET has no CSRF side effect.
+ const actor=await authorizeApi(request,"read",target);
+ if(!actor||!canAccess(actor,"write",target))return jsonResult({error:"forbidden"},403);
  const id=request.nextUrl.searchParams.get("id");
  const format=request.nextUrl.searchParams.get("format")??"zip";
   if(!id||!ID.test(id)||!["zip","tar.gz"].includes(format)||
