@@ -1,10 +1,14 @@
 import { NextRequest } from "next/server";
+import {restoreMaintenanceActive} from "@/server/backup/restore-maintenance";
 import { authenticate } from "@/server/auth/credentials";
 import { withAuthDb } from "@/server/auth/database";
 import { authLimiter, issueSession } from "@/server/auth/session";
 import { allowMutation, jsonResult, readJsonObject, setSessionCookie } from "@/server/auth/request";
 export const dynamic = "force-dynamic";
 export async function POST(request: NextRequest) {
+  // A restoration fence must also block issuance of NEW sessions. Existing
+  // sessions are denied by sessionAccount until the offline operator releases it.
+  if (await restoreMaintenanceActive()) return jsonResult({error:"service-unavailable"},503);
   if (!allowMutation(request)) return jsonResult({ error: "forbidden" }, 403);
   const body = await readJsonObject(request);
   const identity = typeof body?.identity === "string" ? body.identity.trim() : "";
