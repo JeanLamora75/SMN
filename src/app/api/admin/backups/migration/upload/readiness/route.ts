@@ -1,5 +1,6 @@
 import {NextRequest} from "next/server";
 import {lstat,readFile} from "node:fs/promises";
+import {existsSync} from "node:fs";
 import {join} from "node:path";
 import {authorizeApi} from "@/server/auth/authorization";
 import {readJsonObject,jsonResult} from "@/server/auth/request";
@@ -33,7 +34,7 @@ export async function POST(request:NextRequest){
    metaStat.size>8192||metaStat.size<20||tarStat.size<32)
    throw Error("migration-readiness-inbox-invalid");
   const meta=JSON.parse(await readFile(metaFile,"utf8")) as {
-   archiveId?:string;state?:string
+   archiveId?:string;state?:string;hasTransferEvidence?:boolean
   };
   if(!/^[a-f0-9-]{36}$/i.test(meta.archiveId??"")||
    meta.state!=="awaiting-verification")
@@ -52,19 +53,27 @@ export async function POST(request:NextRequest){
    return {initialized:true as const,schemaVersion:row.schema_version,
     containsExistingTables:Number(tables.rows[0]?.count)>0};
   });
+  const verified=await readFile(join(folder,input.token+".verified.json"),"utf8")
+   .then(text=>JSON.parse(text) as {archiveId?:string;sourceEvidenceVerified?:boolean})
+   .catch(()=>null);
+  const proofReady=meta.hasTransferEvidence===true&&
+   verified?.archiveId===meta.archiveId&&verified.sourceEvidenceVerified===true;
   const managed=await existingManagedUri().then(Boolean).catch(()=>false);
   const maintenance=await restoreMaintenanceActive();
+  const supervisor=existsSync(join(process.cwd(),"app","maintenance","migration",
+   "smn-gui-offline-restore.mjs"));
   const blockers=[
-   "source-receipt-not-in-zip",
-   "independent-erasure-evidence-not-in-zip",
-   "automatic-cutover-supervisor-not-qualified",
+   ...(!proofReady?["source-receipt-not-in-zip",
+    "independent-erasure-evidence-not-in-zip"]:[]),
+   ...(!supervisor?["automatic-cutover-supervisor-not-qualified"]:[]),
    ...(!managed?["destination-not-managed"]:[]),
    ...(destination.schemaVersion!==33?["destination-schema-incompatible"]:[]),
    ...(maintenance?["destination-maintenance-active"]:[])
   ];
   return jsonResult({archiveId:meta.archiveId,destination,
-   readyForUpload:true,mayReplaceExistingData:false,
-   restorationAuthorized:false,blockers},200);
+   readyForUpload:true,mayStartOfflineRestore:blockers.length===0,
+   restorationAuthorized:false,sourceEvidenceVerified:proofReady,
+   independentSourceRetirementCertified:false,blockers},200);
  }catch{
   return jsonResult({error:"migration-readiness-unverifiable",
    restorationAuthorized:false},409);
