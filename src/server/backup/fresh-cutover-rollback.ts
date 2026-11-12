@@ -4,8 +4,8 @@ import {Client} from "pg";
 import {backupRootPath} from "./runner";
 import {readFreshCutoverJournal,freshCutoverMac} from "./fresh-cutover-journal";
 import {existingManagedUri} from "../bootstrap/portable";
-import {inspectOfflineCutoverJournal}
- from "../../../scripts/smn-40-cutover-postcheck";
+import {inspectOfflineRestoreMaintenance,localRestoreMaintenanceLockPath}
+ from "./restore-maintenance";
 
 /** Compensating rollback AFTER a verified cutover. No data deletion.
  * Retains both database generations, original and candidate folders and
@@ -20,7 +20,18 @@ export async function rollbackVerifiedNewComputerCutover(
   process.env.SMN40_ROLLBACK_OFFLINE_CONFIRM!==
    "ROLLBACK_VERIFIED_NEWPC_CUTOVER")
   throw Error("migration-rollback-not-enabled");
- await inspectOfflineCutoverJournal(journalPath,receiptPath);
+ const fence=await inspectOfflineRestoreMaintenance();
+ if(fence?.purpose!=="offline-restore")
+  throw Error("migration-rollback-maintenance-required");
+ const lock=await lstat(localRestoreMaintenanceLockPath());
+ if(!lock.isFile()||lock.isSymbolicLink()||lock.size<20||lock.size>2048)
+  throw Error("migration-rollback-local-fence-invalid");
+ const local=JSON.parse(await readFile(localRestoreMaintenanceLockPath(),"utf8")) as {
+  operationId?:string;purpose?:string
+ };
+ if(local.operationId!==fence.operationId||local.purpose!=="offline-restore")
+  throw Error("migration-rollback-fence-disagree");
+ if(!receiptPath.endsWith(".json"))throw Error("migration-rollback-receipt-invalid");
  const keyPath=join(backupRootPath(),".backup-key");
  const ki=await lstat(keyPath);
  if(!ki.isFile()||ki.isSymbolicLink()||ki.size!==32)
