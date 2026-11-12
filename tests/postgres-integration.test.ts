@@ -38,19 +38,22 @@ describe("SMN-11 — probe PostgreSQL réel (CI et base éphémère exclusivemen
 
   it("rejette une vue et un schéma étranger au lieu de classifier virgin", async () => {
     assert.ok(uri);
+    const suffix=randomUUID().replace(/-/g,"").slice(0,12);
+    const view="smn_ci_untrusted_view_"+suffix;
+    const schema="smn_ci_untrusted_schema_"+suffix;
     try {
       await withConnection(async (client) => {
-      await client.query("CREATE VIEW public.other_view AS SELECT 1 AS value");
-      await client.query("CREATE SCHEMA untrusted_data");
+        await client.query('CREATE VIEW public."'+view+'" AS SELECT 1 AS value');
+        await client.query('CREATE SCHEMA "'+schema+'"');
       });
       const snapshot = await probePostgres(uri);
-      assert.ok(snapshot.tables.includes("public.other_view:v"));
-      assert.ok(snapshot.tables.includes("untrusted_data.<schema>"));
+      assert.ok(snapshot.tables.includes("public."+view+":v"));
+      assert.ok(snapshot.tables.includes(schema+".<schema>"));
       assert.equal((await diagnoseInstallation(() => probePostgres(uri))).status, "schema-incompatible");
     } finally {
       await withConnection(async (client) => {
-        await client.query("DROP VIEW IF EXISTS public.other_view");
-        await client.query("DROP SCHEMA IF EXISTS untrusted_data");
+        await client.query('DROP VIEW IF EXISTS public."'+view+'"');
+        await client.query('DROP SCHEMA IF EXISTS "'+schema+'"');
       });
     }
   });
