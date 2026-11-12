@@ -5,6 +5,7 @@ import {currentAccount} from "@/server/auth/session";
 import CategoryAdmin from "./category-admin";
 import LinksAdminInventory from "./links-admin-inventory";
 import SettingsPageShell from "../settings-page-shell";
+import SettingsTabs from "../settings-tabs";
 import "./links-admin-cockpit.css";
 export const dynamic="force-dynamic";
 export default async function LinksAdminPage(){
@@ -14,8 +15,10 @@ export default async function LinksAdminPage(){
  const locale=await requestLocale();
  return <SettingsPageShell title={translate(locale,"settingsCatalog.items.links.title")} description={translate(locale,"settingsCatalog.items.links.description")} eyebrow={translate(locale,"settingsCatalog.navigation.adminEyebrow")}>
   <div className="smn-links-admin-cockpit">
-   <LinksAdminInventory/>
-   <div className="smn-links-admin-panel mt-3"><CategoryAdmin/></div>
+   <SettingsTabs label={translate(locale,"settingsCatalog.items.links.title")} sections={[
+    {id:"inventory",label:translate(locale,"linksAdmin.title"),content:<LinksAdminInventory/>},
+    {id:"categories",label:translate(locale,"linksAdmin.categories"),content:<div className="smn-links-admin-panel"><CategoryAdmin/></div>}
+   ]}/>
   </div>
  </SettingsPageShell>;
 }
