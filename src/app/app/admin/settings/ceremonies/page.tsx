@@ -17,8 +17,16 @@ export default async function CeremonyTemplatesSettingsPage(){
   redirect("/app");
  // The underlying settings API only supports Scrum teams.
  const isScrum=await withAuthDb(async db=>{
-  const result=await db.query(`SELECT 1 FROM public.smn_installation
-   WHERE id='singleton' AND state='initialized' AND lower(mode)='scrum' LIMIT 1`);
+  const result=await db.query(`SELECT 1 FROM public.smn_installation i
+   WHERE i.id='singleton' AND i.state='initialized'
+   AND (
+    lower(to_jsonb(i)->>'mode')='scrum'
+    OR EXISTS (
+     SELECT 1 FROM public.smn_team t WHERE t.installation_id=i.id
+     AND lower(COALESCE(to_jsonb(t)->>'agile_mode',''))='scrum'
+     AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false
+    )
+   ) LIMIT 1`);
   return result.rows.length===1;
  }).catch(()=>false);
  if(!isScrum)redirect("/app/admin/settings");
