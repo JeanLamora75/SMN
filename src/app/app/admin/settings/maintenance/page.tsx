@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {notFound,redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
@@ -9,6 +8,7 @@ import {withAuthDb} from "@/server/auth/database";
 import {readAuditJournal} from "@/server/audit/journal";
 import BackupsAdmin from "../../backups/backups-admin";
 import SettingsTabs from "../settings-tabs";
+import SettingsPageShell from "../settings-page-shell";
 import UpdatesAdmin from "./updates-admin";
 
 export const dynamic="force-dynamic";
@@ -23,14 +23,11 @@ export default async function MaintenanceSettingsPage(){
  const locale=await requestLocale();
  const entries=audit?await withAuthDb(client=>readAuditJournal(client)).catch(()=>null):null;
 
- return <main className="smn-page container-fluid py-4 px-3 px-lg-4">
-  <Link href="/app/admin/settings" className="btn btn-link px-0 mb-2">← {translate(locale,"navigation.entries.settings")}</Link>
-  <header className="mb-3"><h1 className="h3">{translate(locale,"settingsCatalog.items.maintenance.title")}</h1>
-   <p className="text-secondary">{translate(locale,"settingsCatalog.items.maintenance.description")}</p></header>
+ return <SettingsPageShell title={translate(locale,"settingsCatalog.items.maintenance.title")} description={translate(locale,"settingsCatalog.items.maintenance.description")} eyebrow={translate(locale,"settingsCatalog.navigation.adminEyebrow")}>
   <SettingsTabs label={translate(locale,"settingsCatalog.items.maintenance.title")} sections={[
    ...(updates?[{id:"updates",label:translate(locale,"offlineUpdates.title"),content:<UpdatesAdmin/>}]:[]),
    ...(backups?[{id:"backups",label:translate(locale,"settingsCatalog.items.backups.title"),content:<BackupsAdmin/>}]:[]),
    ...(audit?[{id:"audit",label:translate(locale,"settingsCatalog.items.audit.title"),content:<AuditJournalView entries={entries} locale={locale}/>}]:[])
   ]}/>
- </main>;
+ </SettingsPageShell>;
 }
