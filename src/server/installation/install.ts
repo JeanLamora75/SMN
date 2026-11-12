@@ -58,6 +58,11 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
    VALUES($1,$2,now(),$3,1)`,
    [randomUUID(),createHash("sha256").update(sql).digest("hex"),NATIVE_BASELINE_NAME]);
   await client.query("INSERT INTO public.smn_general_settings(installation_id,palette) VALUES ('singleton','red-purple')");
+  // Native v33 needs the optional ceremony appearance columns used by its UI/API.
+  // Keep the migration additive and inside the atomic installation transaction.
+  const ceremonyAppearanceSql=readFileSync(migrationFile(
+   "20261105_smn229_ceremony_appearance","migration.sql"),"utf8");
+  await client.query(ceremonyAppearanceSql);
   // Initialize the additive chart catalog atomically for fresh native v33 installs.
   const chartStyleSql=readFileSync(migrationFile("20261108_smn416_chart_styles","migration.sql"),"utf8");
   try{await client.query(chartStyleSql);}
