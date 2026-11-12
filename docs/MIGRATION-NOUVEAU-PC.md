@@ -1,5 +1,18 @@
 # SMN v33 — Migration contrôlée vers un nouveau PC Windows
 
+## Parcours utilisateur depuis l'interface (SMN-442 — novembre 2026)
+
+**Aucune commande PowerShell ni terminal n'est demandée à l'utilisateur.**
+Le flux attendu est : sur le PC source, `Paramètres > Sauvegardes > Exporter vers un autre PC`, télécharger **un fichier ZIP unique** chiffré avec manifeste et preuves ; sur le PC cible, `Paramètres > Sauvegardes > Importer depuis un autre PC`, sélectionner le ZIP, renseigner la phrase de récupération, attendre la vérification cryptographique, lire l'impact du remplacement, confirmer explicitement, puis laisser le lanceur SMN arrêter le serveur, restaurer dans une base isolée, conserver l'ancienne base et les fichiers comme retour arrière, valider les empreintes et redémarrer avec réauthentification.
+
+La destination peut avoir déjà été installée et contenir des données : **upload et vérification restent non destructifs** ; le remplacement ne peut commencer qu'après consentement et contrôle des preuves. L'installation source doit rester cohérente durant l'export ; les installations après transfert sont indépendantes, et les mises à jour ultérieures de l'une ne sont pas automatiquement synchronisées avec l'autre.
+
+Les opérateurs hors ligne figurant plus bas sont **des détails de diagnostic et de recette QA**, pas des instructions à donner aux utilisateurs finaux.
+
+**État de validation :** présence du code et contrôles statiques + compilation Windows, mais validation du workflow de restauration de bout en bout (dont crash et rollback réels) sur deux installations Windows isolées **obligatoire avant clôture de SMN-442**. Ne pas prétendre qu'une CI de packaging équivaut à cette recette.
+
+---
+
 ## Portée et état
 
 La migration vise la **reprise fidèle** des équipes, membres nommés, affectations, calendriers, sprints, registres, indicateurs v33, rapports et fichiers Office. Elle ne se limite pas aux préférences d'interface. Le PC source et le PC destination sont indépendants ; la source doit être gelée et attestée au moment du transfert pour empêcher la réintroduction d'effacements après l'instantané.
