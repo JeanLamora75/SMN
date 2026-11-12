@@ -15,8 +15,14 @@ export default async function SettingsPortalPage(){
  const locale=await requestLocale();
  const t=(key:Parameters<typeof translate>[1])=>translate(locale,key);
  const mode=await withAuthDb(async db=>{
-  const result=await db.query<{mode:string}>(`SELECT mode FROM public.smn_installation
-   WHERE id='singleton' AND state='initialized' LIMIT 1`);
+  const result=await db.query<{mode:string|null}>(`SELECT COALESCE(
+    (SELECT NULLIF(to_jsonb(t)->>'agile_mode','') FROM public.smn_team t
+     WHERE t.installation_id=i.id
+     AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false
+     ORDER BY t.id LIMIT 1),
+    NULLIF(to_jsonb(i)->>'mode','')) AS mode
+   FROM public.smn_installation i
+   WHERE i.id='singleton' AND i.state='initialized' LIMIT 1`);
   const value=result.rows[0]?.mode;
   return value==="scrum"||value==="kanban"?value:null;
  }).catch(()=>null);
