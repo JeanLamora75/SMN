@@ -118,6 +118,91 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   assert.deepEqual({name:persisted[0].name,frequency:persisted[0].frequency,
    weekday:persisted[0].weekday,revision:persisted[0].revision},
    {name:"Daily navigateur",frequency:"weekly",weekday:3,revision:1});
+  // La famille Calendriers exerce les vraies pages et le dialogue de création.
+  const portal=await page.goto(origin+"/app/admin/settings",{waitUntil:"domcontentloaded"});
+  assert.equal(portal?.status(),200,"Le portail des Paramètres doit lire le mode Scrum v33");
+  const calendar=await page.goto(origin+"/app/admin/settings/holidays-closures",{waitUntil:"domcontentloaded"});
+  assert.equal(calendar?.status(),200);
+  await page.waitForSelector("#country-search",{timeout:20000});
+  await page.click("#country-catalog-heading + p").catch(()=>undefined);
+  await page.$eval("#country-search",el=>(el as HTMLInputElement).focus());
+  await page.type("#country-search","Allemagne");
+  await page.waitForFunction(()=>(document.querySelector("#country-search") as HTMLInputElement).value==="Allemagne");
+  await page.$eval("#country-search",el=>{(el as HTMLInputElement).value="";el.dispatchEvent(new Event("input",{bubbles:true}));});
+  await page.reload({waitUntil:"domcontentloaded"});
+  await page.waitForSelector("#country-search",{timeout:20000});
+  await page.click("#country-catalog-heading");
+  const addCountry=await page.$eval("#country-catalog-heading",el=>el.parentElement?.parentElement?.querySelector("button.btn-primary")?.textContent);
+  assert.ok(addCountry);
+  await page.evaluate(()=>{const heading=document.getElementById("country-catalog-heading");(heading?.parentElement?.parentElement?.querySelector("button.btn-primary") as HTMLButtonElement)?.click();});
+  await page.waitForSelector("#country-edit-code");
+  await page.type("#country-edit-code","BE");
+  await page.type("#country-edit-name","Belgique navigateur");
+  await page.click("dialog form button[type=submit]");
+  await page.waitForFunction(()=>document.querySelector("#country-edit-code")===null);
+  const countryInDb=await db(target.toString(),async client=>(await client.query(
+   "SELECT name FROM public.smn_country WHERE code='BE'")).rows[0]);
+  assert.equal(countryInDb?.name,"Belgique navigateur");
+
+  // La famille Utilisateurs teste le véritable formulaire et le registre SQL.
+  const users=await page.goto(origin+"/app/admin/users",{waitUntil:"domcontentloaded"});
+  assert.equal(users?.status(),200);
+  await page.waitForSelector('form input[type="email"]',{timeout:20000});
+  await page.type('form input[autocomplete="off"]',"testmember");
+  await page.type('form input[type="email"]',"member@example.test");
+  await page.type('form input[type="password"]',"Temporary-Member-2026");
+  await page.click("form button[type=submit]");
+  await page.waitForFunction(()=>document.body.textContent?.includes("testmember")===true);
+  const member=await db(target.toString(),async client=>(await client.query(
+   "SELECT role,is_active FROM public.smn_account WHERE username='testmember'")).rows[0]);
+  assert.equal(member?.role,"user");assert.equal(member?.is_active,true);
+
+  // Les Registres exercent les contrôles réels, sans requête factice au serveur.
+  const registries=await page.goto(origin+"/app/admin/settings/registries",{waitUntil:"domcontentloaded"});
+  assert.equal(registries?.status(),200);
+  await page.waitForSelector("#highlight-criticalRisk:not(:disabled)",{timeout:20000});
+  const previousHighlight=await page.$eval("#highlight-criticalRisk",el=>(el as HTMLInputElement).checked);
+  await page.click("#highlight-criticalRisk");
+  await page.evaluate(()=>{const control=document.getElementById("highlight-criticalRisk");(control?.closest("section")?.querySelector("button") as HTMLButtonElement)?.click();});
+  await page.waitForFunction(()=>!!document.querySelector("#panel-categories [role=status].text-success"),{timeout:15000});
+  const highlight=await db(target.toString(),async client=>(await client.query(
+   "SELECT enabled,revision FROM public.smn_automatic_highlight_settings WHERE category='criticalRisk' AND installation_id='singleton'")).rows[0]);
+  assert.equal(highlight?.enabled,!previousHighlight);
+  assert.equal(highlight?.revision,1);
+
+  // Deux onglets tentent la même révision : un seul doit être accepté.
+  const concurrency=await page.evaluate(async()=>{
+   const common={locale:"fr",theme:"light",palette:"red-purple",revision:1};
+   const send=(referenceCountry:string)=>fetch("/api/admin/settings",{
+    method:"PATCH",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({...common,referenceCountry})
+   }).then(r=>r.status);
+   return Promise.all([send("PT"),send("ES")]);
+  });
+  assert.deepEqual([...concurrency].sort((a,b)=>a-b),[200,409]);
+  const afterRace=await db(target.toString(),async client=>(await client.query(
+   "SELECT reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'")).rows[0]);
+  assert.equal(afterRace.revision,2);
+  assert.ok(["PT","ES"].includes(afterRace.reference_country));
+
+  // L'interruption volontaire doit invalider la session en mémoire, sans effacer les données.
+  await browser.close();browser=undefined;
+  if(child&&child.exitCode===null){
+   child.kill("SIGTERM");
+   for(let i=0;i<40&&child.exitCode===null;i++)await pause(250);
+   if(child.exitCode===null)child.kill("SIGKILL");
+  }
+  child=spawn(process.execPath,["scripts/serve.mjs","start"],{
+   env:{...process.env,SMN_DATABASE_URL:target.toString(),SMN_PORT:String(port),NEXT_TELEMETRY_DISABLED:"1"},
+   stdio:["ignore","pipe","pipe"],shell:false
+  });
+  child.stdout?.on("data",b=>{logs.push(String(b).slice(0,300));if(logs.length>100)logs.shift();});
+  child.stderr?.on("data",b=>{logs.push(String(b).slice(0,300));if(logs.length>100)logs.shift();});
+  await waitServer(child);
+  const afterRestart=await db(target.toString(),async client=>(await client.query(
+   "SELECT reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'")).rows[0]);
+  assert.deepEqual(afterRestart,afterRace,"L'état validé doit survivre au redémarrage");
+  assert.equal((await fetch(origin+"/api/admin/settings")).status,403);
   assert.deepEqual(errors,[]);
  }catch(error){
   throw new Error(String(error)+"; server diagnostics: "+logs.slice(-12).join(" | ").slice(0,2000));
