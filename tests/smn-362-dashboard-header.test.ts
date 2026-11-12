@@ -47,3 +47,12 @@ test("SMN-362: navigation du Builder et sélection globale utilisent le même cy
  assert.match(home,/cycleId:cycle\.id/);
  assert.equal(cycleNavigation(cycles,null).current?.id,"two");
 });
+
+test("SMN-362: Dashboard header follows the selected palette, including Red & Purple",()=>{
+ const css=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-dimensions.module.css",import.meta.url),"utf8");
+ const appearance=readFileSync(new URL("../src/app/appearance.css",import.meta.url),"utf8");
+ assert.match(css,/\.cockpitHeader\{[^\n]*background:linear-gradient\(115deg,var\(--smn-context-start\),var\(--smn-context-end\)\)/);
+ assert.match(css,/\.cockpitHeader::before\{[^\n]*var\(--smn-focus\)/);
+ assert.doesNotMatch(css,/\.cockpitHeader\{[^\n]*#102a4e/);
+ assert.match(appearance,/\[data-bs-theme="light"\]\[data-smn-palette="red-purple"\][\s\S]*?--smn-context-start:#a10e32;--smn-context-end:#35206c/);
+});
