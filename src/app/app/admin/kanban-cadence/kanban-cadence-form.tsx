@@ -32,7 +32,7 @@ export default function KanbanCadenceForm(){
   }catch{setError(t("kanbanCadence.saveError"));}finally{setBusy(false);}
  }
  return <section className="smn-panel p-4">
-  <h1 className="h3">{t("kanbanCadence.title")}</h1>
+  <h2 className="h5">{t("kanbanCadence.title")}</h2>
   <p className="text-secondary">{t("kanbanCadence.intro")}</p>
   {draft&&<form onSubmit={submit} className="d-grid gap-3">
    <div><label htmlFor="kanban-frequency" className="form-label">{t("kanbanCadence.frequency")}</label>
