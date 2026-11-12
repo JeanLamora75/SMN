@@ -29,13 +29,14 @@ test("PostgreSQL 18 : une connexion tuée pendant une transaction annule toutes 
    adminUsername:"killtest",adminEmail:"killtest@example.test",password:"TestOnlyPassword2026"
   },target.toString()),{ok:true});
   // Cinq cycles sur une installation jetable ; aucune donnée personnelle touchée.
+  const codes=["BE","NL","CH","AT","LU"];
   for(let iteration=1;iteration<=5;iteration++){
    const writer=await connect(target.toString());
    try{
     await writer.query("BEGIN");
     await writer.query("UPDATE public.smn_general_settings SET reference_country='BE' WHERE installation_id='singleton'");
     await writer.query("INSERT INTO public.smn_country(code,name,origin) VALUES($1,$2,'manual')",
-     ["X"+iteration,"Uncommitted "+iteration]);
+     [codes[iteration-1],"Uncommitted "+iteration]);
     const backend=await writer.query<{pid:number}>("SELECT pg_backend_pid() AS pid");
     const killer=await connect(target.toString());
     try{
@@ -48,7 +49,7 @@ test("PostgreSQL 18 : une connexion tuée pendant une transaction annule toutes 
       "SELECT reference_country FROM public.smn_general_settings WHERE installation_id='singleton'");
      assert.notEqual(result.rows[0].reference_country,"BE","No partial update after backend termination, cycle "+iteration);
      const uncommitted=await reader.query(
-      "SELECT code FROM public.smn_country WHERE code=$1",["X"+iteration]);
+      "SELECT code FROM public.smn_country WHERE code=$1",[codes[iteration-1]]);
      assert.equal(uncommitted.rows.length,0,"Uncommitted row must roll back, cycle "+iteration);
     }finally{await reader.end();}
    }finally{await writer.end().catch(()=>undefined);}
