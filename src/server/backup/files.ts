@@ -18,8 +18,28 @@ export function outsideApp(root:string):boolean{
   &&(difference===".."||difference.startsWith(".."+sep)||isAbsolute(difference));
 }
 export async function privateFolder(dir:string,create=false):Promise<void>{
- if(!outsideApp(dir)&&!isInstalledPrivateDocumentDirectory(dir))
+ const local=resolve(process.cwd(),"data","backups");
+ const candidate=resolve(dir);
+ const diff=relative(local,candidate);
+ const localBackup=isAbsolute(dir)&&(diff===""||
+  diff!==".."&&!diff.startsWith(".."+sep)&&!isAbsolute(diff));
+ if(!outsideApp(dir)&&!isInstalledPrivateDocumentDirectory(dir)&&!localBackup)
   throw new Error("backup-private-directory-invalid");
+ if(localBackup){
+  // Refuse un répertoire data redirigé hors de l'installation par lien.
+  const data=join(process.cwd(),"data");
+  const parent=await lstat(data);
+  if(!parent.isDirectory()||parent.isSymbolicLink())
+   throw new Error("backup-private-directory-invalid");
+  try{
+   const root=await lstat(local);
+   if(!root.isDirectory()||root.isSymbolicLink())
+    throw new Error("backup-private-directory-invalid");
+  }catch(error){
+   if(!create||!(error&&typeof error==="object"&&"code" in error&&error.code==="ENOENT"))
+    throw error;
+  }
+ }
  if(create)await mkdir(dir,{recursive:true,mode:0o700});
  const info=await lstat(dir);
  if(!info.isDirectory()||info.isSymbolicLink())throw new Error("backup-private-directory-invalid");
