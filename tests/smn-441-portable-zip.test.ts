@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import {test} from "node:test";
 import {Readable} from "node:stream";
+import {mkdtemp,readFile,writeFile,rm} from "node:fs/promises";
+import {tmpdir} from "node:os";
+import {join} from "node:path";
+import {extractSmnEncryptedZip} from "../src/server/backup/portable-zip-reader";
 import {wrapEncryptedBackupInZip} from "../src/server/backup/portable-zip";
 const id="39b6262d-5f27-4bf8-a005-701dfd9cd9a2";
 test("SMN-441: exports a standard single-file ZIP with encrypted TAR.GZ payload",async()=>{
@@ -26,3 +30,25 @@ test("SMN-441: exports a standard single-file ZIP with encrypted TAR.GZ payload"
 test("SMN-441: rejects untrusted filenames",()=>assert.throws(
  ()=>wrapEncryptedBackupInZip(Readable.from([]),"../../evil"),/archive-invalid/
 ));
+
+test("SMN-442: uploads the matching ZIP and rejects changed member bytes",async()=>{
+ const root=await mkdtemp(join(tmpdir(),"smn-zip-test-"));
+ const file=join(root,"in.zip"),target=join(root,"inner.tar.gz");
+ try{
+  const chunks:Buffer[]=[];
+  const payload=Buffer.from("encrypted-test-bytes-with-enough-length");
+  for await(const part of wrapEncryptedBackupInZip(Readable.from([payload]),id))
+   chunks.push(Buffer.from(part));
+  const zipped=Buffer.concat(chunks);
+  await writeFile(file,zipped);
+  const verified=await extractSmnEncryptedZip(file,target);
+  assert.equal(verified.archiveId,id);
+  assert.deepEqual(await readFile(target),payload);
+  await rm(target);
+  const changed=Buffer.from(zipped);
+  const index=30+Buffer.byteLength("SMN-backup-"+id+".tar.gz");
+  changed[index]^=1;
+  await writeFile(file,changed);
+  await assert.rejects(extractSmnEncryptedZip(file,target),/checksum-invalid/);
+ }finally{await rm(root,{recursive:true,force:true});}
+});
