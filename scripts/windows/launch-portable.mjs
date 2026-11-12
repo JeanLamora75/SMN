@@ -15,8 +15,28 @@ const maintenanceMarker=process.env.SMN_RESTORE_MAINTENANCE_MARKER;
 async function maintenanceBlocked(){
  return launcherMaintenanceBlocked(maintenanceMarker,root,process.env.SMN_BACKUP_DIR);
 }
-// Do not perform update recovery or start a child while maintenance is active.
-if(await maintenanceBlocked())throw Error("SMN maintenance externe active : démarrage refusé.");
+async function recoverGuiMigration(){
+ const file=path.join(root,"app","maintenance","migration","smn-gui-offline-recover.mjs");
+ if(!existsSync(file))return 2;
+ const child=spawn(process.execPath,[file],{
+  cwd:root,stdio:"inherit",windowsHide:false,shell:false
+ });
+ return new Promise(resolve=>{
+  child.on("error",()=>resolve(2));
+  child.on("exit",code=>resolve(code??2));
+ });
+}
+// Recover a confirmed, interrupted migration before any web server launch.
+// Refuse to guess the state of the previous database if journal proofs fail.
+const guiPending=path.join(root,"updates","migration-pending.json");
+const guiLock=path.join(root,"updates","restore-maintenance.lock");
+if(existsSync(guiPending)&&(existsSync(guiLock)||
+ existsSync(path.join(root,"updates","migration-status.json")))){
+ const result=await recoverGuiMigration();
+ if(result!==0)throw Error("SMN restauration interrompue : données protégées, reprise automatique non qualifiée.");
+}
+if(await maintenanceBlocked())
+ throw Error("SMN maintenance externe active : démarrage refusé.");
 const server=path.join(root,"app","server.js");
 const updates=path.join(root,"updates");
 // Never launch an uncertain application after an interrupted file exchange.
@@ -153,8 +173,11 @@ if(alreadyRunning){
    if(result!==0){
     console.error("Restauration interrompue : vérification du retour arrière.");
     if(await maintenanceBlocked()||existsSync(migrationPending)){
-     console.error("SMN protégé : intervention de récupération nécessaire.");
-     shuttingDown=true;process.exitCode=2;break;
+     const recovered=await recoverGuiMigration();
+     if(recovered!==0||await maintenanceBlocked()||existsSync(migrationPending)){
+      console.error("SMN protégé : reprise automatique impossible, données conservées.");
+      shuttingDown=true;process.exitCode=2;break;
+     }
     }
    }else console.log("Restauration vérifiée ; nouvelle authentification nécessaire.");
    continue;
