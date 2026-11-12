@@ -376,8 +376,15 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
    name:"Révision périmée",revision:0
   });
   assert.equal(renameConflict.status,409);
-  const referenceImpact=await callSettingsApi(page,"/api/admin/countries/DE/lifecycle","GET");
-  assert.equal(referenceImpact.status,200);
+  let referenceImpact=await callSettingsApi(page,"/api/admin/countries/DE/lifecycle","GET");
+  if(referenceImpact.status===404){
+   const countryFixture=await callSettingsApi(page,"/api/admin/countries","POST",{
+    code:"DE",name:"Allemagne"
+   });
+   assert.equal(countryFixture.status,201,"Le pays de référence doit être matérialisé pour le scénario");
+   referenceImpact=await callSettingsApi(page,"/api/admin/countries/DE/lifecycle","GET");
+  }
+  assert.equal(referenceImpact.status,200,JSON.stringify(referenceImpact.payload));
   const referenceRevision=(referenceImpact.payload as {impact:{country:{revision:number}}}).impact.country.revision;
   const cannotArchiveReference=await callSettingsApi(page,"/api/admin/countries/DE/lifecycle","POST",{
    action:"archive",confirmed:true,revision:referenceRevision
