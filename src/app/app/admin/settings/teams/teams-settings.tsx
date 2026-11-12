@@ -1,5 +1,5 @@
 "use client";
-import {useCallback,useEffect,useState,type FormEvent} from "react";
+import {useCallback,useEffect,useMemo,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 
 type Team={
@@ -28,10 +28,14 @@ export default function TeamsSettings(){
  const [saving,setSaving]=useState(false);
  const [error,setError]=useState("");
  const [notice,setNotice]=useState("");
+ const [query,setQuery]=useState("");
+ const [stateFilter,setStateFilter]=useState<"all"|"active"|"archived">("all");
  const current=items.find(team=>team.id===selected)??null;
  const initial=current?valuesFrom(current):blank;
  const dirty=!same(initial,values);
  const hasName=values.name.trim().length>0;
+ const shown=useMemo(()=>items.filter(item=>(stateFilter==="all"||(stateFilter==="active"?!item.isArchived:item.isArchived))&&
+  (!query.trim()||[item.name,item.productName??""].some(value=>value.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())))),[items,query,stateFilter]);
  const requestList=useCallback(async()=>{
   setLoading(true);setError("");
   try{
@@ -70,7 +74,8 @@ export default function TeamsSettings(){
  async function toggleArchived(){
   if(!current||saving||loading||!canWrite)return;
   const archived=!current.isArchived;
-  if(!window.confirm(archived?"Archiver cette équipe ? Elle restera consultable et pourra être réactivée.":"Réactiver cette équipe ?"))return;
+  if(dirty&&!window.confirm(t("teamSettings.confirmDiscard")))return;
+  if(!window.confirm(t(archived?"settingsCollections.archiveTeamConfirm":"settingsCollections.reactivateTeamConfirm")))return;
   setSaving(true);setError("");setNotice("");
   try{
    const response=await fetch("/api/admin/teams",{
@@ -79,7 +84,7 @@ export default function TeamsSettings(){
    });
    const data=await response.json() as Response;
    if(!response.ok||!data.ok){
-    setError(data.error==="last-active-team"?"La dernière équipe active ne peut pas être archivée.":t("teamSettings.saveFailed"));
+    setError(data.error==="last-active-team"?t("settingsCollections.lastActiveTeam"):t("teamSettings.saveFailed"));
     return;
    }
    setSelected(null);setValues(blank);
@@ -113,9 +118,9 @@ export default function TeamsSettings(){
      code==="forbidden"?"teamSettings.denied":
      code==="schema-not-ready"?"teamSettings.unavailable":
      "teamSettings.saveFailed"));
-    if(code==="has-cycles")setError("Ce mode ne peut plus être modifié : au moins un cycle a été créé pour cette équipe.");
-    if(code==="archived-team")setError("Réactivez cette équipe avant de modifier son mode Agile.");
-    if(code==="service-unavailable")setError("Erreur serveur lors de la modification de l’équipe (HTTP "+res.status+"). Consultez le terminal SMN : teams-edit-unavailable.");
+    if(code==="has-cycles")setError(t("settingsCollections.hasCycles"));
+    if(code==="archived-team")setError(t("settingsCollections.archivedTeam"));
+    if(code==="service-unavailable")setError(t("settingsCollections.teamServiceUnavailable",{status:res.status}));
     return;
    }
    // Rafraîchir la liste, sans modifier l'équipe active dans le shell.
@@ -140,16 +145,30 @@ export default function TeamsSettings(){
      onClick={()=>changeTeam(null)} disabled={saving||loading}>
      {t("teamSettings.newTeam")}
     </button>
+    <div className="d-grid gap-2 mb-3">
+     <label className="form-label mb-0">{t("settingsCollections.searchTeams")}
+      <input type="search" className="form-control mt-1" value={query} onChange={event=>setQuery(event.target.value)} disabled={loading} />
+     </label>
+     <label className="form-label mb-0">{t("settingsCollections.filterStatus")}
+      <select className="form-select mt-1" value={stateFilter} onChange={event=>setStateFilter(event.target.value as "all"|"active"|"archived")} disabled={loading}>
+       <option value="all">{t("settingsCollections.all")}</option>
+       <option value="active">{t("settingsCollections.active")}</option>
+       <option value="archived">{t("settingsCollections.archived")}</option>
+      </select>
+     </label>
+     {!loading&&<p role="status" aria-live="polite" className="small text-secondary mb-0">{t("settingsCollections.results",{count:shown.length,total:items.length})}</p>}
+    </div>
     {loading?<p role="status">{t("teamSettings.loading")}</p>:
      items.length===0?<p className="text-secondary">{t("teamSettings.noTeams")}</p>:
+     shown.length===0?<div role="status"><p className="text-secondary">{t("settingsCollections.noMatches")}</p><button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>{setQuery("");setStateFilter("all");}}>{t("settingsCollections.reset")}</button></div>:
      <ul className="list-group" aria-label={t("teamSettings.select")}>
-      {items.map(item=><li className="list-group-item p-0" key={item.id}>
+      {shown.map(item=><li className="list-group-item p-0" key={item.id}>
        <button type="button" className={"btn w-100 text-start rounded-0 py-3 "+
         (selected===item.id?"fw-semibold bg-body-tertiary":"")}
         aria-current={selected===item.id?"true":undefined}
         disabled={saving} onClick={()=>changeTeam(item.id)}>
         <span className="d-block">{item.name}</span>
-        <span className="small text-secondary">{item.productName??t("teamSettings.noProduct")} · {item.agileMode==="kanban"?"Kanban":"Scrum"} {item.isArchived?"· Archivée":""}</span>
+        <span className="small text-secondary">{item.productName??t("teamSettings.noProduct")} · {item.agileMode==="kanban"?"Kanban":"Scrum"} {item.isArchived?" · "+t("settingsCollections.archived"):""}</span>
        </button>
       </li>)}
      </ul>}
@@ -166,7 +185,7 @@ export default function TeamsSettings(){
     </p>}
     {notice&&<p className="alert alert-success" role="status">{notice}</p>}
     {error&&<p className="alert alert-warning" role="alert">{error}</p>}
-    {current&&<div className="d-flex justify-content-end mb-3"><button type="button" className="btn btn-outline-secondary" disabled={saving||!canWrite} onClick={()=>void toggleArchived()}>{current.isArchived?"Réactiver l’équipe":"Archiver l’équipe"}</button></div>}
+    {current&&<div className="d-flex justify-content-end mb-3"><button type="button" className="btn btn-outline-secondary" disabled={saving||!canWrite} onClick={()=>void toggleArchived()}>{t(current.isArchived?"settingsCollections.reactivateTeam":"settingsCollections.archiveTeam")}</button></div>}
     <form className="d-grid gap-3" data-smn-unsaved-changes={dirty?"true":"false"}
      onSubmit={event=>void submit(event)}>
      <div>
