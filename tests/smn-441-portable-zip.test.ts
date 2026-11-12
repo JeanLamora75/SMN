@@ -6,6 +6,7 @@ import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {extractSmnEncryptedZip} from "../src/server/backup/portable-zip-reader";
 import {wrapEncryptedBackupInZip} from "../src/server/backup/portable-zip";
+import {wrapPortableTransferZip} from "../src/server/backup/portable-transfer-zip";
 const id="39b6262d-5f27-4bf8-a005-701dfd9cd9a2";
 test("SMN-441: exports a standard single-file ZIP with encrypted TAR.GZ payload",async()=>{
  const payload=Buffer.from("encrypted-test-bytes");
@@ -50,5 +51,28 @@ test("SMN-442: uploads the matching ZIP and rejects changed member bytes",async(
   changed[index]^=1;
   await writeFile(file,changed);
   await assert.rejects(extractSmnEncryptedZip(file,target),/checksum-invalid/);
+ }finally{await rm(root,{recursive:true,force:true});}
+});
+
+test("SMN-441/442: complete transfer ZIP preserves a signed receipt and encrypted ledger",async()=>{
+ const root=await mkdtemp(join(tmpdir(),"smn-transfer-v2-"));
+ const input=join(root,"transfer.zip"),output=join(root,"payload.tar.gz");
+ try{
+  const payload=Buffer.from("encrypted tar gzip content represents v4 backup");
+  const receipt=Buffer.from('{"purpose":"frozen-current-state-migration","mac":"secret"}');
+  const ledger=Buffer.from('{"purpose":"migration-erasure-evidence","ciphertext":"protected"}');
+  const parts:Buffer[]=[];
+  for await(const part of wrapPortableTransferZip(
+   Readable.from([payload]),id,[
+    {name:"migration-receipt.json",data:receipt},
+    {name:"privacy-ledger.enc",data:ledger}
+   ]))parts.push(Buffer.from(part));
+  await writeFile(input,Buffer.concat(parts));
+  const result=await extractSmnEncryptedZip(input,output);
+  assert.equal(result.archiveId,id);
+  assert.equal(result.hasTransferEvidence,true);
+  assert.deepEqual(await readFile(output),payload);
+  assert.deepEqual(await readFile(result.receiptPath!),receipt);
+  assert.deepEqual(await readFile(result.ledgerPath!),ledger);
  }finally{await rm(root,{recursive:true,force:true});}
 });
