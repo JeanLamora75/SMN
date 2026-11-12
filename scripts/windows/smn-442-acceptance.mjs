@@ -29,6 +29,7 @@ const targetSetupPass="DestinationInitialCI2026!";
 const targetPass="DestinationOnlyCI2026!";
 const phrase="SyntheticRecoveryPhraseForSMN4422026!";
 let launcher=null,admin=null,ownerUri=null;
+let launcherDiagnostics=[];
 const log=[];
 const emit=(s)=>{log.push(s);process.stdout.write("SMN442 acceptance: "+s+"\n");};
 const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
@@ -71,7 +72,13 @@ async function start(env){
   cwd:root,env,windowsHide:true,stdio:["ignore","pipe","pipe"]});
  let tail="";
  for(const stream of [launcher.stdout,launcher.stderr])
-  stream?.on("data",bytes=>{tail=(tail+bytes.toString()).slice(-2800);});
+  stream?.on("data",bytes=>{
+   tail=(tail+bytes.toString()).slice(-2800);
+   for(const code of bytes.toString().match(
+    /(?:gui|migration|portable|backup|privacy|restore|cutover|rollback|smn442)-[a-z0-9-]+/g)??[])
+    launcherDiagnostics.push(code);
+   launcherDiagnostics=launcherDiagnostics.slice(-25);
+  });
  await waitFor(async()=>{
   if(launcher.exitCode!==null)
    throw Error("Launcher exited: "+launcher.exitCode+" "+tail);
@@ -246,7 +253,11 @@ async function waitOutcome(token,expected,limit=360000){
   if(!existsSync(file))return false;
   const status=JSON.parse(await readFile(file,"utf8"));
   if(status.token!==token)return false;
-  if(status.stage==="incident")throw Error("Migration left unsafe incident fence");
+  if(status.stage==="incident")throw Error("Migration left unsafe incident fence "+
+   launcherDiagnostics.slice(-10).join(","));
+  if(expected==="complete"&&["failed","rolled-back"].includes(status.stage))
+   throw Error("Successful restore rejected safely at stage "+status.stage+
+    " codes "+launcherDiagnostics.slice(-12).join(","));
   if(expected==="failed"&&["failed","rolled-back"].includes(status.stage)){
    const result=await readdir(join(root,"updates"));
    return result.some(n=>n.startsWith("migration-pending.failed-"+token));
