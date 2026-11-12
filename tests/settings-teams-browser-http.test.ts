@@ -11,7 +11,7 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),"..");
 const require=createRequire(import.meta.url);
 const esbuild=require(createRequire(require.resolve("tsx/package.json")).resolve("esbuild"));
 const original={id:"team-one",name:"Équipe Alpha",agileMode:"scrum",isArchived:false,
- canChangeMode:true,productName:"Produit initial",vision:null,productGoal:null,revision:3};
+ canChangeMode:true,productName:"Produit initial" as string|null,vision:null as string|null,productGoal:null as string|null,revision:3};
 
 async function bundle(){
  const entry=`
