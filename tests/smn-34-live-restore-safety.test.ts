@@ -48,6 +48,27 @@ test("SMN-34 / SMN-40: archive ancienne, registre non ancré et historique lacun
   latestErasureAt:"2026-11-10T08:30:00.000Z"} as const;
  assert.ok(assessOfflineRestoreActivation(preview,erased,offline).blockers.includes("previously-erased-data"));
 });
+test("SMN-34: chaque preuve offline manquante déclenche son blocage précis",()=>{
+ const trusted={...privacy,completeHistory:true} as const;
+ const expected:Record<keyof typeof offline,string>={
+  sandboxRehearsed:"sandbox-rehearsal-incomplete",
+  sourceCheckpointVerified:"source-checkpoint-missing",
+  allManagedFileVersionsStaged:"managed-files-not-staged",
+  restorationManifestVerified:"file-manifest-unverified",
+  appTrafficDrained:"live-traffic-not-drained",
+  sessionStoreReplaced:"sessions-not-invalidated",
+  databaseCutoverJournalVerified:"cutover-journal-unverified",
+  rollbackDatabaseRetained:"rollback-database-unverified"
+ };
+ const allowed=assessOfflineRestoreActivation(preview,trusted,offline);
+ assert.deepEqual(allowed,{eligible:true,blockers:[]},
+  "Complete synthetic evidence should allow eligibility, but never execute a restore");
+ for(const [key,code] of Object.entries(expected)){
+  const missing={...offline,[key]:false};
+  const verdict=assessOfflineRestoreActivation(preview,trusted,missing);
+  assert.deepEqual(verdict,{eligible:false,blockers:[code]},key);
+ }
+});
 test("SMN-34: aucun attribut navigateur ni environnement ne désactive les prérequis offline",()=>{
  for(const key of Object.keys(offline) as (keyof typeof offline)[]){
   const evidence={...offline,[key]:false};
