@@ -14,6 +14,8 @@ on:
       - "tests/smn-40-fresh-destination-readiness.test.ts"
       - "tests/smn-40-fresh-install-cutover.test.ts"
       - "tests/smn-40-fresh-cutover-journal.test.ts"
+      - "tests/settings-ux-harmonization.test.ts"
+      - "tests/settings-collection-filter.test.ts"
       - "tests/settings-cockpit-ux.test.ts"
       - "tests/smn-224-settings-portal.test.ts"
       - "tests/smn-227-settings-navigation.test.ts"
@@ -61,6 +63,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+      - name: Verrouiller le commit source et nettoyer les livrables préexistants
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ((git rev-parse HEAD).Trim() -ne $env:GITHUB_SHA) { throw 'Commit du checkout différent du commit de livraison' }
+          foreach ($p in @('.next', '_package', 'out', 'dist')) {
+            if (Test-Path $p) { Remove-Item -LiteralPath $p -Recurse -Force }
+          }
+          if (Test-Path '_package/SMN-Windows') { throw 'Ancien paquet réutilisé : interdit' }
+          Write-Host "Source neuve : $env:GITHUB_SHA"
       - name: Installer les dépendances Windows en dossiers physiques
         # Le build pilote autonome nécessite des fichiers copiables, pas les
         # jonctions Windows générées par le linker pnpm du poste de CI.
@@ -69,6 +81,8 @@ jobs:
         run: node --test tests/distribution-layout.test.mjs tests/distribution-package-policy.test.mjs
       - name: Non-régression migration inter-PC et retour arrière
         run: npx tsx --test tests/smn-40-fresh-destination-readiness.test.ts tests/smn-40-fresh-install-cutover.test.ts tests/smn-40-fresh-cutover-journal.test.ts tests/epic2-lot5-session-reset.test.ts tests/epic2-lot5-maintenance.test.ts tests/epic2-lot9-maintenance-reset.test.ts tests/smn-34-windows-launch-maintenance.test.ts
+      - name: Contrat Paramètres V2 — UX validée et corrections récentes
+        run: npx tsx --test tests/settings-cockpit-ux.test.ts tests/settings-ux-harmonization.test.ts tests/settings-collection-filter.test.ts tests/smn-224-settings-portal.test.ts tests/smn-227-settings-navigation.test.ts tests/smn-229-settings-relocation.test.ts
       - name: Contrats installation PostgreSQL hors ligne
         run: node --test tests/postgres-offline-install.test.mjs
       - name: Preuve de transport Windows sans dépendances
@@ -85,6 +99,14 @@ jobs:
         env:
           SMN_UPDATE_SIGNING_KEY_PEM_B64: ${{ secrets.SMN_UPDATE_SIGNING_KEY_PEM_B64 }}
         run: node scripts/windows/package-portable.mjs
+      - name: Attester que le ZIP contient le code du dernier commit
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = Get-Content '_package/SMN-Windows/app/distribution-version.json' -Raw | ConvertFrom-Json
+          if ($version.sourceCommit -ne $env:GITHUB_SHA) { throw 'Distribution construite depuis un ancien commit' }
+          $current = (git rev-parse HEAD).Trim()
+          if ($current -ne $env:GITHUB_SHA) { throw 'Checkout modifié pendant le build' }
       - name: Contrôler le lancement autonome du paquet
         run: node scripts/windows/verify-package.mjs
       - name: Analyser les fichiers distribués avec Microsoft Defender
