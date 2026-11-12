@@ -276,12 +276,14 @@ try{
  emit("Clean isolated package copied; all writes confined to "+sandbox);
  await start({...commonEnv(),SMN_BACKUP_DIR:join(sandbox,"source-backups")});
  await setup();
+  await finishOnboarding("admin",sourceSetupPass,sourcePass);
  await installPrivacy();
  const {zip}=await saveSourceBackup();
  await stop();
  const {pgInfo,sourceDb}=await switchToDestination();
  await admin.end();admin=null;
  await start({...commonEnv(),SMN_GUI_E2E_FAIL_AFTER_PROMOTION:"1"});
+  await finishOnboarding("destination-ci",targetSetupPass,targetPass);
  const first=await importToDestination(zip);
  await waitOutcome(first,"failed");
  await verifyDestinationIdentity("destination");
