@@ -42,4 +42,32 @@ describe("SMN-33 — prévisualisation de restauration non destructive",()=>{
   assert.ok(evaluatePreview(valid,{...current,documentCount:null},now)
    .includes("current-documents-unavailable"));
  });
+ it("distingue précisément une archive récente de la limite des 60 secondes",()=>{
+  const exactlyNow={...valid,createdAt:now.toISOString(),documentCount:0};
+  assert.deepEqual(evaluatePreview(exactlyNow,{...current,documentCount:0},now),
+   ["privacy-not-cleared"],"Une archive récente ne doit jamais déclencher une fausse alerte de perte");
+  const threshold=new Date(now.getTime()-60_000).toISOString();
+  assert.deepEqual(evaluatePreview({...exactlyNow,createdAt:threshold},
+   {...current,documentCount:0},now),["privacy-not-cleared"]);
+  const stale=new Date(now.getTime()-60_001).toISOString();
+  assert.deepEqual(evaluatePreview({...exactlyNow,createdAt:stale},
+   {...current,documentCount:0},now),["snapshot-older","privacy-not-cleared"]);
+ });
+ it("ne confond pas compatibilité des versions mineures et majeures PostgreSQL",()=>{
+  const recent={...valid,createdAt:now.toISOString(),documentCount:0};
+  assert.deepEqual(evaluatePreview({...recent,postgresVersion:"18.9"},
+    {...current,documentCount:0},now),["privacy-not-cleared"]);
+  assert.deepEqual(evaluatePreview({...recent,postgresVersion:"17.9"},
+    {...current,documentCount:0},now),["postgres-incompatible","privacy-not-cleared"]);
+ });
+ it("signale une source absente et refuse toute archive non vérifiée sans permettre la restauration",()=>{
+  const recent={...valid,createdAt:now.toISOString()};
+  assert.deepEqual(evaluatePreview({...recent,status:"invalid",integrityVerified:false,
+   installationSource:null,applicationVersion:null,postgresVersion:null},
+   {...current,documentCount:0},now),[
+    "archive-not-verified","source-unconfirmed","postgres-incompatible",
+    "application-incompatible","privacy-not-cleared"
+   ]);
+ });
+
 });
