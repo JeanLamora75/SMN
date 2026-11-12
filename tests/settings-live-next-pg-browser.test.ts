@@ -307,6 +307,42 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   assert.equal(afterRetry.reference_country,"CA");
   assert.equal(afterRetry.revision,4);
 
+
+  // La réponse disparaît APRES le COMMIT : le client doit rester conservateur.
+  await page.select("#country","DE");
+  const responseInterceptor=await page.createCDPSession();
+  let responsesDropped=0;
+  try{
+   await responseInterceptor.send("Fetch.enable",{patterns:[
+    {urlPattern:"*api/admin/settings",requestStage:"Response"}
+   ]});
+   responseInterceptor.on("Fetch.requestPaused",(event:{requestId:string;responseStatusCode?:number})=>{
+    if(event.responseStatusCode!==undefined){
+     responsesDropped++;
+     void responseInterceptor.send("Fetch.failRequest",{
+      requestId:event.requestId,errorReason:"ConnectionClosed"
+     }).catch(()=>undefined);
+    }
+   });
+   await page.click("form button[type=submit]");
+   await page.waitForSelector("#settings-feedback[role=alert]",{timeout:15000});
+   assert.equal(responsesDropped,1,"Une seule réponse doit avoir été perdue");
+  }finally{
+   await responseInterceptor.send("Fetch.disable");
+   await responseInterceptor.detach();
+  }
+  const afterLostResponse=await db(target.toString(),async client=>(await client.query(
+   "SELECT reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'")).rows[0]);
+  assert.equal(afterLostResponse.reference_country,"DE");
+  assert.equal(afterLostResponse.revision,5,
+   "Le COMMIT serveur peut réussir même quand le navigateur perd sa réponse");
+  await page.click("form button[type=submit]");
+  await page.waitForSelector("#settings-feedback[role=alert]",{timeout:15000});
+  const afterStaleRetry=await db(target.toString(),async client=>(await client.query(
+   "SELECT reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'")).rows[0]);
+  assert.deepEqual(afterStaleRetry,afterLostResponse,
+   "Une nouvelle tentative sur la même révision ne doit jamais réécrire la modification");
+
   // Simuler une panne brutale du vrai processus Next, pas seulement son lanceur.
   const previousCookies=await page.cookies();
   assert.ok(previousCookies.length>0);
@@ -327,7 +363,7 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
    args:["--no-sandbox","--disable-dev-shm-usage","--no-first-run"]});
   const afterRestart=await db(target.toString(),async client=>(await client.query(
    "SELECT reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'")).rows[0]);
-  assert.deepEqual(afterRestart,afterRetry,"L'état validé doit survivre au redémarrage");
+  assert.deepEqual(afterRestart,afterStaleRetry,"L'état validé doit survivre au redémarrage");
   assert.equal((await fetch(origin+"/api/admin/settings")).status,403);
   const resumed=await browser.newPage();
   await resumed.setCookie(...previousCookies);
