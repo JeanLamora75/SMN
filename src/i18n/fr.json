@@ -4755,6 +4755,16 @@
       "amber": "Ambre",
       "orange": "Orange",
       "red": "Rouge"
+    },
+    "errors": {
+      "invalidInput": "Les informations saisies sont invalides.",
+      "duplicateName": "Une entreprise porte déjà ce nom.",
+      "notFound": "Cette entreprise n’existe plus. Actualisez la liste.",
+      "conflict": "L’entreprise a été modifiée entre-temps. Actualisez la liste.",
+      "alreadyArchived": "Cette entreprise est déjà archivée.",
+      "alreadyActive": "Cette entreprise est déjà active.",
+      "forbidden": "Vous n’avez pas les droits nécessaires.",
+      "serviceUnavailable": "Le service des entreprises est temporairement indisponible."
     }
   },
   "settingsCollections": {
