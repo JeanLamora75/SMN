@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useMemo,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
+import {filterSettingsCeremonies} from "@/lib/settings-collection-filter";
 import {IconPicker} from "../../icon-picker";
 import {SMNIcon} from "../../smn-icon";
 import {ceremonyIconColorHex,type CeremonyIconColor} from "@/lib/ceremony-appearance";
@@ -22,10 +23,7 @@ export default function TemplateForm(){
  const [message,setMessage]=useState("");
  const [query,setQuery]=useState("");
  const [stateFilter,setStateFilter]=useState<"all"|"active"|"inactive">("all");
- const filtered=useMemo(()=>rows.filter(row=>
-  (row.id===id)||((stateFilter==="all"||(stateFilter==="active"?row.active:!row.active))&&
-  (!query.trim()||row.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())))
- ),[rows,id,query,stateFilter]);
+ const filtered=useMemo(()=>filterSettingsCeremonies(rows,query,stateFilter,id),[rows,id,query,stateFilter]);
  const matchCount=filtered.filter(row=>row.id!==id||
   ((stateFilter==="all"||(stateFilter==="active"?row.active:!row.active))&&
   (!query.trim()||row.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())))).length;
