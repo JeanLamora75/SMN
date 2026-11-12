@@ -45,14 +45,18 @@ export async function POST(request:NextRequest){
   await rm(zip,{force:true});
   await writeFile(join(dir,token+".json"),JSON.stringify({
    version:1,archiveId:result.archiveId,encryptedBytes:result.size,
+   hasTransferEvidence:result.hasTransferEvidence,
    receivedAt:new Date().toISOString(),state:"awaiting-verification"
   }),{flag:"wx",mode:0o600});
   return jsonResult({state:"received",token,archiveId:result.archiveId,
+   hasTransferEvidence:result.hasTransferEvidence,
    verified:false,restorationAuthorized:false},201);
  }catch{
   await rm(partial,{force:true}).catch(()=>undefined);
   await rm(zip,{force:true}).catch(()=>undefined);
   await rm(tar,{force:true}).catch(()=>undefined);
+  await rm(tar+".receipt.json",{force:true}).catch(()=>undefined);
+  await rm(tar+".privacy.enc",{force:true}).catch(()=>undefined);
   return jsonResult({error:"migration-upload-refused"},422);
  }
 }
