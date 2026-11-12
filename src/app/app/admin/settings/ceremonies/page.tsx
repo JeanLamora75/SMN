@@ -27,7 +27,7 @@ export default async function CeremonyTemplatesSettingsPage(){
  const t=(key:Parameters<typeof translate>[1])=>translate(locale,key);
  return <SettingsPageShell title={t("settingsSprint.ceremoniesTitle")}
   description={t("settingsSprint.ceremoniesScope")}
-  eyebrow={t("settingsCatalog.navigation.adminEyebrow")} constrained>
+  eyebrow={t("settingsCatalog.navigation.adminEyebrow")}>
   <TemplateForm/>
  </SettingsPageShell>;
 }
