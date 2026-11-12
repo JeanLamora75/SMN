@@ -36,7 +36,8 @@ for(const name of [
  "smn-40-cross-pc-receipt",
  "smn-40-managed-candidate-prepare",
  "smn-40-fresh-install-activate",
- "smn-40-newpc-reconstruct"
+ "smn-40-newpc-reconstruct",
+ "smn-40-cutover-postcheck"
 ]){
  const file=path.join(root,"app","maintenance","migration",name+".mjs");
  assert.ok(existsSync(file),"Migration Windows autonome absente : "+name);
