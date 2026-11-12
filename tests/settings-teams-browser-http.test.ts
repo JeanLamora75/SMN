@@ -26,7 +26,7 @@ async function bundle(){
   stdin:{contents:entry,resolveDir:root,sourcefile:"teams-settings-browser-fixture.tsx",loader:"tsx"},
   bundle:true,format:"iife",platform:"browser",jsx:"automatic",write:false,
   plugins:[{name:"smn-src-alias",setup(build){
-   build.onResolve({filter:/^@\//},args=>({path:join(root,"src",args.path.slice(2))}));
+   build.onResolve({filter:/^@\//},args=>build.resolve(join(root,"src",args.path.slice(2)),{resolveDir:root,kind:args.kind}));
   }}],
   define:{"process.env.NODE_ENV":'"production"'},logLevel:"silent"
  });
@@ -37,7 +37,7 @@ test("Paramètres Équipes : sélection, édition, refus de conflit et sauvegard
  const detected=await detectChrome();
  assert.equal(detected.ok,true,"Chromium obligatoire pour le test interactif");
  const js=await bundle();
- const state={items:[{...original}],writes:[] as Array<{method:string;body:Record<string,unknown>}>,
+ const state={items:[{...original}] as Array<typeof original>,writes:[] as Array<{method:string;body:Record<string,unknown>}>,
   failNext:false,reads:0};
  const server=createServer(async(req,res)=>{
   const send=(code:number,value:unknown)=>{res.writeHead(code,{"Content-Type":"application/json"});res.end(JSON.stringify(value));};
