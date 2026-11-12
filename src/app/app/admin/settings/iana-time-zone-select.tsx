@@ -14,7 +14,7 @@ function zonesFor(value:string):string[]{
 type Props={id:string;label:string;value:string;onChange:(value:string)=>void;disabled?:boolean};
 export default function IanaTimeZoneSelect({id,label,value,onChange,disabled=false}:Props){
  const [zones,setZones]=useState<string[]>([]);
- useEffect(()=>{setZones(zonesFor(value));},[value]);
+ useEffect(()=>{let active=true;void Promise.resolve().then(()=>{if(active)setZones(zonesFor(value));});return()=>{active=false;};},[value]);
  const choices=zones.length?zones:(value?[value]:["UTC"]);
  return <div>
   <label htmlFor={id} className="form-label">{label}</label>
