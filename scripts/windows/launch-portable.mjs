@@ -112,7 +112,7 @@ if(alreadyRunning){
   let applying=false,restoring=false,polling=false;
   await heartbeat().catch(()=>{});
   const interval=setInterval(async()=>{
-   if(polling||shuttingDown||applying)return;
+   if(polling||shuttingDown||applying||restoring)return;
    polling=true;
    try{
     if(await maintenanceBlocked()){
@@ -143,7 +143,7 @@ if(alreadyRunning){
   if(child.exitCode===null)await new Promise(resolve=>child.once("exit",resolve));
   clearInterval(interval);webChild=null;
   if(shuttingDown)break;
-  if(!applying){
+  if(!applying&&!restoring){
    console.error("Le serveur SMN s'est arrêté de manière inattendue.");
    process.exitCode=1;
    break;
