@@ -14,7 +14,7 @@ export default async function GeneralSettingsPage(){
  const locale=await requestLocale();
  const t=(key:Parameters<typeof translate>[1])=>translate(locale,key);
  return <SettingsPageShell title={t("settings.title")} description={t("settings.intro")}
-  eyebrow={t("settingsCatalog.navigation.adminEyebrow")} constrained>
+  eyebrow={t("settingsCatalog.navigation.adminEyebrow")}>
   <SettingsForm/>
  </SettingsPageShell>;
 }
