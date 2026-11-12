@@ -17,9 +17,11 @@ function launch(marker:string,workingDir:string):Promise<{worker:ChildProcess;ur
  return new Promise((resolve,reject)=>{
   const worker=fork(fixture,[],{
    cwd:workingDir,execArgv:["--import",tsxLoader],
-   stdio:["ignore","ignore","ignore","ipc"],
+   stdio:["ignore","ignore","pipe","ipc"],
    env:{...process.env,SMN_RESTORE_MAINTENANCE_MARKER:marker}
   });
+  let childError="";
+  worker.stderr?.on("data",bytes=>{childError=(childError+String(bytes)).slice(-1600);});
   const timeout=setTimeout(()=>{
    worker.kill();
    reject(new Error("sandbox-worker-start-timeout"));
@@ -27,7 +29,7 @@ function launch(marker:string,workingDir:string):Promise<{worker:ChildProcess;ur
   worker.once("error",error=>{clearTimeout(timeout);reject(error);});
   worker.once("exit",code=>{
    clearTimeout(timeout);
-   reject(new Error("sandbox-worker-exited-before-ready:"+code));
+   reject(new Error("sandbox-worker-exited-before-ready:"+code+" "+childError));
   });
   worker.once("message",(message:unknown)=>{
    const ready=message as {ready?:boolean;port?:number};
