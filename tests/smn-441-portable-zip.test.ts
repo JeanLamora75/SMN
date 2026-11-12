@@ -36,7 +36,7 @@ test("SMN-442: uploads the matching ZIP and rejects changed member bytes",async(
  const file=join(root,"in.zip"),target=join(root,"inner.tar.gz");
  try{
   const chunks:Buffer[]=[];
-  const payload=Buffer.from("encrypted-test-bytes-with-enough-length");
+  const payload=Buffer.from("encrypted-test-bytes-with-enough-length-to-pass-the-minimum");
   for await(const part of wrapEncryptedBackupInZip(Readable.from([payload]),id))
    chunks.push(Buffer.from(part));
   const zipped=Buffer.concat(chunks);
