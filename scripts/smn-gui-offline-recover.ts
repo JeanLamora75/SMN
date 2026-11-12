@@ -9,6 +9,9 @@ import {readFile,lstat,readdir,rename} from "node:fs/promises";
 import {join} from "node:path";
 import {tmpdir} from "node:os";
 import {readFreshCutoverJournal} from "../src/server/backup/fresh-cutover-journal";
+import {comparePortableCurrentState,type SignedCurrentStateReceipt} from "../src/server/backup/current-state-transfer-receipt";
+import {readErasureLedger} from "../src/server/backup/erasure-ledger";
+import {ERASURE_GENESIS_MAC} from "../src/server/backup/erasure-evidence-format";
 import {inspectOfflineCutoverJournal} from "./smn-40-cutover-postcheck";
 import {rollbackVerifiedNewComputerCutover}
  from "../src/server/backup/fresh-cutover-rollback";
@@ -86,6 +89,50 @@ async function lastVerifiedJournal(job:Job,key:Buffer){
  if(matching.length>1)throw Error("gui-recovery-journal-ambiguous");
  return matching[0]??null;
 }
+/** Post-release recovery: both archived markers, signed journal and source
+ * fingerprints must agree. A status file by itself is never proof of cutover.
+ */
+async function verifyAlreadyReleased(job:Job,key:Buffer){
+ const archived=(await readdir(updates)).filter(name=>
+  /^restore-maintenance\\.released-[a-f0-9-]{36}\\.json$/.test(name));
+ if(archived.length!==1)return false;
+ const localPath=join(updates,archived[0]),localStat=await lstat(localPath);
+ if(!localStat.isFile()||localStat.isSymbolicLink()||
+  localStat.size<20||localStat.size>2048)return false;
+ const localRecord=JSON.parse(await readFile(localPath,"utf8")) as {
+  version?:number;purpose?:string;operationId?:string
+ };
+ if(localRecord.version!==1||localRecord.purpose!=="offline-restore"||
+  archived[0]!=="restore-maintenance.released-"+localRecord.operationId+".json")
+  return false;
+ const outside=join(tmpdir(),"smn-gui-restore-"+job.token+".marker.released-"+
+  localRecord.operationId);
+ const external=await lstat(outside).catch(()=>null);
+ if(!external||!external.isFile()||external.isSymbolicLink()||
+  external.size<20||external.size>2048)return false;
+ const outsideRecord=JSON.parse(await readFile(outside,"utf8")) as {
+  operationId?:string;purpose?:string
+ };
+ if(outsideRecord.operationId!==localRecord.operationId||
+  outsideRecord.purpose!=="offline-restore")return false;
+ const journal=await lastVerifiedJournal(job,key);
+ if(!journal)return false;
+ const receiptPath=join(root,"data","migration-inbox",
+  job.token+".tar.gz.receipt.json");
+ const stat=await lstat(receiptPath);
+ if(!stat.isFile()||stat.isSymbolicLink()||stat.size>8192)return false;
+ const receipt=JSON.parse(await readFile(receiptPath,"utf8"))
+  as SignedCurrentStateReceipt;
+ const now=await fingerprintDestination();
+ const ledger=await readErasureLedger();
+ return comparePortableCurrentState(receipt,key,{
+  archiveId:job.archiveId,databaseDigest:now.database,
+  filesDigest:now.files,filesCount:now.count,
+  ledgerCoverageStart:ledger.coverageStart,
+  ledgerHeadMac:ledger.markers.at(-1)?.mac??ERASURE_GENESIS_MAC,
+  ledgerCount:ledger.markers.length
+ }).currentStateMatched;
+}
 export async function recoverGuiOfflineRestore(){
  if(process.platform!=="win32"||process.env.SMN_DATABASE_URL||
   !await exists(pending))throw Error("gui-recovery-not-applicable");
@@ -103,7 +150,9 @@ export async function recoverGuiOfflineRestore(){
    // Never retry destructive work solely because a pending file remains.
    const state=JSON.parse(await readFile(join(updates,"migration-status.json"),
     "utf8")) as {stage?:string};
-   if(state.stage==="complete"){
+   if(["complete","promoted"].includes(state.stage??"")&&
+    await verifyAlreadyReleased(job,key)){
+    await status(job.token,"complete");
     await archivePending(job,"complete");
     return {state:"complete" as const,cutoverRetried:false as const};
    }
