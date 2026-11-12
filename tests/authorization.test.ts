@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { canAccess, protectedOperation, type AccessActor, type AccessResource } from "../src/server/access-policy";
 
 const actions = ["read", "write", "generate", "download"] as const;
-const resources = ["collective", "individual", "accounts", "settings", "audit", "documents", "backups"] as const;
+const resources = ["collective", "individual", "accounts", "settings", "audit", "documents", "backups", "members", "companies"] as const;
 const actor = (role: string): AccessActor => ({ role, is_active: true, must_change_password: false });
 const resource = (type: string): AccessResource => ({ type, exists: true, inScope: true, format: "PDF", userAuthorized: true });
 
@@ -12,9 +12,10 @@ for (const role of ["admin", "user", "unknown"]) {
   for (const type of resources) for (const action of actions) {
     test(`${role}: ${action} ${type}`, () => {
       const expected = role === "admin"
-        ? (type === "audit" ? action === "read" : !(type === "documents" && action === "generate"))
+        ? (type === "audit" ? action === "read" : type === "companies" ? (action === "read" || action === "write") : !(type === "documents" && action === "generate"))
         : role === "user" && ((type === "collective" && action === "read") ||
-          (type === "documents" && (action === "read" || action === "download")));
+          (type === "documents" && (action === "read" || action === "download")) ||
+          (type === "companies" && action === "read"));
       assert.equal(canAccess(actor(role), action, resource(type)), expected);
     });
   }
@@ -83,4 +84,32 @@ test("protected operation explicitly denies invalid inputs without invoking its 
       denied.action as Parameters<typeof protectedOperation>[1], denied.resource, read), { allowed: false });
     assert.equal(calls, before);
   }
+});
+
+test("company catalogue denies user writes and all generation/download actions",()=>{
+ const company=resource("companies");
+ for(const role of ["admin","user"]){
+  for(const action of actions){
+   const expected=action==="read"||(role==="admin"&&action==="write");
+   assert.equal(canAccess(actor(role),action,company),expected,role+" "+action);
+  }
+ }
+ for(const flag of ["exists","inScope"] as const){
+  assert.equal(canAccess(actor("admin"),"write",{...company,[flag]:false}),false);
+ }
+});
+test("denied async operations never invoke producers or expose their failures",async()=>{
+ let called=0;
+ const denied=await protectedOperation(actor("user"),"write",resource("backups"),async()=>{
+  called++;
+  throw new Error("data must not be reached");
+ });
+ assert.deepEqual(denied,{allowed:false});
+ assert.equal(called,0);
+ const permitted=await protectedOperation(actor("admin"),"read",resource("collective"),async()=>{
+  called++;
+  return {count:3};
+ });
+ assert.deepEqual(permitted,{allowed:true,data:{count:3}});
+ assert.equal(called,1);
 });
