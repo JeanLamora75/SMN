@@ -135,7 +135,8 @@ const migrationScripts=[
  "smn-40-cross-pc-receipt",
  "smn-40-managed-candidate-prepare",
  "smn-40-fresh-install-activate",
- "smn-40-newpc-reconstruct"
+ "smn-40-newpc-reconstruct",
+ "smn-40-cutover-postcheck"
 ];
 const migrationDir=path.join(appDir,"maintenance","migration");
 await mkdir(migrationDir,{recursive:true});
