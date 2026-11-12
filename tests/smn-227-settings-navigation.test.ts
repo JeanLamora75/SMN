@@ -43,7 +43,7 @@ describe("SMN-227 — centralisation des accès sans perte",()=>{
    const page=read("src/app/app/admin/"+path+"/page.tsx");
    assert.ok(page.includes('href="/app/admin/settings"')||page.includes('<SettingsPageShell'),path);
   }
-  assert.match(read("src/app/app/admin/settings/settings-page-shell.tsx"),/href="\\/app\\/admin\\/settings"/);
+  assert.ok(read("src/app/app/admin/settings/settings-page-shell.tsx").includes('href="/app/admin/settings"'));
   assert.ok(read("src/app/app/security/page.tsx").includes('account.role==="admin"'));
   assert.ok(read("src/app/app/admin/settings/general/page.tsx").includes("<SettingsForm/>"));
  });
