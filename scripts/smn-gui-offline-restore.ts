@@ -192,8 +192,8 @@ export async function runGuiOfflineRestore(){
   const key=await readFile(keyPath);
   try{
    const encrypted=JSON.parse(await readFile(ledgerPath,"utf8")) as unknown;
-   await installGuiPrivacyEvidence(encrypted,key,token);
    privacyInstalled=true;
+   await installGuiPrivacyEvidence(encrypted,key,token);
   }finally{key.fill(0);}
   phase="privacy-installed";await status(token,phase);
   process.env.SMN_BACKUP_DIR=work;
@@ -243,6 +243,11 @@ export async function runGuiOfflineRestore(){
     process.env.SMN40_ROLLBACK_OFFLINE_CONFIRM=
      "ROLLBACK_VERIFIED_NEWPC_CUTOVER";
     await rollbackVerifiedNewComputerCutover(journal,receiptPath);
+    const returned=await fingerprintDestination();
+    if(!beforeActivation||returned.database!==beforeActivation.database||
+     returned.files!==beforeActivation.files||
+     returned.count!==beforeActivation.count)
+     throw Error("gui-migration-rollback-fingerprint-mismatch");
     phase="rolled-back";
    }catch{phase="incident";}
   }
