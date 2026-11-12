@@ -1,4 +1,5 @@
-import {open,lstat,readFile} from "node:fs/promises";
+import {open,lstat,readFile,mkdir} from "node:fs/promises";
+import {join} from "node:path";
 import {isAbsolute,resolve,relative,sep} from "node:path";
 import {randomUUID} from "node:crypto";
 
@@ -29,7 +30,12 @@ export function restoreMaintenanceMarkerPath():string|null{
   throw Error("restore-maintenance-marker-unsafe");
  return value;
 }
+export function localRestoreMaintenanceLockPath():string{
+ return join(process.cwd(),"updates","restore-maintenance.lock");
+}
 export async function restoreMaintenanceActive():Promise<boolean>{
+ try{await lstat(localRestoreMaintenanceLockPath());return true;}
+ catch(error){if((error as NodeJS.ErrnoException).code!=="ENOENT")return true;}
  let path:string|null;
  try{path=restoreMaintenanceMarkerPath();}
  catch{return true;}
@@ -61,6 +67,16 @@ async function beginOfflineMaintenance(
   version:1,operationId:randomUUID(),createdAt:new Date().toISOString(),
   purpose
  };
+ const local=localRestoreMaintenanceLockPath();
+ await mkdir(join(process.cwd(),"updates"),{recursive:true,mode:0o700});
+ const dir=await lstat(join(process.cwd(),"updates"));
+ if(!dir.isDirectory()||dir.isSymbolicLink())
+  throw Error("restore-maintenance-local-dir-unsafe");
+ // Create the local fail-closed gate FIRST; an external marker write failure
+ // must not make a migration window accessible from the ordinary launcher.
+ const lock=await open(local,"wx",0o600);
+ try{await lock.writeFile(JSON.stringify(record));await lock.sync();}
+ finally{await lock.close();}
  const f=await open(path,"wx",0o600);
  try{await f.writeFile(JSON.stringify(record));await f.sync();}
  finally{await f.close();}
