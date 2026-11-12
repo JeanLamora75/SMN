@@ -23,6 +23,10 @@ on:
       - "_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql"
       - ".github/workflows/portable-package.yml"
   workflow_dispatch:
+# New pushes supersede obsolete packaging attempts on the same branch.
+concurrency:
+  group: smn-portable-package-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -85,7 +89,13 @@ jobs:
       - name: Analyser le ZIP final avec Microsoft Defender
         shell: pwsh
         run: ./scripts/windows/scan-distribution.ps1 -Stage zip -Target '_package/SMN-Setup-Windows-x64-v33.zip'
-      - uses: actions/upload-artifact@v4
+      # GitHub's artifact service can intermittently return HTML instead of
+      # its JSON API response. Retry once as a separate artifact. Do NOT mask
+      # an unavailable download: if neither upload succeeds the job fails.
+      - name: Publier la distribution Windows vérifiée
+        id: artifact_primary
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
         with:
           name: SMN-Distribution-Windows-x64-v33
           path: |
@@ -97,3 +107,29 @@ jobs:
           if-no-files-found: error
           retention-days: 14
           compression-level: 0
+      - name: Retenter la publication en cas d'erreur du service d'artefacts
+        id: artifact_retry
+        if: steps.artifact_primary.outcome == 'failure'
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: SMN-Distribution-Windows-x64-v33-retry
+          path: |
+            _package/SMN-Setup-Windows-x64-v33.zip
+            _package/SMN-Setup-Windows-x64-v33.zip.sha256
+            _package/SMN-Setup-Windows-x64-v33.zip.evidence.json
+            _package/smn-distribution-inventory.json
+            _package/smn-antivirus-report.json
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+      - name: Exiger une archive réellement publiée
+        if: always()
+        shell: pwsh
+        env:
+          PRIMARY: ${{ steps.artifact_primary.outcome }}
+          RETRY: ${{ steps.artifact_retry.outcome }}
+        run: |
+          if ($env:PRIMARY -ne 'success' -and $env:RETRY -ne 'success') {
+            throw 'Aucun ZIP Windows n a ete publie et confirme par GitHub Actions'
+          }
