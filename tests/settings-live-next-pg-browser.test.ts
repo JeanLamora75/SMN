@@ -143,6 +143,35 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   const countryInDb=await db(target.toString(),async client=>(await client.query(
    "SELECT name FROM public.smn_country WHERE code='BE'")).rows[0]);
   assert.equal(countryInDb?.name,"Belgique navigateur");
+  // Calendrier national : ajout manuel avec justification depuis le dialogue réel.
+  await page.evaluate(()=>{
+   const country=Array.from(document.querySelectorAll("table tbody tr"))
+    .find(row=>row.textContent?.includes("Belgique navigateur"));
+   (country?.querySelector("td button") as HTMLButtonElement|null)?.click();
+  });
+  await page.waitForSelector("#smn-country-modal-year",{timeout:15000});
+  await page.select("#smn-country-modal-year","2026");
+  await page.waitForSelector('[data-country-year="BE:2026"]',{timeout:15000});
+  await page.evaluate(()=>{
+   const section=document.querySelector('[data-country-year="BE:2026"]');
+   const button=Array.from(section?.querySelectorAll("button")??[])
+    .find(x=>x.classList.contains("btn-primary")&&x.textContent?.trim());
+   button?.click();
+  });
+  await page.waitForSelector("#smn-holiday-edit-date",{timeout:15000});
+  await page.$eval("#smn-holiday-edit-date",element=>{
+   const input=element as HTMLInputElement;
+   Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,"value")!.set!.call(input,"2026-05-12");
+   input.dispatchEvent(new Event("input",{bubbles:true}));
+  });
+  await page.type("#smn-holiday-edit-name","Journée de recette");
+  await page.type("#smn-holiday-edit-reason","Validation réelle du calendrier");
+  await page.click(".smn-country-holiday-editor button[type=submit]");
+  await page.waitForFunction(()=>!document.querySelector(".smn-country-holiday-editor"),{timeout:15000});
+  const holidayInDb=await db(target.toString(),async client=>(await client.query(
+   "SELECT name FROM public.smn_national_holiday WHERE country_code='BE' AND holiday_date='2026-05-12'")).rows[0]);
+  assert.equal(holidayInDb?.name,"Journée de recette");
+
 
   // La famille Utilisateurs teste le véritable formulaire et le registre SQL.
   const users=await page.goto(origin+"/app/admin/users",{waitUntil:"domcontentloaded"});
