@@ -6,8 +6,12 @@ test("launcher recovers interrupted migration before web app startup",()=>{
  const source=read("scripts/windows/launch-portable.mjs");
  assert.match(source,/guiPending=path\.join\(root,"updates","migration-pending\.json"\)/);
  assert.match(source,/recoverGuiMigration\(\)/);
- assert.ok(source.indexOf("const result=await recoverGuiMigration()")<
-  source.indexOf("const server=path.join(root,\"app\",\"server.js\")"));
+ const recovery="const result=await recoverGuiMigration()";
+ const server='const server=path.join(root,"app","server.js")';
+ assert.notEqual(source.indexOf(recovery),-1,"Launcher must recover before startup");
+ assert.notEqual(source.indexOf(server),-1,"Launcher must declare its server entry");
+ assert.ok(source.indexOf(recovery)<source.indexOf(server),
+  "Recovery must run before the application starts");
  assert.match(source,/await maintenanceBlocked\(\)/);
  assert.match(source,/shuttingDown=true;process\.exitCode=2;break/);
 });
