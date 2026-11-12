@@ -158,6 +158,31 @@ async function installPrivacy(){
  await writeFile(join(config,"privacy-ledger.key.enc"),encrypted);
  ledgerKey.fill(0);key.fill(0);
 }
+async function seedSyntheticTeamMembers(){
+ const portable=await ensurePg();
+ const databaseUrl=new URL(portable.uri);
+ databaseUrl.pathname="/smn";
+ const client=new Client({connectionString:databaseUrl.toString(),connectionTimeoutMillis:5000});
+ try{
+  await client.connect();
+  const teams=await client.query("SELECT id FROM public.smn_team ORDER BY id LIMIT 1");
+  assert.equal(teams.rows.length,1,"Source fixture must have one team");
+  await client.query("INSERT INTO public.smn_member_batch(id,installation_id,team_id,requested_count) VALUES($1,'singleton',$2,3)",
+   ["smn442-source-batch",teams.rows[0].id]);
+  for(const [number,name] of ["Camille Recette","Alex Morgan","Sophie Martin"].entries()){
+   await client.query("INSERT INTO public.smn_member(id,installation_id,batch_id,member_number,display_name,is_provisional) VALUES($1,'singleton',$2,$3,$4,false)",
+    ["smn442-member-"+(number+1),"smn442-source-batch",number+1,name]);
+  }
+  const members=await client.query("SELECT display_name FROM public.smn_member ORDER BY member_number");
+  assert.deepEqual(members.rows.map(row=>row.display_name),
+   ["Camille Recette","Alex Morgan","Sophie Martin"]);
+ }finally{
+  await client.end().catch(()=>{});
+  await portable.client.end().catch(()=>{});
+ }
+ emit("Synthetic team identities seeded in source before ZIP export");
+}
+
 async function saveSourceBackup(){
  const user=await login("admin",sourcePass);
  assert.equal(user.status,200,"Source login failed "+JSON.stringify(user.body));
@@ -338,6 +363,7 @@ try{
  await setup();
   await finishOnboarding("admin",sourceSetupPass,sourcePass);
  await installPrivacy();
+ await seedSyntheticTeamMembers();
  const {zip}=await saveSourceBackup();
  await stop();
  const {pgInfo,sourceDb}=await switchToDestination();
@@ -357,6 +383,15 @@ try{
  emit("Verified GUI restore, source account reauthentication and rollback retained");
  await stop();
  const maintenance=await ensurePg();
+ const restoredUri=new URL(maintenance.uri);restoredUri.pathname="/smn";
+ const restored=new Client({connectionString:restoredUri.toString(),connectionTimeoutMillis:5000});
+ try{
+  await restored.connect();
+  const names=await restored.query("SELECT display_name FROM public.smn_member ORDER BY member_number");
+  assert.deepEqual(names.rows.map(row=>row.display_name),
+   ["Camille Recette","Alex Morgan","Sophie Martin"],
+   "SMN-442 must preserve individual team member identities after cross-PC restoration");
+ }finally{await restored.end().catch(()=>{});}
  const back=await maintenance.client.query(
   "SELECT datname FROM pg_database WHERE datname LIKE 'smn_restore_test_back_%'");
  assert.equal(back.rows.length,1,"Old destination database not retained");
