@@ -2,6 +2,7 @@
 import {useEffect,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 type UploadResponse={token:string;archiveId:string;state:string};
+type ReadinessResponse={archiveId:string;restorationAuthorized:false;blockers:string[];destination:{initialized:boolean;schemaVersion:number;containsExistingTables:boolean}};
 type VerifiedResponse={state:string;archiveId:string;createdAt:string|null;
  schemaVersion:number;postgresVersion:string;documents:number;components:number};
 export default function MigrationImportAdmin(){
@@ -11,12 +12,13 @@ export default function MigrationImportAdmin(){
  const [progress,setProgress]=useState(0);
  const [result,setResult]=useState<UploadResponse|null>(null);
  const [verified,setVerified]=useState<VerifiedResponse|null>(null);
+ const [readiness,setReadiness]=useState<ReadinessResponse|null>(null);
  const [phrase,setPhrase]=useState("");
  const [message,setMessage]=useState("");
  const request=useRef<XMLHttpRequest|null>(null);
  useEffect(()=>()=>{request.current?.abort();},[]);
  const acceptFile=(next:File|null)=>{
-  setResult(null);setVerified(null);setPhrase("");setProgress(0);setMessage("");
+  setResult(null);setVerified(null);setReadiness(null);setPhrase("");setProgress(0);setMessage("");
   if(next&&(!next.name.toLowerCase().endsWith(".zip")||
    next.size<150||next.size>2*1024*1024*1024)){
    setFile(null);setMessage(t("backups.transfer.invalidFile"));return;
@@ -56,6 +58,11 @@ export default function MigrationImportAdmin(){
    const payload=await response.json() as VerifiedResponse;
    if(!response.ok||payload.state!=="verified-no-activation")throw Error("invalid");
    setVerified(payload);
+   const ready=await fetch("/api/admin/backups/migration/upload/readiness",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({token:result.token})
+   });
+   if(ready.ok)setReadiness(await ready.json() as ReadinessResponse);
   }catch{setMessage(t("backups.transfer.verificationFailed"));}
   finally{setPhrase("");setBusy(false);}
  };
@@ -95,6 +102,12 @@ export default function MigrationImportAdmin(){
    <p className="small mb-1">{t("backups.transfer.archive")}: {verified.archiveId}</p>
    <p className="small mb-1">{t("backups.schemaVersion")}: {verified.schemaVersion} — {t("backups.postgresVersion")}: {verified.postgresVersion}</p>
    <p className="small mb-0">{t("backups.transfer.notActivated")}</p>
+   {readiness&&<div className="mt-2">
+    <p className="fw-semibold mb-1">{t("backups.transfer.destinationTitle")}</p>
+    <p className="small mb-1">{readiness.destination.containsExistingTables?
+     t("backups.transfer.destinationExisting"):t("backups.transfer.destinationEmpty")}</p>
+    <ul className="small mb-0">{readiness.blockers.map(code=><li key={code}>{t(("backups.transfer.blockers."+code) as import("@/i18n/catalog").TranslationKey)}</li>)}</ul>
+   </div>}
   </div>}
   {message&&<p role="alert" className="alert alert-warning">{message}</p>}
   <p className="small text-secondary mb-0">{t("backups.transfer.safety")}</p>
