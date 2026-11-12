@@ -240,6 +240,65 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
    "SELECT role,is_active FROM public.smn_account WHERE username='testmember'")).rows[0]);
   assert.equal(member?.role,"user");assert.equal(member?.is_active,true);
 
+
+  // Permissions réelles : l'utilisateur lit le collectif, mais ne modifie aucun Paramètre.
+  const userId=await db(target.toString(),async client=>(await client.query(
+   "SELECT id FROM public.smn_account WHERE username='testmember'")).rows[0].id as string);
+  const selfId=await db(target.toString(),async client=>(await client.query(
+   "SELECT id FROM public.smn_account WHERE username='e2eadmin'")).rows[0].id as string);
+  const selfProtection=await callSettingsApi(page,"/api/admin/accounts/"+selfId,"PATCH",{
+   role:"user",isActive:true
+  });
+  assert.equal(selfProtection.status,409,"Un administrateur ne peut se rétrograder lui-même");
+  const userContext=await browser.createBrowserContext();
+  try{
+   const userPage=await userContext.newPage();
+   await userPage.goto(origin+"/login",{waitUntil:"domcontentloaded"});
+   const userLogin=await callSettingsApi(userPage,"/api/auth/login","POST",{
+    identity:"testmember",password:"Temporary-Member-2026"
+   });
+   assert.equal(userLogin.status,200,JSON.stringify(userLogin.payload));
+   const userChange=await callSettingsApi(userPage,"/api/auth/change-password","POST",{
+    currentPassword:"Temporary-Member-2026",newPassword:"Updated-Member-2026"
+   });
+   assert.equal(userChange.status,200,JSON.stringify(userChange.payload));
+   const collective=await callSettingsApi(userPage,
+    "/api/admin/registries/automatic-highlights","GET");
+   assert.equal(collective.status,200,"L'utilisateur doit pouvoir consulter le collectif");
+   for(const [url,method,body] of [
+    ["/api/admin/settings","GET",undefined],
+    ["/api/admin/settings","PATCH",{locale:"fr",theme:"light",palette:"ocean",
+     referenceCountry:"FR",revision:1}],
+    ["/api/admin/accounts","GET",undefined],
+    ["/api/admin/accounts","POST",{username:"forbidden",email:"forbidden@example.test",
+     password:"Blocked-2026",role:"admin"}],
+    ["/api/admin/countries/BE","PATCH",{name:"Modification interdite",revision:0}],
+    ["/api/admin/countries/BE/holidays","POST",{action:"delete",
+     originalDate:"2026-05-12",reason:"Interdit",expectedYears:{"2026":"0".repeat(64)}}],
+    ["/api/admin/sprints/templates","POST",{template:{name:"Interdit",frequency:"daily",
+     weekday:null,position:null,time:"09:00",duration:15}}],
+    ["/api/admin/registries/automatic-highlights","PATCH",{settings:[]}]
+   ] as Array<[string,string,unknown]>){
+    const denied=await callSettingsApi(userPage,url,method,body);
+    assert.equal(denied.status,403,"Interdiction obligatoire: "+method+" "+url);
+   }
+   const disabled=await callSettingsApi(page,"/api/admin/accounts/"+userId,"PATCH",{
+    role:"user",isActive:false
+   });
+   assert.equal(disabled.status,200,JSON.stringify(disabled.payload));
+   const revoked=await callSettingsApi(userPage,
+    "/api/admin/registries/automatic-highlights","GET");
+   assert.equal(revoked.status,403,"La désactivation doit révoquer immédiatement la session");
+   const blockedLogin=await callSettingsApi(userPage,"/api/auth/login","POST",{
+    identity:"testmember",password:"Updated-Member-2026"
+   });
+   assert.notEqual(blockedLogin.status,200,"Un utilisateur désactivé ne doit pas se reconnecter");
+  }finally{await userContext.close();}
+  const userAfter=await db(target.toString(),async client=>(await client.query(
+   "SELECT role,is_active FROM public.smn_account WHERE id=$1",[userId])).rows[0]);
+  assert.equal(userAfter.role,"user");
+  assert.equal(userAfter.is_active,false);
+
   // Les Registres exercent les contrôles réels, sans requête factice au serveur.
   const registries=await page.goto(origin+"/app/admin/settings/registries",{waitUntil:"domcontentloaded"});
   assert.equal(registries?.status(),200);
