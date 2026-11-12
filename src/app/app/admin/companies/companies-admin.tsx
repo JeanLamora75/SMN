@@ -42,7 +42,9 @@ export default function CompaniesAdmin(){
  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
 
  useEffect(()=>{
-  try{if(window.localStorage.getItem(VIEW_KEY)==="cards")setView("cards")}catch{/* Optional preference */}
+  void Promise.resolve().then(()=>{
+   try{if(window.localStorage.getItem(VIEW_KEY)==="cards")setView("cards")}catch{/* Optional preference */}
+  });
  },[]);
  const rows=useMemo(()=>items.filter(c=>
   (status==="all"||(status==="active"?!c.archivedAt:!!c.archivedAt))&&
@@ -95,6 +97,7 @@ export default function CompaniesAdmin(){
  }
  async function archive(company:Company){
   if(busy)return;
+  if(dirty&&!window.confirm(t("companiesAdmin.unsaved")))return;
   const action=company.archivedAt?"reactivate":"archive";
   if(!window.confirm(t(action==="archive"?"companiesAdmin.archiveConfirm":"companiesAdmin.reactivateConfirm")))return;
   setBusy(true);setError("");setMessage("");
