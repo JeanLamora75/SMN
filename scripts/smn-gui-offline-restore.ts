@@ -218,6 +218,10 @@ export async function runGuiOfflineRestore(){
   });
   journal=active.journalPath;
   phase="promoted";await status(token,phase);
+  // CI-only crash/rollback exercise. Not enabled in Windows distributions.
+  if(process.env.GITHUB_ACTIONS==="true"&&
+   process.env.SMN_GUI_E2E_FAIL_AFTER_PROMOTION==="1")
+   throw Error("smn-442-disposable-fault");
   await inspectOfflineCutoverJournal(journal,receiptPath);
   process.env.SMN40_RELEASE_OFFLINE_CONFIRM=
    "INDEPENDENT_SOURCE_RETIRED_AND_REAUTH_APPROVED";
