@@ -223,6 +223,46 @@ async function switchToDestination(){
  emit("Second initialized SMN installed, source DB preserved under "+name);
  return {sourceDb:name,pgInfo};
 }
+async function verifyRejectedInputsLeaveDestinationIntact(zip){
+ const user=await login("destination-ci",targetPass);
+ assert.equal(user.status,200,"Preflight: destination administrator unavailable");
+ const pending=join(root,"updates","migration-pending.json");
+ assert.equal(existsSync(pending),false,"Unexpected migration already scheduled");
+ const corrupted=Buffer.from(zip);
+ corrupted[0]^=0xff;
+ const invalid=await json("/api/admin/backups/migration/upload",{
+  method:"POST",headers:{Cookie:user.cookie,Origin:base,
+   "Content-Type":"application/zip","Content-Length":String(corrupted.length)},
+  body:corrupted,signal:AbortSignal.timeout(120000)});
+ assert.equal(invalid.r.status,422,"Corrupted ZIP must be refused");
+ assert.equal(invalid.body.error,"migration-upload-refused");
+ assert.equal(existsSync(pending),false,"Corrupted ZIP scheduled a migration");
+ const uploaded=await json("/api/admin/backups/migration/upload",{
+  method:"POST",headers:{Cookie:user.cookie,Origin:base,
+   "Content-Type":"application/zip","Content-Length":String(zip.length)},
+  body:zip,signal:AbortSignal.timeout(120000)});
+ assert.equal(uploaded.r.status,201,"Cannot upload disposable valid archive for rejection tests");
+ const token=uploaded.body.token;
+ const wrong=await api("/api/admin/backups/migration/upload/verify","POST",
+  {token,phrase:"IncorrectSyntheticRecoveryPhrase2026!"},user.cookie);
+ assert.equal(wrong.r.status,422,"Wrong recovery phrase must be rejected");
+ assert.equal(wrong.body.restorationAuthorized,false);
+ const notVerified=await api("/api/admin/backups/migration/restore","POST",
+  {token,confirm:"REPLACE_CURRENT_SMN_WITH_VERIFIED_BACKUP"},user.cookie);
+ assert.equal(notVerified.r.status,409,"Unverified archive must never schedule cutover");
+ assert.equal(existsSync(pending),false,"Rejected verification scheduled a migration");
+ const verified=await api("/api/admin/backups/migration/upload/verify","POST",
+  {token,phrase},user.cookie);
+ assert.equal(verified.r.status,200,"Correct phrase must remain usable after rejection");
+ const missingConsent=await api("/api/admin/backups/migration/restore","POST",
+  {token,confirm:"NOT_AUTHORIZED"},user.cookie);
+ assert.equal(missingConsent.r.status,400,"Missing exact operator consent must be rejected");
+ assert.equal(existsSync(pending),false,"Missing consent scheduled a migration");
+ const survivor=await login("destination-ci",targetPass);
+ assert.equal(survivor.status,200,"Rejected operations damaged destination identity");
+ emit("Verified malformed ZIP, wrong phrase, unverified restore and consent refusal with intact destination");
+}
+
 async function importToDestination(zip){
  const user=await login("destination-ci",targetPass);
  assert.equal(user.status,200,"Destination login failed "+JSON.stringify(user.body));
@@ -304,6 +344,7 @@ try{
  await admin.end();admin=null;
  await start({...commonEnv(),SMN_GUI_E2E_FAIL_AFTER_PROMOTION:"1"});
   await finishOnboarding("destination-ci",targetSetupPass,targetPass);
+ await verifyRejectedInputsLeaveDestinationIntact(zip);
  const first=await importToDestination(zip);
  await waitOutcome(first,"failed");
  await verifyDestinationIdentity("destination");
