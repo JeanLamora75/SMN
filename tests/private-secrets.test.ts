@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { parseConnectionSettings } from "../src/server/db/config";
 import { safeBootstrapError } from "../src/server/bootstrap/job";
-import { appDataDirectory, readPrivateFile, decryptSetting, encryptSetting, loadExistingUri, saveExistingConfig } from "../src/server/bootstrap/settings";
+import { appDataDirectory, privateSettingsDirectory, readPrivateFile, decryptSetting, encryptSetting, loadExistingUri, saveExistingConfig } from "../src/server/bootstrap/settings";
 
 describe("SMN-19 — confidentialité des secrets et diagnostics",()=>{
   it("n'accepte jamais une URL PostgreSQL dépourvue de secret ou une URL externe",()=>{
@@ -35,14 +35,16 @@ describe("SMN-19 — confidentialité des secrets et diagnostics",()=>{
   },async()=>{
     const tmp=await mkdtemp(path.join(os.tmpdir(),"smn-secrets-test-"));
     const previous=process.env.LOCALAPPDATA;
+    const previousCwd=process.cwd();
     const password="SHOULD-NEVER-APPEAR-IN-FILES-2026";
     try{
-      process.env.LOCALAPPDATA=tmp;
+      process.env.LOCALAPPDATA=path.join(tmp,"profile");
+      process.chdir(tmp);
       // Reading a missing private configuration must not even create its directory.
       assert.equal(await readPrivateFile(".settings-key"),null);
-      await assert.rejects(()=>lstat(appDataDirectory()),{code:"ENOENT"});
+      await assert.rejects(()=>lstat(privateSettingsDirectory()),{code:"ENOENT"});
       await saveExistingConfig("postgres",password,5432);
-      const dir=appDataDirectory();
+      const dir=privateSettingsDirectory();
       const config=await readFile(path.join(dir,"postgres-connection.json"),"utf8");
       assert.ok(!config.includes(password));
       const key=await readPrivateFile(".settings-key");
@@ -67,6 +69,7 @@ describe("SMN-19 — confidentialité des secrets et diagnostics",()=>{
       await mkdir(path.join(dir,"runtime.json"),{recursive:false});
       await assert.rejects(()=>readPrivateFile("runtime.json"),/private-file-invalid/);
     }finally{
+      process.chdir(previousCwd);
       if(previous===undefined)delete process.env.LOCALAPPDATA;
       else process.env.LOCALAPPDATA=previous;
       await rm(tmp,{recursive:true,force:true,maxRetries:5,retryDelay:200});
