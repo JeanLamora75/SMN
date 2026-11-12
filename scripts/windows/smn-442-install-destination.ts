@@ -12,7 +12,7 @@ async function main(){
   !url.port||url.username!=="smn_owner"||!url.password)
   throw Error("smn-442-fixture-uri-unsafe");
  const state=await installExpress({
-  password:"DestinationOnlyCI2026!",adminUsername:"destination-ci",
+  password:"DestinationInitialCI2026!",adminUsername:"destination-ci",
   adminEmail:"destination-ci@example.test"
  },raw);
  assert.deepEqual(state,{ok:true});
