@@ -44,7 +44,16 @@ export async function POST(request:NextRequest){
   }
   return jsonResult({...result,state:"verified-no-activation",
    nextStep:"offline-cutover-not-yet-automated"},200);
- }catch{
+ }catch(error){
+  // Isolated CI fixture only: report a constant machine-safe reason, never
+  // the recovery phrase, raw file contents or an arbitrary stack trace.
+  if(process.env.GITHUB_ACTIONS==="true"&&
+   process.env.SMN442_E2E_DISPOSABLE==="YES"){
+   const reason=error instanceof Error&&
+    /^(?:migration|portable|backup|erasure|configuration)-[a-z0-9-]+$/.test(error.message)?
+    error.message:"migration-unexpected-error";
+   console.error("SMN442 isolated verification:",reason);
+  }
   return jsonResult({error:"migration-verification-refused",
    restorationAuthorized:false},422);
  }
