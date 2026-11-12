@@ -256,10 +256,20 @@ export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs
    packageInfo.createdAt!==proof.payload?.archiveCreatedAt)
    throw Error("migration-source-candidate-differ");
   for(const op of operations){
-   await emptyFolder(op.active);
+   if(a.replaceInitializedDestination===true){
+    // An installed destination may have files: preserve them in a rollback
+    // directory rather than requiring the user to delete their data.
+    const found=await exists(op.active);
+    if(!found)await mkdir(op.active,{recursive:true,mode:0o700});
+    const current=await lstat(op.active);
+    if(!current.isDirectory()||current.isSymbolicLink())
+     throw Error("migration-installed-file-root-untrusted");
+   }else await emptyFolder(op.active);
    if(await exists(op.prepared)||await exists(op.rollback))
     throw Error("migration-cutover-path-occupied");
   }
+  if(a.replaceInitializedDestination===true)
+   await fingerprintsByGroups(operations.map(op=>op.active));
   const physicalTemp=await realpath(tmpdir());
   const physicalStage=await realpath(a.stagedRoot);
   const physicalDiff=relative(physicalTemp,physicalStage);
