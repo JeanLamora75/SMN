@@ -99,6 +99,25 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   const ceremonyPage=await page.goto(origin+"/app/admin/settings/ceremonies",{waitUntil:"domcontentloaded"});
   assert.equal(ceremonyPage?.status(),200,"Ceremony settings page must open after native v33 install");
   await page.waitForSelector("#template-name",{timeout:20000});
+  const templatesBefore=await page.evaluate(async()=>{
+   const response=await fetch("/api/admin/sprints/templates");
+   return {status:response.status,data:await response.json()};
+  });
+  assert.equal(templatesBefore.status,200,JSON.stringify(templatesBefore.data));
+  assert.deepEqual(templatesBefore.data.templates,[]);
+  await page.type("#template-name","Daily navigateur");
+  await page.select("#template-frequency","weekly");
+  await page.waitForSelector("#template-day");
+  await page.select("#template-day","3");
+  await page.click("#template-name");
+  await page.click("form button[type=submit]");
+  await page.waitForSelector(".alert-success",{timeout:15000});
+  const persisted=await db(target.toString(),async client=>(await client.query(
+   "SELECT name,frequency,weekday,revision FROM public.smn_scrum_ceremony_template WHERE team_id='e2eteam'")).rows);
+  assert.equal(persisted.length,1);
+  assert.deepEqual({name:persisted[0].name,frequency:persisted[0].frequency,
+   weekday:persisted[0].weekday,revision:persisted[0].revision},
+   {name:"Daily navigateur",frequency:"weekly",weekday:3,revision:1});
   assert.deepEqual(errors,[]);
  }catch(error){
   throw new Error(String(error)+"; server diagnostics: "+logs.slice(-12).join(" | ").slice(0,2000));
