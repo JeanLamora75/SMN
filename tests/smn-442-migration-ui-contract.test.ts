@@ -34,3 +34,10 @@ test("SMN-441/442: all new controls translated FR and EN",()=>{
   assert.ok(fr[name]&&en[name],name);
  }
 });
+
+test("SMN-441: browser ZIP GET requires admin permission but no Origin header",()=>{
+ const source=read("src/app/api/admin/backups/migration/export/route.ts");
+ assert.match(source,/authorizeApi\(request,"read",target\)/);
+ assert.match(source,/canAccess\(actor,"write",target\)/);
+ assert.match(source,/wrapEncryptedBackupInZip\(compressed,id\)/);
+});
