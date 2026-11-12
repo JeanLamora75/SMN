@@ -1,5 +1,4 @@
 import {open,lstat,rm} from "node:fs/promises";
-import {dirname,join} from "node:path";
 
 /** Strict ZIP32 reader, no path traversal, symlinks, ZIP64, extra fields,
  * compression, duplicate members, or appended payloads. The ZIP member
@@ -108,7 +107,7 @@ export async function extractSmnEncryptedZip(
     descriptor.readUInt32LE(12)!==entry.size)
     throw Error("migration-zip-descriptor-invalid");
    const outputPath=i===0?targetPath:
-    join(dirname(targetPath),i===1?"transfer-receipt.tmp":"privacy-ledger.tmp");
+    targetPath+(i===1?".receipt.json":".privacy.enc");
    // Token-isolated directory must be created by the caller before unpacking.
    const output=await open(outputPath,"wx",0o600);
    created.push(outputPath);
