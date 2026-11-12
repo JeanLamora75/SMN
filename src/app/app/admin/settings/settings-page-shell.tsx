@@ -1,0 +1,23 @@
+import type {ReactNode} from "react";
+import "./settings-page-shell.css";
+
+type Props={
+ title:string;
+ description:string;
+ eyebrow:string;
+ children:ReactNode;
+ constrained?:boolean;
+};
+
+export default function SettingsPageShell({title,description,eyebrow,children,constrained=false}:Props){
+ return <main className="smn-page smn-team-page smn-settings-detail-page container-fluid px-3 px-lg-4 py-4">
+  <header className="smn-settings-detail-hero mb-4">
+   <p className="smn-settings-detail-eyebrow">{eyebrow}</p>
+   <h1>{title}</h1>
+   <p className="smn-settings-detail-description">{description}</p>
+  </header>
+  <div className={constrained?"smn-settings-detail-content smn-settings-detail-content-narrow":"smn-settings-detail-content"}>
+   {children}
+  </div>
+ </main>;
+}
