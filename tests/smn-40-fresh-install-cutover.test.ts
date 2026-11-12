@@ -59,3 +59,19 @@ test("postcutover verification is read-only and never releases maintenance",()=>
  const pack=readFileSync(new URL("../scripts/windows/package-portable.mjs",import.meta.url),"utf8");
  assert.match(pack,/"smn-40-cutover-postcheck"/);
 });
+
+test("replacement of an installed destination requires explicit double approval and rollback",()=>{
+ const cutover=readFileSync(new URL("../src/server/backup/fresh-install-cutover.ts",import.meta.url),"utf8");
+ const entry=readFileSync(new URL("../scripts/smn-40-fresh-install-activate.ts",import.meta.url),"utf8");
+ const prepare=readFileSync(new URL("../scripts/smn-40-managed-candidate-prepare.ts",import.meta.url),"utf8");
+ assert.match(cutover,/REPLACE_VERIFIED_INITIALIZED_DESTINATION_WITH_ROLLBACK/);
+ assert.match(cutover,/replaceInitializedDestination===true/);
+ assert.match(cutover,/migration-initialized-destination-not-independent/);
+ assert.match(cutover,/own\.rows\[0\]\.schema_version!==33/);
+ assert.match(entry,/--confirm=REPLACE_INITIALIZED_DESTINATION_WITH_ROLLBACK/);
+ assert.match(prepare,/PREPARE_REPLACEMENT_WITH_ROLLBACK/);
+ assert.match(prepare,/--replace-initialized-with-rollback/);
+ assert.match(prepare,/migration-initialized-destination-not-independent/);
+ for(const file of [cutover,entry,prepare])
+  assert.doesNotMatch(file,/DROP DATABASE|TRUNCATE|DELETE FROM public/);
+});
