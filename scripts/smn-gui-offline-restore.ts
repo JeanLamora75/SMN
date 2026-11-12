@@ -12,6 +12,8 @@ import {decryptSetting} from "../src/server/bootstrap/settings";
 import {existingManagedUri} from "../src/server/bootstrap/portable";
 import {backupRootPath} from "../src/server/backup/runner";
 import {inspectBackup} from "../src/server/backup/verification";
+import {fingerprintPublicTables} from "../src/server/backup/restore-row-fingerprint";
+import {fingerprintCurrentManagedFiles} from "../src/server/backup/current-managed-file-fingerprint";
 import {inspectGuiLedgerEvidence} from "../src/server/backup/gui-transfer-evidence";
 import {comparePortableCurrentState,type SignedCurrentStateReceipt}
  from "../src/server/backup/current-state-transfer-receipt";
@@ -67,6 +69,23 @@ async function identity(){
   return "singleton:"+new Date(row.created_at).toISOString();
  }finally{await db.end().catch(()=>undefined);}
 }
+async function fingerprintDestination(){
+ const uri=await existingManagedUri();
+ if(!uri)throw Error("gui-migration-target-unavailable");
+ const db=new Client({connectionString:uri,connectionTimeoutMillis:3500,
+  statement_timeout:120000,query_timeout:120000});
+ try{
+  await db.connect();
+  await db.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
+  const database=await fingerprintPublicTables(db);
+  const files=await fingerprintCurrentManagedFiles(db);
+  await db.query("ROLLBACK");
+  return {database:database.digest,files:files.sha256,count:files.count};
+ }finally{
+  await db.query("ROLLBACK").catch(()=>undefined);
+  await db.end().catch(()=>undefined);
+ }
+}
 async function signedJob():Promise<Job>{
  await statFile(pending,4096);
  const serialized=JSON.parse(await readFile(pending,"utf8")) as {
@@ -118,6 +137,7 @@ export async function runGuiOfflineRestore(){
  const keyPath=join(work,".backup-key");
  let phase:Stage="queued",journal:string|null=null,privacyInstalled=false;
  let fence=false;
+ let beforeActivation:Awaited<ReturnType<typeof fingerprintDestination>>|null=null;
  await status(token,"queued");
  try{
   const state=await identity();
@@ -172,6 +192,7 @@ export async function runGuiOfflineRestore(){
   phase="candidate-prepared";await status(token,phase);
   // The source receipt is cryptographically verified against the isolated
   // candidate by prepareFreshManagedCandidate above.
+  beforeActivation=await fingerprintDestination();
   process.env.SMN40_FRESH_INSTALL_OFFLINE_CONFIRM=
    "REPLACE_VERIFIED_INITIALIZED_DESTINATION_WITH_ROLLBACK";
   phase="activating";await status(token,phase);
@@ -189,11 +210,19 @@ export async function runGuiOfflineRestore(){
   await releaseVerifiedNewComputerCutover(journal,receiptPath);
   fence=false;
   phase="complete";
-  await status(token,phase);
-  await archivePending(job,"complete");
+  await status(token,phase).catch(()=>undefined);
+  await archivePending(job,"complete").catch(()=>undefined);
   return {state:phase,archiveId,rollbackRetained:true,
    allUsersMustLogInAgain:true};
  }catch{
+  if(phase==="activating"&&fence&&beforeActivation){
+   try{
+    const after=await fingerprintDestination();
+    phase=after.database===beforeActivation.database&&
+     after.files===beforeActivation.files&&after.count===beforeActivation.count?
+      "rolled-back":"incident";
+   }catch{phase="incident";}
+  }
   if(phase==="promoted"&&journal&&fence){
    try{
     process.env.SMN40_ROLLBACK_OFFLINE_CONFIRM=
@@ -212,7 +241,7 @@ export async function runGuiOfflineRestore(){
     fence=false;
    }catch{phase="incident";}
   }
-  if(phase!=="incident")phase="failed";
+  if(phase!=="incident"&&phase!=="rolled-back")phase="failed";
   await status(token,phase).catch(()=>undefined);
   if(phase!=="incident")await archivePending(job,"failed").catch(()=>undefined);
   throw Error(phase==="incident"?"gui-migration-manual-recovery-required":
