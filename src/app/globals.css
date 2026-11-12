@@ -431,7 +431,7 @@ dialog.smn-team-context-dialog::backdrop {background:rgba(0,0,0,.52);}
  .smn-cal-absence-wrap:hover .smn-cal-absence-tooltip,
  .smn-cal-absence-wrap:focus-within .smn-cal-absence-tooltip,
  .smn-cal-absence-wrap.is-expanded .smn-cal-absence-tooltip{
-  position:relative;left:auto;right:auto;bottom:auto;margin-top:7px;
+  position:relative;left:auto;right:auto;top:auto;bottom:auto;margin-top:7px;
  }
 }
 
