@@ -1,6 +1,5 @@
 import {open,lstat,readFile,rename} from "node:fs/promises";
 import {join,dirname,resolve} from "node:path";
-import {randomBytes} from "node:crypto";
 import {Client} from "pg";
 import {backupRootPath} from "./runner";
 import {readFreshCutoverJournal,freshCutoverMac} from "./fresh-cutover-journal";
@@ -34,7 +33,6 @@ export async function rollbackVerifiedNewComputerCutover(
   join(process.cwd(),"data","office","templates")
  ];
  let admin:Client|null=null;
- let started=false;
  try{
   const events=await readFreshCutoverJournal(journalPath,key);
   const last=events.at(-1);
@@ -87,7 +85,6 @@ export async function rollbackVerifiedNewComputerCutover(
    return mac;
   };
   let mac=await writeStage("rollback-started",last.mac);
-  started=true;
   try{
    await admin.query('ALTER DATABASE "smn" RENAME TO "'+last.candidateDb+'"');
    await admin.query('ALTER DATABASE "'+last.rollbackDb+'" RENAME TO "smn"');
@@ -117,6 +114,5 @@ export async function rollbackVerifiedNewComputerCutover(
   key.fill(0);
   if(admin)await admin.end().catch(()=>undefined);
   // No unlink, DROP DATABASE, or automatic maintenance release.
-  void started;void randomBytes;
  }
 }
