@@ -221,6 +221,36 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   assert.equal(afterRace.revision,2);
   assert.ok(["PT","ES"].includes(afterRace.reference_country));
 
+
+  // Coupure du réseau navigateur avant l'envoi : aucune persistance, puis retry.
+  await page.goto(origin+"/app/admin/settings/general",{waitUntil:"domcontentloaded"});
+  await page.waitForSelector("#country",{timeout:20000});
+  await page.select("#country","CA");
+  const network=await page.createCDPSession();
+  try{
+   await network.send("Network.enable");
+   await network.send("Network.emulateNetworkConditions",{
+    offline:true,latency:0,downloadThroughput:0,uploadThroughput:0
+   });
+   await page.click("form button[type=submit]");
+   await page.waitForSelector("#settings-feedback[role=alert]",{timeout:15000});
+   assert.equal(await page.$eval("#country",el=>(el as HTMLSelectElement).value),"CA");
+   const unchanged=await db(target.toString(),async client=>(await client.query(
+    "SELECT reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'")).rows[0]);
+   assert.deepEqual(unchanged,afterRace);
+  }finally{
+   await network.send("Network.emulateNetworkConditions",{
+    offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1
+   });
+   await network.detach();
+  }
+  await page.click("form button[type=submit]");
+  await page.waitForSelector(".alert-success",{timeout:15000});
+  const afterRetry=await db(target.toString(),async client=>(await client.query(
+   "SELECT reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'")).rows[0]);
+  assert.equal(afterRetry.reference_country,"CA");
+  assert.equal(afterRetry.revision,3);
+
   // L'interruption volontaire doit invalider la session en mémoire, sans effacer les données.
   await browser.close();browser=undefined;
   if(child&&child.exitCode===null){
