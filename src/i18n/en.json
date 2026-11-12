@@ -4755,6 +4755,16 @@
       "amber": "Amber",
       "orange": "Orange",
       "red": "Red"
+    },
+    "errors": {
+      "invalidInput": "The entered information is invalid.",
+      "duplicateName": "A company with that name already exists.",
+      "notFound": "This company no longer exists. Refresh the list.",
+      "conflict": "This company was changed elsewhere. Refresh the list.",
+      "alreadyArchived": "This company is already archived.",
+      "alreadyActive": "This company is already active.",
+      "forbidden": "You do not have the required permissions.",
+      "serviceUnavailable": "The company service is temporarily unavailable."
     }
   },
   "settingsCollections": {
