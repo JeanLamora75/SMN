@@ -2,6 +2,7 @@
 import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
+import IanaTimeZoneSelect from "../settings/iana-time-zone-select";
 type Cadence={durationWeeks:number;startDay:number;startTime:string;endDay:number;endTime:string;timeZone:string;revision:number;updatedAt:string};
 export default function CadenceForm(){
  const t=useTranslation();
@@ -35,7 +36,7 @@ export default function CadenceForm(){
     <select id="cadence-end-day" className="form-select" disabled={busy} value={draft.endDay} onChange={e=>change("endDay",Number(e.target.value))}>{days.map(x=><option key={x} value={x}>{t(`scrumCadence.days.${x}` as "scrumCadence.days.1")}</option>)}</select></div>
     <div className="col-md-6"><label htmlFor="cadence-end-time" className="form-label">{t("scrumCadence.endTime")}</label><input id="cadence-end-time" className="form-control" type="time" required disabled={busy} value={draft.endTime} onChange={e=>change("endTime",e.target.value)}/></div>
    </div>
-   <div><label htmlFor="cadence-zone" className="form-label">{t("scrumCadence.timeZone")}</label><input id="cadence-zone" className="form-control" required disabled={busy} value={draft.timeZone} onChange={e=>change("timeZone",e.target.value)}/></div>
+   <IanaTimeZoneSelect id="cadence-zone" label={t("scrumCadence.timeZone")} disabled={busy} value={draft.timeZone} onChange={value=>change("timeZone",value)}/>
    <p className="small text-secondary">{t("scrumCadence.futureOnly")}</p>
    <button type="submit" className="btn btn-primary" disabled={!dirty||busy}>{t("scrumCadence.save")}</button>
    <p className="text-secondary small">{t("scrumCadence.revision",{revision:current?.revision??1})}</p>
