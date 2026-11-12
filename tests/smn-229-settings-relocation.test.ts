@@ -54,7 +54,7 @@ describe("SMN-229 — paramètres partagés séparés des sprints",()=>{
   assert.match(file,/settingsSprint\.workingDaysScope/);
   assert.doesNotMatch(file,/<WeekdayForm|<WorkWeekForm|<CalendarEditor/);
   assert.match(file,/<SettingsPageShell/);
-  assert.match(read("src/app/app/admin/settings/settings-page-shell.tsx"),/href="\\/app\\/admin\\/settings"/);
+  assert.ok(read("src/app/app/admin/settings/settings-page-shell.tsx").includes('href="/app/admin/settings"'));
  });
  it("la page Cérémonies réutilise exclusivement les modèles sans modifier d'occurrences",()=>{
   const file=read("src/app/app/admin/settings/ceremonies/page.tsx");
@@ -62,7 +62,7 @@ describe("SMN-229 — paramètres partagés séparés des sprints",()=>{
   assert.match(file,/settingsSprint\.ceremoniesScope/);
   assert.doesNotMatch(file,/<CeremonyEditor|<TemplateOccurrencesList|<ExceptionalMeetingForm/);
   assert.match(file,/<SettingsPageShell/);
-  assert.match(read("src/app/app/admin/settings/settings-page-shell.tsx"),/href="\\/app\\/admin\\/settings"/);
+  assert.ok(read("src/app/app/admin/settings/settings-page-shell.tsx").includes('href="/app/admin/settings"'));
  });
  it("les pages appliquent les mêmes protections serveur que les paramètres existants",()=>{
   for(const page of ["working-days","ceremonies"]){
