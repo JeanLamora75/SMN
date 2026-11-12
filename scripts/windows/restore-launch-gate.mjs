@@ -18,6 +18,10 @@ export function validateLauncherMaintenanceMarker(marker,root,backupDir){
  return true;
 }
 export async function launcherMaintenanceBlocked(marker,root,backupDir){
+ // A local gate survives fresh shells and launches without environment variables.
+ // Any file, symlink or malformed entry is blocking until operator review.
+ try{await lstat(path.join(root,"updates","restore-maintenance.lock"));return true;}
+ catch(error){if(error?.code!=="ENOENT")return true;}
  if(marker===undefined||marker===null||marker==="")return false;
  if(!validateLauncherMaintenanceMarker(marker,root,backupDir))return true;
  try{

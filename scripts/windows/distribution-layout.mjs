@@ -2,7 +2,7 @@
 // Persistent roots are never valid targets for a future updater.
 import path from "node:path";
 
-const PERSISTENT = ["data", "runtime", "updates"];
+const PERSISTENT = ["config", "data", "runtime", "updates"];
 const PRIVATE_NAMES = new Set([".env", ".env.local", ".settings-key", "runtime.json", "postgres-connection.json"]);
 
 function segments(relative) {

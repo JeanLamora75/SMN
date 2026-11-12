@@ -1,4 +1,5 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import { existsSync } from "node:fs";
 import { lstat, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -9,11 +10,22 @@ export function appDataDirectory(): string {
   return path.join(process.env.LOCALAPPDATA, "ScrumMasterNotebook");
 }
 
+/** Preserve legacy secrets in place; fresh setups never write outside SMN. */
+export function privateSettingsDirectory(): string {
+  const local = path.join(process.cwd(), "config");
+  const legacy = process.platform === "win32" && process.env.LOCALAPPDATA
+    ? path.join(process.env.LOCALAPPDATA, "ScrumMasterNotebook") : null;
+  const names = [".settings-key", "runtime.json", "postgres-connection.json"];
+  if (names.some(name => existsSync(path.join(local, name)))) return local;
+  if (legacy && names.some(name => existsSync(path.join(legacy, name)))) return legacy;
+  return local;
+}
+
 function isMissing(error: unknown): boolean {
   return !!error && typeof error === "object" && "code" in error && error.code === "ENOENT";
 }
 async function safePrivateDirectory(create=false): Promise<string|null> {
-  const dir=appDataDirectory();
+  const dir=privateSettingsDirectory();
   // Read-only diagnostics must not create a profile folder as a side effect.
   if(create) await mkdir(dir,{recursive:true,mode:0o700});
   let details;

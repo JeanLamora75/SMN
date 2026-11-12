@@ -97,6 +97,7 @@ function same(a:string,b:string){return resolve(a).toLowerCase()===resolve(b).to
 export type FreshInstallCutoverArgs=Readonly<{
  archiveId:string;candidateDb:string;stagedRoot:string;
  receiptPath:string;operatorJournalDir:string;
+ replaceInitializedDestination?:boolean;
 }>;
 export function validateFreshInstallPaths(
  cwd:string,a:FreshInstallCutoverArgs
@@ -118,8 +119,10 @@ export function validateFreshInstallPaths(
 export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs){
  if(process.platform!=="win32"||
   process.env.SMN_DATABASE_URL||
-  !process.env.SMN40_FRESH_INSTALL_OFFLINE_CONFIRM||
-  process.env.SMN40_FRESH_INSTALL_OFFLINE_CONFIRM!=="ACTIVATE_VERIFIED_PRISTINE_DESTINATION"||
+  process.env.SMN40_FRESH_INSTALL_OFFLINE_CONFIRM!==
+   (a.replaceInitializedDestination===true?
+    "REPLACE_VERIFIED_INITIALIZED_DESTINATION_WITH_ROLLBACK":
+    "ACTIVATE_VERIFIED_PRISTINE_DESTINATION")||
   !validateFreshInstallPaths(process.cwd(),a))
   throw Error("migration-activation-not-enabled");
  const marker=await inspectOfflineRestoreMaintenance();
@@ -216,8 +219,24 @@ export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs
   await source.query("BEGIN TRANSACTION READ ONLY");
   const tables=await source.query<{n:string}>(
    "SELECT count(*)::text AS n FROM pg_catalog.pg_tables WHERE schemaname='public'");
+  if(tables.rows[0]?.n!=="0"){
+   if(a.replaceInitializedDestination!==true)
+    throw Error("migration-destination-database-not-empty");
+   // An installed target may be replaced only by a separate, explicit
+   // offline operator action. Its original database is PARKED, never dropped.
+   const own=await source.query<{state:string;schema_version:number;created_at:Date}>(
+    "SELECT state,schema_version,created_at FROM public.smn_installation "+
+    "WHERE id='singleton'");
+   if(own.rowCount!==1||own.rows[0]?.state!=="initialized"||
+    own.rows[0]?.schema_version!==33||
+    !own.rows[0]?.created_at||
+    packageInfo.installationSource===
+     "singleton:"+new Date(own.rows[0].created_at).toISOString())
+    throw Error("migration-initialized-destination-not-independent");
+  }else if(a.replaceInitializedDestination===true){
+   throw Error("migration-replacement-mode-requires-installed-destination");
+  }
   await source.query("ROLLBACK");
-  if(tables.rows[0]?.n!=="0")throw Error("migration-destination-database-not-empty");
   await target.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
   const version=await target.query<{v:string}>(
    "SELECT current_setting('server_version') AS v");

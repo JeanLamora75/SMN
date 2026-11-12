@@ -41,7 +41,7 @@ describe("Centre Paramètres Cockpit — contrats structurels",()=>{
    assert.match(form,/setOriginal/);
   }
   const tabs=source("src/app/app/admin/settings/settings-tabs.tsx");
-  assert.match(tabs,/hidden={active!==section.id}/);
+  assert.match(tabs,/hidden={selected!==section.id}/);
  });
  it("conserve les permissions distinctes du journal et des sauvegardes",()=>{
   const maintenance=source("src/app/app/admin/settings/maintenance/page.tsx");

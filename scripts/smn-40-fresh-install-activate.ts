@@ -15,17 +15,20 @@ async function main(){
   try{process.loadEnvFile(".env.local");}catch{/* Default Windows storage. */}
  }
  const args=process.argv.slice(2);
+ const replacement=args[9]==="--confirm=REPLACE_INITIALIZED_DESTINATION_WITH_ROLLBACK";
+ const fresh=args[9]==="--confirm=PRISTINE_INSTALLATION_OFFLINE_ONLY";
  if(args.length!==10||args[0]!=="--activate-fresh-installation"||
   args[1]!=="--archive"||!UUID.test(args[2])||
   args[3]!=="--candidate"||!CANDIDATE.test(args[4])||
   args[5]!=="--staged-files"||args[7]!=="--receipt"||
-  args[9]!=="--confirm=PRISTINE_INSTALLATION_OFFLINE_ONLY")
+  (!replacement&&!fresh))
   throw Error("migration-activation-arguments-invalid");
  const {join}=await import("node:path");
  const result=await activateFreshManagedInstallation({
   archiveId:args[2],candidateDb:args[4],
   stagedRoot:args[6],receiptPath:args[8],
-  operatorJournalDir:join(process.cwd(),"data","migration-audit")
+  operatorJournalDir:join(process.cwd(),"data","migration-audit"),
+  replaceInitializedDestination:replacement
  });
  process.stdout.write(JSON.stringify(result)+"\n");
 }

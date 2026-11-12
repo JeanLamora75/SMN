@@ -53,3 +53,18 @@ test("SMN-34: le lanceur propriétaire vérifie le verrou avant lancement et pen
  assert.match(packageSource,/copyFile\("scripts\/windows\/restore-launch-gate\.mjs"/);
  assert.match(packageSource,/from "\.\/maintenance\/restore-launch-gate\.mjs"/);
 });
+
+test("SMN portable launcher blocks local migration gate even without environment",async()=>{
+ const root=await mkdtemp(join(tmpdir(),"smn-local-fence-"));
+ const app=join(root,"SMN");
+ await mkdir(app);
+ await mkdir(join(app,"updates"));
+ const local=join(app,"updates","restore-maintenance.lock");
+ try{
+  assert.equal(await launcherMaintenanceBlocked(undefined,app,undefined),false);
+  await writeFile(local,"fenced");
+  assert.equal(await launcherMaintenanceBlocked(undefined,app,undefined),true);
+  await rm(local);
+  assert.equal(await launcherMaintenanceBlocked(undefined,app,undefined),false);
+ }finally{await rm(root,{recursive:true,force:true});}
+});

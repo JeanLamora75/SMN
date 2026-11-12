@@ -5,7 +5,7 @@ import path from "node:path";
 import os from "node:os";
 import { Client } from "pg";
 import { acquirePgArchive, PG_ARCHIVE, PG_SOURCE_ARCHIVE } from "./archive";
-import { encryptSetting, decryptSetting, readPrivateFile } from "./settings";
+import { encryptSetting, decryptSetting, readPrivateFile, privateSettingsDirectory } from "./settings";
 import { archiveIncompleteCluster } from "./recovery";
 import { classifyPostgresStartupLog } from "./postgres-startup";
 import { canBindLoopback, selectLoopbackPort } from "./managed-port";
@@ -136,7 +136,7 @@ async function createManagedDatabase(uri:string):Promise<void>{
 
 // Read-only first launch never downloads or creates a database.
 export function canOfferPortable(): boolean {
-  return process.platform === "win32" && !!process.env.LOCALAPPDATA;
+  return process.platform === "win32";
 }
 export async function existingManagedUri(): Promise<string | null> {
   if (!canOfferPortable()) return null;
@@ -258,12 +258,12 @@ export async function prepareManaged(onProgress: (step: string) => void, recover
       "-A", "scram-sha-256", "--pwfile", pwFile, "--encoding", "UTF8", "--no-instructions",
     ]);
   } finally { await rm(pwFile, { force: true }); }
-  // Le secret durable est chiffré dans le profil Windows. La clé locale doit rester privée ; aucun mot de passe n'est écrit en clair.
+  // Le secret durable est chiffré dans le dossier de configuration sélectionné. La clé locale doit rester privée ; aucun mot de passe n'est écrit en clair.
   const cfg: ManagedConfig = {
     version: VERSION, pgBin: path.join(pgRoot, "bin"), cluster: path.join(root, "data"),
     port: PORT, user: "smn_owner", encryptedPassword: await encryptSetting(password),
   };
-  await mkdir(legacyManagedStorageRoot(), { recursive: true, mode: 0o700 });
+  await mkdir(privateSettingsDirectory(), { recursive: true, mode: 0o700 });
   const pending = configPath() + ".new-" + randomBytes(8).toString("hex");
   try {
     await writeFile(pending, JSON.stringify(cfg), { mode: 0o600, flag: "wx" });

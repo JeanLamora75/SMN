@@ -49,3 +49,14 @@ Le test de contrats `node --test tests/postgres-offline-install.test.mjs` s'exé
 À partir du prochain paquet Windows généré, l'archive livrée porte exactement le nom `runtime/postgres/postgres.zip`. Le téléchargement de préparation continue de viser le fichier officiel EnterpriseDB, et le contrôle SHA-256 reste inchangé. Le runtime reconnaît aussi un ancien paquet utilisant le nom source long et le copie sous `data/postgres/postgres.zip` après vérification avant de l'extraire. Aucun renommage manuel ni installation système de PostgreSQL n'est requis. Les exécutables PostgreSQL attendus restent sous `data/postgres/pgsql/bin/` ; ne pas confondre le ZIP de distribution avec la base de données persistante.
 
 La modification du dépôt ne modifie pas les ZIP déjà téléchargés ou hébergés sur un serveur tiers. La livraison corrigée exige le succès de la CI Windows puis un nouveau transfert du ZIP final et de sa somme SHA-256. Un résultat sur le PC professionnel reste la validation finale.
+
+ 
+## Configuration autonome — nouvelles installations (novembre 2026)
+
+Pour une nouvelle installation sans configuration historique, SMN stocke sous `SMN/config/` les fichiers `runtime.json`, `postgres-connection.json` et `.settings-key`. Le cluster PostgreSQL reste sous `SMN/data/postgres/`. Aucun fichier de configuration persistant n'est créé dans AppData par ce parcours neuf.
+
+**Compatibilité pilote existant :** si aucun des trois fichiers n'existe sous `SMN/config/` mais qu'une configuration historique est présente sous `%LOCALAPPDATA%/ScrumMasterNotebook`, l'application conserve la lecture et l'écriture de cette configuration historique. Aucun secret n'est déplacé, remplacé, recréé ou supprimé automatiquement. La migration complète d'une installation préexistante nécessitera une opération contrôlée distincte, après sauvegarde vérifiée.
+
+**Mises à jour :** `config/` et `data/` sont persistants et ne doivent jamais être inclus dans un correctif applicatif ni écrasés lors de sa pose. Une nouvelle distribution ZIP est vierge de toute configuration personnelle. Pour remplacer une installation, ne pas supprimer le répertoire entier : conserver `config/`, `data/` et les documents privés, puis appliquer uniquement une mise à jour applicative compatible.
+
+**Limite :** une configuration historique provenant d'une autre installation Windows sous le même profil peut encore être détectée lorsqu'un répertoire SMN neuf ne possède pas sa propre configuration. La coexistence de plusieurs installations sous le même compte doit être qualifiée avant de supprimer le mécanisme historique.

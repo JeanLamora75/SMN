@@ -262,3 +262,46 @@ Une CI réussie sur des espaces jetables, même sous Windows et PG18 réels, est
 - Une **restauration d'ancienne sauvegarde** sur installation existante reste un cas différent, volontairement bloqué par l'absence d'attestation exhaustive des effacements antérieurs au registre (en service depuis le 11 novembre 2026). La migration d'état courant ne constitue pas une dérogation générale.
 
 **Qualification actuelle : code développé, tests CI de l'incrément encore à confirmer, recette inter-PC physique non exécutée.** Il est interdit d'inscrire SMN-2 ou SMN-34/40 comme Terminée tant que ces preuves restent manquantes.
+
+
+## Complément du 12 novembre 2026 — destination installée et vérification post-bascule
+
+Le parcours inter-PC doit traiter explicitement le cas observé par l'utilisateur : la destination a déjà exécuté l'installation Express de SMN. **Une installation Express ayant créé les tables v33 n'est pas une destination PostgreSQL vierge**, même si aucune équipe métier n'y a été saisie. La bascule contrôlée `activateFreshManagedInstallation` refuse donc une base `smn` contenant des tables. Il ne faut pas supprimer cette base, ni le dossier PostgreSQL, ni les clés locales pour faire disparaître ce refus. Un transfert vers une destination déjà initialisée doit être qualifié comme scénario distinct, avec une sauvegarde vérifiée et un mécanisme d'archivage/compensation de son état antérieur.
+
+Nouvelle politique explicite : `src/server/backup/fresh-destination-readiness.ts` retourne un état `pristine`, `initialized-or-populated` ou `unverifiable`, des codes de blocage et `restorationAuthorized:false` inconditionnel. L'absence d'informations, un serveur encore actif, des fichiers locaux, des données déjà installées, une preuve de source insuffisante ou un registre existant sont bloquants. Il s'agit d'un **contrat de décision**, pas encore d'un exécuteur de migration sur destination initialisée.
+
+Pour les bascules hors ligne déjà qualifiées dans un environnement jetable, `scripts/smn-40-cutover-postcheck.ts --journal CHEMIN_ABSOLU` vérifie en lecture seule le journal HMAC signé, sa dernière étape `verified`, la persistance des deux bases `smn` et `smn_restore_test_back_*`, l'absence de la candidate sous son nom initial, l'absence de sessions connectées et la présence de la barrière de maintenance. Aucun appel HTTP, aucune suppression de marqueur et aucun remplacement de données. Le résultat indique `allSessionsMustBeReauthenticated:true`, `maintenanceReleased:false` et `sourceRetirementVerified:false`. Le script est inclus parmi les opérateurs autonomes packagés Windows avec Node embarqué.
+
+**Séquence d'exploitation à qualifier avant toute utilisation réelle :** maintenir le gel de la source, vérifier la réception du paquet et du registre, recréer et contrôler la candidate isolée, comparer l'empreinte complète avec la source gelée, conserver le point de retour arrière, arrêter le serveur HTTP et les tâches d'écriture, activer uniquement si les protections existantes autorisent le scénario, vérifier le journal et les bases, réaliser une recette de connexion avec de nouvelles sessions après redémarrage, puis lever la maintenance **uniquement après accord indépendant**. En cas d'écart, conserver la barrière et appliquer un retour arrière contrôlé ; ne jamais effacer les bases de secours.
+
+**État de preuve :** le nouveau contrôleur et la vérification post-bascule sont publiés en source avec des tests de politique, mais aucune restauration réelle entre les deux ordinateurs de l'utilisateur, aucun relâchement de maintenance, aucune récupération des comptes et aucune qualification de la destination Express déjà initialisée ne sont attestés. La migration complète demeure bloquée pour ce cas. La CI Windows et l'exécution réelle des tests sont à confirmer indépendamment.
+
+
+### Mode de remplacement d'une destination SMN déjà initialisée — 12 novembre 2026
+
+Le parcours hors ligne dispose désormais de deux modes indépendants :
+
+- **Base réellement vierge :** comportement historique inchangé ; la préparation et l'activation refusent toute table préexistante.
+- **Installation Express déjà initialisée :** option distincte et explicite. `smn-40-managed-candidate-prepare` exige `--replace-initialized-with-rollback` et `SMN40_MANAGED_PREPARE_CONFIRM=PREPARE_REPLACEMENT_WITH_ROLLBACK`. La préparation contrôle l'identité d'installation, l'état `initialized`, le schéma v33 et l'absence d'identité égale à l'archive source ; elle crée seulement une base candidate isolée sans modifier la base `smn`.
+- **Bascule du mode précédent :** `smn-40-fresh-install-activate` exige `--confirm=REPLACE_INITIALIZED_DESTINATION_WITH_ROLLBACK` et `SMN40_FRESH_INSTALL_OFFLINE_CONFIRM=REPLACE_VERIFIED_INITIALIZED_DESTINATION_WITH_ROLLBACK`. En plus des contrôles communs (maintenance, preuve HMAC, candidat équivalent, fichiers gérés de destination vides, aucune connexion), la base d'installation précédente est renommée sous `smn_restore_test_back_*` et conservée. Il n'existe aucun `DROP DATABASE` ni nettoyage automatique. Une destination avec fichiers métier locaux est refusée, pas écrasée.
+
+**Retour arrière post-bascule :** nouveau CLI `smn-40-cutover-rollback` exige `--journal CHEMIN --receipt CHEMIN --confirm=ROLLBACK_VERIFIED_NEWPC_CUTOVER` et `SMN40_ROLLBACK_OFFLINE_CONFIRM=ROLLBACK_VERIFIED_NEWPC_CUTOVER`. Il revalide d'abord le reçu signé contre l'état courant et exige l'absence de sessions. Il ajoute `rollback-started` au journal signé, renomme les deux bases dans l'ordre inverse, rétablit les dossiers conservés, puis écrit `rolled-back`. La base candidate et les dossiers migrés sont **préservés**. Un échec intermédiaire laisse `incident` et la barrière de maintenance en place pour reprise manuelle, jamais de redémarrage automatique.
+
+**Après bascule :** `smn-40-cutover-postcheck --journal CHEMIN --receipt CHEMIN` exige un journal `verified`, la base active et sa base de secours, la chaîne d'effacement, aucune connexion et la comparaison des empreintes de toutes les tables et fichiers contre le reçu signé. La barrière ne doit pas être levée par le code. L'opérateur doit vérifier indépendamment l'arrêt des anciens processus, l'absence d'écriture sur la source, les résultats et le plan de secours avant de réouvrir le service ; le redémarrage crée un magasin de sessions en mémoire vide, ce qui impose une nouvelle authentification.
+
+Ces fonctionnalités sont **des opérations hors ligne sensibles**, pas un bouton de restauration libre depuis l'application. La vérification de la source et la qualification historique demeurent des conditions impératives. Le code et les tests associés sont publiés, mais leur exécution Windows et une recette de migration réelle sur deux ordinateurs doivent être confirmées avant d'annoncer une disponibilité en production.
+
+
+### Barrière persistante, clôture et réauthentification — 12 novembre 2026
+
+La barrière hors ligne est doublée : `beginOfflineRestoreMaintenance` écrit **d'abord** `SMN/updates/restore-maintenance.lock`, puis son marqueur externe. Le lanceur Windows et `sessionAccount` refusent l'accès dès que le verrou local existe, y compris après un nouveau démarrage de `Demarrer SMN.bat` **sans variable d'environnement**. Une tentative interrompue ou un verrou corrompu n'autorise jamais une relance. Ce comportement ne doit pas être contourné en supprimant manuellement le verrou.
+
+Après une activation vérifiée, le nouvel opérateur `smn-40-cutover-release` exige :
+- `--journal CHEMIN_ABSOLU --receipt CHEMIN_ABSOLU --confirm=INDEPENDENT_SOURCE_RETIRED_AND_REAUTH_APPROVED` et la même valeur pour `SMN40_RELEASE_OFFLINE_CONFIRM` ;
+- une maintenance authentique `offline-restore` et un verrou SMN local associé au même identifiant ;
+- un contrôle post-bascule réussi : signatures, empreintes de toutes les tables/fichiers, registre d'effacement, bases d'origine/candidate et absence de connexions ;
+- l'arrêt du serveur HTTP local sur le port 3003 ; le poste source doit avoir été **indépendamment** gelé et mis hors service par l'opérateur.
+
+Les deux marqueurs sont **renommés en preuves conservées**, d'abord le marqueur externe, puis le verrou interne en dernier. Une panne avant le dernier renommage continue à bloquer SMN. L'opérateur peut ensuite relancer le serveur ; les anciennes sessions sont perdues au redémarrage et une nouvelle connexion est exigée. Le logiciel ne peut pas prouver l'arrêt d'un PC distant : le résultat conserve `sourceRetirementIndependentlyVerified:false` et exige le visa de l'opérateur.
+
+**Attention :** ces outils hors ligne ne sont pas encore un assistant utilisateur de migration en un clic. Ni cette documentation ni une réussite isolée de CI ne constituent une recette complète entre les PC réels. Une activation ne doit pas être tentée sans la sauvegarde, le registre transféré, le reçu signé, le candidat vérifié, la maintenance persistante et un retour arrière disponible.

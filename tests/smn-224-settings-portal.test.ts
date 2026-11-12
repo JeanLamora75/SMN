@@ -32,7 +32,9 @@ describe("SMN-224 — portail Paramètres",()=>{
   assert.doesNotMatch(portal,/SettingsForm|fetch\(/);
   assert.match(form,/import SettingsForm from "\.\.\/settings-form"/);
   assert.match(form,/<SettingsForm\/>/);
-  assert.match(form,/href="\/app\/admin\/settings"/);
+  assert.match(form,/<SettingsPageShell/);
+  const shell=file("src/app/app/admin/settings/settings-page-shell.tsx");
+  assert.match(shell,/href="\/app\/admin\/settings"/);
   assert.doesNotMatch(form,/api\/admin\/settings/);
  });
  it("déclare les libellés du portail en FR et EN",()=>{
