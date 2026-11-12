@@ -52,13 +52,13 @@ export async function inspectOfflineCutoverJournal(journalPath:string,receiptPat
    await db.connect();
    const names=await db.query<{datname:string}>(
     "SELECT datname FROM pg_catalog.pg_database "+
-    "WHERE datname=ANY($1::text[])",[ "smn",last.rollbackDb,last.candidateDb ]);
+    "WHERE datname=ANY($1::text[])",[["smn",last.rollbackDb,last.candidateDb]]);
    const found=new Set(names.rows.map(r=>r.datname));
    if(!found.has("smn")||!found.has(last.rollbackDb)||found.has(last.candidateDb))
     throw Error("migration-postcheck-database-state-invalid");
    const sessions=await db.query<{n:string}>(
     "SELECT count(*)::text AS n FROM pg_catalog.pg_stat_activity "+
-    "WHERE datname=ANY($1::text[])",["smn",last.rollbackDb]);
+    "WHERE datname=ANY($1::text[])",[["smn",last.rollbackDb]]);
    if(sessions.rows[0]?.n!=="0")throw Error("migration-postcheck-sessions-active");
    const ledger=await readErasureLedger();
    if(await hasUnresolvedErasureIntent())
