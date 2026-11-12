@@ -47,6 +47,27 @@ describe("Calendrier — info-bulle nominative des absences",()=>{
   assert.doesNotMatch(child,/\.reason\b|\.categoryName\b/);
   assert.match(child,/focus-within|aria-expanded/);
  });
+ it("affiche tous les membres déclarés, y compris cinq noms",()=>{
+  const members=Array.from({length:5},(_,i)=>({
+   id:"member-"+i,displayName:"Personne "+(i+1),
+   days:[{date:"2026-11-10",hasDeclaredAbsence:true}]
+  }));
+  const named=absenceNamesByDate(members);
+  assert.equal(named["2026-11-10"].length,5);
+  const component=source("src/app/app/team-calendar/calendar-option-b.tsx");
+  assert.match(component,/names\.map\(\(person,i\)=>/);
+  assert.doesNotMatch(component,/names\.slice\(/);
+ });
+ it("positionne le tooltip sous le badge pour ne pas couper les premières lignes",()=>{
+  const css=source("src/app/globals.css");
+  const start=css.indexOf(".smn-cal-absence-tooltip{");
+  const end=css.indexOf("}",start);
+  assert.ok(start>=0);
+  const block=css.slice(start,end);
+  assert.match(block,/top:calc\(100% \+ 6px\);bottom:auto/);
+  assert.doesNotMatch(block,/bottom:calc\(100% \+ 6px\)/);
+  assert.match(css,/position:relative;left:auto;right:auto;top:auto;bottom:auto/);
+ });
  it("fonctionne aussi bien dans les deux vues et dispose des traductions FR/EN",()=>{
   const child=source("src/app/app/team-calendar/calendar-option-b.tsx");
   assert.ok(child.indexOf("const renderEvents=")<child.indexOf('if(mode==="agenda")'));
