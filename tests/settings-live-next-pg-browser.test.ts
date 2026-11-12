@@ -181,6 +181,30 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   assert.equal(templateAfter.duration_minutes,25);
   assert.equal(templateAfter.historyCount,3,"La désactivation et réactivation restent traçables");
 
+  // Parcours de modification depuis le véritable formulaire de cérémonie, et non l'API seule.
+  await page.reload({waitUntil:"domcontentloaded"});
+  await page.waitForFunction(expected=>Array.from((document.querySelector("#template-existing") as HTMLSelectElement)?.options??[])
+   .some(option=>option.value===expected),{},templateId);
+  await page.select("#template-existing",templateId);
+  assert.equal(await page.$eval("#template-active",el=>(el as HTMLInputElement).checked),true);
+  await page.click("#template-active");
+  await page.click("form button[type=submit]");
+  await page.waitForSelector(".alert-success",{timeout:15000});
+  const disabledViaUi=await db(target.toString(),async client=>(await client.query(
+   "SELECT active,revision FROM public.smn_scrum_ceremony_template WHERE id=$1",[templateId])).rows[0]);
+  assert.equal(disabledViaUi.active,false);
+  assert.equal(disabledViaUi.revision,4);
+  await page.waitForFunction(expected=>Array.from((document.querySelector("#template-existing") as HTMLSelectElement)?.options??[])
+   .some(option=>option.value===expected),{},templateId);
+  await page.select("#template-existing",templateId);
+  await page.click("#template-active");
+  await page.click("form button[type=submit]");
+  await page.waitForSelector(".alert-success",{timeout:15000});
+  const enabledViaUi=await db(target.toString(),async client=>(await client.query(
+   "SELECT active,revision FROM public.smn_scrum_ceremony_template WHERE id=$1",[templateId])).rows[0]);
+  assert.equal(enabledViaUi.active,true);
+  assert.equal(enabledViaUi.revision,5);
+
   // La famille Calendriers exerce les vraies pages et le dialogue de création.
   const portal=await page.goto(origin+"/app/admin/settings",{waitUntil:"domcontentloaded"});
   assert.equal(portal?.status(),200,"Le portail des Paramètres doit lire le mode Scrum v33");
