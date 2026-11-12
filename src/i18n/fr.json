@@ -681,6 +681,27 @@
   },
   "backups": {
     "transfer": {
+      "restoreTitle": "Restaurer les données sur ce PC",
+      "restoreImpact": "SMN remplacera les données actuelles par celles du ZIP. La base et les documents précédents seront conservés pour permettre un retour arrière. Les comptes et mots de passe du SMN source seront rétablis.",
+      "restoreConsent": "Je confirme que je souhaite remplacer les données de ce SMN et que l'ancien PC ne sera plus modifié après l'export.",
+      "restoreStart": "Restaurer sur ce PC",
+      "restoreQueued": "Restauration demandée. SMN va redémarrer automatiquement.",
+      "restoreProgress": "Conservez cette fenêtre ouverte. La connexion sera momentanément interrompue. Une nouvelle authentification sera nécessaire.",
+      "restoreRejected": "La restauration n'a pas pu être démarrée. Aucune donnée active n'a été remplacée.",
+      "confirmDialog": "Confirmez-vous le remplacement des données de ce SMN par celles de la sauvegarde vérifiée ? L'ancienne base sera conservée.",
+      "stageLabel": "Étape",
+      "stages": {
+        "queued": "Demande reçue",
+        "fenced": "Maintenance sécurisée",
+        "privacy-installed": "Registre de confidentialité vérifié",
+        "candidate-prepared": "Données reconstruites dans la base isolée",
+        "activating": "Bascule transactionnelle",
+        "promoted": "Vérification finale",
+        "complete": "Restauration réussie",
+        "rolled-back": "Ancienne installation rétablie",
+        "failed": "Restauration refusée ou annulée",
+        "incident": "Intervention de récupération nécessaire"
+      },
       "destinationTitle": "Contrôle de l'installation de destination",
       "destinationExisting": "Cette installation contient déjà des données. Elles devront être conservées comme point de retour arrière avant tout remplacement.",
       "destinationEmpty": "Aucune table métier détectée dans la destination.",
