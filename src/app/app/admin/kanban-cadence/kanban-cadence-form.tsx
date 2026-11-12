@@ -2,6 +2,7 @@
 import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
+import IanaTimeZoneSelect from "../settings/iana-time-zone-select";
 type Cadence={frequency:"monthly"|"weekly"|"biweekly";startDay:number;timeZone:string;revision:number;updatedAt:string};
 export default function KanbanCadenceForm(){
  const t=useTranslation();
@@ -47,9 +48,7 @@ export default function KanbanCadenceForm(){
      {[1,2,3,4,5,6,7].map(day=><option value={day} key={day}>{t(("kanbanCadence.days."+day) as "kanbanCadence.days.1")}</option>)}
     </select>
    </div>}
-   <div><label htmlFor="kanban-zone" className="form-label">{t("kanbanCadence.timeZone")}</label>
-    <input id="kanban-zone" className="form-control" disabled={busy} required maxLength={100}
-     value={draft.timeZone} onChange={e=>change("timeZone",e.target.value)}/></div>
+   <IanaTimeZoneSelect id="kanban-zone" label={t("kanbanCadence.timeZone")} disabled={busy} value={draft.timeZone} onChange={value=>change("timeZone",value)}/>
    <button type="submit" className="btn btn-primary" disabled={!dirty||busy}>{t("kanbanCadence.save")}</button>
    <p className="text-secondary small">{t("kanbanCadence.revision",{revision:current?.revision??1})}</p>
   </form>}
