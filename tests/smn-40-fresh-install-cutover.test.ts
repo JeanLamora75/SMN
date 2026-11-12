@@ -52,6 +52,9 @@ test("postcutover verification is read-only and never releases maintenance",()=>
  assert.match(code,/migration-postcheck-sessions-active/);
  assert.match(code,/allSessionsMustBeReauthenticated:true/);
  assert.match(code,/maintenanceReleased:false/);
+ assert.match(code,/comparePortableCurrentState\(proof,key/);
+ assert.match(code,/fingerprintPublicTables\(current\)/);
+ assert.match(code,/fingerprintCurrentManagedFiles\(current\)/);
  assert.doesNotMatch(code,/DROP DATABASE|ALTER DATABASE|DELETE FROM|TRUNCATE|unlink\(|rm\(/);
  const pack=readFileSync(new URL("../scripts/windows/package-portable.mjs",import.meta.url),"utf8");
  assert.match(pack,/"smn-40-cutover-postcheck"/);
