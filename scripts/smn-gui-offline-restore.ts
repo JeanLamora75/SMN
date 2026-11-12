@@ -164,8 +164,7 @@ export async function runGuiOfflineRestore(){
     !backup.scopeComplete||backup.schemaVersion!==33||
     !backup.createdAt||backup.installationSource===job.destination)
     throw Error("gui-migration-backup-unverified");
-   const receipt=JSON.parse(await readFile(receiptPath,"utf8"))
-    as SignedCurrentStateReceipt;
+   const receipt=JSON.parse(await readFile(receiptPath,"utf8")) as SignedCurrentStateReceipt;
    const encrypted=JSON.parse(await readFile(ledgerPath,"utf8")) as unknown;
    const ledger=inspectGuiLedgerEvidence(encrypted,key);
    try{
