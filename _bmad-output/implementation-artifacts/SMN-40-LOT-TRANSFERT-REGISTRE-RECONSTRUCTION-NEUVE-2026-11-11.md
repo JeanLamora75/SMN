@@ -290,3 +290,18 @@ Le parcours hors ligne dispose désormais de deux modes indépendants :
 **Après bascule :** `smn-40-cutover-postcheck --journal CHEMIN --receipt CHEMIN` exige un journal `verified`, la base active et sa base de secours, la chaîne d'effacement, aucune connexion et la comparaison des empreintes de toutes les tables et fichiers contre le reçu signé. La barrière ne doit pas être levée par le code. L'opérateur doit vérifier indépendamment l'arrêt des anciens processus, l'absence d'écriture sur la source, les résultats et le plan de secours avant de réouvrir le service ; le redémarrage crée un magasin de sessions en mémoire vide, ce qui impose une nouvelle authentification.
 
 Ces fonctionnalités sont **des opérations hors ligne sensibles**, pas un bouton de restauration libre depuis l'application. La vérification de la source et la qualification historique demeurent des conditions impératives. Le code et les tests associés sont publiés, mais leur exécution Windows et une recette de migration réelle sur deux ordinateurs doivent être confirmées avant d'annoncer une disponibilité en production.
+
+
+### Barrière persistante, clôture et réauthentification — 12 novembre 2026
+
+La barrière hors ligne est doublée : `beginOfflineRestoreMaintenance` écrit **d'abord** `SMN/updates/restore-maintenance.lock`, puis son marqueur externe. Le lanceur Windows et `sessionAccount` refusent l'accès dès que le verrou local existe, y compris après un nouveau démarrage de `Demarrer SMN.bat` **sans variable d'environnement**. Une tentative interrompue ou un verrou corrompu n'autorise jamais une relance. Ce comportement ne doit pas être contourné en supprimant manuellement le verrou.
+
+Après une activation vérifiée, le nouvel opérateur `smn-40-cutover-release` exige :
+- `--journal CHEMIN_ABSOLU --receipt CHEMIN_ABSOLU --confirm=INDEPENDENT_SOURCE_RETIRED_AND_REAUTH_APPROVED` et la même valeur pour `SMN40_RELEASE_OFFLINE_CONFIRM` ;
+- une maintenance authentique `offline-restore` et un verrou SMN local associé au même identifiant ;
+- un contrôle post-bascule réussi : signatures, empreintes de toutes les tables/fichiers, registre d'effacement, bases d'origine/candidate et absence de connexions ;
+- l'arrêt du serveur HTTP local sur le port 3003 ; le poste source doit avoir été **indépendamment** gelé et mis hors service par l'opérateur.
+
+Les deux marqueurs sont **renommés en preuves conservées**, d'abord le marqueur externe, puis le verrou interne en dernier. Une panne avant le dernier renommage continue à bloquer SMN. L'opérateur peut ensuite relancer le serveur ; les anciennes sessions sont perdues au redémarrage et une nouvelle connexion est exigée. Le logiciel ne peut pas prouver l'arrêt d'un PC distant : le résultat conserve `sourceRetirementIndependentlyVerified:false` et exige le visa de l'opérateur.
+
+**Attention :** ces outils hors ligne ne sont pas encore un assistant utilisateur de migration en un clic. Ni cette documentation ni une réussite isolée de CI ne constituent une recette complète entre les PC réels. Une activation ne doit pas être tentée sans la sauvegarde, le registre transféré, le reçu signé, le candidat vérifié, la maintenance persistante et un retour arrière disponible.
