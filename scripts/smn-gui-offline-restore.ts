@@ -35,6 +35,8 @@ import {releaseVerifiedNewComputerCutover}
 
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 type Job={version:1;token:string;archiveId:string;destination:string;
+ destinationDigest:string;destinationFilesDigest:string;
+ destinationFilesCount:number;
  requestedAt:string;operation:"gui-portable-restore"};
 type Stage="queued"|"fenced"|"privacy-installed"|"candidate-prepared"|
  "activating"|"promoted"|"complete"|"rolled-back"|"incident"|"failed";
@@ -98,7 +100,11 @@ async function signedJob():Promise<Job>{
  if(job.version!==1||job.operation!=="gui-portable-restore"||
   !UUID.test(job.token)||!UUID.test(job.archiveId)||
   !/^singleton:\d{4}-\d\d-\d\dT/.test(job.destination)||
-  !Number.isFinite(Date.parse(job.requestedAt)))
+  !Number.isFinite(Date.parse(job.requestedAt))||
+  !/^[a-f0-9]{64}$/.test(job.destinationDigest)||
+  !/^[a-f0-9]{64}$/.test(job.destinationFilesDigest)||
+  !Number.isSafeInteger(job.destinationFilesCount)||
+  job.destinationFilesCount<0)
   throw Error("gui-migration-job-invalid");
  return job;
 }
@@ -142,6 +148,11 @@ export async function runGuiOfflineRestore(){
  try{
   const state=await identity();
   if(state!==job.destination)throw Error("gui-migration-destination-changed");
+  const present=await fingerprintDestination();
+  if(present.database!==job.destinationDigest||
+   present.files!==job.destinationFilesDigest||
+   present.count!==job.destinationFilesCount)
+   throw Error("gui-migration-destination-drift");
   for(const filename of [receiptPath,ledgerPath,keyPath,
    join(inbox,token+".verified.json")])
    await statFile(filename,filename===ledgerPath?24*1024*1024:8192);
@@ -193,6 +204,10 @@ export async function runGuiOfflineRestore(){
   // The source receipt is cryptographically verified against the isolated
   // candidate by prepareFreshManagedCandidate above.
   beforeActivation=await fingerprintDestination();
+  if(beforeActivation.database!==job.destinationDigest||
+   beforeActivation.files!==job.destinationFilesDigest||
+   beforeActivation.count!==job.destinationFilesCount)
+   throw Error("gui-migration-destination-drift-before-activation");
   process.env.SMN40_FRESH_INSTALL_OFFLINE_CONFIRM=
    "REPLACE_VERIFIED_INITIALIZED_DESTINATION_WITH_ROLLBACK";
   phase="activating";await status(token,phase);
