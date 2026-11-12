@@ -6,7 +6,6 @@ import {readJsonObject,jsonResult} from "@/server/auth/request";
 import {withSessionReadDb} from "@/server/auth/database";
 import {encryptSetting} from "@/server/bootstrap/settings";
 import {existingManagedUri} from "@/server/bootstrap/portable";
-import {backupRootPath} from "@/server/backup/runner";
 import {inspectBackup} from "@/server/backup/verification";
 import {erasureLedgerConfig,readErasureLedger} from "@/server/backup/erasure-ledger";
 import {restoreMaintenanceActive} from "@/server/backup/restore-maintenance";
@@ -77,6 +76,18 @@ export async function POST(request:NextRequest){
   if(item.installationSource===destination)
    throw Error("migration-same-installation");
   const pending=join(process.cwd(),"updates","migration-pending.json");
+  const launcherFile=join(process.cwd(),"updates","launcher.json");
+  const launcherStat=await lstat(launcherFile);
+  if(!launcherStat.isFile()||launcherStat.isSymbolicLink()||
+   launcherStat.size>2048||launcherStat.size<15)
+   throw Error("migration-owner-launcher-not-verified");
+  const launcher=JSON.parse(await readFile(launcherFile,"utf8")) as {
+   pid?:number;at?:string
+  };
+  if(!Number.isInteger(launcher.pid)||!launcher.at||
+   !Number.isFinite(Date.parse(launcher.at))||
+   Math.abs(Date.now()-Date.parse(launcher.at))>15000)
+   throw Error("migration-owner-launcher-inactive");
   const updateDir=await lstat(join(process.cwd(),"updates"));
   if(!updateDir.isDirectory()||updateDir.isSymbolicLink())
    throw Error("migration-updates-path-untrusted");
