@@ -1,5 +1,5 @@
 import SettingsTabs from "../settings-tabs";
-import Link from "next/link";
+import SettingsPageShell from "../settings-page-shell";
 import {redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
@@ -27,19 +27,12 @@ export default async function WorkingDaysSettingsPage(){
 
  const locale=await requestLocale();
  const t=(key:Parameters<typeof translate>[1])=>translate(locale,key);
- return <main className="smn-page smn-team-page container-fluid py-4 px-3 px-lg-4">
-  <div className="mx-auto" style={{maxWidth:1000}}>
-   <header className="mb-3">
-    <Link href="/app/admin/settings" className="btn btn-link px-0 mb-2">
-     ← {t("navigation.entries.settings")}
-    </Link>
-    <h1 className="h3">{t("settingsSprint.workingDaysTitle")}</h1>
-    <p className="text-secondary">{t("settingsSprint.workingDaysScope")}</p>
-   </header>
+ return <SettingsPageShell title={t("settingsSprint.workingDaysTitle")}
+  description={t("settingsSprint.workingDaysScope")}
+  eyebrow={t("settingsCatalog.navigation.adminEyebrow")} constrained>
   <SettingsTabs label={t("settingsSprint.workingDaysTitle")} sections={[
    {id:"slots",label:t("settingsCatalog.tabs.slots"),content:<WorkSlotsForm/>},
    {id:"lunch",label:t("settingsCatalog.tabs.lunch"),content:<LunchForm/>}
   ]}/>
-  </div>
- </main>;
+ </SettingsPageShell>;
 }
