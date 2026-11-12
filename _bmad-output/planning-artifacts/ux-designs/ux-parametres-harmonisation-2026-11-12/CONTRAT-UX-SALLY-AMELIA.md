@@ -20,6 +20,8 @@ Références normatives d'implémentation :
 
 **Périmètre :** présentation et ergonomie de toutes les destinations actuelles du menu Paramètres, sauf les deux références (à préserver, avec seulement correctifs transversaux légers validés). Les pages métiers extérieures atteintes depuis Paramètres sont incluses pour leur **enveloppe UX**, non pour une réécriture de leurs règles.
 
+**Décision UX complémentaire validée le 12/11/2026 :** aucun chemin de fer/fil d’Ariane/breadcrumb, ni bouton de retour au portail Paramètres dans l’en-tête de **toutes** ces pages, y compris les deux références. La navigation latérale de SMN conserve l’accès au portail. Les contrôles Annuler/Retour propres à une sous-opération (éditeur, formulaire, dialogue) restent autorisés et nécessaires.
+
 ## 2. Inventaire vérifié du menu actuel
 
 Source : `src/lib/settings-catalog.ts`. **19 entrées réparties en six familles**, visibles selon rôle/mode ; deux références et une entrée non développée. Les routes ci-dessous sont des chemins du produit, pas une preuve de recette navigateur.
@@ -51,7 +53,7 @@ Source : `src/lib/settings-catalog.ts`. **19 entrées réparties en six familles
 ## 3. Système UX cible — exigences communes
 
 ### UX-COM-01 — Cadre de page
-Sur toutes les pages cibles : `container-fluid`, largeur exploitable à droite de la sidebar, marges cohérentes, **retour vers Paramètres**, en-tête de référence avec sur-titre de contexte, titre H1 unique et sous-titre court expliquant l'usage. Éliminer les `container` et `maxWidth:900/740` hérités **au niveau de l'enveloppe** ; conserver une largeur de lecture raisonnable **pour un formulaire compact** à l'intérieur d'un panneau centré. Ne jamais étirer un champ unique sur toute la largeur.
+Sur toutes les pages cibles : `container-fluid`, largeur exploitable à droite de la sidebar, marges cohérentes, en-tête de référence avec sur-titre de contexte, titre H1 unique et sous-titre court expliquant l'usage. **AUCUN chemin de fer, fil d’Ariane, breadcrumb ou lien « Retour à Paramètres » en tête des pages : la navigation principale/latérale suffit.** Supprimer ces éléments des deux pages références également, sans toucher à leurs fonctionnalités. Les boutons « Annuler » internes à un éditeur ou une modale, eux, sont conservés. Éliminer les `container` et `maxWidth:900/740` hérités **au niveau de l'enveloppe** ; conserver une largeur de lecture raisonnable **pour un formulaire compact** à l'intérieur d'un panneau centré. Ne jamais étirer un champ unique sur toute la largeur.
 
 ### UX-COM-02 — Hiérarchie, composants et actions
 Reprendre les tokens/éléments `smn-panel`, fonds, bordures, arrondis, typographie, boutons primaires/secondaires, espacements et états des deux références, sans copier leurs couleurs codées en dur lorsque le thème SMN impose des tokens. Zone de filtres/commandes avant le contenu ; action principale clairement identifiable ; actions destructrices distinctes, confirmations adaptées ; formulaire complexe dans une page dédiée ou une modale accessible suivant taille ; jamais de CRUD hétérogène sous une liste sans séparation visuelle claire.
@@ -63,7 +65,7 @@ Reprendre les tokens/éléments `smn-panel`, fonds, bordures, arrondis, typograp
 - **Styles graphiques** : la galerie et l'éditeur sont la référence pour des objets visuels, pas une obligation de mettre une image sur les pages métier.
 
 ### UX-COM-04 — Navigation
-Les onglets doivent conserver et respecter les fragments d'URL actuels (`#settings-language`, `#settings-appearance`, `#holidays`, `#closures` et autres fragments existants). Navigation clavier Arrow/Home/End quand rôle `tablist` ; `aria-controls`, `aria-selected`, focus visible ; pas d'onglet masqué impossible à atteindre. Préserver favoris et liens directs. Les listes de liens ne doivent pas faire croire à une autorisation inexistante.
+Sans chemin de fer ni fil d’Ariane sur aucune page des Paramètres. Les onglets doivent conserver et respecter les fragments d'URL actuels (`#settings-language`, `#settings-appearance`, `#holidays`, `#closures` et autres fragments existants). Navigation clavier Arrow/Home/End quand rôle `tablist` ; `aria-controls`, `aria-selected`, focus visible ; pas d'onglet masqué impossible à atteindre. Préserver favoris et liens directs. Les listes de liens ne doivent pas faire croire à une autorisation inexistante.
 
 ### UX-COM-05 — Données et sécurité invariantes
 **Aucun changement de schéma ou logique métier** du seul fait de cette harmonisation. Réutiliser endpoints, permissions serveur, validations, audit, révisions optimistes, historiques, règles Scrum/Kanban, entreprise/équipe, isolation données, restauration sécurisée Epic 2 et capacité actuelle. Les actions modifiant données, comptes, sécurité, archives, sauvegardes ou mises à jour conservent toutes leurs vérifications. Les indicateurs et exports Office ne changent pas de calcul ni de format.
@@ -131,7 +133,7 @@ Indicateurs et Styles graphiques restent fonctionnellement inchangés. Ne pas im
 | Lot | Portée | Critère de sortie |
 |---|---|---|
 | H0 | Inventaire, captures avant et matrice de non-régression | Routes, permissions et API figées comme référence ; arbitrages visuels documentés |
-| H1 | Shell commun, titres, retour, panneaux, états, i18n | Tous écrans cibles cohérents sans régression des pages références |
+| H1 | Shell commun, titres sans chemin de fer, panneaux, états, i18n | Tous écrans cibles cohérents sans régression des pages références |
 | H2 | Général, cadence, jours ouvrés, registres, sécurité | Formulaires et onglets homogènes, liens profonds et brouillons protégés |
 | H3 | Équipes, entreprises, cérémonies, liens, catégories d'absence | Catalogues lisibles, actions et édition sans perte de fonction |
 | H4 | Pays/fériés/fermetures, utilisateurs | Listes et éditions denses, permissions/historique conservés |
@@ -142,7 +144,7 @@ Indicateurs et Styles graphiques restent fonctionnellement inchangés. Ne pas im
 
 ## 7. Critères d'acceptation transverses (Given / When / Then)
 
-- **AC-01** Étant sur une entrée active du catalogue, quand j'ouvre sa destination, alors j'obtiens un en-tête cohérent, un retour Paramètres et les fonctions existantes sans route cassée.
+- **AC-01** Étant sur une entrée active du catalogue, quand j'ouvre sa destination, alors j'obtiens un en-tête cohérent, aucun chemin de fer/fil d’Ariane et les fonctions existantes sans route cassée.
 - **AC-02** Étant sur Langues/Apparence ou Fériés/Fermetures, quand je suis un lien avec fragment ou recharge la page, alors la section désignée est active.
 - **AC-03** Étant administrateur ou utilisateur standard, quand j'ouvre directement une URL protégée, alors l'API et la page appliquent encore les règles d'accès actuelles ; une modification non autorisée est impossible.
 - **AC-04** Étant en Scrum puis en Kanban, alors les rubriques non applicables restent correctement marquées ou masquées conformément au catalogue, et aucun réglage Scrum n'altère Kanban.
