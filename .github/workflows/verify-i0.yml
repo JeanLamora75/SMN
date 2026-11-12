@@ -58,6 +58,15 @@ jobs:
             pnpm exec tsx --test tests/setup-integration.test.ts tests/postgres-integration.test.ts
             echo "::endgroup::"
           done
+      - name: Chromium et PostgreSQL réel — formulaires Général et Cérémonies (3 répétitions)
+        env:
+          CI: "true"
+        run: |
+          for iteration in 1 2 3; do
+            echo "::group::Paramètres et base PostgreSQL — répétition $iteration/3"
+            pnpm exec tsx --test tests/settings-general-ceremonies-pg-browser.test.ts
+            echo "::endgroup::"
+          done
       - name: Contrat de validation v33
         run: pnpm test:validate-version
       - name: Qualité commune v33
