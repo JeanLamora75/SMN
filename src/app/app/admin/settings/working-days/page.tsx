@@ -29,7 +29,7 @@ export default async function WorkingDaysSettingsPage(){
  const t=(key:Parameters<typeof translate>[1])=>translate(locale,key);
  return <SettingsPageShell title={t("settingsSprint.workingDaysTitle")}
   description={t("settingsSprint.workingDaysScope")}
-  eyebrow={t("settingsCatalog.navigation.adminEyebrow")} constrained>
+  eyebrow={t("settingsCatalog.navigation.adminEyebrow")}>
   <SettingsTabs label={t("settingsSprint.workingDaysTitle")} sections={[
    {id:"slots",label:t("settingsCatalog.tabs.slots"),content:<WorkSlotsForm/>},
    {id:"lunch",label:t("settingsCatalog.tabs.lunch"),content:<LunchForm/>}
