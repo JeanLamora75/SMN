@@ -172,12 +172,13 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
 
   // Deux onglets tentent la même révision : un seul doit être accepté.
   const concurrency=await page.evaluate(async()=>{
-   const common={locale:"fr",theme:"light",palette:"red-purple",revision:1};
-   const send=(referenceCountry:string)=>fetch("/api/admin/settings",{
-    method:"PATCH",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({...common,referenceCountry})
-   }).then(r=>r.status);
-   return Promise.all([send("PT"),send("ES")]);
+   const headers={"Content-Type":"application/json"};
+   const body={locale:"fr",theme:"light",palette:"red-purple",revision:1};
+   const replies=await Promise.all([
+    fetch("/api/admin/settings",{method:"PATCH",headers,body:JSON.stringify({...body,referenceCountry:"PT"})}),
+    fetch("/api/admin/settings",{method:"PATCH",headers,body:JSON.stringify({...body,referenceCountry:"ES"})})
+   ]);
+   return [replies[0].status,replies[1].status];
   });
   assert.deepEqual([...concurrency].sort((a,b)=>a-b),[200,409]);
   const afterRace=await db(target.toString(),async client=>(await client.query(
@@ -205,7 +206,7 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   assert.equal((await fetch(origin+"/api/admin/settings")).status,403);
   assert.deepEqual(errors,[]);
  }catch(error){
-  throw new Error(String(error)+"; server diagnostics: "+logs.slice(-12).join(" | ").slice(0,2000));
+  throw new Error((error instanceof Error?error.stack:String(error))+"; server diagnostics: "+logs.slice(-12).join(" | ").slice(0,2000));
  }finally{
   await browser?.close().catch(()=>undefined);
   if(child&&child.exitCode===null){
