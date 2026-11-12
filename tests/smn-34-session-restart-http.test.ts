@@ -70,10 +70,10 @@ test("SMN-34: session live -> verrou persisté -> restart -> ancienne session re
   const first=await launch(marker,workingDir);children.push(first.worker);
   const initial=await fetch(first.url+"/session",{method:"POST",
    signal:AbortSignal.timeout(4000)});
-  assert.equal(initial.status,200);
+  assert.equal(initial.status,200,"initial synthetic session must be issued before any maintenance marker");
   const {token}=await initial.json() as {token:string};
   assert.match(token,/^[a-f0-9]{64}$/);
-  assert.equal(await probe(first.url,token),200);
+  assert.equal(await probe(first.url,token),200,"newly issued token must work before maintenance");
   const begin=spawnSync(process.execPath,["--import",tsxLoader,supervisor,
    "--begin",marker],{cwd:workingDir,encoding:"utf8",timeout:15000});
   assert.equal(begin.status,0,begin.stderr);
