@@ -1,9 +1,27 @@
+/* Paramètres : l'en-tête et tous les panneaux métier utilisent la même largeur fluide. */
 .smn-settings-detail-page{width:100%;max-width:none;min-width:0}
 .smn-settings-detail-hero{padding:1.55rem 1.8rem;border-radius:18px;
  background:linear-gradient(115deg,var(--smn-brand,#1b508d),var(--smn-brand-dark,#142b4c));color:#fff}
 .smn-settings-detail-hero h1{font-size:clamp(1.4rem,2.5vw,1.85rem);font-weight:750;margin:.3rem 0}
 .smn-settings-detail-eyebrow{font-size:.74rem;letter-spacing:.1em;font-weight:700;text-transform:uppercase;opacity:.83;margin:0}
 .smn-settings-detail-description{margin:0;color:#fff;opacity:.9;font-size:.94rem}
-.smn-settings-detail-content{min-width:0;width:100%}
-.smn-settings-detail-content-narrow{max-width:1120px;margin-inline:auto}
+.smn-settings-detail-content,
+.smn-settings-detail-content-narrow{width:100%;max-width:none;min-width:0;margin-inline:0}
+.smn-settings-detail-content > :is(div,section,form),
+.smn-settings-detail-content > :is(div,section,form) > :is(section,form),
+.smn-settings-detail-content [role="tabpanel"] > :is(section,form){
+ width:100%;max-width:none;min-width:0
+}
+/* Conserver les couleurs de thème pour les champs et garantir des blocs blancs en thème clair. */
+.smn-settings-detail-content :is(.smn-panel,.card){
+ background-color:var(--bs-body-bg,#fff);
+ border:1px solid var(--smn-border,var(--bs-border-color,#dce3ed));
+ border-radius:16px;
+ min-width:0;
+ max-width:none;
+}
+.smn-settings-detail-content > :is(.smn-panel,.card),
+.smn-settings-detail-content [role="tabpanel"] > :is(.smn-panel,.card){
+ width:100%;
+}
 @media(max-width:700px){.smn-settings-detail-hero{padding:1.3rem}}
