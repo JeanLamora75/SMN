@@ -121,7 +121,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $source = '_package/SMN-Windows'
-          $destination = '_package/SMN-Setup-Windows-x64-v33.zip'
+          $destination = "_package/SMN-Setup-Windows-x64-v33-$env:GITHUB_RUN_ID.zip"
           if (Test-Path "$source/data/postgres") { throw 'Cluster PostgreSQL de test présent dans la distribution' }
           Compress-Archive -Path $source -DestinationPath $destination -CompressionLevel Optimal -Force
           if (-not (Test-Path $destination)) { throw 'Archive de distribution absente' }
@@ -131,7 +131,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Contrôle intégrité du ZIP final invalide' }
       - name: Analyser le ZIP final avec Microsoft Defender
         shell: pwsh
-        run: ./scripts/windows/scan-distribution.ps1 -Stage zip -Target '_package/SMN-Setup-Windows-x64-v33.zip'
+        run: ./scripts/windows/scan-distribution.ps1 -Stage zip -Target "_package/SMN-Setup-Windows-x64-v33-$env:GITHUB_RUN_ID.zip"
       # GitHub's artifact service can intermittently return HTML instead of
       # its JSON API response. Retry once as a separate artifact. Do NOT mask
       # an unavailable download: if neither upload succeeds the job fails.
@@ -140,11 +140,11 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
-          name: SMN-Distribution-Windows-x64-v33
+          name: SMN-Distribution-Windows-x64-v33-${{ github.run_id }}
           path: |
-            _package/SMN-Setup-Windows-x64-v33.zip
-            _package/SMN-Setup-Windows-x64-v33.zip.sha256
-            _package/SMN-Setup-Windows-x64-v33.zip.evidence.json
+            _package/SMN-Setup-Windows-x64-v33-*.zip
+            _package/SMN-Setup-Windows-x64-v33-*.zip.sha256
+            _package/SMN-Setup-Windows-x64-v33-*.zip.evidence.json
             _package/smn-distribution-inventory.json
             _package/smn-antivirus-report.json
           if-no-files-found: error
@@ -156,11 +156,11 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
-          name: SMN-Distribution-Windows-x64-v33-retry
+          name: SMN-Distribution-Windows-x64-v33-${{ github.run_id }}-retry
           path: |
-            _package/SMN-Setup-Windows-x64-v33.zip
-            _package/SMN-Setup-Windows-x64-v33.zip.sha256
-            _package/SMN-Setup-Windows-x64-v33.zip.evidence.json
+            _package/SMN-Setup-Windows-x64-v33-*.zip
+            _package/SMN-Setup-Windows-x64-v33-*.zip.sha256
+            _package/SMN-Setup-Windows-x64-v33-*.zip.evidence.json
             _package/smn-distribution-inventory.json
             _package/smn-antivirus-report.json
           if-no-files-found: error
