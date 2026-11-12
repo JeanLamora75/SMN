@@ -107,10 +107,19 @@ jobs:
           fi
       - name: Build de production
         run: pnpm build
-      - name: Navigateur connecté au vrai serveur Next.js et PostgreSQL natif v33
+      - name: Chromium réel — répéter 3 fois Paramètres et calendrier national (PG18)
         env:
           CI: "true"
-        run: pnpm exec tsx --test tests/settings-live-next-pg-browser.test.ts
+        run: |
+          for iteration in 1 2 3; do
+            echo "::group::Parcours SMN complet — répétition $iteration/3"
+            pnpm exec tsx --test tests/settings-live-next-pg-browser.test.ts
+            echo "::endgroup::"
+          done
+      - name: PostgreSQL 18 — 5 interruptions brutales de transactions et reprise
+        env:
+          CI: "true"
+        run: pnpm exec tsx --test tests/settings-pg-interrupted-transaction.test.ts
       - name: HTTP production et diagnostics PostgreSQL
         run: node scripts/verify-http-ci.mjs
       # The coverage matrix is already validated above. Publishing it is a
