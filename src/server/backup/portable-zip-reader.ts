@@ -89,6 +89,7 @@ export async function extractSmnEncryptedZip(
    throw Error("migration-zip-checksum-invalid");
   return {archiveId:match[1],size:length};
  }catch(error){
+  await output?.close().catch(()=>undefined);output=null;
   if(created)await rm(targetPath,{force:true}).catch(()=>undefined);
   throw error;
  }finally{
