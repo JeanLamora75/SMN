@@ -160,8 +160,13 @@ jobs:
           run_install: false
       - name: Installer les dépendances verrouillées
         run: pnpm install --frozen-lockfile
-      - name: Navigateur Chromium réel — interactions des Paramètres
-        run: pnpm exec tsx --test tests/settings-browser-interactions.test.ts
+      - name: Chromium — interactions Paramètres et sauvegarde Équipes (3 répétitions)
+        run: |
+          for iteration in 1 2 3; do
+            echo "::group::Paramètres navigateur — répétition $iteration/3"
+            pnpm exec tsx --test tests/settings-browser-interactions.test.ts tests/settings-teams-browser-http.test.ts
+            echo "::endgroup::"
+          done
       - name: Vérifier les types, même si les tests métier échouent
         run: pnpm typecheck
       - name: Recette moteur et graphe indicateurs
