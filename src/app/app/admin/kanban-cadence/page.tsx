@@ -13,7 +13,7 @@ export default async function KanbanCadencePage(){
  if(!canAccess(account,"read",{type:"settings",exists:true,inScope:true}))redirect("/app");
  if(account.must_change_password)redirect("/change-password");
  const locale=await requestLocale();
- return <SettingsPageShell title={translate(locale,"kanbanCadence.title")} description={translate(locale,"kanbanCadence.intro")} eyebrow={translate(locale,"settingsCatalog.navigation.adminEyebrow")} constrained>
+ return <SettingsPageShell title={translate(locale,"kanbanCadence.title")} description={translate(locale,"kanbanCadence.intro")} eyebrow={translate(locale,"settingsCatalog.navigation.adminEyebrow")}>
   <KanbanCadenceForm/>
   {account.role==="admin"&&<KanbanCadenceProposal/>}
  </SettingsPageShell>;
