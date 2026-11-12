@@ -129,6 +129,43 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   assert.deepEqual({name:persisted[0].name,frequency:persisted[0].frequency,
    weekday:persisted[0].weekday,revision:persisted[0].revision},
    {name:"Daily navigateur",frequency:"weekly",weekday:3,revision:1});
+
+  // Cérémonies : validation, désactivation logique, conflit et réactivation.
+  const templateId=await db(target.toString(),async client=>(await client.query(
+   "SELECT id FROM public.smn_scrum_ceremony_template WHERE team_id='e2eteam'")).rows[0].id as string);
+  const invalidCeremony=await callSettingsApi(page,"/api/admin/sprints/templates","POST",{
+   id:templateId,revision:1,active:false,
+   template:{name:"Daily navigateur",frequency:"weekly",weekday:3,position:null,time:"09:00",duration:0}
+  });
+  assert.equal(invalidCeremony.status,400,"Une durée nulle doit être refusée");
+  const ceremonyPayload={
+   name:"Daily navigateur modifié",frequency:"weekly",weekday:3,position:null,time:"09:15",duration:25
+  };
+  const deactivatedCeremony=await callSettingsApi(page,"/api/admin/sprints/templates","POST",{
+   id:templateId,revision:1,active:false,template:ceremonyPayload
+  });
+  assert.equal(deactivatedCeremony.status,200,JSON.stringify(deactivatedCeremony.payload));
+  const staleCeremony=await callSettingsApi(page,"/api/admin/sprints/templates","POST",{
+   id:templateId,revision:1,active:true,template:ceremonyPayload
+  });
+  assert.equal(staleCeremony.status,409,"La révision périmée ne doit pas réactiver la cérémonie");
+  const reenabledCeremony=await callSettingsApi(page,"/api/admin/sprints/templates","POST",{
+   id:templateId,revision:2,active:true,template:ceremonyPayload
+  });
+  assert.equal(reenabledCeremony.status,200,JSON.stringify(reenabledCeremony.payload));
+  const templateAfter=await db(target.toString(),async client=>{
+   const value=await client.query(
+    "SELECT name,revision,active,duration_minutes FROM public.smn_scrum_ceremony_template WHERE id=$1",[templateId]);
+   const history=await client.query(
+    "SELECT count(*)::int AS count FROM public.smn_scrum_ceremony_template_history WHERE template_id=$1",[templateId]);
+   return {...value.rows[0],historyCount:history.rows[0].count};
+  });
+  assert.equal(templateAfter.name,"Daily navigateur modifié");
+  assert.equal(templateAfter.active,true);
+  assert.equal(templateAfter.revision,3);
+  assert.equal(templateAfter.duration_minutes,25);
+  assert.equal(templateAfter.historyCount,3,"La désactivation et réactivation restent traçables");
+
   // La famille Calendriers exerce les vraies pages et le dialogue de création.
   const portal=await page.goto(origin+"/app/admin/settings",{waitUntil:"domcontentloaded"});
   assert.equal(portal?.status(),200,"Le portail des Paramètres doit lire le mode Scrum v33");
