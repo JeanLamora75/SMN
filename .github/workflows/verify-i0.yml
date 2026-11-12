@@ -49,10 +49,15 @@ jobs:
       - name: Préparer la base éphémère dédiée aux contrats v31/v32
         run: |
           PGPASSWORD=smn_ci_ephemeral_test psql -h 127.0.0.1 -U smn_ci -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE smn_ci"
-      - name: Intégration PostgreSQL réelle — installation et diagnostic sur bases jetables
+      - name: Répéter trois fois les tests PostgreSQL sur bases jetables indépendantes
         env:
           CI: "true"
-        run: pnpm exec tsx --test tests/setup-integration.test.ts tests/postgres-integration.test.ts
+        run: |
+          for iteration in 1 2 3; do
+            echo "::group::Intégration PostgreSQL — répétition $iteration/3"
+            pnpm exec tsx --test tests/setup-integration.test.ts tests/postgres-integration.test.ts
+            echo "::endgroup::"
+          done
       - name: Contrat de validation v33
         run: pnpm test:validate-version
       - name: Qualité commune v33
@@ -155,6 +160,8 @@ jobs:
           run_install: false
       - name: Installer les dépendances verrouillées
         run: pnpm install --frozen-lockfile
+      - name: Navigateur Chromium réel — interactions des Paramètres
+        run: pnpm exec tsx --test tests/settings-browser-interactions.test.ts
       - name: Vérifier les types, même si les tests métier échouent
         run: pnpm typecheck
       - name: Recette moteur et graphe indicateurs
