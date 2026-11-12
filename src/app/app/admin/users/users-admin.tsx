@@ -86,29 +86,6 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
   return <div className="d-grid gap-4">
     {dirty&&<p role="status" className="alert alert-warning mb-0">{t("draft.pending")}</p>}
     <section className="smn-panel p-4">
-      <h2 className="h5">{t("accounts.createTitle")}</h2>
-      <p className="small text-secondary">{t("accounts.createInfo")}</p>
-      {dirtyCreation&&<p className="small fw-semibold">{t("draft.provisional")}</p>}
-      <form onSubmit={create} className="row g-3" aria-describedby={message?"accounts-feedback":undefined}>
-        <div className="col-md-6"><label className="form-label">{t("accounts.username")}<input className="form-control" required minLength={2} maxLength={50}
-            value={username} onChange={e=>{setUsername(e.target.value);setMessage("");}} disabled={busy} autoComplete="off"/>
-        </label></div>
-        <div className="col-md-6"><label className="form-label">{t("accounts.email")}<input className="form-control" type="email" required maxLength={200}
-            value={email} onChange={e=>{setEmail(e.target.value);setMessage("");}} disabled={busy} autoComplete="off"/>
-        </label></div>
-        <div className="col-md-6"><label className="form-label">{t("accounts.initialPassword")}<input className="form-control" type="password" required minLength={4} maxLength={256}
-            value={password} onChange={e=>{setPassword(e.target.value);setMessage("");}} disabled={busy} autoComplete="new-password"/>
-        </label></div>
-        <div className="col-md-6"><label className="form-label">{t("accounts.roleCol")}<select className="form-select" value={role} onChange={e=>{setRole(e.target.value as Role);setMessage("");}} disabled={busy}>
-            <option value="user">{t("accounts.userCol")}</option><option value="admin">{t("accounts.admin")}</option>
-          </select>
-        </label></div>
-        <div><button className="btn btn-primary" type="submit" disabled={busy}>
-          {t(busy?"accounts.saving":"accounts.create")}
-        </button></div>
-      </form>
-    </section>
-    <section className="smn-panel p-4">
       <h2 className="h5">{t("accounts.existing")}</h2>
       <div className="d-flex flex-wrap gap-3 align-items-end mb-3">
         <label className="form-label mb-0 flex-grow-1" style={{minWidth:190,maxWidth:360}}>{t("settingsCollections.searchUsers")}
@@ -157,6 +134,29 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
           })}</tbody>
         </table>
       </div>}
+    </section>
+    <section className="smn-panel p-4">
+      <h2 className="h5">{t("accounts.createTitle")}</h2>
+      <p className="small text-secondary">{t("accounts.createInfo")}</p>
+      {dirtyCreation&&<p className="small fw-semibold">{t("draft.provisional")}</p>}
+      <form onSubmit={create} className="row g-3" aria-describedby={message?"accounts-feedback":undefined}>
+        <div className="col-md-6"><label className="form-label">{t("accounts.username")}<input className="form-control" required minLength={2} maxLength={50}
+            value={username} onChange={e=>{setUsername(e.target.value);setMessage("");}} disabled={busy} autoComplete="off"/>
+        </label></div>
+        <div className="col-md-6"><label className="form-label">{t("accounts.email")}<input className="form-control" type="email" required maxLength={200}
+            value={email} onChange={e=>{setEmail(e.target.value);setMessage("");}} disabled={busy} autoComplete="off"/>
+        </label></div>
+        <div className="col-md-6"><label className="form-label">{t("accounts.initialPassword")}<input className="form-control" type="password" required minLength={4} maxLength={256}
+            value={password} onChange={e=>{setPassword(e.target.value);setMessage("");}} disabled={busy} autoComplete="new-password"/>
+        </label></div>
+        <div className="col-md-6"><label className="form-label">{t("accounts.roleCol")}<select className="form-select" value={role} onChange={e=>{setRole(e.target.value as Role);setMessage("");}} disabled={busy}>
+            <option value="user">{t("accounts.userCol")}</option><option value="admin">{t("accounts.admin")}</option>
+          </select>
+        </label></div>
+        <div><button className="btn btn-primary" type="submit" disabled={busy}>
+          {t(busy?"accounts.saving":"accounts.create")}
+        </button></div>
+      </form>
     </section>
     {message&&<p id="accounts-feedback" role={messageError?"alert":"status"} className={"alert "+(messageError?"alert-warning":"alert-info")}>{message}</p>}
   </div>;
