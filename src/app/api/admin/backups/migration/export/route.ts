@@ -9,7 +9,8 @@ import {readErasureLedger} from "@/server/backup/erasure-ledger";
 import {hasUnresolvedErasureIntent} from "@/server/backup/erasure-intent";
 import {assessMigrationSource} from "@/server/backup/migration-source-policy";
 import {streamPortableBackup} from "@/server/backup/portable-package";
-import {wrapEncryptedBackupInZip} from "@/server/backup/portable-zip";
+import {wrapPortableTransferZip} from "@/server/backup/portable-transfer-zip";
+import {captureGuiTransferEvidence} from "@/server/backup/gui-transfer-evidence";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -40,8 +41,13 @@ export async function GET(request:NextRequest){
   });
   if(!report.exportCandidate)return jsonResult({error:"migration-source-blocked",
    blockers:report.blockers},409);
+  const evidence=format==="zip"?await captureGuiTransferEvidence(id):null;
   const compressed=await streamPortableBackup(root,item);
-  const output=format==="zip"?wrapEncryptedBackupInZip(compressed,id):compressed;
+  const output=format==="zip"&&evidence?
+   wrapPortableTransferZip(compressed,id,[
+    {name:"migration-receipt.json",data:evidence.receipt},
+    {name:"privacy-ledger.enc",data:evidence.ledger}
+   ]):compressed;
   const body=Readable.toWeb(output) as ReadableStream<Uint8Array>;
   return new Response(body,{status:200,headers:{
    "Content-Type":format==="zip"?"application/zip":"application/gzip",
