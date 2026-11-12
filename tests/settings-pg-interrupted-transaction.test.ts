@@ -32,6 +32,9 @@ test("PostgreSQL 18 : une connexion tuée pendant une transaction annule toutes 
   const codes=["BE","NL","CH","AT","LU"];
   for(let iteration=1;iteration<=5;iteration++){
    const writer=await connect(target.toString());
+   // Une terminaison volontaire émet une erreur réseau sur le client tué.
+   // Elle fait partie du scénario et ne doit pas devenir une exception EventEmitter non gérée.
+   writer.on("error",()=>undefined);
    try{
     await writer.query("BEGIN");
     await writer.query("UPDATE public.smn_general_settings SET reference_country='BE' WHERE installation_id='singleton'");
