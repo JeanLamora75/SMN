@@ -62,4 +62,41 @@ describe("SMN-34 — preflight refuse toute restauration non qualifiée",()=>{
    assert.ok(decision.blockers.includes(key),key);
   }
  });
+ it("la restauration reste bloquée malgré un registre d'effacement vérifié",()=>{
+  const evidence={
+   state:"verified" as const,source:"external-append-only" as const,
+   coverageStart:"2026-11-01T00:00:00.000Z",
+   checkedAt:"2026-11-09T09:00:00.000Z",
+   latestErasureAt:null,entriesAfterBackup:0,
+   signatureVerified:true as const,completeHistory:true
+  };
+  const decision=assessRestoreGate({...baseline,issues:[]},evidence);
+  assert.deepEqual(decision.blockers,[
+   "isolated-restore-unverified","rollback-checkpoint-unverified",
+   "atomic-cutover-unverified","session-reset-unverified"
+  ]);
+  assert.deepEqual(decision.warnings,[]);
+  assert.equal(decision.decision,"blocked");
+  assert.equal(decision.canExecute,false);
+ });
+ it("les preuves d'effacement incomplètes ne sont jamais assimilées à une restauration autorisée",()=>{
+  const base={
+   state:"verified" as const,source:"external-append-only" as const,
+   coverageStart:"2026-11-01T00:00:00.000Z",
+   checkedAt:"2026-11-09T09:00:00.000Z",
+   latestErasureAt:null,entriesAfterBackup:0,
+   signatureVerified:true as const,completeHistory:true
+  };
+  const cases=[
+   {evidence:{...base,completeHistory:false},code:"privacy-erasures-unverified"},
+   {evidence:{...base,coverageStart:"2026-11-09T08:31:00.000Z"},code:"privacy-coverage-gap"},
+   {evidence:{...base,entriesAfterBackup:1,latestErasureAt:"2026-11-09T08:45:00.000Z"},code:"privacy-erased-data"}
+  ];
+  for(const {evidence,code} of cases){
+   const verdict=assessRestoreGate({...baseline,issues:[]},evidence);
+   assert.equal(verdict.canExecute,false,code);
+   assert.ok(verdict.blockers.includes(code),code);
+  }
+ });
+
 });
