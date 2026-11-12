@@ -50,7 +50,14 @@ function project(row:Row):GeneralSettings {
     revision:row.revision,updatedAt:row.updated_at,
     mode:row.mode,product:row.product};
 }
-const select = `SELECT s.locale,s.theme,s.palette,s.reference_country,s.revision,s.updated_at,i.mode,COALESCE(p.name,'') AS product
+const select = `SELECT s.locale,s.theme,s.palette,s.reference_country,s.revision,s.updated_at,
+ COALESCE(
+  (SELECT NULLIF(to_jsonb(t)->>'agile_mode','') FROM public.smn_team t
+   WHERE t.installation_id=i.id
+     AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false
+   ORDER BY t.id LIMIT 1),
+  NULLIF(to_jsonb(i)->>'mode','')
+ ) AS mode,COALESCE(p.name,'') AS product
  FROM public.smn_general_settings s
  JOIN public.smn_installation i ON i.id=s.installation_id
  LEFT JOIN LATERAL (SELECT pr.name FROM public.smn_team t
