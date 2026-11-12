@@ -75,3 +75,17 @@ test("replacement of an installed destination requires explicit double approval 
  for(const file of [cutover,entry,prepare])
   assert.doesNotMatch(file,/DROP DATABASE|TRUNCATE|DELETE FROM public/);
 });
+
+test("postverified rollback preserves original, candidate and maintenance",()=>{
+ const rollback=readFileSync(new URL("../src/server/backup/fresh-cutover-rollback.ts",import.meta.url),"utf8");
+ const entry=readFileSync(new URL("../scripts/smn-40-cutover-rollback.ts",import.meta.url),"utf8");
+ assert.match(rollback,/inspectOfflineCutoverJournal\(/);
+ assert.match(rollback,/readFreshCutoverJournal\(/);
+ assert.match(rollback,/rollback-started/);
+ assert.match(rollback,/rolled-back/);
+ assert.match(rollback,/maintenanceMustRemain:true/);
+ assert.match(rollback,/allSessionsMustBeReauthenticated:true/);
+ assert.match(rollback,/migration-rollback-manual-recovery-required/);
+ assert.match(entry,/--confirm=ROLLBACK_VERIFIED_NEWPC_CUTOVER/);
+ assert.doesNotMatch(rollback,/DROP DATABASE|TRUNCATE|DELETE FROM|unlink\(|rm\(/);
+});
