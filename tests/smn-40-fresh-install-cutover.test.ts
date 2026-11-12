@@ -89,3 +89,18 @@ test("postverified rollback preserves original, candidate and maintenance",()=>{
  assert.match(entry,/--confirm=ROLLBACK_VERIFIED_NEWPC_CUTOVER/);
  assert.doesNotMatch(rollback,/DROP DATABASE|TRUNCATE|DELETE FROM|unlink\(|rm\(/);
 });
+
+test("release is explicitly offline, fails closed, and archives both barriers",()=>{
+ const release=readFileSync(new URL("../src/server/backup/fresh-cutover-release.ts",import.meta.url),"utf8");
+ const entry=readFileSync(new URL("../scripts/smn-40-cutover-release.ts",import.meta.url),"utf8");
+ const maintenance=readFileSync(new URL("../src/server/backup/restore-maintenance.ts",import.meta.url),"utf8");
+ assert.match(release,/inspectOfflineCutoverJournal\(/);
+ assert.match(release,/INDEPENDENT_SOURCE_RETIRED_AND_REAUTH_APPROVED/);
+ assert.match(release,/canBindLoopback\(3003\)/);
+ assert.match(release,/await rename\(external,externalParked\)/);
+ assert.match(release,/await rename\(local,localParked\)/);
+ assert.match(release,/allSessionsMustBeReauthenticated:true/);
+ assert.match(entry,/--confirm=INDEPENDENT_SOURCE_RETIRED_AND_REAUTH_APPROVED/);
+ assert.match(maintenance,/localRestoreMaintenanceLockPath/);
+ assert.doesNotMatch(release,/unlink\(|rm\(|DROP DATABASE/);
+});
