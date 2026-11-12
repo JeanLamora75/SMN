@@ -11,8 +11,17 @@ import {backupRootPath} from "../src/server/backup/runner";
 import {readFreshCutoverJournal} from "../src/server/backup/fresh-cutover-journal";
 import {inspectOfflineRestoreMaintenance} from "../src/server/backup/restore-maintenance";
 import {existingManagedUri} from "../src/server/bootstrap/portable";
+import {fingerprintPublicTables} from "../src/server/backup/restore-row-fingerprint";
+import {fingerprintCurrentManagedFiles} from "../src/server/backup/current-managed-file-fingerprint";
+import {readErasureLedger} from "../src/server/backup/erasure-ledger";
+import {ERASURE_GENESIS_MAC} from "../src/server/backup/erasure-evidence-format";
+import {hasUnresolvedErasureIntent} from "../src/server/backup/erasure-intent";
+import {comparePortableCurrentState,type SignedCurrentStateReceipt}
+ from "../src/server/backup/current-state-transfer-receipt";
 
-export async function inspectOfflineCutoverJournal(journalPath:string){
+export async function inspectOfflineCutoverJournal(journalPath:string,receiptPath:string){
+ if(!isAbsolute(receiptPath)||resolve(receiptPath)!==receiptPath||
+  !receiptPath.endsWith(".json"))throw Error("migration-postcheck-receipt-path-invalid");
  if(!isAbsolute(journalPath)||resolve(journalPath)!==journalPath||
   !/^migration-[a-f0-9]{12}\.jsonl$/.test(journalPath.split(/[\\/]/).at(-1)??"")||
   resolve(journalPath)!==resolve(join(process.cwd(),"data","migration-audit",
@@ -29,6 +38,11 @@ export async function inspectOfflineCutoverJournal(journalPath:string){
   const events=await readFreshCutoverJournal(journalPath,key);
   const last=events.at(-1);
   if(last?.stage!=="verified")throw Error("migration-postcheck-cutover-not-verified");
+  const signedFile=await lstat(receiptPath);
+  if(!signedFile.isFile()||signedFile.isSymbolicLink()||
+    signedFile.size<50||signedFile.size>8192)
+   throw Error("migration-postcheck-receipt-untrusted");
+  const proof=JSON.parse(await readFile(receiptPath,"utf8")) as SignedCurrentStateReceipt;
   const uri=await existingManagedUri();
   if(!uri)throw Error("migration-postcheck-owned-runtime-unavailable");
   const maintenance=new URL(uri);maintenance.pathname="/postgres";
@@ -46,6 +60,29 @@ export async function inspectOfflineCutoverJournal(journalPath:string){
     "SELECT count(*)::text AS n FROM pg_catalog.pg_stat_activity "+
     "WHERE datname=ANY($1::text[])",["smn",last.rollbackDb]);
    if(sessions.rows[0]?.n!=="0")throw Error("migration-postcheck-sessions-active");
+   const ledger=await readErasureLedger();
+   if(await hasUnresolvedErasureIntent())
+    throw Error("migration-postcheck-erasure-intent-pending");
+   const current=new Client({connectionString:uri,connectionTimeoutMillis:3500,
+    statement_timeout:120000});
+   try{
+    await current.connect();
+    await current.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
+    const database=await fingerprintPublicTables(current);
+    const files=await fingerprintCurrentManagedFiles(current);
+    const verdict=comparePortableCurrentState(proof,key,{
+     archiveId:last.archiveId,databaseDigest:database.digest,
+     filesDigest:files.sha256,filesCount:files.count,
+     ledgerCoverageStart:ledger.coverageStart,
+     ledgerHeadMac:ledger.markers.at(-1)?.mac??ERASURE_GENESIS_MAC,
+     ledgerCount:ledger.markers.length
+    });
+    if(!verdict.currentStateMatched)
+     throw Error("migration-postcheck-restored-state-differ");
+   }finally{
+    await current.query("ROLLBACK").catch(()=>undefined);
+    await current.end().catch(()=>undefined);
+   }
    return {mode:"offline-cutover-postcheck" as const,
     archiveId:last.archiveId,stage:"verified" as const,
     rollbackPreserved:true as const,maintenanceMustRemain:true as const,
@@ -58,8 +95,8 @@ export async function inspectOfflineCutoverJournal(journalPath:string){
 }
 async function main(){
  const args=process.argv.slice(2);
- if(args.length!==2||args[0]!=="--journal")throw Error("migration-postcheck-arguments-invalid");
- const result=await inspectOfflineCutoverJournal(args[1]);
+ if(args.length!==4||args[0]!=="--journal"||args[2]!=="--receipt")throw Error("migration-postcheck-arguments-invalid");
+ const result=await inspectOfflineCutoverJournal(args[1],args[3]);
  process.stdout.write(JSON.stringify(result)+"\n");
 }
 if(process.argv[1]?.replaceAll("\\","/").match(/\/smn-40-cutover-postcheck\.(?:ts|mjs)$/))
