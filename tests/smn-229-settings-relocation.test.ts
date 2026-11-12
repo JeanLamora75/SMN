@@ -71,7 +71,11 @@ describe("SMN-229 — paramètres partagés séparés des sprints",()=>{
    assert.match(code,/redirect\("\/login"\)/);
    assert.match(code,/must_change_password/);
    assert.match(code,/canAccess\(account,"read",\{type:"settings"/);
-   assert.match(code,/lower\(mode\)='scrum'/);
+   if(page==="ceremonies"){
+    assert.match(code,/lower\(to_jsonb\(i\)->>'mode'\)='scrum'/);
+    assert.match(code,/to_jsonb\(t\)->>'agile_mode'/);
+    assert.match(code,/is_archived/);
+   }else assert.match(code,/lower\(mode\)='scrum'/);
    assert.match(code,/redirect\("\/app\/admin\/settings"\)/);
   }
  });
