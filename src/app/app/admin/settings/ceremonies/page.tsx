@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
@@ -6,6 +5,7 @@ import {withAuthDb} from "@/server/auth/database";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import TemplateForm from "../../sprints/template-form";
+import SettingsPageShell from "../settings-page-shell";
 
 export const dynamic="force-dynamic";
 
@@ -25,16 +25,9 @@ export default async function CeremonyTemplatesSettingsPage(){
 
  const locale=await requestLocale();
  const t=(key:Parameters<typeof translate>[1])=>translate(locale,key);
- return <main className="smn-page smn-team-page container-fluid py-4 px-3 px-lg-4">
-  <div className="mx-auto" style={{maxWidth:1000}}>
-   <header className="mb-3">
-    <Link href="/app/admin/settings" className="btn btn-link px-0 mb-2">
-     ← {t("navigation.entries.settings")}
-    </Link>
-    <h1 className="h3">{t("settingsSprint.ceremoniesTitle")}</h1>
-    <p className="text-secondary">{t("settingsSprint.ceremoniesScope")}</p>
-   </header>
+ return <SettingsPageShell title={t("settingsSprint.ceremoniesTitle")}
+  description={t("settingsSprint.ceremoniesScope")}
+  eyebrow={t("settingsCatalog.navigation.adminEyebrow")} constrained>
   <TemplateForm/>
-  </div>
- </main>;
+ </SettingsPageShell>;
 }
