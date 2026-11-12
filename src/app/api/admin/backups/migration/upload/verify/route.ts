@@ -53,6 +53,8 @@ export async function POST(request:NextRequest){
     /^(?:migration|portable|backup|erasure|configuration)-[a-z0-9-]+$/.test(error.message)?
     error.message:"migration-unexpected-error";
    console.error("SMN442 isolated verification:",reason);
+   return jsonResult({error:"migration-verification-refused",
+    ciDiagnostic:reason,restorationAuthorized:false},422);
   }
   return jsonResult({error:"migration-verification-refused",
    restorationAuthorized:false},422);
