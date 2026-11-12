@@ -19,13 +19,19 @@ export function outsideApp(root:string):boolean{
 }
 export async function privateFolder(dir:string,create=false):Promise<void>{
  const local=resolve(process.cwd(),"data","backups");
+ const work=resolve(process.cwd(),"data","migration-work");
  const candidate=resolve(dir);
  const diff=relative(local,candidate);
  const localBackup=isAbsolute(dir)&&(diff===""||
   diff!==".."&&!diff.startsWith(".."+sep)&&!isAbsolute(diff));
- if(!outsideApp(dir)&&!isInstalledPrivateDocumentDirectory(dir)&&!localBackup)
+ const workRelative=relative(work,candidate);
+ const migrationWork=isAbsolute(dir)&&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(workRelative.split(sep)[0])&&
+  workRelative!==".."&&!workRelative.startsWith(".."+sep)&&!isAbsolute(workRelative);
+ if(!outsideApp(dir)&&!isInstalledPrivateDocumentDirectory(dir)&&
+  !localBackup&&!migrationWork)
   throw new Error("backup-private-directory-invalid");
- if(localBackup){
+ if(localBackup||migrationWork){
   // Refuse un répertoire data redirigé hors de l'installation par lien.
   const data=join(process.cwd(),"data");
   const parent=await lstat(data);
