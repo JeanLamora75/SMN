@@ -40,7 +40,8 @@ for(const name of [
  "smn-40-cutover-postcheck",
  "smn-40-cutover-rollback",
  "smn-40-cutover-release",
- "smn-40-offline-maintenance"
+ "smn-40-offline-maintenance",
+ "smn-gui-offline-restore"
 ]){
  const file=path.join(root,"app","maintenance","migration",name+".mjs");
  assert.ok(existsSync(file),"Migration Windows autonome absente : "+name);
