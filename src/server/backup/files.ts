@@ -37,8 +37,11 @@ export async function privateFolder(dir:string,create=false):Promise<void>{
   const parent=await lstat(data);
   if(!parent.isDirectory()||parent.isSymbolicLink())
    throw new Error("backup-private-directory-invalid");
+  // The isolated migration inbox must not depend on the existence of
+  // data/backups (fresh installations may never have created a backup).
+  const selected=migrationWork?work:local;
   try{
-   const root=await lstat(local);
+   const root=await lstat(selected);
    if(!root.isDirectory()||root.isSymbolicLink())
     throw new Error("backup-private-directory-invalid");
   }catch(error){
