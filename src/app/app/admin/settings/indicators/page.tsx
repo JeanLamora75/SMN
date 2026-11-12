@@ -1,5 +1,4 @@
 import {redirect} from "next/navigation";
-import Link from "next/link";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import {currentAccount} from "@/server/auth/session";
@@ -35,7 +34,6 @@ export default async function IndicatorSettingsPage({searchParams}:{searchParams
    .map(t=>({id:t.id,name:t.name,mode:t.agile_mode as "scrum"|"kanban"}));
  }):[];
  return <main className="smn-page smn-team-page smn-sprint-detail-cockpit smn-indicator-settings-cockpit container-fluid px-3 px-lg-4 py-4">
-  <Link className="btn btn-link px-0 mb-2" href="/app/admin/settings">{translate(locale,"settingsCatalog.navigation.back")}</Link>
   <header className="smn-sprint-detail-hero mb-3">
    <p className="smn-cycle-eyebrow text-uppercase small fw-semibold mb-1">{translate(locale,"settingsCatalog.navigation.adminEyebrow")}</p>
    <h1 className="mb-1">{translate(locale,"settingsCatalog.navigation.indicatorsTitle")}</h1>
