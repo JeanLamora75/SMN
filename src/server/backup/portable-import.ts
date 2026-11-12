@@ -2,7 +2,7 @@ import {createReadStream} from "node:fs";
 import {createGunzip} from "node:zlib";
 import {lstat,mkdtemp,mkdir,open,readFile,rm,rename,writeFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
-import {join,resolve,isAbsolute} from "node:path";
+import {join,resolve,isAbsolute,dirname,basename} from "node:path";
 import {recoverKey,type RecoveryEnvelope} from "./crypto";
 import {inspectBackup} from "./verification";
 import {backupRootPath} from "./runner";
@@ -107,13 +107,28 @@ async function extract(input:string,destination:string):Promise<void>{
  * store. No database connection, session write, ledger mutation or cutover.
  * A migration to the live application remains separately prohibited.
  */
-export async function importPortableBackup(input:string,id:string,phrase:string){
+export async function importPortableBackup(input:string,id:string,phrase:string,
+ destinationRoot?:string){
  if(!UUID.test(id)||!isAbsolute(input)||resolve(input)!==input)
   throw Error("portable-import-arguments-invalid");
  const source=await lstat(input);
  if(!source.isFile()||source.isSymbolicLink()||source.size<1||
   source.size>MAX_SIZE)throw Error("portable-import-source-untrusted");
- const root=backupRootPath();
+ const root=destinationRoot??backupRootPath();
+ if(destinationRoot){
+  const base=resolve(process.cwd(),"data","migration-work");
+  if(!isAbsolute(destinationRoot)||resolve(destinationRoot)!==destinationRoot||
+   dirname(destinationRoot)!==base||
+   !UUID.test(basename(destinationRoot)))
+   throw Error("portable-destination-path-invalid");
+  const data=await lstat(join(process.cwd(),"data"));
+  if(!data.isDirectory()||data.isSymbolicLink())
+   throw Error("portable-destination-path-untrusted");
+  await mkdir(base,{recursive:true,mode:0o700});
+  const work=await lstat(base);
+  if(!work.isDirectory()||work.isSymbolicLink())
+   throw Error("portable-destination-path-untrusted");
+ }
  try{await lstat(root);throw Error("portable-destination-not-pristine");}
  catch(e){if((e as NodeJS.ErrnoException).code!=="ENOENT")throw e;}
  const scratch=await mkdtemp(join(tmpdir(),"smn-portable-incoming-"));
