@@ -137,7 +137,8 @@ const migrationScripts=[
  "smn-40-fresh-install-activate",
  "smn-40-newpc-reconstruct",
  "smn-40-cutover-postcheck",
- "smn-40-cutover-rollback"
+ "smn-40-cutover-rollback",
+ "smn-40-cutover-release"
 ];
 const migrationDir=path.join(appDir,"maintenance","migration");
 await mkdir(migrationDir,{recursive:true});
