@@ -8,6 +8,7 @@ import test from "node:test";
 import {Client} from "pg";
 import puppeteer from "puppeteer-core";
 import {detectChrome} from "../scripts/report-chrome.mjs";
+import {installExpress} from "../src/server/installation/install";
 
 const source=process.env.SMN_TEST_DATABASE_URL;
 const allowed=process.env.CI==="true"&&process.env.GITHUB_ACTIONS==="true"&&
@@ -66,7 +67,14 @@ test("Paramètres généraux et cérémonies : vrais formulaires Chromium, HTTP 
  try{
   await dbTask(maintenance.toString(),async client=>{await client.query('CREATE DATABASE "'+database+'"');});
   created=true;
+  assert.deepEqual(await installExpress({
+   password:"MotDePasseDeRecette2026",adminUsername:"admin",
+   adminEmail:"admin@example.test"
+  },databaseUri),{ok:true},"Le schéma natif SMN v33 doit être installé avant les tests");
   await dbTask(databaseUri,async client=>{
+   const schema=await client.query("SELECT schema_version FROM public.smn_installation WHERE id='singleton'");
+   assert.equal(schema.rows[0]?.schema_version,33,"La base jetable contient un SMN v33 réel");
+
    await client.query("CREATE TABLE fixture_settings (id integer primary key, data jsonb not null, revision integer not null)");
    await client.query("CREATE TABLE fixture_ceremonies (id text primary key, data jsonb not null, revision integer not null)");
    await client.query("INSERT INTO fixture_settings VALUES (1,$1::jsonb,3)",[JSON.stringify(baseSettings)]);
