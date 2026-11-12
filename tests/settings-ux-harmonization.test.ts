@@ -103,7 +103,8 @@ test("company API errors use localized messages rather than displaying server co
 test("archived teams keep read-only details and remain reactivatable",()=>{
  const source=read("src/app/app/admin/settings/teams/teams-settings.tsx");
  const disabled="disabled={!canWrite||saving||loading||!!current?.isArchived}";
- assert.equal(source.split(disabled).length-1,3);
+ // Les quatre champs texte (nom, produit, vision, objectif) sont protégés.
+ assert.equal(source.split(disabled).length-1,4);
  assert.match(source,/disabled=\{!canWrite\|\|loading\|\|saving\|\|!!current\?\.isArchived\|\|!hasName/);
  assert.match(source,/settingsCollections\.reactivateTeam/);
  assert.match(source,/current\.isArchived\?"settingsCollections\.reactivateTeam"/);
