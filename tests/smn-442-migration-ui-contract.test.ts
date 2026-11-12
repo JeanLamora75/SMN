@@ -41,3 +41,20 @@ test("SMN-441: browser ZIP GET requires admin permission but no Origin header",(
  assert.match(source,/canAccess\(actor,"write",target\)/);
  assert.match(source,/wrapEncryptedBackupInZip\(compressed,id\)/);
 });
+
+test("SMN-442: existing destination is inspected and never overwritten by an unqualified ZIP",()=>{
+ const source=read("src/app/api/admin/backups/migration/upload/readiness/route.ts");
+ const ui=read("src/app/app/admin/backups/migration-import-admin.tsx");
+ assert.match(source,/withSessionReadDb/);
+ assert.match(source,/containsExistingTables/);
+ assert.match(source,/source-receipt-not-in-zip/);
+ assert.match(source,/independent-erasure-evidence-not-in-zip/);
+ assert.match(source,/automatic-cutover-supervisor-not-qualified/);
+ assert.match(source,/restorationAuthorized:false/);
+ assert.match(ui,/migration\/upload\/readiness/);
+ assert.match(ui,/destinationExisting/);
+ assert.doesNotMatch(source,/DROP DATABASE|ALTER DATABASE|pg_restore|DELETE FROM/);
+ const fr=JSON.parse(read("src/i18n/fr.json")).backups.transfer;
+ const en=JSON.parse(read("src/i18n/en.json")).backups.transfer;
+ assert.deepEqual(Object.keys(fr.blockers).sort(),Object.keys(en.blockers).sort());
+});
