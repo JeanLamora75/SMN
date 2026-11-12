@@ -49,6 +49,10 @@ jobs:
       - name: Préparer la base éphémère dédiée aux contrats v31/v32
         run: |
           PGPASSWORD=smn_ci_ephemeral_test psql -h 127.0.0.1 -U smn_ci -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE smn_ci"
+      - name: Intégration PostgreSQL réelle — installation et diagnostic sur bases jetables
+        env:
+          CI: "true"
+        run: pnpm exec tsx --test tests/setup-integration.test.ts tests/postgres-integration.test.ts
       - name: Contrat de validation v33
         run: pnpm test:validate-version
       - name: Qualité commune v33
