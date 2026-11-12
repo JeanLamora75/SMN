@@ -7,6 +7,8 @@ import {recoverKey,type RecoveryEnvelope} from "./crypto";
 import {inspectBackup} from "./verification";
 import {backupRootPath} from "./runner";
 import {privateFolder} from "./files";
+import {inspectGuiLedgerEvidence} from "./gui-transfer-evidence";
+import {comparePortableCurrentState,type SignedCurrentStateReceipt} from "./current-state-transfer-receipt";
 
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 const ENTRY=/^(?:index\.json|manifest\.enc|database\.pgcustom\.enc|(?:documents|report-pdfs|office-reports|office-templates)\/[0-9]{5}\.enc)$/;
@@ -156,7 +158,8 @@ export async function importPortableBackup(input:string,id:string,phrase:string)
 /** GUI preflight: decrypt and authenticate an uploaded archive in an isolated
  * temporary folder. Does NOT modify the destination backup store or live DB.
  */
-export async function verifyUploadedPortableBackup(input:string,phrase:string){
+export async function verifyUploadedPortableBackup(input:string,phrase:string,
+ evidence?:{receiptPath:string;ledgerPath:string}){
  const source=await lstat(input);
  if(!source.isFile()||source.isSymbolicLink()||source.size<1||
   source.size>MAX_SIZE||phrase.length<20||phrase.length>256)
@@ -177,9 +180,43 @@ export async function verifyUploadedPortableBackup(input:string,phrase:string){
   const result=await inspectBackup(scratch,index.id,key);
   if(result.status!=="verified"||!result.integrityVerified||
    !result.scopeComplete||result.schemaVersion!==33||
-   !result.postgresVersion?.startsWith("18."))
+   !result.postgresVersion?.startsWith("18.")||!result.createdAt)
    throw Error("migration-upload-integrity-invalid");
+  let sourceEvidenceVerified=false;
+  if(evidence){
+   const [receiptStat,ledgerStat]=await Promise.all([
+    lstat(evidence.receiptPath),lstat(evidence.ledgerPath)
+   ]);
+   if(!receiptStat.isFile()||receiptStat.isSymbolicLink()||
+    receiptStat.size<100||receiptStat.size>8192||
+    !ledgerStat.isFile()||ledgerStat.isSymbolicLink()||
+    ledgerStat.size<100||ledgerStat.size>24*1024*1024)
+    throw Error("migration-upload-evidence-untrusted");
+   const receipt=JSON.parse(await readFile(evidence.receiptPath,"utf8"))
+    as SignedCurrentStateReceipt;
+   const encrypted=JSON.parse(await readFile(evidence.ledgerPath,"utf8")) as unknown;
+   const ledger=inspectGuiLedgerEvidence(encrypted,key);
+   try{
+    const p=receipt.payload;
+    if(!p||p.archiveId!==index.id||p.archiveCreatedAt!==result.createdAt||
+     ledger.coverageStart>result.createdAt||
+     ledger.latestEventAt&&ledger.latestEventAt>result.createdAt)
+     throw Error("migration-upload-evidence-window-invalid");
+    const verdict=comparePortableCurrentState(receipt,key,{
+     archiveId:index.id,databaseDigest:p.databaseDigest,
+     filesDigest:p.filesDigest,filesCount:p.filesCount,
+     ledgerCoverageStart:ledger.coverageStart,
+     ledgerHeadMac:ledger.headMac,ledgerCount:ledger.markers
+    });
+    // This authenticates the source assertion only. It is NOT a comparison
+    // with a restored candidate and does not authorize active restoration.
+    if(!verdict.currentStateMatched)
+     throw Error("migration-upload-evidence-unverified");
+    sourceEvidenceVerified=true;
+   }finally{ledger.ledgerKey.fill(0);}
+  }
   return {archiveId:index.id,createdAt:result.createdAt,
+   sourceEvidenceVerified,
    schemaVersion:result.schemaVersion,postgresVersion:result.postgresVersion,
    documents:result.documentCount,components:result.components.length,
    verification:"verified" as const,
