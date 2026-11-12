@@ -1,5 +1,5 @@
 "use client";
-import {useCallback,useEffect,useState,type FormEvent} from "react";
+import {useCallback,useEffect,useMemo,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 
@@ -25,6 +25,12 @@ export default function AbsenceCategoriesAdmin(){
  const [busy,setBusy]=useState(false);
  const [notice,setNotice]=useState("");
  const [isError,setIsError]=useState(false);
+ const [query,setQuery]=useState("");
+ const [stateFilter,setStateFilter]=useState<"all"|"active"|"inactive">("all");
+ const filtered=useMemo(()=>categories.filter(category=>
+  (stateFilter==="all"||(stateFilter==="active"?category.isActive:!category.isActive))&&
+  (!query.trim()||category.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()))
+ ),[categories,query,stateFilter]);
  const dirty=JSON.stringify(draft)!==baseline;
  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
  const reload=useCallback(async()=>{
@@ -104,6 +110,21 @@ export default function AbsenceCategoriesAdmin(){
     {t("common.retry")}</button>
   </div>}
   {status==="ready"&&<>
+   <div className="d-flex flex-wrap gap-3 align-items-end mb-1">
+    <label className="form-label mb-0 flex-grow-1" style={{maxWidth:400,minWidth:180}}>{t("settingsCollections.searchAbsences")}
+     <input type="search" className="form-control mt-1" value={query} onChange={event=>setQuery(event.target.value)}/>
+    </label>
+    <label className="form-label mb-0" style={{minWidth:170}}>{t("settingsCollections.filterStatus")}
+     <select className="form-select mt-1" value={stateFilter} onChange={event=>setStateFilter(event.target.value as "all"|"active"|"inactive")}>
+      <option value="all">{t("settingsCollections.all")}</option>
+      <option value="active">{t("settingsCollections.active")}</option>
+      <option value="inactive">{t("settingsCollections.inactive")}</option>
+     </select>
+    </label>
+    <button type="button" className="btn btn-outline-secondary" onClick={()=>{setQuery("");setStateFilter("all");}} disabled={!query&&stateFilter==="all"}>{t("settingsCollections.reset")}</button>
+   </div>
+   <p role="status" aria-live="polite" className="small text-secondary mb-0">{t("settingsCollections.results",{count:filtered.length,total:categories.length})}</p>
+   {filtered.length===0&&<p role="status" className="small text-secondary">{t("settingsCollections.noMatches")}</p>}
    <div className="table-responsive">
     <table className="table table-sm align-middle">
      <thead><tr>
@@ -113,7 +134,7 @@ export default function AbsenceCategoriesAdmin(){
       <th scope="col">{t("absenceCategories.used")}</th>
       <th scope="col">{t("absenceCategories.actions")}</th>
      </tr></thead>
-     <tbody>{categories.map(category=><tr key={category.id}>
+     <tbody>{filtered.map(category=><tr key={category.id}>
       <td><strong>{category.name}</strong></td>
       <td><span aria-hidden="true" className="d-inline-block rounded me-2"
        style={{width:"1.2rem",height:"1.2rem",verticalAlign:"middle",
