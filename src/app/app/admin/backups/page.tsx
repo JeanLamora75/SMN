@@ -5,6 +5,7 @@ import {canAccess} from "@/server/access-policy";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import BackupsAdmin from "./backups-admin";
+import MigrationImportAdmin from "./migration-import-admin";
 import ErasureImpactAdmin from "./erasure-impact-admin";
 import InstallationResetPreview from "./installation-reset-preview";
 import ProtectionOperations from "./protection-operations";
@@ -23,6 +24,7 @@ export default async function BackupsPage(){
    <Link href="/app" className="btn btn-outline-secondary">{translate(locale,"backups.back")}</Link>
   </header>
   <BackupsAdmin/>
+  <div className="mt-4"><MigrationImportAdmin/></div>
   <div className="mt-4"><ProtectionOperations/></div>
   <div className="mt-4"><ErasureImpactAdmin/></div>
   <div className="mt-4"><InstallationResetPreview/></div>
