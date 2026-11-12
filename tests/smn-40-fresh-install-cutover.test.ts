@@ -44,3 +44,15 @@ test("fresh activation command cannot run from browser and never removes the fen
  assert.match(file,/maintenanceMustRemain:true/);
  assert.doesNotMatch(file,/NextRequest|authorizeApi|fetch\(|unlink\(|rm\(/);
 });
+
+test("postcutover verification is read-only and never releases maintenance",()=>{
+ const code=readFileSync(new URL("../scripts/smn-40-cutover-postcheck.ts",import.meta.url),"utf8");
+ assert.match(code,/readFreshCutoverJournal\(/);
+ assert.match(code,/inspectOfflineRestoreMaintenance\(/);
+ assert.match(code,/migration-postcheck-sessions-active/);
+ assert.match(code,/allSessionsMustBeReauthenticated:true/);
+ assert.match(code,/maintenanceReleased:false/);
+ assert.doesNotMatch(code,/DROP DATABASE|ALTER DATABASE|DELETE FROM|TRUNCATE|unlink\(|rm\(/);
+ const pack=readFileSync(new URL("../scripts/windows/package-portable.mjs",import.meta.url),"utf8");
+ assert.match(pack,/"smn-40-cutover-postcheck"/);
+});
