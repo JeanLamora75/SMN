@@ -36,6 +36,11 @@ on:
       - ".github/workflows/epic2-migration-transfer.yml"
   workflow_dispatch:
 
+# Supersede stale tests rather than queueing dozens of obsolete commits.
+concurrency:
+  group: smn-epic2-transfer-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
