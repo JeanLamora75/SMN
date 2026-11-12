@@ -8,6 +8,9 @@ on:
       - "src/**"
       - "scripts/**"
       - "tests/epic2-lot5-session-reset.test.ts"
+      - "tests/epic2-lot5-maintenance.test.ts"
+      - "tests/epic2-lot9-maintenance-reset.test.ts"
+      - "tests/smn-34-windows-launch-maintenance.test.ts"
       - "tests/smn-40-fresh-destination-readiness.test.ts"
       - "tests/smn-40-fresh-install-cutover.test.ts"
       - "tests/smn-40-fresh-cutover-journal.test.ts"
@@ -65,7 +68,7 @@ jobs:
       - name: Contrat de protection des répertoires persistants et racine minimale
         run: node --test tests/distribution-layout.test.mjs tests/distribution-package-policy.test.mjs
       - name: Non-régression migration inter-PC et retour arrière
-        run: npx tsx --test tests/smn-40-fresh-destination-readiness.test.ts tests/smn-40-fresh-install-cutover.test.ts tests/smn-40-fresh-cutover-journal.test.ts tests/epic2-lot5-session-reset.test.ts
+        run: npx tsx --test tests/smn-40-fresh-destination-readiness.test.ts tests/smn-40-fresh-install-cutover.test.ts tests/smn-40-fresh-cutover-journal.test.ts tests/epic2-lot5-session-reset.test.ts tests/epic2-lot5-maintenance.test.ts tests/epic2-lot9-maintenance-reset.test.ts tests/smn-34-windows-launch-maintenance.test.ts
       - name: Contrats installation PostgreSQL hors ligne
         run: node --test tests/postgres-offline-install.test.mjs
       - name: Preuve de transport Windows sans dépendances
