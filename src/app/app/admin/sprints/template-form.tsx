@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState,type FormEvent} from "react";
+import {useEffect,useMemo,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import {IconPicker} from "../../icon-picker";
 import {SMNIcon} from "../../smn-icon";
@@ -20,6 +20,15 @@ export default function TemplateForm(){
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
  const [message,setMessage]=useState("");
+ const [query,setQuery]=useState("");
+ const [stateFilter,setStateFilter]=useState<"all"|"active"|"inactive">("all");
+ const filtered=useMemo(()=>rows.filter(row=>
+  (row.id===id)||((stateFilter==="all"||(stateFilter==="active"?row.active:!row.active))&&
+  (!query.trim()||row.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())))
+ ),[rows,id,query,stateFilter]);
+ const matchCount=filtered.filter(row=>row.id!==id||
+  ((stateFilter==="all"||(stateFilter==="active"?row.active:!row.active))&&
+  (!query.trim()||row.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())))).length;
  async function load(){const r=await fetch("/api/admin/sprints/templates",{cache:"no-store"});if(!r.ok)throw Error();const j=await r.json();setRows(j.templates);setTeamId(j.teamId??null);}
  useEffect(()=>{void Promise.resolve().then(load).catch(()=>setError(t("ceremonyTemplates.error")));},[t]);
  function choose(key:string){const x=rows.find(v=>v.id===key);setId(key);setForm(x?{name:x.name,frequency:x.frequency,weekday:x.weekday,position:x.position,time:x.time.slice(0,5),duration:x.duration,icon:x.icon??null,iconColor:x.iconColor??null}:empty);setActive(x?.active??true);setRevision(x?.revision??1);setError("");setMessage("");}
@@ -28,7 +37,13 @@ export default function TemplateForm(){
  const d=await r.json();if(!r.ok)throw Error();await load();choose("");setMessage(t("ceremonyTemplates.saved"));}
  catch{setError(t("ceremonyTemplates.error"));}finally{setBusy(false);}}
  return <section className="smn-panel p-4 mt-4"><h2 className="h4">{t("ceremonyTemplates.title")}</h2><p>{t("ceremonyTemplates.intro")}</p>
- <label className="form-label" htmlFor="template-existing">{t("ceremonyTemplates.existing")}</label><select id="template-existing" className="form-select" value={id} onChange={e=>choose(e.target.value)}><option value="">{t("ceremonyTemplates.new")}</option>{rows.map(x=><option key={x.id} value={x.id}>{x.name} — {x.active?t("ceremonyTemplates.enabled"):t("ceremonyTemplates.disabled")}</option>)}</select>
+ <div className="row g-3 mb-3">
+  <div className="col-md-7"><label className="form-label" htmlFor="template-search">{t("settingsCollections.searchTemplates")}</label><input type="search" id="template-search" className="form-control" value={query} onChange={event=>setQuery(event.target.value)}/></div>
+  <div className="col-md-5"><label className="form-label" htmlFor="template-status">{t("settingsCollections.filterStatus")}</label><select id="template-status" className="form-select" value={stateFilter} onChange={event=>setStateFilter(event.target.value as "all"|"active"|"inactive")}><option value="all">{t("settingsCollections.all")}</option><option value="active">{t("settingsCollections.active")}</option><option value="inactive">{t("settingsCollections.inactive")}</option></select></div>
+ </div>
+ <p role="status" aria-live="polite" className="small text-secondary">{t("settingsCollections.results",{count:matchCount,total:rows.length})}</p>
+ {matchCount===0&&<p className="small text-secondary" role="status">{t("settingsCollections.noMatches")} <button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>{setQuery("");setStateFilter("all");}}>{t("settingsCollections.reset")}</button></p>}
+ <label className="form-label" htmlFor="template-existing">{t("ceremonyTemplates.existing")}</label><select id="template-existing" className="form-select" value={id} onChange={e=>choose(e.target.value)}><option value="">{t("ceremonyTemplates.new")}</option>{filtered.map(x=><option key={x.id} value={x.id}>{x.name} — {x.active?t("ceremonyTemplates.enabled"):t("ceremonyTemplates.disabled")}</option>)}</select>
  <form className="row g-3 mt-2" onSubmit={save}>
  <div className="col-md-6"><label className="form-label" htmlFor="template-name">{t("ceremonyTemplates.name")}</label><input id="template-name" className="form-control" value={form.name} required maxLength={120} onChange={e=>setForm({...form,name:e.target.value})}/></div>
  <div className="col-md-6"><label className="form-label" htmlFor="template-frequency">{t("ceremonyTemplates.frequency")}</label><select id="template-frequency" className="form-select" value={form.frequency} onChange={e=>{const frequency=e.target.value as Frequency;setForm({...form,frequency,weekday:frequency==="weekly"?1:null,position:frequency==="sprint"?"start":null});}}><option value="daily">{t("ceremonyTemplates.daily")}</option><option value="weekly">{t("ceremonyTemplates.weekly")}</option><option value="sprint">{t("ceremonyTemplates.sprint")}</option></select></div>
@@ -39,15 +54,15 @@ export default function TemplateForm(){
  <div className="col-12"><div className="border rounded-3 p-3">
   <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
    <div>
-    <div className="form-label fw-semibold mb-1">Icône de la cérémonie</div>
-    <p className="small text-body-secondary mb-2">Facultative. L’icône et sa couleur s&apos;appliquent au modèle, sans modifier les réunions existantes.</p>
-    <IconPicker value={form.icon??undefined} onChange={icon=>setForm(current=>({...current,icon:icon??null}))} color={form.iconColor} onColorChange={iconColor=>setForm(current=>({...current,iconColor:iconColor??null}))} disabled={busy} label="du modèle de cérémonie"/>
+    <div className="form-label fw-semibold mb-1">{t("settingsCollections.ceremonyIcon")}</div>
+    <p className="small text-body-secondary mb-2">{t("settingsCollections.ceremonyIconHelp")}</p>
+    <IconPicker value={form.icon??undefined} onChange={icon=>setForm(current=>({...current,icon:icon??null}))} color={form.iconColor} onColorChange={iconColor=>setForm(current=>({...current,iconColor:iconColor??null}))} disabled={busy} label={t("settingsCollections.ceremonyIconPicker")}/>
    </div>
-   <div className="d-inline-flex align-items-center gap-2 rounded-3 border px-3 py-2" role="status" aria-label="Aperçu de la cérémonie">
+   <div className="d-inline-flex align-items-center gap-2 rounded-3 border px-3 py-2" role="status" aria-label={t("settingsCollections.ceremonyPreview")}>
     {form.icon&&<span style={{color:ceremonyIconColorHex(form.iconColor)??"var(--smn-foreground)"}}>
      <SMNIcon name={form.icon} size="1.5rem"/>
     </span>}
-    <span className="small">{form.name.trim()||"Aperçu de la cérémonie"}</span>
+    <span className="small">{form.name.trim()||t("settingsCollections.ceremonyPreview")}</span>
    </div>
   </div>
  </div></div>
