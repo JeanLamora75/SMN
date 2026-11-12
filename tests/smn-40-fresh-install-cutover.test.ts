@@ -104,3 +104,14 @@ test("release is explicitly offline, fails closed, and archives both barriers",(
  assert.match(maintenance,/localRestoreMaintenanceLockPath/);
  assert.doesNotMatch(release,/unlink\(|rm\(|DROP DATABASE/);
 });
+
+test("standalone maintenance operator creates persistent fence without claiming shutdown",()=>{
+ const operator=readFileSync(new URL("../scripts/smn-40-offline-maintenance.ts",import.meta.url),"utf8");
+ const launcher=readFileSync(new URL("../scripts/windows/restore-launch-gate.mjs",import.meta.url),"utf8");
+ assert.match(operator,/beginOfflineRestoreMaintenance\(/);
+ assert.match(operator,/FENCE_NEWPC_MIGRATION/);
+ assert.match(operator,/serverStoppedProven:false/);
+ assert.match(operator,/sourceFrozenProven:false/);
+ assert.match(launcher,/restore-maintenance.lock/);
+ assert.doesNotMatch(operator,/unlink\(|rm\(|DELETE FROM|ALTER DATABASE/);
+});
