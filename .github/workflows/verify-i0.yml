@@ -107,6 +107,10 @@ jobs:
           fi
       - name: Build de production
         run: pnpm build
+      - name: Navigateur connecté au vrai serveur Next.js et PostgreSQL natif v33
+        env:
+          CI: "true"
+        run: pnpm exec tsx --test tests/settings-live-next-pg-browser.test.ts
       - name: HTTP production et diagnostics PostgreSQL
         run: node scripts/verify-http-ci.mjs
       # The coverage matrix is already validated above. Publishing it is a
