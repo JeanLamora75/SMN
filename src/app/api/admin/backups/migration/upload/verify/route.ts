@@ -23,8 +23,13 @@ export async function POST(request:NextRequest){
   const stat=await lstat(tar);
   if(!stat.isFile()||stat.isSymbolicLink())
    throw Error("migration-upload-file-invalid");
-  const meta=JSON.parse(await readFile(indexPath,"utf8")) as {archiveId?:string};
-  const result=await verifyUploadedPortableBackup(tar,input.phrase);
+  const meta=JSON.parse(await readFile(indexPath,"utf8")) as {
+   archiveId?:string;hasTransferEvidence?:boolean
+  };
+  const result=await verifyUploadedPortableBackup(tar,input.phrase,
+   meta.hasTransferEvidence===true?{
+    receiptPath:tar+".receipt.json",ledgerPath:tar+".privacy.enc"
+   }:undefined);
   if(meta.archiveId!==result.archiveId)
    throw Error("migration-upload-identity-mismatch");
   return jsonResult({...result,state:"verified-no-activation",
