@@ -36,13 +36,17 @@ export async function withAuthDb<T>(action: (client: Client) => Promise<T>): Pro
 }
 
 /** Read-only account lookup for sessions: no schema locks, migrations or calendar preload. */
-export async function withSessionReadDb<T>(action: (client: Client) => Promise<T>): Promise<T> {
+export async function withSessionReadDb<T>(action: (client: Client) => Promise<T>,
+ options?:{timeoutMs?:number}): Promise<T> {
+ const timeout=options?.timeoutMs??5000;
+ if(!Number.isInteger(timeout)||timeout<1000||timeout>120000)
+  throw Error("session-read-timeout-invalid");
   const uri = await installedDatabaseUri();
   const client = new Client({
     connectionString: uri,
     connectionTimeoutMillis: 3500,
-    statement_timeout: 5000,
-    query_timeout: 5000,
+    statement_timeout: timeout,
+    query_timeout: timeout,
     application_name: "smn-session-read",
   });
   try {
