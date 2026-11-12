@@ -13,7 +13,7 @@ export default function SettingsTabs({sections,label,variant="default",actions,a
 
  useEffect(()=>{
   const selectFromHash=()=>{
-   const hash=decodeURIComponent(window.location.hash.slice(1));
+   const hash=window.location.hash.slice(1);
    const ids=sectionIds.split("|").filter(Boolean);
    setActive(ids.includes(hash)?hash:(ids[0]??""));
   };
