@@ -57,3 +57,17 @@ test("links settings separate inventory and categories without changing transfer
  assert.match(inventory,/LinkTransfer/);
  assert.match(categories,/reassign/);
 });
+
+test("ceremony template editor protects drafts and resets after successful save",()=>{
+ const source=read("src/app/app/admin/sprints/template-form.tsx");
+ assert.match(source,/useUnsavedChanges\(dirty\|\|busy/);
+ assert.match(source,/dirty&&!window\.confirm\(t\("draft\.discardWarning"\)\)/);
+ assert.match(source,/setId\(""\);setForm\(empty\);setActive\(true\);setRevision\(1\)/);
+ assert.match(source,/disabled=\{busy\|\|!dirty\}/);
+});
+test("accounts catalogue appears before the creation form without changing authorization",()=>{
+ const source=read("src/app/app/admin/users/users-admin.tsx");
+ assert.ok(source.indexOf('t("accounts.existing")')<source.indexOf('t("accounts.createTitle")'));
+ assert.match(source,/disabled=\{busy\|\|self\}/);
+ assert.match(source,/role:edit\.role,isActive:edit\.isActive/);
+});
