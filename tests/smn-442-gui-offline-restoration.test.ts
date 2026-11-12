@@ -90,3 +90,11 @@ test("SMN-442: disposable dual-install acceptance rotates both admin passwords b
  assert.match(e2e,/await waitOutcome\(first,"failed"\)/);
  assert.match(e2e,/await waitOutcome\(next,"complete"\)/);
 });
+
+test("SMN-442: maintenance denies new authentication until safe release",()=>{
+ const login=read("src/app/api/auth/login/route.ts");
+ const session=read("src/server/auth/session.ts");
+ assert.match(login,/await restoreMaintenanceActive\(\)/);
+ assert.match(login,/jsonResult\(\{error:"service-unavailable"\},503\)/);
+ assert.match(session,/if\(await restoreMaintenanceActive\(\)\)return null/);
+});
