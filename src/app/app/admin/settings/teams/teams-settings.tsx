@@ -216,7 +216,7 @@ export default function TeamsSettings(){
       </label>
       <input id="smn-team-settings-product" className="form-control" type="text"
        maxLength={120} value={values.productName}
-       disabled={!canWrite||saving||loading}
+       disabled={!canWrite||saving||loading||!!current?.isArchived}
        onChange={event=>setField("productName",event.target.value)}/>
      </div>
      <div>
@@ -224,7 +224,7 @@ export default function TeamsSettings(){
        {t("teamSettings.vision")} <span className="text-secondary small">({t("teamSettings.optional")})</span>
       </label>
       <textarea id="smn-team-settings-vision" className="form-control" rows={4}
-       maxLength={5000} value={values.vision} disabled={!canWrite||saving||loading}
+       maxLength={5000} value={values.vision} disabled={!canWrite||saving||loading||!!current?.isArchived}
        onChange={event=>setField("vision",event.target.value)}/>
      </div>
      <div>
@@ -232,7 +232,7 @@ export default function TeamsSettings(){
        {t("teamSettings.productGoal")} <span className="text-secondary small">({t("teamSettings.optional")})</span>
       </label>
       <textarea id="smn-team-settings-goal" className="form-control" rows={4}
-       maxLength={5000} value={values.productGoal} disabled={!canWrite||saving||loading}
+       maxLength={5000} value={values.productGoal} disabled={!canWrite||saving||loading||!!current?.isArchived}
        onChange={event=>setField("productGoal",event.target.value)}/>
      </div>
      <div className="d-flex flex-wrap gap-2 justify-content-end">
@@ -241,7 +241,7 @@ export default function TeamsSettings(){
        {t("teamSettings.cancel")}
       </button>
       <button type="submit" className="btn btn-primary"
-       disabled={!canWrite||loading||saving||!hasName||current!==null&&!dirty}>
+       disabled={!canWrite||loading||saving||!!current?.isArchived||!hasName||current!==null&&!dirty}>
        {t(current?"teamSettings.save":"teamSettings.create")}
       </button>
      </div>
