@@ -1,6 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {mkdtemp,mkdir,rm} from "node:fs/promises";
+import {mkdtemp,mkdir,rm,writeFile} from "node:fs/promises";
 import {join} from "node:path";
 import {tmpdir} from "node:os";
 import {backupRootPath} from "../src/server/backup/runner";
@@ -24,7 +24,9 @@ test("portable Windows backup store stays in SMN; legacy installations retain Ap
   assert.equal(backupRootPath(),portable);
   const legacy=join(root,"profile","ScrumMasterNotebook","backups");
   await mkdir(legacy,{recursive:true});
-  assert.equal(backupRootPath(),portable,"Local store takes priority once created");
+  assert.equal(backupRootPath(),legacy,"Empty local placeholder must not hide existing legacy archives");
+  await writeFile(join(portable,".backup-key"),Buffer.alloc(32,1));
+  assert.equal(backupRootPath(),portable,"Nonempty local store takes precedence");
   await rm(portable,{recursive:true});
   assert.equal(backupRootPath(),legacy,"Legacy backup key path is not migrated or overwritten");
  }finally{
