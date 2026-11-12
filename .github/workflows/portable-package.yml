@@ -7,6 +7,8 @@ on:
       - "proxy.ts"
       - "src/**"
       - "scripts/**"
+      - "tests/private-secrets.test.ts"
+      - "tests/smn-34-session-restart-http.test.ts"
       - "tests/epic2-lot5-session-reset.test.ts"
       - "tests/epic2-lot5-maintenance.test.ts"
       - "tests/epic2-lot9-maintenance-reset.test.ts"
@@ -88,6 +90,8 @@ jobs:
         run: npx tsx --test tests/smn-40-fresh-destination-readiness.test.ts tests/smn-40-fresh-install-cutover.test.ts tests/smn-40-fresh-cutover-journal.test.ts tests/epic2-lot5-session-reset.test.ts tests/epic2-lot5-maintenance.test.ts tests/epic2-lot9-maintenance-reset.test.ts tests/smn-34-windows-launch-maintenance.test.ts
       - name: Import-export ZIP — format sûr et interface sans ligne de commande
         run: npx tsx --test tests/smn-441-portable-zip.test.ts tests/smn-442-migration-ui-contract.test.ts tests/smn-442-gui-offline-restoration.test.ts tests/smn-442-gui-crash-recovery.test.ts tests/smn-442-local-backup-root.test.ts
+      - name: Sécurité confidentialité et réauthentification après restauration
+        run: npx tsx --test tests/private-secrets.test.ts tests/smn-34-session-restart-http.test.ts
       - name: Contrat Paramètres V2 — UX validée et corrections récentes
         run: npx tsx --test tests/settings-cockpit-ux.test.ts tests/settings-ux-harmonization.test.ts tests/settings-collection-filter.test.ts tests/smn-224-settings-portal.test.ts tests/smn-227-settings-navigation.test.ts tests/smn-229-settings-relocation.test.ts
       - name: Contrats installation PostgreSQL hors ligne
