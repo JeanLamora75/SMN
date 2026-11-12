@@ -75,7 +75,10 @@ describe("SMN-229 — paramètres partagés séparés des sprints",()=>{
     assert.match(code,/lower\(to_jsonb\(i\)->>'mode'\)='scrum'/);
     assert.match(code,/to_jsonb\(t\)->>'agile_mode'/);
     assert.match(code,/is_archived/);
-   }else assert.match(code,/lower\(mode\)='scrum'/);
+   }else{
+    assert.match(code,/lower\(to_jsonb\(i\)->>'mode'\)='scrum'/);
+    assert.match(code,/to_jsonb\(t\)->>'agile_mode'/);
+   }
    assert.match(code,/redirect\("\/app\/admin\/settings"\)/);
   }
  });
