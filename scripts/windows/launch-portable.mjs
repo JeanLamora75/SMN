@@ -29,6 +29,7 @@ if(existsSync(updates)){
  if(!info.isDirectory()||info.isSymbolicLink())throw Error("Dossier de mises à jour invalide");
 }else mkdirSync(updates);
 const url="http://127.0.0.1:3003", pending=path.join(updates,"pending.json");
+const migrationPending=path.join(updates,"migration-pending.json");
 if(!existsSync(server))throw Error("SMN incomplet : app/server.js absent");
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function listening(){
@@ -60,6 +61,17 @@ async function executeUpdate(){
  return new Promise(resolve=>{
   child.on("error",()=>resolve(1));
   child.on("exit",code=>resolve(code??1));
+ });
+}
+async function executeGuiMigration(){
+ const file=path.join(root,"app","maintenance","migration","smn-gui-offline-restore.mjs");
+ if(!existsSync(file))return 2;
+ const worker=spawn(process.execPath,[file],{
+  cwd:root,stdio:"inherit",windowsHide:false,shell:false
+ });
+ return new Promise(resolve=>{
+  worker.on("error",()=>resolve(2));
+  worker.on("exit",code=>resolve(code??2));
  });
 }
 let shuttingDown=false,webChild=null;
@@ -97,7 +109,7 @@ if(alreadyRunning){
   }
   if(!opened){browser();opened=true;}
   console.log("SMN prêt sur "+url+" — données PostgreSQL préservées.");
-  let applying=false,polling=false;
+  let applying=false,restoring=false,polling=false;
   await heartbeat().catch(()=>{});
   const interval=setInterval(async()=>{
    if(polling||shuttingDown||applying)return;
@@ -110,6 +122,12 @@ if(alreadyRunning){
      return;
     }
     await heartbeat();
+    if(existsSync(migrationPending)){
+     restoring=true;
+     console.log("Restauration confirmée : arrêt du serveur, traitement hors ligne.");
+     child.kill("SIGTERM");
+     return;
+    }
     if(existsSync(pending)){
      const record=JSON.parse(await readFile(pending,"utf8"));
      if(typeof record.id==="string" &&
@@ -129,6 +147,17 @@ if(alreadyRunning){
    console.error("Le serveur SMN s'est arrêté de manière inattendue.");
    process.exitCode=1;
    break;
+  }
+  if(restoring){
+   const result=await executeGuiMigration();
+   if(result!==0){
+    console.error("Restauration interrompue : vérification du retour arrière.");
+    if(await maintenanceBlocked()||existsSync(migrationPending)){
+     console.error("SMN protégé : intervention de récupération nécessaire.");
+     shuttingDown=true;process.exitCode=2;break;
+    }
+   }else console.log("Restauration vérifiée ; nouvelle authentification nécessaire.");
+   continue;
   }
   const code=await executeUpdate();
   if(code!==0)console.error("La mise à jour a échoué. Démarrage de l'application précédente.");
