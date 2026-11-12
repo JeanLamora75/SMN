@@ -57,7 +57,7 @@ export async function POST(request:NextRequest){
    .then(text=>JSON.parse(text) as {archiveId?:string;sourceEvidenceVerified?:boolean})
    .catch(()=>null);
   const proofReady=meta.hasTransferEvidence===true&&
-   verified?.archiveId===meta.archiveId&&verified.sourceEvidenceVerified===true;
+   verified?.archiveId===meta.archiveId&&verified?.sourceEvidenceVerified===true;
   const managed=await existingManagedUri().then(Boolean).catch(()=>false);
   const maintenance=await restoreMaintenanceActive();
   const supervisor=existsSync(join(process.cwd(),"app","maintenance","migration",
