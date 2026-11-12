@@ -87,3 +87,15 @@ test("settings tabs preserve hash deep links, keyboard navigation and authorized
  const calendar=read("src/app/app/admin/settings/holidays-closures/page.tsx");
  assert.match(calendar,/canAccess\(account,"write"/);
 });
+
+test("company API errors use localized messages rather than displaying server codes",()=>{
+ const source=read("src/app/app/admin/companies/companies-admin.tsx");
+ const fr=JSON.parse(read("src/i18n/fr.json")).companiesAdmin.errors as Record<string,string>;
+ const en=JSON.parse(read("src/i18n/en.json")).companiesAdmin.errors as Record<string,string>;
+ assert.deepEqual(Object.keys(fr).sort(),Object.keys(en).sort());
+ for(const code of ["invalid-input","duplicate-name","not-found","conflict","already-archived","already-active","forbidden","service-unavailable"]){
+  assert.ok(source.includes('"'+code+'"'),code);
+ }
+ assert.match(source,/companyError\(value\.error,t,"saveFailed"\)/);
+ assert.match(source,/companyError\(result\.error,t,"changeFailed"\)/);
+});
