@@ -18,6 +18,7 @@ build/
 src/generated/
 
 # Clés, configurations locales et journaux privés SMN
+/config/
 .settings-key
 postgres-connection.json
 runtime.json
