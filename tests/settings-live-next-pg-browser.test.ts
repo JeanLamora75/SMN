@@ -313,8 +313,8 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   await browser.close();browser=undefined;
   if(child&&child.exitCode===null){
    child.kill("SIGKILL");
-   for(let i=0;i<40&&child.exitCode===null;i++)await pause(250);
-   assert.notEqual(child.exitCode,null,"Le processus Next doit être arrêté avant reprise");
+   for(let i=0;i<40&&child.exitCode===null&&child.signalCode===null;i++)await pause(250);
+   assert.equal(child.signalCode,"SIGKILL","Le processus Next doit être arrêté avant reprise");
   }
   child=spawn(process.execPath,["node_modules/next/dist/bin/next","start","--hostname","127.0.0.1","--port",String(port)],{
    env:{...process.env,SMN_DATABASE_URL:target.toString(),SMN_PORT:String(port),NEXT_TELEMETRY_DISABLED:"1"},
