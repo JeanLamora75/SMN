@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 import {reconcileAccountEdits,editedAccount} from "@/lib/account-drafts";
@@ -28,6 +28,14 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
   const [password,setPassword]=useState("");
   const [role,setRole]=useState<Role>("user");
   const [edits,setEdits]=useState<Record<string,{role:Role;isActive:boolean}>>({});
+  const [query,setQuery]=useState("");
+  const [statusFilter,setStatusFilter]=useState<"all"|"active"|"inactive">("all");
+  const [roleFilter,setRoleFilter]=useState<"all"|Role>("all");
+  const displayed=useMemo(()=>accounts.filter(account=>
+    (statusFilter==="all"||(statusFilter==="active"?account.is_active:!account.is_active))&&
+    (roleFilter==="all"||account.role===roleFilter)&&
+    (!query.trim()||[account.username,account.email].some(value=>value.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())))
+  ),[accounts,query,statusFilter,roleFilter]);
   const refresh=useCallback(async(savedId?:string,preserveDrafts=true):Promise<boolean>=>{
     try {
       const response=await fetch("/api/admin/accounts",{cache:"no-store"});
@@ -105,12 +113,30 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
     </section>
     <section className="smn-panel p-4">
       <h2 className="h5">{t("accounts.existing")}</h2>
+      <div className="d-flex flex-wrap gap-3 align-items-end mb-3">
+        <label className="form-label mb-0 flex-grow-1" style={{minWidth:190,maxWidth:360}}>{t("settingsCollections.searchUsers")}
+          <input type="search" className="form-control mt-1" value={query} onChange={event=>setQuery(event.target.value)} />
+        </label>
+        <label className="form-label mb-0" style={{minWidth:150}}>{t("settingsCollections.filterStatus")}
+          <select className="form-select mt-1" value={statusFilter} onChange={event=>setStatusFilter(event.target.value as "all"|"active"|"inactive")}>
+            <option value="all">{t("settingsCollections.all")}</option><option value="active">{t("settingsCollections.active")}</option><option value="inactive">{t("settingsCollections.inactive")}</option>
+          </select>
+        </label>
+        <label className="form-label mb-0" style={{minWidth:140}}>{t("settingsCollections.filterRole")}
+          <select className="form-select mt-1" value={roleFilter} onChange={event=>setRoleFilter(event.target.value as "all"|Role)}>
+            <option value="all">{t("settingsCollections.allRoles")}</option><option value="user">{t("accounts.userCol")}</option><option value="admin">{t("accounts.admin")}</option>
+          </select>
+        </label>
+        <button type="button" className="btn btn-outline-secondary" onClick={()=>{setQuery("");setStatusFilter("all");setRoleFilter("all");}} disabled={!query&&statusFilter==="all"&&roleFilter==="all"}>{t("settingsCollections.reset")}</button>
+      </div>
+      {status==="ready"&&<p role="status" aria-live="polite" className="small text-secondary">{t("settingsCollections.results",{count:displayed.length,total:accounts.length})}</p>}
+      {status==="ready"&&displayed.length===0&&<p role="status" className="small text-secondary">{t("settingsCollections.noMatches")}</p>}
       {status==="loading"&&<p>{t("accounts.loading")}</p>}
       {status==="error"&&<button className="btn btn-outline-secondary" onClick={discardAndReload}>{t("accounts.retry")}</button>}
       {status==="ready"&&<div className="table-responsive smn-accounts-responsive">
         <table role="table" aria-label={t("accounts.existing")} className="table align-middle smn-accounts-table">
           <thead role="rowgroup"><tr role="row"><th scope="col">{t("accounts.userCol")}</th><th scope="col">{t("accounts.emailCol")}</th><th scope="col">{t("accounts.roleCol")}</th><th scope="col">{t("accounts.accessCol")}</th><th scope="col">{t("accounts.actionCol")}</th></tr></thead>
-          <tbody role="rowgroup">{accounts.map(account=>{
+          <tbody role="rowgroup">{displayed.map(account=>{
             const edit=edits[account.id]??{role:account.role,isActive:account.is_active};
             const self=account.id===selfId;
             const changed=edit.role!==account.role||edit.isActive!==account.is_active;
