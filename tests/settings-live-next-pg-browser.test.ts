@@ -405,6 +405,36 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   assert.equal(countryAfter.archived_at,null);
 
 
+
+  // Catégories d'absence : créer, modifier, valider les entrées et désactiver.
+  const invalidAbsence=await callSettingsApi(page,"/api/admin/absence-categories","POST",{
+   action:"create",name:"Recette",color:"invalide"
+  });
+  assert.equal(invalidAbsence.status,400);
+  const newAbsence=await callSettingsApi(page,"/api/admin/absence-categories","POST",{
+   action:"create",name:"Absence navigateur",color:"#A1B2C3"
+  });
+  assert.equal(newAbsence.status,201,JSON.stringify(newAbsence.payload));
+  const absence=(newAbsence.payload as {category:{id:string;updatedAt:string}}).category;
+  const duplicateAbsence=await callSettingsApi(page,"/api/admin/absence-categories","POST",{
+   action:"create",name:"absence navigateur",color:"#112233"
+  });
+  assert.equal(duplicateAbsence.status,409,"Deux catégories ne peuvent avoir le même nom");
+  const updatedAbsence=await callSettingsApi(page,"/api/admin/absence-categories","POST",{
+   action:"update",id:absence.id,updatedAt:absence.updatedAt,
+   name:"Absence navigateur modifiée",color:"#334455",isActive:false
+  });
+  assert.equal(updatedAbsence.status,200,JSON.stringify(updatedAbsence.payload));
+  const staleAbsence=await callSettingsApi(page,"/api/admin/absence-categories","POST",{
+   action:"update",id:absence.id,updatedAt:absence.updatedAt,
+   name:"Écrasement interdit",color:"#445566",isActive:true
+  });
+  assert.equal(staleAbsence.status,409,"Une modification avec ancienne date ne doit pas réactiver la catégorie");
+  const persistedAbsence=await db(target.toString(),async client=>(await client.query(
+   "SELECT name,color,is_active FROM public.smn_absence_category WHERE id=$1",[absence.id])).rows[0]);
+  assert.deepEqual(persistedAbsence,{name:"Absence navigateur modifiée",
+   color:"#334455",is_active:false});
+
   // Deux onglets tentent la même révision : un seul doit être accepté.
   const concurrency=await page.evaluate(async()=>{
    const headers={"Content-Type":"application/json"};
