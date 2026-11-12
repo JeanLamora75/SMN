@@ -129,3 +129,19 @@ test("settings detail panels span the available width with a themed white surfac
   assert.doesNotMatch(source,/\bconstrained(?=>)/,path);
  }
 });
+
+test("cadence timezone controls use IANA dropdown without free text",()=>{
+ const dropdown=read("src/app/app/admin/settings/iana-time-zone-select.tsx");
+ assert.match(dropdown,/Intl\.supportedValuesOf\("timeZone"\)/);
+ assert.match(dropdown,/new Set\(\[\.\.\.values,"UTC",value\]/);
+ assert.match(dropdown,/<select id=\{id\}/);
+ for(const path of [
+  "src/app/app/admin/scrum-cadence/cadence-form.tsx",
+  "src/app/app/admin/kanban-cadence/kanban-cadence-form.tsx"
+ ]){
+  const source=read(path);
+  assert.match(source,/IanaTimeZoneSelect/);
+  assert.doesNotMatch(source,/<input id="(?:cadence|kanban)-zone"/);
+  assert.match(source,/onChange=\{value=>change\("timeZone",value\)\}/);
+ }
+});
