@@ -267,7 +267,7 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   await waitServer(child);
   const afterRestart=await db(target.toString(),async client=>(await client.query(
    "SELECT reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'")).rows[0]);
-  assert.deepEqual(afterRestart,afterRace,"L'état validé doit survivre au redémarrage");
+  assert.deepEqual(afterRestart,afterRetry,"L'état validé doit survivre au redémarrage");
   assert.equal((await fetch(origin+"/api/admin/settings")).status,403);
   assert.deepEqual(errors,[]);
  }catch(error){
