@@ -128,8 +128,7 @@ async function verifyAlreadyReleased(job:Job,key:Buffer){
   job.token+".tar.gz.receipt.json");
  const stat=await lstat(receiptPath);
  if(!stat.isFile()||stat.isSymbolicLink()||stat.size>8192)return false;
- const receipt=JSON.parse(await readFile(receiptPath,"utf8"))
-  as SignedCurrentStateReceipt;
+ const receipt=JSON.parse(await readFile(receiptPath,"utf8")) as SignedCurrentStateReceipt;
  const now=await fingerprintDestination();
  const ledger=await readErasureLedger();
  return comparePortableCurrentState(receipt,key,{
