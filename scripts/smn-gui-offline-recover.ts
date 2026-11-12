@@ -103,10 +103,18 @@ export async function recoverGuiOfflineRestore(){
    // Never retry destructive work solely because a pending file remains.
    const state=JSON.parse(await readFile(join(updates,"migration-status.json"),
     "utf8")) as {stage?:string};
-   if(state.stage!=="complete")
-    throw Error("gui-recovery-unfenced-pending-ambiguous");
-   await archivePending(job,"complete");
-   return {state:"complete" as const,cutoverRetried:false as const};
+   if(state.stage==="complete"){
+    await archivePending(job,"complete");
+    return {state:"complete" as const,cutoverRetried:false as const};
+   }
+   // A queued job may have been interrupted before the offline fence was
+   // installed: only cancel if the destination remains fingerprint-identical.
+   if(state.stage==="queued"&&await verifyOriginal(job)){
+    await status(job.token,"failed");
+    await archivePending(job,"failed");
+    return {state:"failed" as const,originalPreserved:true as const};
+   }
+   throw Error("gui-recovery-unfenced-pending-ambiguous");
   }
   if(await verifyOriginal(job)){
    await parkGuiPrivacyEvidence(job.token);
