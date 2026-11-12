@@ -115,3 +115,10 @@ test("standalone maintenance operator creates persistent fence without claiming 
  assert.match(launcher,/restore-maintenance.lock/);
  assert.doesNotMatch(operator,/unlink\(|rm\(|DELETE FROM|ALTER DATABASE/);
 });
+
+test("offline postcheck binds PostgreSQL ANY arrays as a single query parameter",()=>{
+ const check=readFileSync(new URL("../scripts/smn-40-cutover-postcheck.ts",import.meta.url),"utf8");
+ assert.match(check,/datname=ANY\(\$1::text\[\]\)"\s*,\s*\[\["smn",last\.rollbackDb,last\.candidateDb\]\]/);
+ assert.match(check,/datname=ANY\(\$1::text\[\]\)"\s*,\s*\[\["smn",last\.rollbackDb\]\]/);
+ assert.doesNotMatch(check,/datname=ANY\(\$1::text\[\]\)"\s*,\s*\["smn"/);
+});
