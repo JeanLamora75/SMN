@@ -29,6 +29,12 @@ test("portable Windows backup store stays in SMN; legacy installations retain Ap
   assert.equal(backupRootPath(),portable,"Nonempty local store takes precedence");
   await rm(portable,{recursive:true});
   assert.equal(backupRootPath(),legacy,"Legacy backup key path is not migrated or overwritten");
+  // An installed target may not have data/backups at all. ZIP import must
+  // validate the independent token-scoped migration-work root.
+  const work=join(root,"data","migration-work");
+  const isolated=join(work,"a94307bc-04de-4cbc-8b7d-546b94e8f362");
+  await mkdir(isolated,{recursive:true});
+  await privateFolder(isolated);
  }finally{
   process.chdir(initial);
   if(previousLocal===undefined)delete process.env.LOCALAPPDATA;
