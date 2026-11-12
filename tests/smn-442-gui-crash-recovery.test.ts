@@ -41,3 +41,12 @@ test("released-but-unarchived work requires signed journal and both parked fence
  assert.match(source,/external\.isFile\(\)/);
  assert.doesNotMatch(source,/if\(state\.stage==="complete"\)\{\s*await archivePending/);
 });
+
+test("half-released external marker is recovered before rollback",()=>{
+ const source=read("scripts/smn-gui-offline-recover.ts");
+ assert.match(source,/async function repairHalfReleasedFence\(job:Job\)/);
+ assert.match(source,/const parked=active\+"\.released-"\+record\.operationId/);
+ assert.match(source,/proof\.operationId!==record\.operationId/);
+ assert.match(source,/await rename\(parked,active\)/);
+ assert.match(source,/await repairHalfReleasedFence\(job\)/);
+});
