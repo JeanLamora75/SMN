@@ -166,9 +166,17 @@ async function seedSyntheticTeamMembers(){
  try{
   await client.connect();
   const teams=await client.query("SELECT id FROM public.smn_team ORDER BY id LIMIT 1");
-  assert.equal(teams.rows.length,1,"Source fixture must have one team");
+  let teamId=teams.rows[0]?.id;
+  if(!teamId){
+   const productId="smn442-ci-product";
+   teamId="smn442-ci-team";
+   await client.query("INSERT INTO public.smn_product(id,installation_id,name) VALUES($1,'singleton',$2)",
+    [productId,"Produit transfert SMN-442"]);
+   await client.query("INSERT INTO public.smn_team(id,installation_id,product_id,name,agile_mode) VALUES($1,'singleton',$2,$3,'scrum')",
+    [teamId,productId,"Équipe transfert SMN-442"]);
+  }
   await client.query("INSERT INTO public.smn_member_batch(id,installation_id,team_id,requested_count) VALUES($1,'singleton',$2,3)",
-   ["smn442-source-batch",teams.rows[0].id]);
+   ["smn442-source-batch",teamId]);
   for(const [number,name] of ["Camille Recette","Alex Morgan","Sophie Martin"].entries()){
    await client.query("INSERT INTO public.smn_member(id,installation_id,batch_id,member_number,display_name,is_provisional) VALUES($1,'singleton',$2,$3,$4,false)",
     ["smn442-member-"+(number+1),"smn442-source-batch",number+1,name]);
