@@ -25,8 +25,12 @@ async function bundle(){
  const result=await esbuild.build({
   stdin:{contents:entry,resolveDir:root,sourcefile:"teams-settings-browser-fixture.tsx",loader:"tsx"},
   bundle:true,format:"iife",platform:"browser",jsx:"automatic",write:false,
-  plugins:[{name:"smn-src-alias",setup(build){
-   build.onResolve({filter:/^@\//},args=>build.resolve(join(root,"src",args.path.slice(2)),{resolveDir:root,kind:args.kind}));
+  plugins:[{name:"smn-src-alias",setup(build:{
+   onResolve:(options:{filter:RegExp},callback:(args:{path:string;kind:string})=>Promise<unknown>)=>void;
+   resolve:(path:string,options:{resolveDir:string;kind:string})=>Promise<unknown>;
+  }){
+   build.onResolve({filter:/^@\\//},(args:{path:string;kind:string})=>
+    build.resolve(join(root,"src",args.path.slice(2)),{resolveDir:root,kind:args.kind}));
   }}],
   define:{"process.env.NODE_ENV":'"production"'},logLevel:"silent"
  });
