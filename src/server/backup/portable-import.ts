@@ -207,8 +207,7 @@ export async function verifyUploadedPortableBackup(input:string,phrase:string,
     !ledgerStat.isFile()||ledgerStat.isSymbolicLink()||
     ledgerStat.size<100||ledgerStat.size>24*1024*1024)
     throw Error("migration-upload-evidence-untrusted");
-   const receipt=JSON.parse(await readFile(evidence.receiptPath,"utf8"))
-    as SignedCurrentStateReceipt;
+   const receipt=JSON.parse(await readFile(evidence.receiptPath,"utf8")) as SignedCurrentStateReceipt;
    const encrypted=JSON.parse(await readFile(evidence.ledgerPath,"utf8")) as unknown;
    const ledger=inspectGuiLedgerEvidence(encrypted,key);
    try{
