@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {createRequire} from "node:module";
+import {createServer} from "node:http";
 import {dirname,resolve} from "node:path";
 import {fileURLToPath} from "node:url";
 import puppeteer from "puppeteer-core";
@@ -46,15 +47,22 @@ async function bundle(){
 test("Paramètres : interactions Chromium réelles (clics, clavier, hash, fuseau IANA)",{timeout:45000},async()=>{
  const detected=await detectChrome();
  assert.equal(detected.ok,true,"Chrome/Chromium doit être disponible sur le runner de test");
- const browser=await puppeteer.launch({executablePath:detected.path,headless:true,
-  args:["--no-sandbox","--disable-dev-shm-usage","--no-first-run","--no-default-browser-check"]});
+ const script=await bundle();
+ const server=createServer((_request,response)=>{
+  response.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});
+  response.end("<!doctype html><html lang='fr'><head><meta charset='utf-8'></head><body><div id='root'></div></body></html>");
+ });
+ await new Promise<void>(resolve=>server.listen(0,"127.0.0.1",resolve));
+ const address=server.address();
+ assert.ok(address&&typeof address!=="string");
+ let browser:Awaited<ReturnType<typeof puppeteer.launch>>|null=null;
  try{
+ browser=await puppeteer.launch({executablePath:detected.path,headless:true,
+  args:["--no-sandbox","--disable-dev-shm-usage","--no-first-run","--no-default-browser-check"]});
   const page=await browser.newPage();
   const errors:string[]=[];
   page.on("pageerror",error=>errors.push(error.message));
-  const script=await bundle();
-  await page.goto("about:blank");
-  await page.setContent("<!doctype html><html lang='fr'><head><meta charset='utf-8'></head><body><div id='root'></div></body></html>");
+  await page.goto("http://127.0.0.1:"+address.port+"/");
   await page.addScriptTag({content:script});
   await page.waitForSelector("#tab-general[aria-selected=true]");
   assert.equal(await page.$eval("#panel-calendar",el=>(el as HTMLElement).hidden),true);
@@ -82,5 +90,8 @@ test("Paramètres : interactions Chromium réelles (clics, clavier, hash, fuseau
   assert.equal(await page.$eval("#iana-disabled",el=>(el as HTMLSelectElement).disabled),true);
   assert.equal(await page.$eval("#iana-legacy",el=>(el as HTMLSelectElement).value),"Etc/SMN-Legacy");
   assert.deepEqual(errors,[],"Aucune erreur JavaScript dans le navigateur");
- }finally{await browser.close();}
+ }finally{
+  if(browser)await browser.close();
+  await new Promise<void>((resolve,reject)=>server.close(error=>error?reject(error):resolve()));
+ }
 });
