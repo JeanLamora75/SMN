@@ -23,7 +23,9 @@ const sourcePackage=resolve(process.env.SMN_PACKAGE_DIR??"_package/SMN-Windows")
 const sandbox=await mkdtemp(join(tmpdir(),"smn442-gui-e2e-"));
 const root=join(sandbox,"SMN"),home=join(sandbox,"local"),roam=join(sandbox,"roam");
 const base="http://127.0.0.1:3003";
+const sourceSetupPass="SourceInitialCI2026!";
 const sourcePass="SourceOnlyCI2026!";
+const targetSetupPass="DestinationInitialCI2026!";
 const targetPass="DestinationOnlyCI2026!";
 const phrase="SyntheticRecoveryPhraseForSMN4422026!";
 let launcher=null,admin=null,ownerUri=null;
@@ -95,6 +97,19 @@ async function login(identity,password){
  const cookie=(r.headers.get("set-cookie")??"").split(";")[0];
  return {status:r.status,body,cookie};
 }
+async function finishOnboarding(identity,initialPassword,newPassword){
+ const loginResult=await login(identity,initialPassword);
+ assert.equal(loginResult.status,200,
+  "Initial administrator cannot sign in "+JSON.stringify(loginResult.body));
+ assert.equal(loginResult.body.mustChangePassword,true,
+  "Newly installed admin must require password rotation");
+ const changed=await api("/api/auth/change-password","POST",{
+  currentPassword:initialPassword,newPassword
+ },loginResult.cookie);
+ assert.equal(changed.r.status,200,
+  "Administrator password onboarding failed "+JSON.stringify(changed.body));
+ emit("Completed mandatory password onboarding for "+identity);
+}
 async function setup(){
  const {r,body}=await json("/api/bootstrap");
  assert.equal(r.status,200);
@@ -103,7 +118,7 @@ async function setup(){
  assert.match(cookie,/smn-local-setup=[a-f0-9]{64}/);
  const res=await api("/api/bootstrap","POST",{
   dbMode:"portable",mode:"scrum",product:"SMN-442 CI",
-  team:"Equipe source SMN442",password:sourcePass,confirmed:true
+  team:"Equipe source SMN442",password:sourceSetupPass,confirmed:true
  },cookie);
  assert.equal(res.r.status,202,"Cannot bootstrap disposable source "+JSON.stringify(res.body));
  await waitFor(async()=>{
