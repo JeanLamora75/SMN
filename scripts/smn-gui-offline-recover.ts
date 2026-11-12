@@ -95,15 +95,22 @@ async function lastVerifiedJournal(job:Job,key:Buffer){
 async function verifyAlreadyReleased(job:Job,key:Buffer){
  const archived=(await readdir(updates)).filter(name=>
   /^restore-maintenance\\.released-[a-f0-9-]{36}\\.json$/.test(name));
- if(archived.length!==1)return false;
- const localPath=join(updates,archived[0]),localStat=await lstat(localPath);
+ const matching:string[]=[];
+ for(const name of archived){
+  const operation=name.slice("restore-maintenance.released-".length,-".json".length);
+  const external=join(tmpdir(),"smn-gui-restore-"+job.token+
+   ".marker.released-"+operation);
+  if(await exists(external))matching.push(name);
+ }
+ if(matching.length!==1)return false;
+ const localPath=join(updates,matching[0]),localStat=await lstat(localPath);
  if(!localStat.isFile()||localStat.isSymbolicLink()||
   localStat.size<20||localStat.size>2048)return false;
  const localRecord=JSON.parse(await readFile(localPath,"utf8")) as {
   version?:number;purpose?:string;operationId?:string
  };
  if(localRecord.version!==1||localRecord.purpose!=="offline-restore"||
-  archived[0]!=="restore-maintenance.released-"+localRecord.operationId+".json")
+  matching[0]!=="restore-maintenance.released-"+localRecord.operationId+".json")
   return false;
  const outside=join(tmpdir(),"smn-gui-restore-"+job.token+".marker.released-"+
   localRecord.operationId);
