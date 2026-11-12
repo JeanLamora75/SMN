@@ -79,7 +79,7 @@ test("replacement of an installed destination requires explicit double approval 
 test("postverified rollback preserves original, candidate and maintenance",()=>{
  const rollback=readFileSync(new URL("../src/server/backup/fresh-cutover-rollback.ts",import.meta.url),"utf8");
  const entry=readFileSync(new URL("../scripts/smn-40-cutover-rollback.ts",import.meta.url),"utf8");
- assert.match(rollback,/inspectOfflineCutoverJournal\(/);
+ assert.match(rollback,/inspectOfflineRestoreMaintenance\(/);
  assert.match(rollback,/readFreshCutoverJournal\(/);
  assert.match(rollback,/rollback-started/);
  assert.match(rollback,/rolled-back/);
