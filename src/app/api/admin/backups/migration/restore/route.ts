@@ -4,6 +4,8 @@ import {join} from "node:path";
 import {authorizeApi} from "@/server/auth/authorization";
 import {readJsonObject,jsonResult} from "@/server/auth/request";
 import {withSessionReadDb} from "@/server/auth/database";
+import {fingerprintPublicTables} from "@/server/backup/restore-row-fingerprint";
+import {fingerprintCurrentManagedFiles} from "@/server/backup/current-managed-file-fingerprint";
 import {encryptSetting} from "@/server/bootstrap/settings";
 import {existingManagedUri} from "@/server/bootstrap/portable";
 import {inspectBackup} from "@/server/backup/verification";
@@ -71,9 +73,13 @@ export async function POST(request:NextRequest){
    if(r.rowCount!==1||row?.state!=="initialized"||
     row.schema_version!==33)
     throw Error("migration-destination-not-initialized");
-   return "singleton:"+new Date(row.created_at).toISOString();
-  });
-  if(item.installationSource===destination)
+   const database=await fingerprintPublicTables(db);
+   const files=await fingerprintCurrentManagedFiles(db);
+   return {identity:"singleton:"+new Date(row.created_at).toISOString(),
+    databaseDigest:database.digest,filesDigest:files.sha256,
+    filesCount:files.count};
+  },{timeoutMs:120000});
+  if(item.installationSource===destination.identity)
    throw Error("migration-same-installation");
   const pending=join(process.cwd(),"updates","migration-pending.json");
   const launcherFile=join(process.cwd(),"updates","launcher.json");
@@ -92,7 +98,11 @@ export async function POST(request:NextRequest){
   if(!updateDir.isDirectory()||updateDir.isSymbolicLink())
    throw Error("migration-updates-path-untrusted");
   const sealed=await encryptSetting(JSON.stringify({
-   version:1,token,archiveId:proof.archiveId,destination,
+   version:1,token,archiveId:proof.archiveId,
+   destination:destination.identity,
+   destinationDigest:destination.databaseDigest,
+   destinationFilesDigest:destination.filesDigest,
+   destinationFilesCount:destination.filesCount,
    requestedAt:new Date().toISOString(),operation:"gui-portable-restore"
   }));
   await writeFile(pending,JSON.stringify({version:1,sealed}),{
