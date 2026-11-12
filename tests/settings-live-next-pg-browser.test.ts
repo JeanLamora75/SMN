@@ -56,7 +56,7 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
    await client.query("INSERT INTO public.smn_product(id,installation_id,name) VALUES('e2eproduct','singleton','Produit navigateur')");
    await client.query("INSERT INTO public.smn_team(id,installation_id,product_id,name,agile_mode) VALUES('e2eteam','singleton','e2eproduct','Équipe navigateur','scrum')");
   });
-  child=spawn(process.execPath,["scripts/serve.mjs","start"],{
+  child=spawn(process.execPath,["node_modules/next/dist/bin/next","start","--hostname","127.0.0.1","--port",String(port)],{
    env:{...process.env,SMN_DATABASE_URL:target.toString(),SMN_PORT:String(port),NEXT_TELEMETRY_DISABLED:"1"},
    stdio:["ignore","pipe","pipe"],shell:false
   });
@@ -307,24 +307,42 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   assert.equal(afterRetry.reference_country,"CA");
   assert.equal(afterRetry.revision,4);
 
-  // L'interruption volontaire doit invalider la session en mémoire, sans effacer les données.
+  // Simuler une panne brutale du vrai processus Next, pas seulement son lanceur.
+  const previousCookies=await page.cookies();
+  assert.ok(previousCookies.length>0);
   await browser.close();browser=undefined;
   if(child&&child.exitCode===null){
-   child.kill("SIGTERM");
+   child.kill("SIGKILL");
    for(let i=0;i<40&&child.exitCode===null;i++)await pause(250);
-   if(child.exitCode===null)child.kill("SIGKILL");
+   assert.notEqual(child.exitCode,null,"Le processus Next doit être arrêté avant reprise");
   }
-  child=spawn(process.execPath,["scripts/serve.mjs","start"],{
+  child=spawn(process.execPath,["node_modules/next/dist/bin/next","start","--hostname","127.0.0.1","--port",String(port)],{
    env:{...process.env,SMN_DATABASE_URL:target.toString(),SMN_PORT:String(port),NEXT_TELEMETRY_DISABLED:"1"},
    stdio:["ignore","pipe","pipe"],shell:false
   });
   child.stdout?.on("data",b=>{logs.push(String(b).slice(0,300));if(logs.length>100)logs.shift();});
   child.stderr?.on("data",b=>{logs.push(String(b).slice(0,300));if(logs.length>100)logs.shift();});
   await waitServer(child);
+  browser=await puppeteer.launch({executablePath:chrome.path,headless:true,
+   args:["--no-sandbox","--disable-dev-shm-usage","--no-first-run"]});
   const afterRestart=await db(target.toString(),async client=>(await client.query(
    "SELECT reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'")).rows[0]);
   assert.deepEqual(afterRestart,afterRetry,"L'état validé doit survivre au redémarrage");
   assert.equal((await fetch(origin+"/api/admin/settings")).status,403);
+  const resumed=await browser.newPage();
+  await resumed.setCookie(...previousCookies);
+  await resumed.goto(origin+"/login",{waitUntil:"domcontentloaded"});
+  assert.equal(await resumed.evaluate(async()=>
+   (await fetch("/api/admin/settings",{cache:"no-store"})).status),403,
+   "An old session must be rejected after a new Next process starts");
+  assert.equal(await resumed.evaluate(async()=>{
+   const response=await fetch("/api/auth/login",{method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({identity:"e2eadmin",password:"Updated-Test-Admin-2026"})});
+   return response.status;
+  }),200,"Authentication must recover after restart");
+  assert.equal(await resumed.evaluate(async()=>
+   (await fetch("/api/admin/settings",{cache:"no-store"})).status),200);
   assert.deepEqual(errors,[]);
  }catch(error){
   throw new Error((error instanceof Error?error.stack:String(error))+"; server diagnostics: "+logs.slice(-12).join(" | ").slice(0,2000));
