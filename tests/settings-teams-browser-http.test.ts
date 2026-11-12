@@ -29,7 +29,7 @@ async function bundle(){
    onResolve:(options:{filter:RegExp},callback:(args:{path:string;kind:string})=>Promise<unknown>)=>void;
    resolve:(path:string,options:{resolveDir:string;kind:string})=>Promise<unknown>;
   }){
-   build.onResolve({filter:/^@\\//},(args:{path:string;kind:string})=>
+   build.onResolve({filter:/^@\//},(args:{path:string;kind:string})=>
     build.resolve(join(root,"src",args.path.slice(2)),{resolveDir:root,kind:args.kind}));
   }}],
   define:{"process.env.NODE_ENV":'"production"'},logLevel:"silent"
