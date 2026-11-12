@@ -1,5 +1,5 @@
 import SettingsTabs from "../settings-tabs";
-import Link from "next/link";
+import SettingsPageShell from "../settings-page-shell";
 import {redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
@@ -14,13 +14,12 @@ export default async function RegistrySettingsPage(){
  if(actor.must_change_password)redirect("/change-password");
  if(!canAccess(actor,"read",{type:"settings",exists:true,inScope:true}))redirect("/app");
  const locale=await requestLocale();
- return <main className="smn-page container-fluid px-3 px-lg-4 py-4">
-  <Link href="/app/admin/settings">← {translate(locale,"navigation.entries.settings")}</Link>
-  <header className="my-3"><h1 className="h3">{translate(locale,"settingsCatalog.items.registries.title")}</h1>
-   <p className="text-secondary">{translate(locale,"settingsCatalog.items.registries.description")}</p></header>
+ return <SettingsPageShell title={translate(locale,"settingsCatalog.items.registries.title")}
+  description={translate(locale,"settingsCatalog.items.registries.description")}
+  eyebrow={translate(locale,"settingsCatalog.navigation.adminEyebrow")}>
   <SettingsTabs label={translate(locale,"settingsCatalog.items.registries.title")} sections={[
    {id:"categories",label:translate(locale,"settingsCatalog.tabs.categories"),content:<AutomaticHighlightsSettings canManage={actor.role==="admin"}/>},
    {id:"alerts",label:translate(locale,"settingsCatalog.tabs.alerts"),content:<RegistryDeadlineAlerts canManage={actor.role==="admin"}/>}
   ]}/>
- </main>;
+ </SettingsPageShell>;
 }
