@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import {test} from "node:test";
 import {spawnSync} from "node:child_process";
 import {mkdtemp,mkdir,readFile,rm,writeFile} from "node:fs/promises";
-import {fileURLToPath} from "node:url";
+import {fileURLToPath,pathToFileURL} from "node:url";
+import {createRequire} from "node:module";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 
@@ -12,10 +13,13 @@ test("SMN-34: maintenance persistante entre trois processus externes sans jamais
  const sandbox=join(root,"smn_restore_test_maintenance_lab");
  await mkdir(sandbox);
  const marker=join(sandbox,"maintenance.lock");
- const cwd=fileURLToPath(new URL("../",import.meta.url));
+ const cwd=join(root,"app");
+ await mkdir(cwd);
+ const project=fileURLToPath(new URL("../",import.meta.url));
+ const loader=pathToFileURL(createRequire(join(project,"package.json")).resolve("tsx")).href;
  const script=fileURLToPath(new URL("../scripts/smn-34-sandbox-maintenance.ts",import.meta.url));
  const invoke=(mode:string,location=marker)=>spawnSync(process.execPath,
-  ["--import","tsx",script,mode,location],{cwd,encoding:"utf8",timeout:14000,
+  ["--import",loader,script,mode,location],{cwd,encoding:"utf8",timeout:14000,
    env:{...process.env,SMN_RESTORE_MAINTENANCE_MARKER:""}});
  try{
   const empty=invoke("--inspect");
