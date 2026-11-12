@@ -1,6 +1,7 @@
 "use client";
 import {useCallback,useEffect,useMemo,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
+import {filterSettingsTeams} from "@/lib/settings-collection-filter";
 
 type Team={
  id:string;name:string;agileMode:"scrum"|"kanban";isArchived:boolean;canChangeMode:boolean;productName:string|null;vision:string|null;
@@ -34,8 +35,7 @@ export default function TeamsSettings(){
  const initial=current?valuesFrom(current):blank;
  const dirty=!same(initial,values);
  const hasName=values.name.trim().length>0;
- const shown=useMemo(()=>items.filter(item=>(stateFilter==="all"||(stateFilter==="active"?!item.isArchived:item.isArchived))&&
-  (!query.trim()||[item.name,item.productName??""].some(value=>value.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())))),[items,query,stateFilter]);
+ const shown=useMemo(()=>filterSettingsTeams(items,query,stateFilter),[items,query,stateFilter]);
  const requestList=useCallback(async()=>{
   setLoading(true);setError("");
   try{
