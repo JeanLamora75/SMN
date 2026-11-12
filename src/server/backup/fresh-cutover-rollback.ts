@@ -33,6 +33,7 @@ export async function rollbackVerifiedNewComputerCutover(
   join(process.cwd(),"data","office","templates")
  ];
  let admin:Client|null=null;
+ let locked=false;
  try{
   const events=await readFreshCutoverJournal(journalPath,key);
   const last=events.at(-1);
@@ -62,6 +63,10 @@ export async function rollbackVerifiedNewComputerCutover(
   admin=new Client({connectionString:maintenance.toString(),
    connectionTimeoutMillis:3500,statement_timeout:12000});
   await admin.connect();
+  const lock=await admin.query<{ok:boolean}>(
+   "SELECT pg_try_advisory_lock(20261111,40) AS ok");
+  if(lock.rows[0]?.ok!==true)throw Error("migration-rollback-operator-busy");
+  locked=true;
   const dbs=await admin.query<{datname:string}>(
    "SELECT datname FROM pg_catalog.pg_database WHERE datname=ANY($1::text[])",
    [["smn",last.rollbackDb,last.candidateDb]]);
@@ -112,6 +117,8 @@ export async function rollbackVerifiedNewComputerCutover(
   }
  }finally{
   key.fill(0);
+  if(admin&&locked)await admin.query(
+   "SELECT pg_advisory_unlock(20261111,40)").catch(()=>undefined);
   if(admin)await admin.end().catch(()=>undefined);
   // No unlink, DROP DATABASE, or automatic maintenance release.
  }
