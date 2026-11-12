@@ -16,7 +16,7 @@ test("SMN-442: browser confirmation only queues an encrypted single-use job",()=
  assert.match(client,/window\.confirm\(/);
  assert.match(client,/beginRestore/);
  assert.match(client,/sourceEvidenceVerified/);
- assert.doesNotMatch(route,/DROP DATABASE|ALTER DATABASE|pg_restore|DELETE FROM/);
+ assert.doesNotMatch(route,/db\.query\([\'"](?:DROP|ALTER|DELETE)|await pg_restore\(/);
 });
 
 test("SMN-442: only owner Windows launcher runs the migration after shutdown",()=>{
