@@ -681,6 +681,27 @@
   },
   "backups": {
     "transfer": {
+      "restoreTitle": "Restore data on this computer",
+      "restoreImpact": "SMN will replace current data with the ZIP contents. The previous database and private documents will be kept for rollback. Accounts and passwords from the source SMN will be restored.",
+      "restoreConsent": "I confirm I want to replace this SMN's data, and the original computer will no longer be modified after export.",
+      "restoreStart": "Restore on this computer",
+      "restoreQueued": "Restore requested. SMN will restart automatically.",
+      "restoreProgress": "Keep this window open. Connection will briefly drop. You will need to sign in again.",
+      "restoreRejected": "Restoration could not be started. No active data was replaced.",
+      "confirmDialog": "Confirm replacing the data in this SMN with the verified backup? The previous database will be preserved.",
+      "stageLabel": "Step",
+      "stages": {
+        "queued": "Request received",
+        "fenced": "Secure maintenance",
+        "privacy-installed": "Privacy ledger verified",
+        "candidate-prepared": "Isolated restoration completed",
+        "activating": "Transactional cutover",
+        "promoted": "Final verification",
+        "complete": "Restore completed",
+        "rolled-back": "Previous installation restored",
+        "failed": "Restore refused or cancelled",
+        "incident": "Recovery assistance needed"
+      },
       "destinationTitle": "Destination safety check",
       "destinationExisting": "This installation already contains data. It must be preserved as a rollback point before replacement.",
       "destinationEmpty": "No existing application tables detected in the destination.",
@@ -705,7 +726,7 @@
         "verificationFailed": "Unable to verify the archive with that recovery phrase. Restoration was not started.",
         "verified": "Backup integrity verified.",
         "archive": "Backup",
-        "notActivated": "The active database was not replaced. Automatic cutover and rollback still require qualification before activation.",
+        "notActivated": "The active database has not been replaced yet. Review the impact and explicitly confirm to restore.",
         "safety": "Do not delete your current installation. Uploading a ZIP does not restore it automatically."
       },
     "title": "Manual backup",
