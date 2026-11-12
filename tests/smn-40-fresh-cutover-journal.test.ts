@@ -28,6 +28,14 @@ test("fresh-install cutover signed journal validates success and compensated rol
  assert.equal(verifyFreshCutoverJournal(sequence([
   "intent","files-promoted","source-parked","rollback-started","rolled-back"
  ]),key),true);
+ assert.equal(verifyFreshCutoverJournal(sequence([
+  "intent","files-promoted","source-parked","candidate-promoted","verified",
+  "rollback-started","rolled-back"
+ ]),key),true);
+ assert.equal(verifyFreshCutoverJournal(sequence([
+  "intent","files-promoted","source-parked","candidate-promoted","verified",
+  "rolled-back"
+ ]),key),false);
 });
 test("fresh-install cutover rejects truncation, tampering and impossible transitions",()=>{
  const valid=sequence(["intent","files-promoted","source-parked","verified"]);
