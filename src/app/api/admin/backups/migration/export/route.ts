@@ -8,6 +8,7 @@ import {readErasureLedger} from "@/server/backup/erasure-ledger";
 import {hasUnresolvedErasureIntent} from "@/server/backup/erasure-intent";
 import {assessMigrationSource} from "@/server/backup/migration-source-policy";
 import {streamPortableBackup} from "@/server/backup/portable-package";
+import {wrapEncryptedBackupInZip} from "@/server/backup/portable-zip";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -17,7 +18,9 @@ export async function GET(request:NextRequest){
  const actor=await authorizeApi(request,"write",{type:"backups",exists:true,inScope:true});
  if(!actor)return jsonResult({error:"forbidden"},403);
  const id=request.nextUrl.searchParams.get("id");
- if(!id||!ID.test(id)||request.nextUrl.searchParams.size!==1)
+ const format=request.nextUrl.searchParams.get("format")??"zip";
+  if(!id||!ID.test(id)||!["zip","tar.gz"].includes(format)||
+   request.nextUrl.searchParams.size>(request.nextUrl.searchParams.has("format")?2:1))
   return jsonResult({error:"invalid-input"},400);
  try{
   const root=backupRootPath();
@@ -34,10 +37,11 @@ export async function GET(request:NextRequest){
   if(!report.exportCandidate)return jsonResult({error:"migration-source-blocked",
    blockers:report.blockers},409);
   const compressed=await streamPortableBackup(root,item);
-  const body=Readable.toWeb(compressed) as ReadableStream<Uint8Array>;
+  const output=format==="zip"?wrapEncryptedBackupInZip(compressed,id):compressed;
+  const body=Readable.toWeb(output) as ReadableStream<Uint8Array>;
   return new Response(body,{status:200,headers:{
-   "Content-Type":"application/gzip",
-   "Content-Disposition":'attachment; filename="SMN-backup-'+id+'.tar.gz"',
+   "Content-Type":format==="zip"?"application/zip":"application/gzip",
+   "Content-Disposition":'attachment; filename="SMN-backup-'+id+(format==="zip"?".zip":".tar.gz")+'"',
    "Cache-Control":"private, no-store, max-age=0",
    "X-Content-Type-Options":"nosniff"
   }});
