@@ -222,6 +222,62 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   assert.ok(["PT","ES"].includes(afterRace.reference_country));
 
 
+
+  // Concurrence inter-utilisateurs : deux administrateurs, cookies et sessions distincts.
+  const secondAdmin=await page.evaluate(async()=>{
+   const response=await fetch("/api/admin/accounts",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({username:"secondadmin",email:"second@example.test",
+     password:"Secondary-Initial-2026",role:"admin"})
+   });
+   return response.status;
+  });
+  assert.equal(secondAdmin,201);
+  const independent=await browser.createBrowserContext();
+  try{
+   const second=await independent.newPage();
+   await second.goto(origin+"/login",{waitUntil:"domcontentloaded"});
+   assert.equal(await second.evaluate(async()=>{
+    const r=await fetch("/api/auth/login",{method:"POST",
+     headers:{"Content-Type":"application/json"},
+     body:JSON.stringify({identity:"secondadmin",password:"Secondary-Initial-2026"})});
+    return r.status;
+   }),200);
+   assert.equal(await second.evaluate(async()=>{
+    const r=await fetch("/api/auth/change-password",{method:"POST",
+     headers:{"Content-Type":"application/json"},
+     body:JSON.stringify({currentPassword:"Secondary-Initial-2026",
+      newPassword:"Secondary-Updated-2026"})});
+    return r.status;
+   }),200);
+   const revisions=await second.evaluate(async()=>{
+    const r=await fetch("/api/admin/settings",{cache:"no-store"});
+    return {status:r.status,revision:(await r.json()).settings?.revision};
+   });
+   assert.deepEqual(revisions,{status:200,revision:2});
+   const results=await Promise.all([
+    page.evaluate(async()=>{
+     const r=await fetch("/api/admin/settings",{method:"PATCH",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({locale:"fr",theme:"light",palette:"red-purple",
+       referenceCountry:"FR",revision:2})});
+     return r.status;
+    }),
+    second.evaluate(async()=>{
+     const r=await fetch("/api/admin/settings",{method:"PATCH",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({locale:"fr",theme:"light",palette:"red-purple",
+       referenceCountry:"IT",revision:2})});
+     return r.status;
+    })
+   ]);
+   assert.deepEqual([...results].sort((a,b)=>a-b),[200,409]);
+  }finally{await independent.close();}
+  const afterTwoAdmins=await db(target.toString(),async client=>(await client.query(
+   "SELECT reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'")).rows[0]);
+  assert.equal(afterTwoAdmins.revision,3);
+  assert.ok(["FR","IT"].includes(afterTwoAdmins.reference_country));
+
   // Coupure du réseau navigateur avant l'envoi : aucune persistance, puis retry.
   await page.goto(origin+"/app/admin/settings/general",{waitUntil:"domcontentloaded"});
   await page.waitForSelector("#country",{timeout:20000});
@@ -237,7 +293,7 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
    assert.equal(await page.$eval("#country",el=>(el as HTMLSelectElement).value),"CA");
    const unchanged=await db(target.toString(),async client=>(await client.query(
     "SELECT reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'")).rows[0]);
-   assert.deepEqual(unchanged,afterRace);
+   assert.deepEqual(unchanged,afterTwoAdmins);
   }finally{
    await network.send("Network.emulateNetworkConditions",{
     offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1
@@ -249,7 +305,7 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   const afterRetry=await db(target.toString(),async client=>(await client.query(
    "SELECT reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'")).rows[0]);
   assert.equal(afterRetry.reference_country,"CA");
-  assert.equal(afterRetry.revision,3);
+  assert.equal(afterRetry.revision,4);
 
   // L'interruption volontaire doit invalider la session en mémoire, sans effacer les données.
   await browser.close();browser=undefined;
