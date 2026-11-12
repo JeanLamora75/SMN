@@ -1,4 +1,5 @@
 import {randomBytes,randomUUID} from "node:crypto";
+import {existsSync} from "node:fs";
 import {lstat,mkdir,readFile,readdir,rename,rm,writeFile} from "node:fs/promises";
 import {join,isAbsolute,resolve,sep} from "node:path";
 import {Client} from "pg";
@@ -28,9 +29,15 @@ export function backupRootPath():string{
   if(!isAbsolute(custom))throw new Error("backup-root-invalid");
   return resolve(custom);
  }
- if(process.platform!=="win32"||!process.env.LOCALAPPDATA)
-  throw new Error("backup-root-unconfigured");
- return join(process.env.LOCALAPPDATA,"ScrumMasterNotebook","backups");
+ if(process.platform!=="win32")throw new Error("backup-root-unconfigured");
+ const local=join(process.cwd(),"data","backups");
+ const legacy=process.env.LOCALAPPDATA?
+  join(process.env.LOCALAPPDATA,"ScrumMasterNotebook","backups"):null;
+ // A new installation stores everything under SMN/. Existing users retain
+ // their original archives and key; never recreate a conflicting backup key.
+ if(existsSync(local))return local;
+ if(legacy&&existsSync(legacy))return legacy;
+ return local;
 }
 function sameOrNested(a:string,b:string):boolean{
  const first=resolve(a).toLowerCase(),second=resolve(b).toLowerCase();
