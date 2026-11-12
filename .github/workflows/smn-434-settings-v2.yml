@@ -17,6 +17,8 @@ on:
       - "tests/settings-cockpit-ux.test.ts"
       - "tests/smn-282-team-settings.test.ts"
       - "tests/smn-434-settings-v2-i18n.test.ts"
+      - "tests/settings-*browser*.test.ts"
+      - "tests/settings-pg-interrupted-transaction.test.ts"
   workflow_dispatch:
 
 concurrency:
@@ -56,3 +58,49 @@ jobs:
           tests/smn-434-settings-v2-i18n.test.ts
       - name: Vérifier TypeScript
         run: pnpm typecheck
+
+  settings-functional-postgres:
+    name: "Paramètres — parcours réels Chromium + PostgreSQL 18"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: smn_ci
+          POSTGRES_PASSWORD: smn_ci_password
+          POSTGRES_DB: smn_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U smn_ci -d smn_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      CI: "true"
+      SMN_TEST_DATABASE_URL: "postgresql://smn_ci:smn_ci_password@127.0.0.1:5432/smn_ci"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - name: Installer les dépendances verrouillées
+        run: pnpm install --frozen-lockfile
+      - name: Compiler Next.js pour le test de bout en bout
+        run: pnpm build
+      - name: Tester les interactions Chromium et les transactions PostgreSQL isolées
+        run: >-
+          pnpm exec tsx --test
+          tests/settings-browser-interactions.test.ts
+          tests/settings-teams-browser-http.test.ts
+          tests/settings-general-ceremonies-pg-browser.test.ts
+          tests/settings-pg-interrupted-transaction.test.ts
+          tests/settings-live-next-pg-browser.test.ts
