@@ -680,6 +680,23 @@
     }
   },
   "backups": {
+    "transfer": {
+        "title": "Import from another computer",
+        "intro": "Select the ZIP file exported from the other SMN installation. Verification never overwrites this PC's data.",
+        "file": "SMN backup ZIP file",
+        "invalidFile": "Choose a valid SMN .zip file smaller than 2 GB.",
+        "upload": "Upload ZIP",
+        "sending": "Uploading…",
+        "uploaded": "File received, awaiting verification:",
+        "uploadFailed": "ZIP upload or validation failed. Active data was not changed.",
+        "verify": "Verify backup",
+        "verifying": "Verifying encryption…",
+        "verificationFailed": "Unable to verify the archive with that recovery phrase. Restoration was not started.",
+        "verified": "Backup integrity verified.",
+        "archive": "Backup",
+        "notActivated": "The active database was not replaced. Automatic cutover and rollback still require qualification before activation.",
+        "safety": "Do not delete your current installation. Uploading a ZIP does not restore it automatically."
+      },
     "title": "Manual backup",
     "intro": "Create an encrypted package of the PostgreSQL database and the private documents actually stored.",
     "back": "Back to dashboard",
