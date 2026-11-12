@@ -12,6 +12,22 @@ type Translator=(key:TranslationKey,params?:TranslationParams)=>string;
 const VIEW_KEY="smn-company-settings-view";
 const palette=["blue","indigo","violet","teal","green","amber","orange","red"] as const;
 const blank=():Draft=>({name:"",comment:"",color:"blue"});
+const companyApiErrorKeys={
+ "invalid-input":"invalidInput",
+ "duplicate-name":"duplicateName",
+ "not-found":"notFound",
+ "conflict":"conflict",
+ "already-archived":"alreadyArchived",
+ "already-active":"alreadyActive",
+ "forbidden":"forbidden",
+ "service-unavailable":"serviceUnavailable"
+} as const;
+function companyError(code:string|undefined,t:Translator,fallback:"saveFailed"|"changeFailed"):string{
+ const key=code&&Object.prototype.hasOwnProperty.call(companyApiErrorKeys,code)
+  ?companyApiErrorKeys[code as keyof typeof companyApiErrorKeys]:null;
+ return key?t(`companiesAdmin.errors.${key}` as TranslationKey):t(`companiesAdmin.${fallback}` as TranslationKey);
+}
+
 
 async function readCompaniesResponse(response:Response,t:Translator):Promise<{companies:Company[]}>{
  if(!response.ok){
@@ -89,7 +105,7 @@ export default function CompaniesAdmin(){
    });
    if(!response.ok){
     const value=await response.json().catch(()=>({})) as {error?:string};
-    throw Error(value.error??t("companiesAdmin.saveFailed"));
+    throw Error(companyError(value.error,t,"saveFailed"));
    }
    await load();resetEditor();setMessage(t("companiesAdmin.saved"));
   }catch(cause){setError(cause instanceof Error?cause.message:t("companiesAdmin.saveFailed"))}
@@ -108,7 +124,7 @@ export default function CompaniesAdmin(){
    });
    if(!response.ok){
     const result=await response.json().catch(()=>({})) as {error?:string};
-    throw Error(result.error??t("companiesAdmin.changeFailed"));
+    throw Error(companyError(result.error,t,"changeFailed"));
    }
    await load();resetEditor();setMessage(t("companiesAdmin.statusChanged"));
   }catch(cause){setError(cause instanceof Error?cause.message:t("companiesAdmin.changeFailed"))}
