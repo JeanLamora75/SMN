@@ -1,6 +1,7 @@
 "use client";
 import {useCallback,useEffect,useMemo,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
+import {filterSettingsAbsences} from "@/lib/settings-collection-filter";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 
 type Category={id:string;name:string;color:string;isActive:boolean;
@@ -27,10 +28,7 @@ export default function AbsenceCategoriesAdmin(){
  const [isError,setIsError]=useState(false);
  const [query,setQuery]=useState("");
  const [stateFilter,setStateFilter]=useState<"all"|"active"|"inactive">("all");
- const filtered=useMemo(()=>categories.filter(category=>
-  (stateFilter==="all"||(stateFilter==="active"?category.isActive:!category.isActive))&&
-  (!query.trim()||category.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()))
- ),[categories,query,stateFilter]);
+ const filtered=useMemo(()=>filterSettingsAbsences(categories,query,stateFilter),[categories,query,stateFilter]);
  const dirty=JSON.stringify(draft)!==baseline;
  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
  const reload=useCallback(async()=>{
