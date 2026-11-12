@@ -188,12 +188,12 @@ export async function runGuiOfflineRestore(){
   await beginOfflineRestoreMaintenance();
   fence=true;phase="fenced";
   await status(token,phase);
-  const key=await readFile(keyPath);
+  const privacyKey=await readFile(keyPath);
   try{
    const encrypted=JSON.parse(await readFile(ledgerPath,"utf8")) as unknown;
    privacyInstalled=true;
-   await installGuiPrivacyEvidence(encrypted,key,token);
-  }finally{key.fill(0);}
+   await installGuiPrivacyEvidence(encrypted,privacyKey,token);
+  }finally{privacyKey.fill(0);}
   phase="privacy-installed";await status(token,phase);
   process.env.SMN_BACKUP_DIR=work;
   process.env.SMN40_MANAGED_PREPARE_CONFIRM=
