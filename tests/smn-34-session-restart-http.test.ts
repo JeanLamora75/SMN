@@ -11,10 +11,10 @@ const cwd=fileURLToPath(new URL("../",import.meta.url));
 const fixture=fileURLToPath(new URL("./fixtures/smn-34-session-worker.ts",import.meta.url));
 const supervisor=fileURLToPath(new URL("../scripts/smn-34-sandbox-maintenance.ts",import.meta.url));
 
-function launch(marker:string):Promise<{worker:ChildProcess;url:string}>{
+function launch(marker:string,workingDir:string):Promise<{worker:ChildProcess;url:string}>{
  return new Promise((resolve,reject)=>{
   const worker=fork(fixture,[],{
-   cwd,execArgv:["--import","tsx"],
+   cwd:workingDir,execArgv:["--import","tsx"],
    stdio:["ignore","ignore","ignore","ipc"],
    env:{...process.env,SMN_RESTORE_MAINTENANCE_MARKER:marker}
   });
@@ -59,9 +59,11 @@ test("SMN-34: session live -> verrou persisté -> restart -> ancienne session re
  const sandbox=join(root,"smn_restore_test_session_worker");
  await mkdir(sandbox);
  const marker=join(sandbox,"maintenance.lock");
+ const workingDir=join(root,"app");
+ await mkdir(workingDir);
  const children:ChildProcess[]=[];
  try{
-  const first=await launch(marker);children.push(first.worker);
+  const first=await launch(marker,workingDir);children.push(first.worker);
   const initial=await fetch(first.url+"/session",{method:"POST",
    signal:AbortSignal.timeout(4000)});
   assert.equal(initial.status,200);
@@ -69,19 +71,19 @@ test("SMN-34: session live -> verrou persisté -> restart -> ancienne session re
   assert.match(token,/^[a-f0-9]{64}$/);
   assert.equal(await probe(first.url,token),200);
   const begin=spawnSync(process.execPath,["--import","tsx",supervisor,
-   "--begin",marker],{cwd,encoding:"utf8",timeout:15000});
+   "--begin",marker],{cwd:workingDir,encoding:"utf8",timeout:15000});
   assert.equal(begin.status,0,begin.stderr);
   assert.equal(JSON.parse(begin.stdout).serverStoppedProven,false);
   assert.equal(await probe(first.url,token),503,
    "The existing process must deny sessions while maintenance is active");
   await stop(first.worker);
-  const second=await launch(marker);children.push(second.worker);
+  const second=await launch(marker,workingDir);children.push(second.worker);
   assert.equal(await probe(second.url,token),503,
    "The new process must continue denying access while marker exists");
   await stop(second.worker);
   // Only the test harness removes its own disposable marker, never the CLI.
   await rm(marker);
-  const recovered=await launch(marker);children.push(recovered.worker);
+  const recovered=await launch(marker,workingDir);children.push(recovered.worker);
   assert.equal(await probe(recovered.url,token),401,
    "A new process must never accept pre-maintenance memory sessions");
   assert.equal(await probe(recovered.url),200,
