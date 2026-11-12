@@ -84,6 +84,8 @@ assert.equal(existsSync(path.join(root, "runtime", "postgres",
   "Ne pas expédier le nom long qui échoue sur certains postes Windows");
 const isolatedHome = await mkdtemp(path.join(os.tmpdir(), "smn-portable-ci-"));
 const newStorage=path.join(root, "data", "postgres");
+const privateConfig=path.join(root,"config");
+assert.equal(existsSync(privateConfig), false, "Le ZIP ne doit contenir aucun config/ préinitialisé");
 assert.equal(existsSync(path.join(root, "server.js")), false, "Le serveur doit être isolé dans app/");
 assert.equal(existsSync(path.join(root, "node.exe")), false, "Node.js doit être isolé dans runtime/node/");
 assert.ok(existsSync(path.join(root, "updates")), "Le staging updates doit être séparé des données");
@@ -211,8 +213,9 @@ try {
     assert.equal(done, true, "La préparation a dépassé dix minutes ; dernière étape : " + lastStep);
     if (portFallback) {
       const cfg = JSON.parse(await readFile(
-        path.join(isolatedHome, "ScrumMasterNotebook", "runtime.json"), "utf8"));
+        path.join(privateConfig, "runtime.json"), "utf8"));
       assert.equal(cfg.version, 2, "Les nouvelles installations doivent enregistrer un manifeste v2");
+      assert.equal(existsSync(path.join(isolatedHome,"ScrumMasterNotebook")),false,"Aucune écriture dans AppData");
       assert.equal(cfg.cluster, path.join(newStorage, "data"));
       assert.notEqual(cfg.port, 55432, "SMN doit utiliser un autre port PostgreSQL si 55432 est interdit");
       console.log("PASS : port PostgreSQL automatiquement remplacé et persisté : " + cfg.port);
@@ -269,5 +272,6 @@ try {
   // The test deliberately creates a disposable cluster in the distribution tree.
   // Remove it before upload; never ship a test database or its secrets.
   await rm(newStorage, { recursive: true, force: true, maxRetries: 8, retryDelay: 600 });
+  await rm(privateConfig, { recursive: true, force: true, maxRetries: 8, retryDelay: 600 });
   await rm(isolatedHome, { recursive: true, force: true, maxRetries: 8, retryDelay: 600 });
 }
