@@ -12,7 +12,7 @@ export default async function SecurityPage() {
   if(account.must_change_password) redirect("/change-password");
   const locale=await requestLocale();
   const t=(key:Parameters<typeof translate>[1])=>translate(locale,key);
-  return <SettingsPageShell title={t("security.title")} description={t("security.invalidate")} eyebrow={t("navigation.entries.settings")} constrained>
+  return <SettingsPageShell title={t("security.title")} description={t("security.invalidate")} eyebrow={t("navigation.entries.settings")}>
     <section className="smn-panel rounded-4 p-4 mb-3">
       <h2 className="h5">{t("security.changePassword")}</h2>
       <p className="text-secondary small">{t("security.invalidate")}</p>
