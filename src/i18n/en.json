@@ -4756,5 +4756,34 @@
       "orange": "Orange",
       "red": "Red"
     }
+  },
+  "settingsCollections": {
+    "searchTeams": "Search teams",
+    "searchAbsences": "Search categories",
+    "searchUsers": "Search users",
+    "searchTemplates": "Search ceremonies",
+    "filterStatus": "Status",
+    "filterRole": "Role",
+    "all": "All",
+    "active": "Active",
+    "inactive": "Inactive",
+    "archived": "Archived",
+    "allRoles": "All roles",
+    "results": "{count} of {total} results",
+    "noMatches": "No results match the selected filters.",
+    "reset": "Clear filters",
+    "archiveTeamConfirm": "Archive this team? It will remain available for viewing and can be reactivated.",
+    "reactivateTeamConfirm": "Reactivate this team?",
+    "lastActiveTeam": "The last active team cannot be archived.",
+    "hasCycles": "The Agile mode cannot be changed because this team already has a cycle.",
+    "archivedTeam": "Reactivate this team before changing its Agile mode.",
+    "teamServiceUnavailable": "Server error while updating the team (HTTP {status}). Check the server logs.",
+    "archiveTeam": "Archive team",
+    "reactivateTeam": "Reactivate team",
+    "ceremonyIcon": "Ceremony icon",
+    "ceremonyIconHelp": "Optional. The icon and its color apply to the template without modifying existing meetings.",
+    "ceremonyIconPicker": "of the ceremony template",
+    "ceremonyPreview": "Ceremony preview",
+    "ceremonyPreviewHelp": "The selected template stays accessible even when filters change."
   }
 }
