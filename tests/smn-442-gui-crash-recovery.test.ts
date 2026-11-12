@@ -30,3 +30,14 @@ test("both recovery and restoration binaries are included in Windows package",()
   assert.match(source,/"smn-gui-offline-recover"/);
  }
 });
+
+test("released-but-unarchived work requires signed journal and both parked fences",()=>{
+ const source=read("scripts/smn-gui-offline-recover.ts");
+ assert.match(source,/verifyAlreadyReleased\(job,key\)/);
+ assert.match(source,/matching\.length!==1/);
+ assert.match(source,/readFreshCutoverJournal\(/);
+ assert.match(source,/comparePortableCurrentState\(receipt,key/);
+ assert.match(source,/ledger\.markers\.at\(-1\)/);
+ assert.match(source,/external\.isFile\(\)/);
+ assert.doesNotMatch(source,/if\(state\.stage==="complete"\)\{\s*await archivePending/);
+});
