@@ -1,14 +1,17 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {mkdtemp,readFile,rm,writeFile} from "node:fs/promises";
+import {mkdtemp,mkdir,readFile,rm,writeFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {beginOfflineRestoreMaintenance,restoreMaintenanceActive,
- inspectOfflineRestoreMaintenance} from "../src/server/backup/restore-maintenance";
+ inspectOfflineRestoreMaintenance,localRestoreMaintenanceLockPath} from "../src/server/backup/restore-maintenance";
 
 test("SMN-34 maintenance gate persists through a simulated server restart",
  async()=>{
  const root=await mkdtemp(join(tmpdir(),"smn34-maintenance-"));
+ const oldCwd=process.cwd();
+ await mkdir(join(root,"app"));
+ process.chdir(join(root,"app"));
  const original=process.env.SMN_RESTORE_MAINTENANCE_MARKER;
  const backup=process.env.SMN_BACKUP_DIR;
  try{
@@ -27,6 +30,8 @@ test("SMN-34 maintenance gate persists through a simulated server restart",
   assert.equal(await restoreMaintenanceActive(),true);
   await assert.rejects(inspectOfflineRestoreMaintenance());
   await rm(process.env.SMN_RESTORE_MAINTENANCE_MARKER);
+  assert.equal(await restoreMaintenanceActive(),true,"Local fence survives missing external marker");
+  await rm(localRestoreMaintenanceLockPath());
   assert.equal(await restoreMaintenanceActive(),false);
   process.env.SMN_RESTORE_MAINTENANCE_MARKER=join(process.cwd(),"not-private");
   assert.equal(await restoreMaintenanceActive(),true,
@@ -36,6 +41,7 @@ test("SMN-34 maintenance gate persists through a simulated server restart",
   else process.env.SMN_RESTORE_MAINTENANCE_MARKER=original;
   if(backup===undefined)delete process.env.SMN_BACKUP_DIR;
   else process.env.SMN_BACKUP_DIR=backup;
+  process.chdir(oldCwd);
   await rm(root,{recursive:true,force:true});
  }
 });
