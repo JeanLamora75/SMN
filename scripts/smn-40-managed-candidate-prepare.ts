@@ -24,9 +24,11 @@ import {comparePortableCurrentState,type SignedCurrentStateReceipt}
  from "../src/server/backup/current-state-transfer-receipt";
 
 const VALID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
-export async function prepareFreshManagedCandidate(archiveId:string,receiptPath:string){
+export async function prepareFreshManagedCandidate(archiveId:string,receiptPath:string,replaceInitialized=false){
  if(process.platform!=="win32"||!VALID.test(archiveId)||
-  process.env.SMN_DATABASE_URL)throw Error("migration-prepare-not-available");
+  process.env.SMN_DATABASE_URL||
+  (replaceInitialized&&process.env.SMN40_MANAGED_PREPARE_CONFIRM!==
+    "PREPARE_REPLACEMENT_WITH_ROLLBACK"))throw Error("migration-prepare-not-available");
  const marker=await inspectOfflineRestoreMaintenance();
  if(!marker||marker.purpose!=="offline-restore")
   throw Error("migration-maintenance-required");
@@ -76,7 +78,19 @@ export async function prepareFreshManagedCandidate(archiveId:string,receiptPath:
   await live.connect();liveConnected=true;
   const tables=await live.query<{n:string}>(
    "SELECT count(*)::text AS n FROM pg_catalog.pg_tables WHERE schemaname='public'");
-  if(tables.rows[0]?.n!=="0")throw Error("migration-live-destination-not-empty");
+  if(tables.rows[0]?.n!=="0"){
+   if(!replaceInitialized)throw Error("migration-live-destination-not-empty");
+   const own=await live.query<{state:string;schema_version:number;created_at:Date}>(
+    "SELECT state,schema_version,created_at FROM public.smn_installation "+
+    "WHERE id='singleton'");
+   if(own.rowCount!==1||own.rows[0]?.state!=="initialized"||
+    own.rows[0]?.schema_version!==33||!own.rows[0]?.created_at||
+    backup.installationSource===
+      "singleton:"+new Date(own.rows[0].created_at).toISOString())
+    throw Error("migration-initialized-destination-not-independent");
+  }else if(replaceInitialized){
+   throw Error("migration-replacement-mode-requires-installed-destination");
+  }
   await live.end();liveConnected=false;
   await admin.connect();adminConnected=true;
   const busy=await admin.query<{n:string}>(
@@ -135,10 +149,11 @@ async function main(){
   try{process.loadEnvFile(".env.local");}catch{/* Default Windows root. */}
  }
  const args=process.argv.slice(2);
- if(args.length!==4||args[0]!=="--prepare"||
+ const replace=args.length===5&&args[4]==="--replace-initialized-with-rollback";
+ if((args.length!==4&&!replace)||args[0]!=="--prepare"||
   args[1]!=="--archive"||!VALID.test(args[2]))
   throw Error("migration-prepare-arguments-invalid");
- const result=await prepareFreshManagedCandidate(args[2],args[3]);
+ const result=await prepareFreshManagedCandidate(args[2],args[3],replace);
  process.stdout.write(JSON.stringify(result)+"\n");
 }
 if(process.argv[1]?.replaceAll("\\","/")
