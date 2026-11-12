@@ -252,8 +252,7 @@ export async function runGuiOfflineRestore(){
   }
   // Before activation, or after a VERIFIED rollback, the original database
   // was not replaced or has been restored; release can be done safely.
-  if(fence&&(["fenced","privacy-installed","candidate-prepared","rolled-back"]
-    as Stage[]).includes(phase)){
+  if(fence&&(["fenced","privacy-installed","candidate-prepared","rolled-back"] as Stage[]).includes(phase)){
    try{
     if(privacyInstalled)await parkGuiPrivacyEvidence(token);
     await cancelSafeFence(token);
