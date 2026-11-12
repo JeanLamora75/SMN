@@ -232,7 +232,16 @@ export async function runGuiOfflineRestore(){
   await archivePending(job,"complete").catch(()=>undefined);
   return {state:phase,archiveId,rollbackRetained:true,
    allUsersMustLogInAgain:true};
- }catch{
+ }catch(error){
+  // Diagnostic visible only in the completely disposable Windows CI
+  // acceptance. No arbitrary stack trace, path or recovery secret is logged.
+  if(process.env.GITHUB_ACTIONS==="true"&&
+   process.env.SMN442_E2E_DISPOSABLE==="YES"){
+   const code=error instanceof Error&&
+    /^(?:gui|migration|portable|backup|privacy|restore|cutover|rollback)-[a-z0-9-]+$/.test(error.message)?
+     error.message:"migration-unexpected-error";
+   console.error("smn442-worker-rejected",phase,code);
+  }
   if(phase==="activating"&&fence&&beforeActivation){
    try{
     const after=await fingerprintDestination();
