@@ -98,6 +98,21 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   await page.goto(origin+"/app/admin/settings/general",{waitUntil:"domcontentloaded"});
   await page.waitForSelector("#country",{timeout:20000});
   assert.equal(await page.$eval("#fixed-product",e=>(e as HTMLInputElement).value),"Produit navigateur");
+  // Interface réelle : brouillon, refus de le perdre, puis abandon confirmé.
+  const initialCountry=await page.$eval("#country",e=>(e as HTMLSelectElement).value);
+  assert.equal(await page.$eval("form button[type=submit]",e=>(e as HTMLButtonElement).disabled),true);
+  await page.select("#country","GB");
+  await page.waitForFunction(()=>!!document.querySelector('[role=status].alert-warning'));
+  page.once("dialog",dialog=>void dialog.dismiss());
+  await page.click("#settings-tab-language");
+  assert.equal(await page.$eval("#settings-tab-general",e=>e.getAttribute("aria-selected")),"true",
+   "Refuser l'abandon doit préserver l'onglet et le brouillon");
+  assert.equal(await page.$eval("#country",e=>(e as HTMLSelectElement).value),"GB");
+  page.once("dialog",dialog=>void dialog.accept());
+  await page.click('form button[type=button]');
+  await page.waitForFunction(expected=>(document.querySelector("#country") as HTMLSelectElement).value===expected,{},initialCountry);
+  assert.equal(await page.$eval("form button[type=submit]",e=>(e as HTMLButtonElement).disabled),true,
+   "Abandonner un brouillon ne doit laisser aucune modification à enregistrer");
   await page.select("#country","DE");
   await page.click("form button[type=submit]");
   await page.waitForSelector(".alert-success",{timeout:15000});
@@ -262,6 +277,12 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
     currentPassword:"Temporary-Member-2026",newPassword:"Updated-Member-2026"
    });
    assert.equal(userChange.status,200,JSON.stringify(userChange.payload));
+   // La permission doit également être appliquée lors de la navigation Next.js.
+   await userPage.goto(origin+"/app/admin/settings/general",{waitUntil:"domcontentloaded"});
+   await userPage.waitForFunction(()=>location.pathname==="/app"||location.pathname==="/login",
+    {timeout:15000});
+   assert.notEqual(new URL(userPage.url()).pathname,"/app/admin/settings/general",
+    "Un utilisateur non administrateur ne doit pas voir le formulaire");
    const collective=await callSettingsApi(userPage,
     "/api/admin/registries/automatic-highlights","GET");
    assert.equal(collective.status,200,"L'utilisateur doit pouvoir consulter le collectif");
