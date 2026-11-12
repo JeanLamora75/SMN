@@ -336,8 +336,11 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   assert.equal(afterLostResponse.reference_country,"DE");
   assert.equal(afterLostResponse.revision,5,
    "Le COMMIT serveur peut réussir même quand le navigateur perd sa réponse");
-  await page.click("form button[type=submit]");
-  await page.waitForSelector("#settings-feedback[role=alert]",{timeout:15000});
+  await Promise.all([
+   page.waitForResponse(response=>response.url().endsWith("/api/admin/settings")&&
+    response.request().method()==="PATCH"&&response.status()===409,{timeout:15000}),
+   page.click("form button[type=submit]")
+  ]);
   const afterStaleRetry=await db(target.toString(),async client=>(await client.query(
    "SELECT reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'")).rows[0]);
   assert.deepEqual(afterStaleRetry,afterLostResponse,
