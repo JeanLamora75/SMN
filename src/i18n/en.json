@@ -2159,7 +2159,13 @@
     "invalid": "Invalid work hours or time zone. Check all four times and the IANA time zone.",
     "saveError": "Unable to save work hours (HTTP {status}). Check the SMN server logs.",
     "schemaUnavailable": "The PostgreSQL team work-hours table is missing. Check the SMN database migration before configuring work hours.",
-    "notScrum": "The selected team is not a Scrum team. Choose a Scrum team."
+    "notScrum": "The selected team is not a Scrum team. Choose a Scrum team.",
+    "repairTitle": "Team work hours repair",
+    "repairHelp": "The work-hours table is missing from the SMN database schema. This repair creates only the missing empty table. Existing data remains unchanged. No working hours are invented.",
+    "repairButton": "Repair work-hours schema",
+    "repairConfirm": "Create the missing team work-hours table in PostgreSQL? This is an additive operation and does not modify existing data.",
+    "repairIncompatible": "A work-hours table already exists but has an incompatible structure. No automatic repair was performed.",
+    "repairError": "The repair failed. Existing work hours were not changed. Check the SMN server log."
   },
   "teamCockpit": {
     "title": "Team",
