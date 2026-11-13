@@ -2,7 +2,7 @@ import {readZip,writeZip} from "./smn-397-office-poc.mjs";
 import {replaceScalarXml} from "./smn-399-office-scalars.mjs";
 import {ROW_MARKER,parseOfficeRowMarker,sortOfficeRows} from "./smn-office-row-sort.mjs";
 
-const SOURCES=new Set(["MEMBERS","MEMBERS_ACTIVE","MEMBERS_INACTIVE","INDICATORS","RISKS","OBSTACLES","DEPENDENCIES","NOTES","CEREMONIES","GOALS","ACTIONS","DECISIONS","LINKS_TRANSVERSE","LINKS_TEAM"]);
+const SOURCES=new Set(["MEMBERS","MEMBERS_ACTIVE","MEMBERS_INACTIVE","INDICATORS","RISKS","OBSTACLES","DEPENDENCIES","NOTES","CEREMONIES","GOALS","ACTIONS","DECISIONS","LINKS_TRANSVERSE","LINKS_TEAM","TICKETS","TICKET_SUMMARY","TICKET_CHANGES","TICKET_COMPARE_SUMMARY"]);
 const textRegex=/<w:t(?:\s[^>]*)?>[^<]*<\/w:t>/g;
 const tokenRegex=ROW_MARKER;
 
