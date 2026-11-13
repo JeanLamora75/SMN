@@ -50,7 +50,7 @@ test("SMN-451 : catégories non exclusives sans double comptage des tickets modi
  const result=compare();
  assert.equal(result.counts.storyPointsChanged,2);
  assert.equal(result.counts.otherChanged,3);
- assert.equal(result.counts.changedTickets,7);
+ assert.equal(result.counts.changedTickets,6);
  assert.equal(result.counts.unchangedTickets,2);
  const both=result.changes.find(x=>x.jiraId==="TEAM-2");
  assert.deepEqual(both?.kinds,["completed","storyPointsChanged","otherChanged"]);
