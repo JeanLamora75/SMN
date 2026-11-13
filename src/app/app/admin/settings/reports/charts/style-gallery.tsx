@@ -193,7 +193,7 @@ export default function ChartStyleGallery({isAdmin}:{isAdmin:boolean}){
   {loading?<div className="smn-chart-skeleton" role="status" aria-label={t("chartStyles.gallery.loading")}>
    {[1,2,3].map(n=><div key={n} className="smn-chart-skeleton-item"/>)}
   </div>:catalog&&<>
-   <section className="smn-chart-gallery-controls smn-panel p-3 p-lg-4 mb-4" aria-label={t("chartStyles.gallery.filters")}>
+   <SettingsFilterPanel className="smn-chart-gallery-controls mb-4" title={t("chartStyles.gallery.filters")}>
     <div className="smn-chart-filter-grid">
      <div><label className="form-label" htmlFor="style-search">{t("chartStyles.gallery.search")}</label>
       <input id="style-search" className="form-control" type="search" value={query}
@@ -216,7 +216,7 @@ export default function ChartStyleGallery({isAdmin}:{isAdmin:boolean}){
        disabled={busy||!catalog.styles.length}>{t("chartStyles.gallery.create")}</button>
      </div>}
     </div>
-   </section>
+   </SettingsFilterPanel>
    <section aria-labelledby="style-catalog-title">
     <div className="d-flex justify-content-between align-items-center mb-3 gap-2">
      <h2 id="style-catalog-title" className="h5 mb-0">{t("chartStyles.gallery.catalog")}</h2>
