@@ -3,6 +3,7 @@
 import {useEffect,useMemo,useState} from "react";
 import BootstrapIcon from "../bootstrap-icon";
 import {useLocale,useTranslation} from "@/i18n/client";
+import type {TranslationKey} from "@/i18n/catalog";
 import type {TicketCycleContext} from "../tickets-cycle-context";
 import type {TicketBrowseDirection,TicketBrowseRow,TicketBrowseSort} from "@/lib/ticket-csv-browse";
 
@@ -84,7 +85,7 @@ export default function TicketsConsultation({snapshot,context,onBack}:Props){
  }
  const filter=(name:string,value:string,update:(value:string)=>void,options:string[])=>
   <label className="smn-tickets-browse-field">
-   <span>{t(`tickets.${name}`)}</span>
+   <span>{t(`tickets.${name}` as TranslationKey)}</span>
    <select className="form-select" value={value}
     onChange={event=>{update(event.target.value);setPage(1);}}>
     <option value="">{t("tickets.browseAll")}</option>
@@ -151,7 +152,7 @@ export default function TicketsConsultation({snapshot,context,onBack}:Props){
       <table className="table smn-tickets-table smn-tickets-browse-table">
        <thead><tr>{keys.map(column=><th key={column.key} scope="col">
         <button type="button" className="smn-tickets-sort-button" onClick={()=>orderBy(column.key)}
-         aria-label={t(`tickets.${column.label}`)+" · "+t(sort===column.key&&direction==="desc"?
+         aria-label={t(`tickets.${column.label}` as TranslationKey)+" · "+t(sort===column.key&&direction==="desc"?
            "tickets.browseSortDesc":"tickets.browseSortAsc")}>
          {t(`tickets.${column.label}`)}{sort===column.key?" "+(direction==="asc"?"↑":"↓"):""}
         </button></th>)}</tr></thead>
