@@ -2637,6 +2637,17 @@
     "not_held": "Not held",
     "cancelled": "Cancelled"
   },
+  "sprintHighlight": {
+    "edit": "Edit",
+    "delete": "Delete permanently",
+    "heading": "Edit highlight",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Permanently delete “{title}”? The highlight will be removed, but its source record will remain.",
+    "error": "Unable to update or delete this highlight.",
+    "conflict": "The highlight has changed. Refresh the page.",
+    "title": "Highlight title"
+  },
   "sprintDetail": {
     "tabs": {
       "objectives": "Objectives",
