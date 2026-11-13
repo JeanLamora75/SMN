@@ -73,7 +73,7 @@ export default function IndicatorCatalog({teams,isAdmin,scope="team",activeTeamI
     <IndicatorCycles teamId={team} cycleType={cycleType} locale={locale}/>
    </section>}]:[]),
    ...(scope==="global"?[{id:"catalog",label:t("indicators.catalog"),content:<section>
-    <SettingsFilterPanel><div className="row g-3 align-items-end">
+    <SettingsFilterPanel className="mb-3"><div className="row g-3 align-items-end">
      <div className="col-12 col-md-8"><label htmlFor="indicator-catalog-search" className="form-label">{t("indicators.search")}</label>
       <input id="indicator-catalog-search" placeholder={t("indicators.search")} type="search" className="form-control" value={search} onChange={e=>setSearch(e.target.value)}/></div>
      <div className="col-12 col-md-4"><label htmlFor="indicator-catalog-status" className="form-label">{t("indicators.filter")}</label>
