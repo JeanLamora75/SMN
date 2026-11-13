@@ -4940,7 +4940,8 @@
     "ceremonyIconHelp": "Optional. The icon and its color apply to the template without modifying existing meetings.",
     "ceremonyIconPicker": "of the ceremony template",
     "ceremonyPreview": "Ceremony preview",
-    "ceremonyPreviewHelp": "The selected template stays accessible even when filters change."
+    "ceremonyPreviewHelp": "The selected template stays accessible even when filters change.",
+    "filtersTitle": "Filters and search"
   },
   "indicatorSettingsUi": {
     "tabsLabel": "Indicator settings",
