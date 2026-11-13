@@ -10,7 +10,7 @@ const forbidden=new Set([
  "tsconfig.json","next.config.ts","prisma.config.ts","pnpm-lock.yaml",
  "pnpm-workspace.yaml","README.md","node.exe","server.js","package.json"
 ]);
-const buildJunk=new Set(["data",".git",".github",".agents","_bmad","_bmad-output",
+const buildJunk=new Set([".git",".github",".agents","_bmad","_bmad-output",
  "tests","docs","src",".env",".env.local",".env.example"]);
 export async function auditWindowsDistribution(root){
  const listed=await readdir(root);
@@ -46,6 +46,7 @@ export async function auditWindowsDistribution(root){
  async function walk(folder,relative){
   for(const name of (await readdir(folder)).sort()){
    if(((relative===""||relative==="app")&&buildJunk.has(name)) ||
+      (relative==="app"&&name==="data") ||
       (relative===""&&forbidden.has(name)))
     throw Error("distribution-development-content");
    const absolute=path.join(folder,name);
