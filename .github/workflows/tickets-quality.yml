@@ -1,0 +1,70 @@
+name: SMN-444 — Qualification Tickets
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "src/lib/ticket-csv-*"
+      - "src/lib/tickets/**"
+      - "src/server/tickets/**"
+      - "src/server/backup/**"
+      - "src/server/reports/office-ticket-rows.ts"
+      - "src/app/app/tickets/**"
+      - "src/app/api/admin/tickets/**"
+      - "tests/smn-44*-ticket*"
+      - "tests/smn-45*-ticket*"
+      - "tests/smn-455-office-tickets.test.ts"
+      - "tests/smn-456-tickets-backup-transfer.test.ts"
+      - ".github/workflows/tickets-quality.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: smn-tickets-quality-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  unit-contracts:
+    name: Contrats purs CSV et calculs
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: npm install --no-package-lock --no-audit --no-fund --legacy-peer-deps
+      - name: SMN-445, 446, 450, 451, 454
+        run: npx tsx --test tests/smn-445-ticket-csv-contract.test.ts tests/smn-446-ticket-snapshot-storage.test.ts tests/smn-450-ticket-aggregations.test.ts tests/smn-451-ticket-csv-compare.test.ts tests/smn-454-jira-links.test.ts
+  ui-office-backup:
+    name: Interfaces, Office et sauvegarde
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: npm install --no-package-lock --no-audit --no-fund --legacy-peer-deps
+      - name: SMN-447 à 449, 452, 453, 455, 456
+        run: npx tsx --test tests/smn-447-tickets-navigation.test.tsx tests/smn-448-ticket-import.test.tsx tests/smn-449-ticket-consultation.test.tsx tests/smn-452-ticket-comparison-ui.test.tsx tests/smn-453-ticket-indicators.test.ts tests/smn-455-office-tickets.test.ts tests/smn-456-tickets-backup-transfer.test.ts
+  types-lint:
+    name: TypeScript, ESLint, traductions
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: npm install --no-package-lock --no-audit --no-fund --legacy-peer-deps
+      - name: Vérifier TypeScript
+        run: npm run typecheck
+      - name: Vérifier ESLint
+        run: npm run lint
+      - name: Vérifier i18n
+        run: npm run i18n:check
