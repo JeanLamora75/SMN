@@ -2,15 +2,18 @@
 
 import {useEffect,useMemo,useState} from "react";
 import BootstrapIcon from "../bootstrap-icon";
+import TicketsMetrics from "./tickets-metrics";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {TranslationKey} from "@/i18n/catalog";
 import type {TicketCycleContext} from "../tickets-cycle-context";
 import type {TicketBrowseDirection,TicketBrowseRow,TicketBrowseSort} from "@/lib/ticket-csv-browse";
+import type {TicketSummaryScopes} from "@/lib/ticket-csv-summary";
 
 type Snapshot={snapshotId:string;businessDate:string;originalFilename:string;rowCount:number;importedAt:string};
 type BrowseResponse={
  rows:TicketBrowseRow[];total:number;sourceCount:number;page:number;pageSize:number;pageCount:number;
  facets:{issueTypes:string[];statuses:string[];priorities:string[];prefixes:string[]};
+ summary:TicketSummaryScopes;
  jiraBaseUrl:string|null;
 };
 type Props={snapshot:Snapshot|null;context:TicketCycleContext;onBack:()=>void};
@@ -63,7 +66,8 @@ export default function TicketsConsultation({snapshot,context,onBack}:Props){
     return response.json() as Promise<BrowseResponse>;
    }).then(result=>{
     if(abort.signal.aborted)return;
-    if(!Array.isArray(result.rows)||!result.facets)throw Error("invalid-data");
+    if(!Array.isArray(result.rows)||!result.facets||!result.summary?.all||!result.summary?.filtered)
+     throw Error("invalid-data");
     setData(result);setState("ready");
    }).catch(error=>{
     if(abort.signal.aborted)return;
@@ -133,6 +137,8 @@ export default function TicketsConsultation({snapshot,context,onBack}:Props){
     </div>
     <p className="smn-tickets-note">{t("tickets.browseFiltersNote")}</p>
    </section>
+   {state==="ready"&&data&&<TicketsMetrics summary={data.summary}
+    hasFilters={!!(search||type||status||priority||prefix)}/>}
    <section className="smn-tickets-panel smn-tickets-browse-results" aria-labelledby="smn-tickets-browse-results-heading">
     <header className="smn-tickets-panel-heading">
      <h2 id="smn-tickets-browse-results-heading"><BootstrapIcon name="list-ul"/> {t("tickets.browseResults")}</h2>
