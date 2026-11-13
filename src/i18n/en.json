@@ -5142,6 +5142,25 @@
     "browseFiltersNote": "Filters apply to the selected CSV only.",
     "browseJiraLinkPending": "Jira links will be enabled once configured in Settings.",
     "browseBack": "Back to files",
-    "browseRetry": "Retry"
+    "browseRetry": "Retry",
+    "metricsTitle": "Ticket summary",
+    "metricsScope": "Calculation scope",
+    "metricsFiltered": "Filtered results",
+    "metricsAll": "Entire file",
+    "metricsFilteredDescription": "Calculations include all tickets matching the filters, across all pages.",
+    "metricsAllDescription": "Calculations include all tickets in this CSV snapshot, regardless of filters.",
+    "metricsFilterActive": "Active filters narrow this scope.",
+    "metricsTickets": "Ticket count",
+    "metricsCompleted": "Completed tickets",
+    "metricsSum": "Total interpretable Story Points",
+    "metricsNumeric": "Tickets with numeric SP",
+    "metricsMissing": "Missing SP: {count}",
+    "metricsInvalid": "Uninterpretable SP: {count}",
+    "metricsUnavailable": "—",
+    "metricsNoSum": "No usable numeric values. This total is unavailable, not zero.",
+    "metricsByType": "By ticket type",
+    "metricsByStatus": "By status",
+    "metricsByPrefix": "By Jira prefix",
+    "metricsNoGroups": "No tickets in this scope."
   }
 }
