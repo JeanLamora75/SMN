@@ -15,7 +15,11 @@ export default function WorkSlotsForm({teams=[]}:{teams?:readonly {id:string;nam
   try{
    const response=await fetch("/api/admin/sprints/work-slots?teamId="+encodeURIComponent(selectedTeamId),{cache:"no-store"});
    if(!response.ok){const err=await response.json().catch(()=>({})) as {error?:string};
-    setMessage(t(response.status===403?"epic4WorkSlots.forbidden":err.error==="team-context-unavailable"?"epic4WorkSlots.teamUnavailable":"epic4WorkSlots.loadError",{status:response.status}));return;}
+    const key=err.error==="work-slots-schema-unavailable"?"epic4WorkSlots.schemaUnavailable":
+     err.error==="scrum-team-unavailable"?"epic4WorkSlots.notScrum":
+     err.error==="team-context-unavailable"?"epic4WorkSlots.teamUnavailable":
+     response.status===403?"epic4WorkSlots.forbidden":"epic4WorkSlots.loadError";
+    setMessage(t(key,{status:response.status}));return;}
    const data=await response.json() as {teamId?:string;current?:{slots:Slots;zone:string;revision:number}|null};
    if(!data.teamId){setMessage(t("epic4WorkSlots.teamUnavailable"));return;}
    setTeamId(data.teamId);
