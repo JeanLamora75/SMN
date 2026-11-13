@@ -39,6 +39,7 @@ export function privateNavigation(mode:PrivateMode|null,role:PrivateRole,canMana
     href:"/app/admin/registries",icon:"stack"},
    {id:"links",label:"navigation.entries.links",href:role==="admin"?"/app/admin/links":null,icon:"link-45deg"},
    {id:"reporting",label:"navigation.entries.reporting",href:"/app/reports",icon:"bar-chart-line"},
+   {id:"tickets",label:"tickets.navigation",href:"/app/tickets",icon:"ticket-perforated-fill"},
   ]}
  ];
  if(role==="admin")groups.push({
@@ -56,6 +57,7 @@ export function activePrivateEntry(pathname:string,entry:NavigationEntry):boolea
   (entry.id==="indicators"&&pathname.startsWith("/app/admin/indicators/"))||
   (entry.id==="links"&&pathname.startsWith("/app/admin/links/"))||
   (entry.id==="reporting"&&pathname.startsWith("/app/reports/"))||
+  (entry.id==="tickets"&&pathname.startsWith("/app/tickets/"))||
   (entry.id==="members"&&pathname.startsWith("/app/admin/members/"))||
   (entry.id==="centralCalendar"&&pathname.startsWith("/app/team-calendar/"))||
   (entry.id==="settings"&&pathname.startsWith("/app/admin/settings/"))||
