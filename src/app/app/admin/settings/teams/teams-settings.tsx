@@ -60,7 +60,7 @@ export default function TeamsSettings(){
  useEffect(()=>{void Promise.resolve().then(()=>requestList());},[requestList]);
  useEffect(()=>{setMounted(true);},[]);
  useEffect(()=>{
-  const openNew=()=>changeTeam(null);
+  const openNew=()=>{if(!loading&&canWrite)changeTeam(null);};
   window.addEventListener(OPEN_TEAM_EDITOR,openNew);
   return()=>window.removeEventListener(OPEN_TEAM_EDITOR,openNew);
  });
@@ -113,7 +113,7 @@ export default function TeamsSettings(){
     setError(data.error==="last-active-team"?t("settingsCollections.lastActiveTeam"):t("teamSettings.saveFailed"));
     return;
    }
-   setSelected(null);setValues(blank);
+   setSelected(null);setValues(blank);setModalOpen(false);
    await requestList();
   }catch{setError(t("teamSettings.saveFailed"));}
   finally{setSaving(false);}
