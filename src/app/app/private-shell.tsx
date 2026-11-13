@@ -9,6 +9,7 @@ import {useTranslation} from "@/i18n/client";
 import LogoutControl from "./logout-control";
 import ActiveTeamSelector from "./active-team-selector";
 import PrivateNavigation from "./private-navigation";
+import {TicketsCycleProvider} from "./tickets-cycle-context";
 import type {PrivateMode,PrivateRole} from "@/lib/private-navigation";
 
 type Props=Readonly<{
@@ -27,9 +28,9 @@ type Props=Readonly<{
 export default function PrivateShell({children,username,role,mode,product,team,teamId,teamSwitcherEnabled,canManageIndicators}:Props){
   const t=useTranslation();
   const pathname=usePathname(),router=useRouter(),searchParams=useSearchParams();
-  const cyclePage=pathname==="/app"||pathname==="/app/dashboard-builder";
+  const cyclePage=pathname==="/app"||pathname==="/app/dashboard-builder"||pathname==="/app/tickets";
   const requestedCycleId=cyclePage?searchParams.get("cycleId"):null;
-  const [sprints,setSprints]=useState<CycleChoice[]>([]);
+  const [sprints,setSprints]=useState<Array<CycleChoice & {status?:string}>>([]);
   const [selectedCycleId,setSelectedCycleId]=useState("");
   const [cycleState,setCycleState]=useState<"loading"|"ready"|"error">("loading");
   // Une navigation vers la liste puis une nouvelle génération recharge les options.
@@ -108,6 +109,9 @@ export default function PrivateShell({children,username,role,mode,product,team,t
   },[]);
 
   const cycleLabel=mode==="kanban"?"dashboard.shell.period":"dashboard.shell.sprint";
+  const selectedCycle=sprints.find(item=>item.id===selectedCycleId);
+  const ticketsCycle={teamId,mode,role,cycleId:selectedCycleId,
+    cycleName:selectedCycle?.name??null,cycleStatus:selectedCycle?.status??null,state:cycleState};
   return <div className={`smn-dashboard smn-private-layout${collapsed?" is-collapsed":""}${mobileOpen?" mobile-open":""}`}>
     <header className="smn-dashboard-topbar">
       <div className="smn-private-header">
@@ -171,7 +175,7 @@ export default function PrivateShell({children,username,role,mode,product,team,t
         <PrivateNavigation mode={mode} role={role} canManageIndicators={canManageIndicators}
           onNavigate={()=>setMobileOpen(false)}/>
       </div>
-      <main id="smn-main" className="smn-private-main pb-5">{children}</main>
+      <main id="smn-main" className="smn-private-main pb-5"><TicketsCycleProvider value={ticketsCycle}>{children}</TicketsCycleProvider></main>
     </div>
   </div>;
 }
