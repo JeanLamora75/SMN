@@ -396,7 +396,9 @@
       "account-not-found": "Ce compte n’existe plus.",
       "forbidden": "Cette opération est réservée à l’Administrateur connecté.",
       "service-unavailable": "La base SMN est actuellement indisponible."
-    }
+    },
+    "editAccount": "Modifier le compte",
+    "cancel": "Annuler"
   },
   "welcome": {
     "title": "Installer Scrum Master Notebook",
