@@ -31,13 +31,13 @@ export async function resolveAdminTeam(db:Client,actor:TeamActor,
   throw new Error("team-context-not-ready");
  const installation=details.rows[0].installation_id;
  // Ne jamais conserver une préférence devenue invalide.
- const chosen=await db.query<{team_id:string}>(`
+ const chosen=requestedTeamId==null?await db.query<{team_id:string}>(`
   SELECT t.id AS team_id FROM public.smn_account_team_preference p
   JOIN public.smn_team t ON t.id=p.team_id
    AND t.installation_id=p.installation_id
   WHERE p.account_id=$1 AND p.installation_id=$2
    AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false`,
-  [actor.accountId,installation]);
+  [actor.accountId,installation]):{rows:[] as {team_id:string}[]};
  // L'absence de préférence peut être résolue sans ambiguïté uniquement
  // lorsqu'une seule équipe appartient à l'installation de l'administrateur.
  let id=requestedTeamId??chosen.rows[0]?.team_id;
