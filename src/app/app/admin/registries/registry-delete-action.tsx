@@ -2,9 +2,10 @@
 
 import {useState} from "react";
 import {useTranslation} from "@/i18n/client";
+import BootstrapIcon from "../../bootstrap-icon";
 
-export default function RegistryDeleteAction({id,title,teamId,onDeleted,className,compactLabel=false}:{
- id:string;title:string;teamId:string;onDeleted:()=>void;className?:string;compactLabel?:boolean;
+export default function RegistryDeleteAction({id,title,teamId,onDeleted,className,compactLabel=false,iconOnly=false}:{
+ id:string;title:string;teamId:string;onDeleted:()=>void;className?:string;compactLabel?:boolean;iconOnly?:boolean;
 }){
  const t=useTranslation();
  const tr=(key:string,values?:Record<string,string>)=>t(("registryDelete."+key) as Parameters<typeof t>[0],values);
@@ -47,8 +48,9 @@ export default function RegistryDeleteAction({id,title,teamId,onDeleted,classNam
  };
  return <>
   <button type="button" className={className??"btn btn-sm btn-outline-danger"}
-   disabled={busy} aria-label={tr("button")+" : "+title} onClick={()=>void remove()}>
-   {busy?tr("deleting"):compactLabel?t("dashboardRecordDelete.button"):tr("button")}
+   disabled={busy} aria-label={tr("button")+" : "+title}
+   title={tr("button")+" : "+title} onClick={()=>void remove()}>
+   {iconOnly?<BootstrapIcon name="trash3"/>:busy?tr("deleting"):compactLabel?t("dashboardRecordDelete.button"):tr("button")}
   </button>
   {error&&<span className="text-danger small d-block" role="alert">{error}</span>}
  </>;
