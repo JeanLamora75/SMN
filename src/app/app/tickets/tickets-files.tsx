@@ -170,7 +170,7 @@ export default function TicketsFiles(){
      {cycleState==="error"?<div role="alert" className="alert alert-danger">{t("tickets.error")}</div>:
       !cycleId||!teamId||!mode?<p className="smn-tickets-empty">{t("tickets.noCycle")}</p>:
       loading?<p role="status" className="smn-tickets-empty">{t("tickets.loading")}</p>:
-      cycleState==="error"||state==="error"?<div role="alert" className="alert alert-danger">
+      state==="error"?<div role="alert" className="alert alert-danger">
        {t("tickets.error")}
        <button className="btn btn-outline-secondary btn-sm ms-2" type="button" onClick={()=>setVersion(v=>v+1)}>{t("tickets.retry")}</button>
       </div>:
