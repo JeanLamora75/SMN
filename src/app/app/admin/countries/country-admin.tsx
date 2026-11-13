@@ -5,6 +5,7 @@ import {annualDisplayStatus,currentParisYear,normalizeCountrySearch,
  type AnnualDisplayStatus,type TechnicalCoverage} from "@/lib/countries/year-status";
 import CountryFlag from "./country-flag";
 import CountryFormModal from "./country-form-modal";
+import CountryActionsMenu from "./country-actions-menu";
 import CountryCalendarModal from "./country-calendar-modal";
 import CountryLifecycleModal from "./country-lifecycle-modal";
 import {visibilityAfterLifecycle} from "@/lib/countries/lifecycle-ux";
@@ -76,7 +77,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
   const frame=requestAnimationFrame(()=>{
    const trigger=Array.from(document.querySelectorAll<HTMLElement>("[data-country-actions]"))
     .find(el=>el.dataset.countryActions===code)
-    ?.querySelector<HTMLElement>("summary");
+;
    (trigger??archiveFilterRef.current)?.focus();
    lifecycleOpenerCode.current=null;
   });
@@ -232,37 +233,9 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
          onClick={event=>openCalendar(country.code,event.currentTarget)}>
          {t("countries.manage")}
         </button>
-        {canManage&&<details className="d-inline-block align-middle text-start"
-         data-country-actions={country.code}
-         onKeyDown={event=>{
-          if(event.key==="Escape"){
-           event.preventDefault();event.stopPropagation();
-           event.currentTarget.open=false;
-           event.currentTarget.querySelector<HTMLElement>("summary")?.focus();
-          }
-         }}
-         onBlur={event=>{
-          if(!event.currentTarget.contains(event.relatedTarget as Node|null))
-           event.currentTarget.open=false;
-         }}>
-         <summary className="btn btn-sm btn-outline-secondary"
-          aria-label={t("countries.lifecycleMenuForCountry",{country:country.name})}>⋯</summary>
-         <div className="d-flex flex-column gap-1 border rounded-2 bg-body p-2 mt-2 shadow-sm">
-          {!country.archived&&<button type="button" className="dropdown-item"
-           onClick={event=>{
-            event.currentTarget.closest("details")?.removeAttribute("open");
-            renameOpenerCode.current=country.code;
-            setForm({mode:"rename",country});
-           }}>{t("countries.renameAction")}</button>}
-          <button type="button" className="dropdown-item"
-           onClick={event=>{
-            event.currentTarget.closest("details")?.removeAttribute("open");
-            lifecycleOpenerCode.current=country.code;
-            setLifecycle(country);
-           }}>{t(country.archived?"countries.lifecycleReactivateAction":
-             "countries.lifecycleArchiveAction")}</button>
-         </div>
-        </details>}
+        {canManage&&<CountryActionsMenu code={country.code} name={country.name} archived={country.archived}
+         onRename={()=>{renameOpenerCode.current=country.code;setForm({mode:"rename",country});}}
+         onLifecycle={()=>{lifecycleOpenerCode.current=country.code;setLifecycle(country);}}/>}
        </div></td>
       </tr>;
      })}
@@ -313,7 +286,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
     requestAnimationFrame(()=>{
      const trigger=code?Array.from(document.querySelectorAll<HTMLElement>(
       "[data-country-actions]")).find(el=>el.dataset.countryActions===code)
-       ?.querySelector<HTMLElement>("summary"):null;
+       :null;
      (trigger??addCountryRef.current??archiveFilterRef.current)?.focus();
     });
    }}
