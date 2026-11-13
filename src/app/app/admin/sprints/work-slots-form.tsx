@@ -26,7 +26,7 @@ export default function WorkSlotsForm({teams=[]}:{teams?:readonly {id:string;nam
   }catch{setMessage(t("epic4WorkSlots.networkError"));}
   finally{setBusy(false);}
  }
- useEffect(()=>{if(teams.length===1)void Promise.resolve().then(()=>load(teams[0].id));},[]);
+ useEffect(()=>{if(teams.length===1){setTeamId(teams[0].id);void Promise.resolve().then(()=>load(teams[0].id));}},[]);
  async function save(){
   if(!teamId){setMessage(t("epic4WorkSlots.selectTeamRequired"));return;}
   setBusy(true);setMessage("");
@@ -52,8 +52,13 @@ export default function WorkSlotsForm({teams=[]}:{teams?:readonly {id:string;nam
  }
  const fields=[["morningStart","morningStart"],["morningEnd","morningEnd"],["afternoonStart","afternoonStart"],["afternoonEnd","afternoonEnd"]] as const;
  return <section className="smn-panel p-4 mt-4"><h2 className="h4">{t("epic4WorkSlots.title")}</h2><p>{t("epic4WorkSlots.info")}</p>
- {teams.length>1&&<div className="mb-3"><label className="form-label" htmlFor="slot-team">{t("epic4WorkSlots.team")}</label><select className="form-select" id="slot-team" value={teamId??""} disabled={busy} onChange={e=>{const id=e.target.value||null;setTeamId(id);setOriginal(null);setSlots(EMPTY);setRevision(0);if(id)void load(id);}}><option value="">{t("epic4WorkSlots.selectTeam")}</option>{teams.map(team=><option key={team.id} value={team.id}>{team.name}</option>)}</select></div>}
- {teamId&&teams.length===1&&<p className="small text-secondary">{t("epic4WorkSlots.team")}: {teams[0].name}</p>}
+ <div className="mb-3"><label className="form-label" htmlFor="slot-team">{t("epic4WorkSlots.team")}</label>
+  <select className="form-select" id="slot-team" value={teamId??""} disabled={busy}
+   onChange={e=>{const id=e.target.value||null;setTeamId(id);setOriginal(null);setSlots(EMPTY);setRevision(0);setMessage("");if(id)void load(id);}}>
+   <option value="">{t("epic4WorkSlots.selectTeam")}</option>
+   {teams.map(team=><option key={team.id} value={team.id}>{team.name}</option>)}
+  </select>
+ </div>
  <div className="row g-2">{fields.map(([key,label])=><div className="col-6" key={key}><label className="form-label" htmlFor={"slot-"+key}>{t(({morningStart:"epic4WorkSlots.morningStart",morningEnd:"epic4WorkSlots.morningEnd",afternoonStart:"epic4WorkSlots.afternoonStart",afternoonEnd:"epic4WorkSlots.afternoonEnd"} as const)[label])}</label><input type="time" className="form-control" id={"slot-"+key} value={slots[key]} onChange={e=>setSlots(v=>({...v,[key]:e.target.value}))}/></div>)}</div>
  <label className="form-label mt-3" htmlFor="slot-zone">{t("epic4WorkSlots.zone")}</label><input className="form-control" id="slot-zone" value={zone} onChange={e=>setZone(e.target.value)} maxLength={80}/>
  <button type="button" className="btn btn-primary mt-3" disabled={busy||!teamId||!original||Object.values(slots).some(v=>!v)} onClick={save}>{t("epic4WorkSlots.save")}</button>
