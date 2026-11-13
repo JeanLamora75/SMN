@@ -1,5 +1,5 @@
-import SettingsFilterPanel from "../settings-filter-panel";
 "use client";
+import SettingsFilterPanel from "../settings-filter-panel";
 import {useEffect,useMemo,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import LinkTransfer from "./link-transfer";
