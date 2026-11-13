@@ -1,6 +1,7 @@
 "use client";
 import {useMemo,useState} from "react";
 import type {IndicatorView} from "./settings-tabs";
+import SettingsFilterPanel from "../settings-filter-panel";
 import {useLocale,useTranslation} from "@/i18n/client";
 import {localizeRecommendedIndicator} from "@/lib/indicators/recommended-catalog.en";
 import {filterRecommendedIndicators,recommendedForMode,type RecommendedIndicator} from "@/lib/indicators/recommended-catalog";
@@ -28,10 +29,8 @@ export default function RecommendedIndicatorGuide({teams,teamId,view="cards"}:{t
   try{await navigator.clipboard.writeText(value);setCopied(entry.id);setCopyError("");}
   catch{setCopied("");setCopyError(t("indicatorSettingsUi.copyError"));}
  }
- return <section aria-label={t("indicatorSettingsUi.recommended")} className="smn-panel rounded-4 p-3 smn-indicator-guide-panel">
-  <h2 className="h5 mb-2">{t("indicatorSettingsUi.recommended")}</h2>
-  <p className="small text-secondary">{t("indicatorSettingsUi.recommendedIntro")}</p>
-  <div className="row g-2 mb-3">
+ return <div className="d-grid gap-3">
+ <SettingsFilterPanel>  <div className="row g-2">
    <div className="col-12 col-md-6 col-xl-3"><label htmlFor="recommended-team" className="form-label">{t("indicatorSettingsUi.team")}</label>
     <select id="recommended-team" className="form-select" value={team?.id??""} onChange={e=>selectTeam(e.target.value)}>
      <option value="">{t("indicatorSettingsUi.selectTeam")}</option>
@@ -45,6 +44,10 @@ export default function RecommendedIndicatorGuide({teams,teamId,view="cards"}:{t
    <div className="col-12 col-md-6 col-xl-2"><label htmlFor="recommended-type" className="form-label">{t("indicatorSettingsUi.type")}</label>
     <select id="recommended-type" className="form-select" value={type} onChange={e=>setType(e.target.value)}><option value="">{t("indicatorSettingsUi.allTypes")}</option><option value="manual">{t("indicatorSettingsUi.manualPlural")}</option><option value="computed">{t("indicatorSettingsUi.computedPlural")}</option></select></div></>}
   </div>
+ </SettingsFilterPanel>
+ <section aria-label={t("indicatorSettingsUi.recommended")} className="smn-panel rounded-4 p-3 smn-indicator-guide-panel">
+  <h2 className="h5 mb-2">{t("indicatorSettingsUi.recommended")}</h2>
+  <p className="small text-secondary">{t("indicatorSettingsUi.recommendedIntro")}</p>
   {!team?<div className="alert alert-info" role="status">{t("indicatorSettingsUi.selectTeamHelp")}</div>:
    <>
     <p role="status" aria-live="polite" className="small text-secondary">{t("indicatorSettingsUi.recommendedCount",{count:rows.length,mode:team.mode==="scrum"?"Scrum":"Kanban"})}</p>
@@ -96,5 +99,6 @@ export default function RecommendedIndicatorGuide({teams,teamId,view="cards"}:{t
      </div>)}</div>
     </section>)}</div>}
    </>}
- </section>;
+ </section>
+ </div>;
 }
