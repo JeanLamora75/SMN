@@ -6,6 +6,7 @@ import type {OfficeTemplate} from "@/server/reports/office-catalog";
 import OfficeGenerationProgressModal,{type OfficeGenerationProgress} from "./office-generation-progress";
 
 type Language="fr"|"en";
+type TicketSnapshotOption={snapshotId:string;businessDate:string;sha256:string;originalFilename:string};
 type Props={
  templates:OfficeTemplate[];
  cycles?:Array<[string,string]>;
@@ -27,6 +28,11 @@ export default function OfficeTemplateCatalog({
  const [language,setLanguage]=useState<Language>(initialLanguage);
  // Transient export option: it is never saved as a team, model or global setting.
  const [reportStyleId,setReportStyleId]=useState("");
+ const [ticketSnapshots,setTicketSnapshots]=useState<TicketSnapshotOption[]>([]);
+ const [ticketSelected,setTicketSelected]=useState("");
+ const [ticketPrevious,setTicketPrevious]=useState("");
+ const [ticketsLoadError,setTicketsLoadError]=useState(false);
+ const [ticketsLoading,setTicketsLoading]=useState(false);
  const [styles,setStyles]=useState<Array<{id:string;name:string}>>([]);
  const [styleLoadError,setStyleLoadError]=useState("");
  const [styleLoading,setStyleLoading]=useState(true);
@@ -48,6 +54,30 @@ export default function OfficeTemplateCatalog({
   return()=>{active=false};
  },[]);
  const styleOverride=()=>reportStyleId?{reportStyleId}:{};
+ useEffect(()=>{
+  const controller=new AbortController();
+  setTicketSelected("");setTicketPrevious("");setTicketSnapshots([]);setTicketsLoadError(false);
+  if(!teamId||!cycle)return ()=>controller.abort();
+  setTicketsLoading(true);
+  void fetch("/api/admin/tickets/snapshots?"+new URLSearchParams({teamId,cycleId:cycle,mode:"scrum"}),{
+   cache:"no-store",signal:controller.signal,
+  }).then(async response=>{
+   if(!response.ok)throw Error("ticket-list-unavailable");
+   return response.json() as Promise<{snapshots:TicketSnapshotOption[]}>;
+  }).then(result=>{
+   if(!controller.signal.aborted)setTicketSnapshots(Array.isArray(result.snapshots)?result.snapshots:[]);
+  }).catch(()=>{if(!controller.signal.aborted)setTicketsLoadError(true);})
+   .finally(()=>{if(!controller.signal.aborted)setTicketsLoading(false);});
+  return ()=>controller.abort();
+ },[teamId,cycle]);
+ const ticketOptions=()=>{
+  const current=ticketSnapshots.find(x=>x.snapshotId===ticketSelected);
+  const previous=ticketSnapshots.find(x=>x.snapshotId===ticketPrevious);
+  return current?{ticketSnapshots:{
+   current:{businessDate:current.businessDate,snapshotId:current.snapshotId,sha256:current.sha256},
+   ...(previous?{previous:{businessDate:previous.businessDate,snapshotId:previous.snapshotId,sha256:previous.sha256}}:{})
+  }}:{};
+ };
 
  const [busy,setBusy]=useState(false);
  const [progress,setProgress]=useState<OfficeGenerationProgress|null>(null);
@@ -128,11 +158,14 @@ export default function OfficeTemplateCatalog({
   try{
    const response=await fetch("/api/admin/reports/office-templates/generate",{
     method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,...styleOverride(),action:"check"})
+    body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,...styleOverride(),...ticketOptions(),action:"check"})
    });
    if(!response.ok){await reportGenerationFailure(response,tr("officeSaveError"));return;}
    const info=await response.json() as {exists:boolean;fingerprint:string;filename:string;directory:string};
-   if(info.exists){setConfirmOverwrite(info);return;}
+   if(info.exists){
+    if(ticketSelected){setError(tr("officeTicketAlreadySaved"));return;}
+    setConfirmOverwrite(info);return;
+   }
    await saveAfterCheck(info.fingerprint);
   }catch{setError(tr("officeSaveError"));}
   finally{setBusy(false);setProgress(null);}
@@ -142,7 +175,7 @@ export default function OfficeTemplateCatalog({
   setProgress({phase:"save",percent:null});
   const response=await fetch("/api/admin/reports/office-templates/generate",{
    method:"POST",headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,...styleOverride(),action:"save",expectedFingerprint:fingerprint})
+   body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,...styleOverride(),...ticketOptions(),action:"save",expectedFingerprint:fingerprint})
   });
   if(!response.ok){
    setConfirmOverwrite(null);
@@ -160,7 +193,7 @@ export default function OfficeTemplateCatalog({
    const response=await fetch("/api/admin/reports/office-templates/generate",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,...styleOverride(),action:"download"})
+    body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,...styleOverride(),...ticketOptions(),action:"download"})
    });
    if(!response.ok){
     await reportGenerationFailure(response,tr("officeGenerationError"));
@@ -286,6 +319,33 @@ export default function OfficeTemplateCatalog({
         </label>
         <p className="text-secondary small mb-0">{tr("officeReportStyleHint")}</p>
         {styleLoadError&&<p className="text-warning small mb-0" role="alert">{tr("officeReportStyleLoadError")}</p>}
+        <section className="smn-panel p-3 d-grid gap-2" aria-labelledby="smn-office-ticket-source-heading">
+         <h4 className="h6 mb-0" id="smn-office-ticket-source-heading">{tr("officeTicketSourceTitle")}</h4>
+         <p className="text-secondary small mb-0">{tr("officeTicketSourceHelp")}</p>
+         {ticketsLoadError&&<p className="alert alert-warning" role="alert">{tr("officeTicketLoadError")}</p>}
+         <label htmlFor="smn-office-ticket-source">{tr("officeTicketCurrent")}
+          <select id="smn-office-ticket-source" className="form-select" disabled={busy||ticketsLoading}
+           value={ticketSelected} onChange={event=>{
+            setTicketSelected(event.target.value);setTicketPrevious("");setError("");
+           }}>
+           <option value="">{tr("officeTicketNone")}</option>
+           {ticketSnapshots.map(item=><option key={item.snapshotId} value={item.snapshotId}>
+            {item.businessDate} — {item.originalFilename}
+           </option>)}
+          </select>
+         </label>
+         <label htmlFor="smn-office-ticket-previous">{tr("officeTicketPrevious")}
+          <select id="smn-office-ticket-previous" className="form-select" disabled={busy||!ticketSelected}
+           value={ticketPrevious} onChange={event=>{setTicketPrevious(event.target.value);setError("");}}>
+           <option value="">{tr("officeTicketNoComparison")}</option>
+           {ticketSnapshots.filter(item=>item.snapshotId!==ticketSelected&&
+            item.businessDate<=(ticketSnapshots.find(x=>x.snapshotId===ticketSelected)?.businessDate??"")
+           ).map(item=><option key={item.snapshotId} value={item.snapshotId}>
+            {item.businessDate} — {item.originalFilename}
+           </option>)}
+          </select>
+         </label>
+        </section>
         <p className="text-secondary small mb-0">{tr("officeScalarOnly")}</p>
         <div className="d-flex flex-wrap gap-2">
          <button className="btn btn-outline-primary" type="button" disabled={busy||!filename.trim()}
