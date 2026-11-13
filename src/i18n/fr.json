@@ -4940,7 +4940,8 @@
     "ceremonyIconHelp": "Facultative. L’icône et sa couleur s’appliquent au modèle, sans modifier les réunions existantes.",
     "ceremonyIconPicker": "du modèle de cérémonie",
     "ceremonyPreview": "Aperçu de la cérémonie",
-    "ceremonyPreviewHelp": "Le modèle sélectionné reste accessible même lorsque les filtres changent."
+    "ceremonyPreviewHelp": "Le modèle sélectionné reste accessible même lorsque les filtres changent.",
+    "filtersTitle": "Filtres et recherche"
   },
   "indicatorSettingsUi": {
     "tabsLabel": "Paramètres des indicateurs",
