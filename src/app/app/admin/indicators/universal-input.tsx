@@ -1,14 +1,15 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
 import {useRouter} from "next/navigation";
-import {useTranslation} from "@/i18n/client";
+import {useLocale,useTranslation} from "@/i18n/client";
+import BootstrapIcon from "../../bootstrap-icon";
 import {formatIndicatorValue} from "@/lib/indicators/format-value";
 import styles from "./universal-input.module.css";
 type D={id:string;tag:string;name:string;indicator_type:string;formula:string|null};
 type Form={revision:number;definitions:D[];values:{indicator_id:string;value:string|null}[]};
 type Result={indicatorId:string;kind:string;value?:string;reason?:string;sourceTag?:string};
-export default function UniversalIndicatorInput({teamId,cycleType,cycleId,buttonLabel}:{teamId:string;cycleType:"scrum"|"kanban";cycleId:string;buttonLabel?:string}){
- const t=useTranslation(),router=useRouter(),dialog=useRef<HTMLDialogElement>(null);
+export default function UniversalIndicatorInput({teamId,cycleType,cycleId,buttonLabel,buttonClassName,buttonIcon}:{teamId:string;cycleType:"scrum"|"kanban";cycleId:string;buttonLabel?:string;buttonClassName?:string;buttonIcon?:string}){
+ const t=useTranslation(),locale=useLocale(),router=useRouter(),dialog=useRef<HTMLDialogElement>(null);
  const [open,setOpen]=useState(false),[form,setForm]=useState<Form|null>(null),[draft,setDraft]=useState<Record<string,string>>({}),[preview,setPreview]=useState<Result[]|null>(null),[systemRevision,setSystemRevision]=useState<number|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(""),[message,setMessage]=useState("");
  useEffect(()=>{if(!open)return;const node=dialog.current;if(node&&!node.open)node.showModal();return()=>{if(node?.open)node.close();};},[open]);
  useEffect(()=>{if(!open)return;const controller=new AbortController();
@@ -43,9 +44,9 @@ export default function UniversalIndicatorInput({teamId,cycleType,cycleId,button
   }catch(e){setPreview(null);setSystemRevision(null);setError(e instanceof Error?e.message:"unavailable");}finally{setBusy(false);}
  }
  return <div>
-  <button type="button" className="btn btn-outline-primary btn-sm" onClick={()=>{setOpen(true);setMessage("");}}>{buttonLabel??t("indicators.input.open")}</button>
+  <button type="button" className={buttonClassName??"btn btn-outline-primary btn-sm"} onClick={()=>{setOpen(true);setMessage("");}}>{buttonIcon&&<BootstrapIcon name={buttonIcon}/>} {buttonLabel??t("indicators.input.open")}</button>
   {message&&!open&&<p role="status">{message}</p>}
-  {open&&<dialog ref={dialog} className={styles.dialog} aria-modal="true" aria-labelledby="smn-universal-indicators-title" onCancel={e=>{e.preventDefault();close();}}>
+  {open&&<dialog ref={dialog} className={styles.dialog+" smn-cockpit-modal"} aria-modal="true" aria-labelledby="smn-universal-indicators-title" onCancel={e=>{e.preventDefault();close();}}>
    <div className={styles.shell}>
     <header className={styles.header}>
      <div className={styles.headerIdentity}>
@@ -96,7 +97,7 @@ export default function UniversalIndicatorInput({teamId,cycleType,cycleId,button
        {computed.map(d=>{
         const result=preview?.find(x=>x.indicatorId===d.id);
         const label=result?.kind==="available"
-         ?formatIndicatorValue(result.value,"fr")
+         ?formatIndicatorValue(result.value,locale)
          :result?.reason?t("indicators.input.unavailable")+": "+
           (["missing_source","division_by_zero","dependency_unavailable","invalid_domain"].includes(result.reason)
            ?t(("indicators.input.reasons."+result.reason) as "indicators.input.reasons.missing_source")
