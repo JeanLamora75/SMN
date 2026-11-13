@@ -8,6 +8,7 @@ import type {SprintRegister,RegisterKind} from "@/lib/sprint-registers";
 import {safeRegisterHref} from "@/lib/sprint-registers";
 import RegistryCreate from "../../registries/registry-create";
 import RegistryDeleteAction from "../../registries/registry-delete-action";
+import AutomaticHighlightActions from "./automatic-highlight-actions";
 import BootstrapIcon from "../../../bootstrap-icon";
 
 const icons:Record<RegisterKind,
@@ -46,6 +47,7 @@ export default function SprintRegisterRow({
  const recordHref="/app/admin/registries/"+encodeURIComponent(item.id);
  const hasPersistedRecord=!historical&&href===recordHref;
  const writable=hasPersistedRecord&&canManage;
+ const automaticHighlight=!historical&&item.kind==="highlight"&&href===null&&canManage;
  useEffect(()=>{
   if(opened&&dialog.current&&!dialog.current.open)dialog.current.showModal();
  },[opened]);
@@ -75,6 +77,7 @@ export default function SprintRegisterRow({
     </button>}
     {writable&&<RegistryDeleteAction id={item.id} title={item.title} teamId={teamId}
      onDeleted={()=>router.refresh()} iconOnly className="smn-sprint-register-edit smn-sprint-register-delete"/>}
+    {automaticHighlight&&<AutomaticHighlightActions id={item.id} teamId={teamId} title={item.title}/>}
    </span>
   </div>
   {opened&&typeof document!=="undefined"&&createPortal(
