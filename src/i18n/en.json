@@ -4284,7 +4284,9 @@
       "cycle": "Cycle",
       "status": "Status",
       "configureHint": "Saved values appear only when the indicator is active for this team and visible on this screen.",
-      "configureAction": "Configure indicators"
+      "configureAction": "Configure indicators",
+      "columnsHint": "{count} indicator(s) displayed for this team. Scroll the table horizontally if needed.",
+      "tableScroll": "Indicators by cycle, horizontally scrollable table"
     },
     "input": {
       "kanbanTitle": "Kanban indicator entry",
@@ -4380,7 +4382,17 @@
       "default": "Default style for chart type",
       "maxSlices": "Pie and donut charts support at most six sprints: shorten the range.",
       "maxCycles": "The chart renderer supports up to 24 sprints: shorten the range."
-    }
+    },
+    "recalculationDone": "Recalculation complete: {results} result(s) across {cycles} cycle(s).",
+    "recalculating": "Recalculating…",
+    "recalculate": "Recalculate indicators",
+    "manageColumns": "Manage columns",
+    "recalculationHint": "Calculated indicators are stored per cycle. Recalculate after creating a historical formula if earlier results are missing.",
+    "definitionEyebrow": "Agile Cockpit · Indicator administration",
+    "definitionSubtitle": "Define this indicator's properties in the global catalog.",
+    "expressionGuide": "View the expression guide",
+    "saveHint": "Changes will be saved after validation.",
+    "saving": "Saving…"
   },
   "chartStyles": {
     "title": "Chart styles",
