@@ -8,7 +8,7 @@ import {installedDatabaseUri} from "../auth/database";
 import {ensureAccountsSchema} from "../accounts/migration";
 import {verifyPassword} from "../auth/password";
 import {seal,wrapRecoveryKey,recoverKey,type RecoveryEnvelope} from "./crypto";
-import {privateFolder,scanDocuments,encryptDocuments,sha,safeAtomicJson,
+import {privateFolder,scanDocuments,encryptDocuments,sha,safeAtomicJson,sealedFile,
  type PublicBackupResult,type BackupIndex,type BackupComponent} from "./files";
 import {encryptedPgDump} from "./postgres";
 import {installedPrivateDocumentsDirectory} from "../documents/storage-path";
@@ -18,7 +18,6 @@ import {officeReportsDirectory} from "../reports/office-storage";
 import {officeTemplatesDirectory} from "../reports/office-catalog";
 import {captureFenceUnchanged} from "./capture-fence";
 import {captureTicketTransfer,ticketStorageDirectory} from "./tickets-transfer";
-import {sealedFile} from "./files";
 import {safeBackupFailureStage,type BackupFailureStage} from "./failure-stage";
 
 type Admin=Readonly<{id:string;role:string;password_hash:string}>;
