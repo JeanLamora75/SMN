@@ -11,6 +11,8 @@ import {
 } from "../src/server/reports/office-ticket-rows";
 import {saveTicketSnapshot,type TicketScope} from "../src/server/tickets/snapshot-storage";
 import {writeZip} from "../scripts/smn-397-office-poc.mjs";
+import {expandWordTablesXml} from "../scripts/smn-400-word-tables.mjs";
+import {expandPowerPointTablesXml} from "../scripts/smn-401-powerpoint-tables.mjs";
 
 const scope:TicketScope={teamId:"team-one",mode:"scrum",cycleId:"sprint-one"};
 const header="Id jira,Type de ticket,Titre du ticket,Priorité,Statut,Story points";
@@ -96,4 +98,25 @@ test("SMN-455 : choix des snapshots et documentation des tags dans le centre Rap
  for(const tag of ["TICKETS","TICKET_SUMMARY","TICKET_CHANGES","TICKET_COMPARE_SUMMARY",
   "TICKET_SOURCE_DATE","TICKET_SOURCE_SHA256"])
   assert.ok(docs.includes(tag),tag);
+});
+
+test("SMN-455 : réelle expansion des sources ROW Tickets dans Word et PowerPoint",()=>{
+ const rows={TICKETS:[
+  {TICKET_ID:"ABC-1",TICKET_TITLE:"Première tâche"},
+  {TICKET_ID:"ABC-2",TICKET_TITLE:"Seconde tâche"},
+ ]};
+ const word='<w:tbl><w:tr><w:tc><w:p><w:r><w:t>{{ROW:TICKETS}}</w:t></w:r></w:p></w:tc>'+
+  '<w:tc><w:p><w:r><w:t>{{TICKET_ID}}</w:t></w:r></w:p></w:tc></w:tr></w:tbl>';
+ const expandedWord=expandWordTablesXml(word,rows,"fr");
+ assert.equal(expandedWord.tableRows,1);
+ assert.match(expandedWord.xml,/ABC-1/);
+ assert.match(expandedWord.xml,/ABC-2/);
+ assert.doesNotMatch(expandedWord.xml,/ROW:TICKETS/);
+ const ppt='<a:tbl><a:tr><a:tc><a:txBody><a:p><a:r><a:t>{{ROW:TICKETS}}</a:t></a:r></a:p></a:txBody></a:tc>'+
+  '<a:tc><a:txBody><a:p><a:r><a:t>{{TICKET_ID}}</a:t></a:r></a:p></a:txBody></a:tc></a:tr></a:tbl>';
+ const expandedPpt=expandPowerPointTablesXml(ppt,rows,"fr");
+ assert.equal(expandedPpt.tableRows,1);
+ assert.match(expandedPpt.xml,/ABC-1/);
+ assert.match(expandedPpt.xml,/ABC-2/);
+ assert.doesNotMatch(expandedPpt.xml,/ROW:TICKETS/);
 });
