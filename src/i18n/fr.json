@@ -1437,7 +1437,8 @@
     "conflict": "Cette catégorie a été modifiée entre-temps. Rechargez le catalogue et reprenez votre correction.",
     "notFound": "Catégorie introuvable dans le catalogue.",
     "catalogueFull": "Le catalogue a atteint sa limite de 100 catégories.",
-    "failed": "L’enregistrement n’a pas pu être confirmé. Réessayez après avoir rechargé les données."
+    "failed": "L’enregistrement n’a pas pu être confirmé. Réessayez après avoir rechargé les données.",
+    "cancel": "Annuler"
   },
   "regionalAbsence": {
     "intro": "Un jour régional non travaillé n'est pas ajouté au calendrier national : il est enregistré comme une absence du membre. La catégorie « Autre » est proposée si elle est active ; saisissez obligatoirement le nom ou motif local.",
