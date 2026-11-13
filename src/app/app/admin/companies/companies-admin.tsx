@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useMemo,useRef,useState,type FormEvent} from "react";
+import SettingsFilterPanel from "../settings/settings-filter-panel";
 import {createPortal} from "react-dom";
 import {useTranslation} from "@/i18n/client";
 import type {TranslationKey,TranslationParams} from "@/i18n/catalog";
@@ -167,9 +168,7 @@ export default function CompaniesAdmin(){
    <button type="button" className="btn btn-sm btn-outline-secondary ms-2" onClick={()=>void load().then(()=>setError("")).catch(cause=>setError(String(cause)))}>{t("companiesAdmin.retry")}</button>
   </div>}
   {message&&<p role="status" className="alert alert-success mb-0">{message}</p>}
-  <section className="smn-panel rounded-4 p-3 p-lg-4">
-   <div className="d-flex flex-wrap align-items-end gap-3 justify-content-between mb-3">
-    <div className="d-flex flex-wrap gap-2 flex-grow-1">
+  <SettingsFilterPanel>    <div className="d-flex flex-wrap gap-2 flex-grow-1">
      <label className="form-label mb-0" style={{minWidth:200,maxWidth:360,flex:"1 1 220px"}}>
       {t("companiesAdmin.search")}
       <input type="search" className="form-control mt-1" value={search} onChange={e=>setSearch(e.target.value)} placeholder={t("companiesAdmin.search")}/>
@@ -183,6 +182,9 @@ export default function CompaniesAdmin(){
       </select>
      </label>
     </div>
+  </SettingsFilterPanel>
+  <section className="smn-panel rounded-4 p-3 p-lg-4">
+   <div className="d-flex flex-wrap align-items-end gap-3 justify-content-between mb-3">
     <div className="d-flex flex-wrap gap-2">
      <div className="btn-group btn-group-sm" role="group" aria-label={t("settingsCatalog.view.switchLabel")}>
       <button type="button" className={`btn ${view==="cards"?"btn-primary":"btn-outline-secondary"}`} aria-pressed={view==="cards"} onClick={()=>changeView("cards")}><i className="bi bi-grid-3x2-gap me-1" aria-hidden="true"/>{t("companiesAdmin.viewCards")}</button>
