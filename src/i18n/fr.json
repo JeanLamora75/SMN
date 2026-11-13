@@ -2157,7 +2157,9 @@
     "reload": "Recharger les horaires",
     "conflict": "La configuration a changé. Rechargez les horaires avant d'enregistrer.",
     "invalid": "Horaires ou fuseau horaire invalides. Vérifiez les quatre heures et le fuseau IANA.",
-    "saveError": "Enregistrement indisponible (HTTP {status}). Consultez les journaux du serveur SMN."
+    "saveError": "Enregistrement indisponible (HTTP {status}). Consultez les journaux du serveur SMN.",
+    "schemaUnavailable": "La table PostgreSQL des horaires d'équipe est absente. Vérifiez la migration de la base SMN avant de configurer les horaires.",
+    "notScrum": "L'équipe sélectionnée n'utilise pas Scrum. Choisissez une équipe Scrum."
   },
   "teamCockpit": {
     "title": "Équipe",
