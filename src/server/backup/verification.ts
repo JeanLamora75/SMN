@@ -4,6 +4,7 @@ import {open,lstat,readdir} from "node:fs/promises";
 import {join} from "node:path";
 import {unseal} from "./crypto";
 import {validExtraName} from "./extra-archives";
+import {inspectTicketTransferBytes} from "./tickets-transfer";
 import {privateFolder,safeAtomicJson,sha,type BackupComponent,type BackupIndex} from "./files";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -17,7 +18,7 @@ const MAX_DATABASE=8*1024*1024*1024;
 
 export type VerificationStatus="verified"|"invalid"|"incomplete"|"unverifiable";
 export type VerifiedComponent=Readonly<{
- path:string;kind:"database"|"document"|"report-pdf"|"office-report"|"office-template";size:number;encryptedSize:number;encryptedSha256:string;
+ path:string;kind:"database"|"document"|"report-pdf"|"office-report"|"office-template"|"tickets";size:number;encryptedSize:number;encryptedSha256:string;
 }>;
 export type BackupInventoryEntry=Readonly<{
  id:string;createdAt:string|null;status:VerificationStatus;reason:string|null;
@@ -169,14 +170,14 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
   try{parsedManifest=JSON.parse(clear.toString("utf8"));}catch{invalid("manifest-json-invalid");}
   finally{clear.fill(0);}
   const manifest=record(parsedManifest);
-  if(!manifest||![1,2,3,4].includes(manifest.version as number)||
+  if(!manifest||![1,2,3,4,5].includes(manifest.version as number)||
    manifest.id!==id||manifest.createdAt!==createdAt||
    manifest.installation!=="singleton"||!Number.isSafeInteger(manifest.schemaVersion)||
    (manifest.schemaVersion as number)<1||
    typeof manifest.postgresVersion!=="string"||
    !/^18(?:\.|$)/.test(manifest.postgresVersion)||
    !Array.isArray(manifest.documents))invalid("manifest-invalid");
-  if((manifest.version===2||manifest.version===3||manifest.version===4)&&
+  if((manifest.version===2||manifest.version===3||manifest.version===4||manifest.version===5)&&
    (typeof manifest.appVersion!=="string"||manifest.appVersion.length>80||
     !/^[0-9]+\.[0-9]+\.[0-9]+/.test(manifest.appVersion)||
     typeof manifest.installationSource!=="string"||
@@ -201,7 +202,7 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
    names.add(documentMeta.sourceName);
    documents.push(documentMeta);
   }
-  if(manifest.version===4){
+  if(manifest.version===4||manifest.version===5){
    const consistency=record(manifest.consistency);
    if(!consistency||consistency.method!=="wal-fence-v1"||
     typeof consistency.walLsn!=="string"||
@@ -216,9 +217,9 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
    ["officeTemplates","template","office-templates"]
   ] as const){
    const items=manifest[field];
-   if((manifest.version===4||(manifest.version===3&&kind!=="template"))&&
+   if(((manifest.version===4||manifest.version===5)||(manifest.version===3&&kind!=="template"))&&
     !Array.isArray(items))invalid("extra-archive-inventory-missing");
-   if(manifest.version!==4&&!(manifest.version===3&&kind!=="template"))continue;
+   if(manifest.version!==4&&manifest.version!==5&&!(manifest.version===3&&kind!=="template"))continue;
    const files=items as unknown[];
    if(files.length>200)invalid("extra-archive-inventory-limit");
    const entries=kind==="pdf"?additional.pdf:kind==="office"?additional.office:additional.templates;
@@ -233,11 +234,28 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
     entries.push(v as {sourceName:string}&BackupComponent);
    }
   }
+  const tickets:({sourceName:string}&BackupComponent)[]=[];
+  if(manifest.version===5){
+   const items=manifest.ticketFiles;
+   if(!Array.isArray(items)||items.length!==1)invalid("tickets-inventory-invalid");
+   const part=record(items[0]);
+   if(!part||part.sourceName!=="tickets-transfer-v1.json"||
+    !component(part)||part.path!=="tickets/00000.enc"||
+    part.size>150*1024*1024||part.encryptedSize>150*1024*1024)
+    invalid("tickets-component-invalid");
+   tickets.push(part as {sourceName:string}&BackupComponent);
+   const inventory=record(manifest.ticketInventory);
+   if(!inventory||typeof inventory.sha256!=="string"||
+    !HASH.test(inventory.sha256)||!Number.isSafeInteger(inventory.files)||
+    !Number.isSafeInteger(inventory.snapshots)||!Number.isSafeInteger(inventory.bytes))
+    invalid("tickets-inventory-invalid");
+  }
   const expectedTop=new Set(["index.json","manifest.enc","database.pgcustom.enc"]);
   if(documents.length)expectedTop.add("documents");
   if(additional.pdf.length)expectedTop.add("report-pdfs");
   if(additional.office.length)expectedTop.add("office-reports");
   if(additional.templates.length)expectedTop.add("office-templates");
+  if(tickets.length)expectedTop.add("tickets");
   const top=await readdir(folder);
   if(top.length!==expectedTop.size||top.some(name=>!expectedTop.has(name)))
    invalid("package-components-unexpected");
@@ -287,12 +305,13 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
     invalid("document-link-invalid");
   }
   if(metadata.size!==contentHash.size)invalid("document-link-invalid");
-  const components=[database,...documents,...additional.pdf,...additional.office,...additional.templates]
+  const components=[database,...documents,...additional.pdf,...additional.office,...additional.templates,...tickets]
    .map((item):VerifiedComponent=>({
    path:item.path,kind:item.path==="database.pgcustom.enc"?"database":
     item.path.startsWith("report-pdfs/")?"report-pdf":
     item.path.startsWith("office-reports/")?"office-report":
-    item.path.startsWith("office-templates/")?"office-template":"document",
+    item.path.startsWith("office-templates/")?"office-template":
+     item.path.startsWith("tickets/")?"tickets":"document",
    size:item.size,encryptedSize:item.encryptedSize,encryptedSha256:item.encryptedSha256
   }));
   return {id,createdAt,status:"verified",reason:null,checkedAt,
@@ -300,7 +319,7 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
    applicationVersion:manifest.version!==1?manifest.appVersion as string:null,
    schemaVersion:manifest.schemaVersion as number,postgresVersion:manifest.postgresVersion as string,
    components,documentCount:documents.length/2,integrityVerified:true,
-   scopeComplete:manifest.version===4,restoreTested:false};
+   scopeComplete:manifest.version===4||manifest.version===5,restoreTested:false};
  }catch(error){
   if(error instanceof VerificationProblem)
    return publicFailure(id,checkedAt,error.status,error.code,createdAt);
