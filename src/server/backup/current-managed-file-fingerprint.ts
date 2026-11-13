@@ -1,5 +1,6 @@
 import {createHash} from "node:crypto";
 import {lstat} from "node:fs/promises";
+import {captureTicketTransfer} from "./tickets-transfer";
 import type {Client} from "pg";
 import {scanDocuments,type SourceDocument} from "./files";
 import {inspectExtraArchives,type ExtraInventory} from "./extra-archives";
@@ -12,7 +13,8 @@ import type {FileSnapshot} from "./restore-file-cutover-drill";
  * Source inventory is checked through existing bounded file validators.
  */
 export function fingerprintCurrentFileInventories(
- documents:readonly SourceDocument[],extra:ExtraInventory
+ documents:readonly SourceDocument[],extra:ExtraInventory,
+ tickets:readonly {path:string;sha256:string;size:number}[]=[]
 ):FileSnapshot{
  const names=new Set<string>();
  const rows: {name:string;hash:string;size:number}[]=[];
@@ -28,10 +30,11 @@ export function fingerprintCurrentFileInventories(
  for(const d of extra.pdf)append("report-pdfs",d.name,d.hash,d.size);
  for(const d of extra.office)append("office-reports",d.name,d.hash,d.size);
  for(const d of extra.templates)append("office-templates",d.name,d.hash,d.size);
- if(rows.length>2800)throw Error("migration-managed-files-too-many");
+ for(const t of tickets)append("tickets",t.path,t.sha256,t.size);
+ if(rows.length>8000)throw Error("migration-managed-files-too-many");
  rows.sort((a,b)=>a.name<b.name?-1:a.name>b.name?1:0);
  const bytes=rows.reduce((sum,r)=>sum+r.size,0);
- if(bytes>600*1024*1024)throw Error("migration-managed-files-too-large");
+ if(bytes>800*1024*1024)throw Error("migration-managed-files-too-large");
  return {sha256:createHash("sha256").update(rows.map(r=>
   r.name+"|"+r.hash+"|"+r.size).join("\n")).digest("hex"),
   count:rows.length,bytes};
@@ -45,6 +48,6 @@ export async function fingerprintCurrentManagedFiles(
   throw error;
  });
  const docs=stat?await scanDocuments(path):[];
- const extra=await inspectExtraArchives(db);
- return fingerprintCurrentFileInventories(docs,extra);
+ const [extra,tickets]=await Promise.all([inspectExtraArchives(db),captureTicketTransfer()]);
+ return fingerprintCurrentFileInventories(docs,extra,JSON.parse(tickets.bytes.toString("utf8")).entries as {path:string;sha256:string;size:number}[]);
 }
