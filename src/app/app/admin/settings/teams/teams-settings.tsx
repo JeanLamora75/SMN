@@ -59,7 +59,7 @@ export default function TeamsSettings(){
   }finally{setLoading(false);}
  },[t]);
  useEffect(()=>{void Promise.resolve().then(()=>requestList());},[requestList]);
- useEffect(()=>{setMounted(true);},[]);
+ useEffect(()=>{queueMicrotask(()=>setMounted(true));},[]);
  useEffect(()=>{
   const openNew=()=>{if(!loading&&canWrite)changeTeam(null);};
   window.addEventListener(OPEN_TEAM_EDITOR,openNew);
