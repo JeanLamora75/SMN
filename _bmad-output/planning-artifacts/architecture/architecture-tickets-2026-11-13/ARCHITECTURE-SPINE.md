@@ -111,3 +111,11 @@ flowchart TD
 - Vérifier les contrats actuels du moteur v33, des rapports Office, des permissions et du système de sauvegarde/restauration avant codage.
 - Définir les AC couvrant les CSV malformés, clés dupliquées, collisions temporelles, statut terminé/rouvert, sécurité des chemins, droits serveur, reprise après interruption, restauration PC et absence d'écriture v33.
 - Exécuter les tests dans l'environnement adapté. **Aucun script uv, lint BMAD, tests ni gate de revue n'a été exécuté pour cette rédaction.**
+
+## Avenant contraignant du 13/11/2026 — TCK-AD-3 / TCK-AD-8 [ADOPTED]
+
+- **TCK-AD-3 (précisé) :** le CSV a **exactement six colonnes métier**, dans cet ordre : `Id jira`, `Type de ticket`, `Titre du ticket`, `Priorité`, `Statut`, `Story points`. Le contrat technique de parsing (séparateur, représentation SP, contraintes de valeurs) reste à détailler sans créer de colonnes métier nouvelles.
+- **TCK-AD-8 (précisé) :** unicité de la photographie sur le couple **(équipe, cycle, date métier)**. Sur conflit de date, **confirmation utilisateur obligatoire avant écrasement**, puis remplacement **atomique** de CSV et JSON après validation ; annulation et erreur doivent laisser l'ancienne photographie lisible. L'écrasement ne doit pas être silencieux.
+- **Suppression de photographie [ADOPTED] :** action explicite depuis la liste, confirmation Cockpit Agile et suppression cohérente du CSV et du JSON, contrôlée côté serveur par les permissions ; les implications sur l'audit/archives et les sprints clôturés restent à qualifier.
+
+Les points différés n°1 (colonnes principales) et n°2 (collision de date) sont donc **tranchés** par le présent avenant, même si le texte historique de la section « Différé » est conservé pour traçabilité.
