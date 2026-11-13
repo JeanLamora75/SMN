@@ -15,6 +15,7 @@ on:
       - "tests/smn-455-office-tickets.test.ts"
       - "tests/smn-456-tickets-backup-transfer.test.ts"
       - "tests/smn-457-tickets-browser-interactions.test.ts"
+      - "tests/smn-457-tickets-browse-compare-browser.test.ts"
       - ".github/workflows/tickets-quality.yml"
   workflow_dispatch:
 permissions:
@@ -83,4 +84,4 @@ jobs:
           node-version: "24"
       - run: npm install --no-package-lock --no-audit --no-fund --legacy-peer-deps
       - name: SMN-457 — vraie modale, import valide/invalide, remplacement, clavier FR/EN
-        run: npx tsx --test tests/smn-457-tickets-browser-interactions.test.ts
+        run: npx tsx --test tests/smn-457-tickets-browser-interactions.test.ts tests/smn-457-tickets-browse-compare-browser.test.ts
