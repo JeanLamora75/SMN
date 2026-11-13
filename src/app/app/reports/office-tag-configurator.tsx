@@ -100,14 +100,14 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
   <button ref={opener} type="button" className="btn btn-primary btn-sm" onClick={()=>{setLoading(true);setCatalogError(false);setStyleError(false);setIndicators([]);setStyles([]);setOpen(true);selectFamily("scalar");}}>
    <span aria-hidden="true">⚙ </span>{tr("Open")}
   </button>
-  {open&&<div className="modal d-block" role="presentation" style={{backgroundColor:"rgba(0,0,0,.6)",zIndex:1090}}>
+  {open&&<div className="modal d-block smn-office-tag-config-modal" role="presentation" style={{backgroundColor:"rgba(0,0,0,.6)",zIndex:1090}}>
    <div className="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-    <div ref={dialog} className="modal-content" role="dialog" aria-modal="true" aria-labelledby="smn-tag-config-title">
-     <div className="modal-header">
-      <div><h2 className="modal-title fs-5" id="smn-tag-config-title">{tr("Title")}</h2><p className="text-secondary small mb-0">{tr("Intro")}</p></div>
+    <div ref={dialog} className="modal-content smn-office-tag-config-dialog" role="dialog" aria-modal="true" aria-labelledby="smn-tag-config-title">
+     <div className="modal-header smn-office-tag-config-header">
+      <div className="smn-office-tag-config-title-group"><span className="smn-office-tag-config-icon" aria-hidden="true">{"{}"}</span><div><p className="smn-office-tag-config-eyebrow mb-1">COCKPIT AGILE</p><h2 className="modal-title fs-5" id="smn-tag-config-title">{tr("Title")}</h2><p className="smn-office-tag-config-intro small mb-0">{tr("Intro")}</p></div></div>
       <button data-close type="button" className="btn-close" aria-label={tr("Close")} onClick={()=>setOpen(false)}/>
      </div>
-     <div className="modal-body d-grid gap-3">
+     <div className="modal-body smn-office-tag-config-body d-grid gap-3">
       <fieldset><legend className="h6">{tr("Family")}</legend><div className="d-flex flex-wrap gap-2">
        {(["scalar","indicator","row","chart"] as Family[]).map(f=><button key={f} type="button"
         className={"btn btn-sm "+(family===f?"btn-primary":"btn-outline-secondary")}
@@ -181,14 +181,14 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
        {["pie","donut"].includes(chartType)&&<p className="small text-secondary mb-0">{tr("PieHint")}</p>}
        <p className="small text-secondary mb-0">{tr("ChartPlacement")}</p>
       </div>}
-      <div className="border rounded p-3 d-grid gap-2">
+      <div className="border rounded p-3 d-grid gap-2 smn-office-tag-generated">
        <h3 className="h6 mb-0">{tr("Generated")}</h3>
        <code className="d-block text-break user-select-all" aria-live="polite" style={{whiteSpace:"pre-wrap"}}>{canCopy?computed:tr("Unavailable")}</code>
        {copyFailed&&<p className="text-danger small mb-0" role="alert">{tr("CopyError")}</p>}
        {copied&&<p className="text-success small mb-0" role="status">{tr("Copied")}</p>}
       </div>
      </div>
-     <div className="modal-footer">
+     <div className="modal-footer smn-office-tag-config-footer">
       <button className="btn btn-outline-secondary" type="button" onClick={()=>selectFamily(family)}>{tr("Reset")}</button>
       <button className="btn btn-outline-secondary" type="button" onClick={()=>setOpen(false)}>{tr("Close")}</button>
       <button className="btn btn-primary" type="button" disabled={!canCopy} onClick={()=>void copy(computed)}>{tr("Copy")}</button>
