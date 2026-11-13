@@ -173,6 +173,7 @@ export default function PrivateShell({children,username,role,mode,product,team,t
     <div className="smn-shell-content">
       <div ref={sidebar} className="smn-sidebar-region" id="smn-private-sidebar">
         <PrivateNavigation mode={mode} role={role} canManageIndicators={canManageIndicators}
+          ticketsHref={"/app/tickets"+(teamId&&selectedCycleId?"?"+new URLSearchParams({teamId,cycleId:selectedCycleId}).toString():"")}
           onNavigate={()=>setMobileOpen(false)}/>
       </div>
       <main id="smn-main" className="smn-private-main pb-5"><TicketsCycleProvider value={ticketsCycle}>{children}</TicketsCycleProvider></main>
