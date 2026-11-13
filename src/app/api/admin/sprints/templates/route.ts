@@ -2,7 +2,7 @@ import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {readJsonObject,jsonResult} from "@/server/auth/request";
 import {withAuthDb} from "@/server/auth/database";
-import {listTemplates,saveTemplate} from "@/server/sprints/ceremony-templates";
+import {listTemplates,saveTemplate,deleteTemplate} from "@/server/sprints/ceremony-templates";
 export const dynamic="force-dynamic";
 const target={type:"settings",exists:true,inScope:true} as const;
 export async function GET(req:NextRequest){
@@ -21,4 +21,18 @@ export async function POST(req:NextRequest){
  if(teamId!==undefined&&typeof teamId!=="string")return jsonResult({error:"invalid-input"},400);
  try{const result=await withAuthDb(db=>saveTemplate(db,actor.id,input,teamId as string|undefined));return jsonResult(result,result.ok?200:result.error==="conflict"?409:400);}
  catch{return jsonResult({error:"unavailable"},503);}
+}
+
+export async function DELETE(req:NextRequest){
+ const actor=await authorizeApi(req,"write",target);
+ if(!actor)return jsonResult({error:"forbidden"},403);
+ const body=await readJsonObject(req);
+ if(!body||typeof body.id!=="string"||!Number.isSafeInteger(body.revision)||
+  (body.teamId!==undefined&&typeof body.teamId!=="string")||
+  Object.keys(body).some(key=>!["id","revision","teamId"].includes(key)))
+  return jsonResult({error:"invalid-input"},400);
+ try{
+  const result=await withAuthDb(db=>deleteTemplate(db,actor.id,body.id as string,body.revision as number,body.teamId as string|undefined));
+  return jsonResult(result,result.ok?200:result.error==="conflict"?409:result.error==="has-occurrences"?409:result.error==="not-found"?404:400);
+ }catch{return jsonResult({error:"unavailable"},503);}
 }
