@@ -39,3 +39,55 @@
 .smn-links-cockpit button:focus-visible,.smn-links-cockpit a:focus-visible,.smn-links-cockpit select:focus-visible,.smn-links-cockpit input:focus-visible{outline:3px solid var(--smn-brand);outline-offset:2px}
 @media(max-width:1100px){.smn-links-filters-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.smn-links-search{grid-column:1/-1}.smn-links-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.smn-links-filters-grid{grid-template-columns:1fr}.smn-links-search{grid-column:auto}.smn-links-grid{grid-template-columns:1fr}.smn-links-item-row{flex-direction:column;align-items:stretch}.smn-links-item-row .smn-links-actions{border-top:1px solid var(--smn-border);padding-top:10px}.smn-links-hero-top{align-items:flex-start}}
+
+/* Portal-based link editor: Cockpit Agile colors follow the active SMN palette. */
+.smn-links-cockpit-dialog .modal-dialog{max-width:min(92vw,780px)}
+.smn-links-cockpit-dialog .modal-content{
+ overflow:hidden;border:1px solid var(--smn-border);border-radius:16px;
+ background:var(--smn-surface);color:var(--smn-foreground);
+ box-shadow:0 24px 70px rgba(7,17,34,.35);
+}
+.smn-links-cockpit-dialog .smn-links-modal-header{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;
+ padding:18px 24px;border-bottom:1px solid rgba(255,255,255,.15);
+ color:#fff;background:linear-gradient(115deg,
+  color-mix(in srgb,var(--smn-brand,#154d8d) 78%,#231b42),
+  color-mix(in srgb,var(--smn-brand,#154d8d) 40%,#172c4e));
+}
+.smn-links-cockpit-dialog .smn-links-modal-identity{display:flex;align-items:center;gap:14px;min-width:0}
+.smn-links-cockpit-dialog .smn-links-modal-icon{
+ display:inline-flex;align-items:center;justify-content:center;flex:none;
+ width:42px;height:42px;border:1px solid rgba(255,255,255,.55);
+ border-radius:11px;background:rgba(255,255,255,.11);font-size:1.2rem;
+}
+.smn-links-cockpit-dialog .smn-links-modal-eyebrow{
+ display:block;font-size:.68rem;font-weight:750;letter-spacing:.08em;
+ color:rgba(255,255,255,.84);margin-bottom:4px;
+}
+.smn-links-cockpit-dialog .smn-links-modal-header h2{color:#fff;font-weight:750;margin:0}
+.smn-links-cockpit-dialog .smn-links-modal-header .btn-close{
+ flex:none;background-color:#fff;opacity:1;border-radius:7px;
+}
+.smn-links-cockpit-dialog .smn-links-modal-body{padding:24px;gap:16px!important}
+.smn-links-cockpit-dialog .smn-links-modal-body .form-label{
+ font-weight:650;color:var(--smn-foreground);margin-bottom:7px;
+}
+.smn-links-cockpit-dialog .smn-links-modal-body :is(.form-control,.form-select){
+ background-color:var(--smn-surface);color:var(--smn-foreground);
+ border:1px solid var(--smn-border);border-radius:8px;min-height:39px;
+}
+.smn-links-cockpit-dialog .smn-links-modal-body textarea.form-control{min-height:74px}
+.smn-links-cockpit-dialog .smn-links-modal-footer{
+ padding:14px 24px;border-top:1px solid var(--smn-border);
+ background:var(--smn-muted-soft);gap:9px;
+}
+.smn-links-cockpit-dialog .smn-links-modal-footer .btn{border-radius:8px;min-height:37px}
+.smn-links-cockpit-dialog :is(button,input,select,textarea):focus-visible{
+ outline:3px solid var(--smn-brand);outline-offset:2px;
+}
+@media(max-width:650px){
+ .smn-links-cockpit-dialog .modal-dialog{max-width:none;margin:12px}
+ .smn-links-cockpit-dialog .smn-links-modal-header{padding:16px}
+ .smn-links-cockpit-dialog .smn-links-modal-body{padding:16px}
+ .smn-links-cockpit-dialog .smn-links-modal-footer{padding:12px 16px}
+}
