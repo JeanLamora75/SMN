@@ -35,7 +35,7 @@ Nouvelle exécution après correctifs React : [run 43525114093](https://github.c
 | 454 | HTTPS, clés sûres, stockage versionné, liens dans consultation/comparaison | Configuration Jira administrateur vs utilisateur, attaques redirect/path, test HTTP auth |
 | 455 | Moteur Word/PPT ROW, provenance SHA, agrégations et comparaison | Ouvrir et inspecter de vrais DOCX/PPTX, sortie de rapport et protection de l'écrasement |
 | 456 | Capture/restauration de fichiers isolés, intégrité, traversal, symlinks, rollback en test de code | **Recette bout-en-bout ZIP source→PC cible avec PostgreSQL isolé, rollback réel après interruption** |
-| 457 | Deux nouveaux tests Puppeteer : import et consultation/comparaison sur HTTP simulé | Scénarios d'API autorisées/refusées avec PostgreSQL réel, suppression et modal v33 réelle, complet FR/EN/clavier/mobile |
+| 457 | Trois nouveaux tests Puppeteer : import et consultation/comparaison sur HTTP simulé | Scénarios d'API autorisées/refusées avec PostgreSQL réel, suppression et modal v33 réelle, complet FR/EN/clavier/mobile |
 
 **Attention** : les tests de composants et certains contrôles de sécurité ne sont que des assertions statiques de source ; ils ne doivent pas être appelés « tests d'intégration réels ». Les deux nouveaux tests Puppeteer pilotent les composants React sans l'application Next.js ni PostgreSQL.
 
@@ -44,7 +44,7 @@ Nouvelle exécution après correctifs React : [run 43525114093](https://github.c
 - Workflow CI dédié avec contrats purs, UI/Office/sauvegarde, qualité statique et Chromium.
 - Types `TicketsCycleContext`, composants d'icônes valides et import de galerie corrigés.
 - Test SMN-447 révisé : le test Node ne tente plus d'importer le CSS partagé ; les vraies interactions sont couvertes séparément dans Chromium.
-- Tests navigateur ajoutés : import CSV valide/invalide, antidatage, remplacement confirmé ou annulé, Consultation/Comparaison, filtres, liens Jira, responsive et FR/EN.
+- Tests navigateur ajoutés : import CSV valide/invalide, antidatage, remplacement confirmé ou annulé, Consultation/Comparaison, filtres, liens Jira, suppression confirmée/annulée/refusée par le serveur, responsive et FR/EN.
 - Adaptations React contre les mises à jour de state synchrones en effet, sans désactivation des règles ESLint.
 
 ## Critères de sortie SMN-457 (non encore atteints)
@@ -58,3 +58,9 @@ Nouvelle exécution après correctifs React : [run 43525114093](https://github.c
 7. Résolution de la contradiction de description SMN-457/SMN-445 et de toutes les anomalies bloquantes.
 
 Ne pas déclarer l'Epic 444 ni SMN-457 terminées avant ces preuves.
+
+## Extension du 13 novembre — suppression en modale
+
+Le test [smn-457-tickets-delete-browser.test.ts](https://github.com/JeanLamora75/SMN/blob/main/tests/smn-457-tickets-delete-browser.test.ts) pilote le vrai composant `TicketsFiles` dans Chromium : annulation par Escape sans DELETE, refus serveur 409 avec fichier conservé, puis suppression autorisée et disparition de la liste. Le module de saisie v33 est remplacé par une **doublure de test** uniquement dans cette fixture, ce qui ne constitue pas une preuve sur sa modale. Exécution via le job Chromium du [run 43525377282](https://github.com/JeanLamora75/SMN/actions/runs/43525377282), résultat à attester.
+
+Les corrections React de l'ensemble du projet visent à restaurer la CI lint sans désactivation des règles. Les dernières références de statut doivent toujours provenir d'un run terminé : une CI queued, cancelled ou in_progress n'est pas un résultat vert.
