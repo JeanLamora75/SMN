@@ -10,13 +10,13 @@ const authorized=(type:"accounts"|"settings"|"members",role:"admin"|"user")=>
  canAccess(actor(role),"read",{type,exists:true,inScope:true});
 
 describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
- it("affiche un groupe de sept entrées métiers et un groupe Paramètres pour admin",()=>{
+ it("affiche le groupe métier incluant Tickets et un groupe Paramètres pour admin",()=>{
   assert.deepEqual(privateNavigation("scrum","admin").map(group=>group.id),["pilotage","admin"]);
   assert.deepEqual(privateNavigation("scrum","user").map(group=>group.id),["pilotage"]);
   for(const role of ["admin","user"] as const){
    const main=privateNavigation("scrum",role)[0].entries;
    assert.deepEqual(main.map(e=>e.id),[
-    "dashboard","members","cycles","centralCalendar","risks","links","reporting"
+    "dashboard","members","cycles","centralCalendar","risks","links","reporting","tickets"
    ]);
    assert.equal(privateNavigation("scrum",role).flatMap(g=>g.entries)
     .filter(e=>e.id==="settings").length,role==="admin"?1:0);
@@ -33,6 +33,7 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
    assert.equal(entries.find(e=>e.id==="members")?.href,
     role==="admin"?"/app/admin/members":null);
    assert.equal(entries.find(e=>e.id==="reporting")?.href,"/app/reports");
+   assert.equal(entries.find(e=>e.id==="tickets")?.href,"/app/tickets");
    assert.equal(entries.find(e=>e.id==="links")?.href,role==="admin"?"/app/admin/links":null);
    assert.ok(!entries.some(e=>["events","security","reviews","briefs"].includes(e.id)));
    for(const entry of entries.filter(e=>e.href===null))
@@ -66,6 +67,8 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
    ["/app/team-calendar/meeting/template/any","centralCalendar"],
    ["/app/admin/registries","risks"],
    ["/app/admin/registries/any","risks"],
+   ["/app/tickets","tickets"],
+   ["/app/tickets/history","tickets"],
    ["/app/admin/settings","settings"],
    ["/app/admin/settings/general","settings"]
   ];
@@ -87,7 +90,7 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
     }
   assert.deepEqual(privateNavigation("scrum","admin")[0].entries
    .map(e=>translate("fr",e.label)),
-   ["Tableau de Bord","Équipe","Sprint","Calendrier","Registre","Liens","Rapports"]);
+   ["Tableau de Bord","Équipe","Sprint","Calendrier","Registre","Liens","Rapports","Tickets"]);
   assert.equal(translate("fr","navigation.entries.settings"),"Paramètres");
  });
  it("conserve le contrôle d'accès serveur indépendamment de l'affichage des menus",()=>{
