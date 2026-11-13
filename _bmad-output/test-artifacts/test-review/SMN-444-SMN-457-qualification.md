@@ -64,3 +64,24 @@ Ne pas déclarer l'Epic 444 ni SMN-457 terminées avant ces preuves.
 Le test [smn-457-tickets-delete-browser.test.ts](https://github.com/JeanLamora75/SMN/blob/main/tests/smn-457-tickets-delete-browser.test.ts) pilote le vrai composant `TicketsFiles` dans Chromium : annulation par Escape sans DELETE, refus serveur 409 avec fichier conservé, puis suppression autorisée et disparition de la liste. Le module de saisie v33 est remplacé par une **doublure de test** uniquement dans cette fixture, ce qui ne constitue pas une preuve sur sa modale. Exécution via le job Chromium du [run 43525377282](https://github.com/JeanLamora75/SMN/actions/runs/43525377282), résultat à attester.
 
 Les corrections React de l'ensemble du projet visent à restaurer la CI lint sans désactivation des règles. Les dernières références de statut doivent toujours provenir d'un run terminé : une CI queued, cancelled ou in_progress n'est pas un résultat vert.
+
+## Qualification finale de la CI dédiée — résultat attesté
+
+La [CI 43525377282](https://github.com/JeanLamora75/SMN/actions/runs/43525377282), commit `9795f121c1aa7569bf01a4b3c4a2a8cc7d06e039`, est **completed / success** avec les quatre jobs verts :
+
+| Job | Tests / statut | Résultat |
+|---|---|---|
+| Contrats purs CSV et calculs | 45 tests | 45 réussis, 0 échec |
+| Interfaces, Office et sauvegarde | 43 tests | 43 réussis, 0 échec |
+| Chromium réel, API HTTP simulée | 3 tests | 3 réussis, 0 échec |
+| TypeScript, ESLint, i18n | Typecheck, lint, catalogues | Réussis ; lint : 0 erreur, 1 avertissement `react-hooks/exhaustive-deps` sur `work-slots-form.tsx` |
+
+**Total : 91 tests réussis, aucun échec.** Aucun script `uv` exécuté. Le warning lint ne bloque pas le job, mais mérite une amélioration distincte avant qualité zéro avertissement.
+
+### Verdict Murat
+
+**GO partiel — qualification automatisée de l'Epic SMN-444 : validée pour les cas couverts.**
+
+**NO-GO — clôture de SMN-457 et de l'Epic :** les parcours d'intégration suivants ne sont pas attestés : PostgreSQL réel avec plusieurs rôles/équipes, reprise après coupure réseau/processus, vrais fichiers Office ouverts, ZIP chiffré restauré sur une deuxième installation Windows et rollback complet, audit accessibilité exhaustif. La validation du CSV suit le contrat souple de SMN-445 ; divergence de formulation avec SMN-457 à arbitrer.
+
+La CI de packaging Windows générale demeure séparée de cette certification et doit être relancée/qualifiée avant une distribution utilisateur.
