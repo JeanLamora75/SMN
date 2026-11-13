@@ -1933,7 +1933,18 @@
     "save": "Save",
     "saved": "Template saved.",
     "error": "Unable to save template.",
-    "capacity": "Ceremonies are never deducted from Developer capacity."
+    "capacity": "Ceremonies are never deducted from Developer capacity.",
+    "icon": "Icon",
+    "status": "Status",
+    "actions": "Actions",
+    "edit": "Edit template",
+    "delete": "Delete template",
+    "cancel": "Cancel",
+    "confirmDelete": "Permanently delete template “{name}”? Existing Sprint occurrences are protected and will prevent deletion.",
+    "deleted": "Template deleted.",
+    "deleteError": "Unable to delete template.",
+    "hasOccurrences": "This template is already used in a Sprint and cannot be permanently deleted. Disable it to prevent future creation.",
+    "conflict": "This template has changed since it was loaded. Refresh the list."
   },
   "templateOccurrences": {
     "title": "Custom template occurrences",
