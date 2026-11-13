@@ -2444,6 +2444,10 @@
       "chartStyles": {
         "title": "Chart styles",
         "description": "Customize the appearance of charts used in reports."
+      },
+      "jira": {
+        "title": "Jira links",
+        "description": "Set your Jira instance address to open tickets from CSV snapshots. No Jira API requests are performed."
       }
     },
     "view": {
@@ -2487,7 +2491,8 @@
       "chartStyles": "chart graph styles reporting visualization office word powerpoint",
       "users": "users accounts rights access permissions",
       "security": "security sessions password access personal",
-      "maintenance": "maintenance updates offline upgrades backup backups restore audit log history"
+      "maintenance": "maintenance updates offline upgrades backup backups restore audit log history",
+      "jira": "jira ticket links url configuration"
     },
     "navigation": {
       "back": "← Settings",
@@ -5214,6 +5219,25 @@
     "compareClear": "Clear filters",
     "indicatorsUnavailable": "Select a cycle and check your indicator editing permissions.",
     "indicatorsManualOnly": "Manual entry only: CSV data, totals and comparisons never prefill these indicators.",
-    "indicatorsCurrentCycle": "Selected cycle: {cycle}"
+    "indicatorsCurrentCycle": "Selected cycle: {cycle}",
+    "jiraSettingsTitle": "Jira links",
+    "jiraSettingsDescription": "Set your Jira instance address to open tickets from CSV snapshots. No Jira API requests are performed.",
+    "jiraSettingsLabel": "Jira HTTPS base URL",
+    "jiraSettingsPlaceholder": "https://example.atlassian.net",
+    "jiraSettingsHelp": "Enter your instance base address only, without /browse or a ticket key. Links open in a new tab.",
+    "jiraSettingsSave": "Save",
+    "jiraSettingsSaving": "Saving…",
+    "jiraSettingsClear": "Clear configuration",
+    "jiraSettingsLoadError": "Unable to load Jira settings.",
+    "jiraSettingsSaveError": "Unable to save Jira settings.",
+    "jiraSettingsInvalid": "Enter a valid HTTPS address without credentials, query string or fragment.",
+    "jiraSettingsConflict": "Jira settings changed elsewhere. Reload before trying again.",
+    "jiraSettingsSaved": "Jira settings saved.",
+    "jiraSettingsUnchanged": "No changes.",
+    "jiraSettingsReload": "Reload",
+    "jiraSettingsPreview": "Example link",
+    "jiraSettingsNoUrl": "No Jira link configured.",
+    "jiraSettingsReadOnly": "Only an administrator can change this address.",
+    "jiraTicketOpen": "Open {id} in Jira"
   }
 }
