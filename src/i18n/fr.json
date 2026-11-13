@@ -4061,7 +4061,19 @@
     "officeProgressSaving": "Enregistrement du rapport…",
     "officeProgressIndeterminate": "Progression en cours, pourcentage non disponible",
     "officeProgressWorking": "En cours…",
-    "officeProgressPleaseWait": "La fenêtre se fermera automatiquement dès que le rapport sera prêt."
+    "officeProgressPleaseWait": "La fenêtre se fermera automatiquement dès que le rapport sera prêt.",
+    "officeTicketSourceTitle": "Données Tickets CSV (facultatif)",
+    "officeTicketSourceHelp": "Choisissez une photographie si votre modèle contient des tags TICKETS. Une seconde photographie antérieure est nécessaire pour les tags de comparaison. Aucun indicateur v33 n'est modifié.",
+    "officeTicketCurrent": "Photographie principale",
+    "officeTicketNone": "Aucune photographie",
+    "officeTicketPrevious": "Photographie antérieure (comparaison)",
+    "officeTicketNoComparison": "Aucune comparaison",
+    "officeTicketLoadError": "Impossible de lire les photographies CSV du sprint.",
+    "officeTicketAlreadySaved": "Un rapport de ce nom existe déjà. Choisissez un autre nom : les rapports fondés sur Tickets ne sont jamais écrasés.",
+    "officeTicketSourceRequired": "Le modèle contient des tags Tickets : sélectionnez une photographie valide.",
+    "officeTicketSnapshotMissing": "Une photographie sélectionnée est introuvable ou a été remplacée. Rechargez la liste.",
+    "officeTicketPreviousRequired": "Ce modèle compare des tickets : sélectionnez une photographie antérieure.",
+    "officeTicketInvalidSelection": "Sélection de photographies invalide."
   },
   "reportsStudio": {
     "modes": "Modes du Studio",
