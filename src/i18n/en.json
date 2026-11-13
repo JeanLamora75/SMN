@@ -2157,7 +2157,9 @@
     "reload": "Reload work hours",
     "conflict": "The configuration has changed. Reload the work hours before saving.",
     "invalid": "Invalid work hours or time zone. Check all four times and the IANA time zone.",
-    "saveError": "Unable to save work hours (HTTP {status}). Check the SMN server logs."
+    "saveError": "Unable to save work hours (HTTP {status}). Check the SMN server logs.",
+    "schemaUnavailable": "The PostgreSQL team work-hours table is missing. Check the SMN database migration before configuring work hours.",
+    "notScrum": "The selected team is not a Scrum team. Choose a Scrum team."
   },
   "teamCockpit": {
     "title": "Team",
