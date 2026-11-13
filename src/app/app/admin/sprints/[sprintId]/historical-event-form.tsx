@@ -25,7 +25,7 @@ export default function HistoricalEventForm({sprintId}:{sprintId:string}){
   const response=await fetch("/api/admin/sprints/"+encodeURIComponent(sprintId)+"/historical-events",{cache:"no-store"});
   if(response.ok)setEvents((await response.json() as {events:HistoricalRow[]}).events);
  },[sprintId]);
- useEffect(()=>{void reload();},[reload]);
+ useEffect(()=>{void Promise.resolve().then(reload);},[reload]);
  useEffect(()=>{
   const current=dialog.current;
   if(open&&current&&!current.open)current.showModal();
