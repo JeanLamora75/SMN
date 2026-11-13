@@ -7,7 +7,7 @@ import {auditWindowsDistribution} from "../scripts/windows/distribution-package-
 const L="@echo off\r\n\"%~dp0runtime\\node\\node.exe\" \"%~dp0runtime\\launcher.mjs\" %*\r\n";
 async function fixture(){
  const root=await mkdtemp(path.join(os.tmpdir(),"smn-minimal-layout-"));
- for(const x of ["app","runtime/node","data/documents","updates"])
+ for(const x of ["app","runtime/node","data/documents","data/tickets","updates"])
   await mkdir(path.join(root,x),{recursive:true});
  for(const [p,text] of Object.entries({
   "Demarrer SMN.bat":L,"app/server.js":"compiled",
@@ -58,5 +58,15 @@ test("distribution rejects bundled private document content",async()=>{
   await writeFile(document,"a confidential user document");
   await assert.rejects(auditWindowsDistribution(root),
    /distribution-private-documents-not-empty/);
+ }finally{await rm(root,{recursive:true,force:true})}
+});
+
+test("SMN-456: distribution rejects bundled private Tickets CSV or Jira settings",async()=>{
+ const root=await fixture();
+ try{
+  const ticket=path.join(root,"data","tickets","jira-config.json");
+  await writeFile(ticket,'{"baseUrl":"https://jira.example.com"}');
+  await assert.rejects(auditWindowsDistribution(root),
+   /distribution-private-tickets-not-empty/);
  }finally{await rm(root,{recursive:true,force:true})}
 });
