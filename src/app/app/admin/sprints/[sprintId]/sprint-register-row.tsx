@@ -7,6 +7,7 @@ import {useTranslation} from "@/i18n/client";
 import type {SprintRegister,RegisterKind} from "@/lib/sprint-registers";
 import {safeRegisterHref} from "@/lib/sprint-registers";
 import RegistryCreate from "../../registries/registry-create";
+import RegistryDeleteAction from "../../registries/registry-delete-action";
 import BootstrapIcon from "../../../bootstrap-icon";
 
 const icons:Record<RegisterKind,
@@ -38,7 +39,7 @@ export default function SprintRegisterRow({
  item,teamId,canManage,historical,typeLabel,statusLabel,priorityLabel,
  dateLabel,formattedDate
 }:Props){
- const t=useTranslation(),dialogId=useId();
+ const t=useTranslation(),dialogId=useId(),router=useRouter();
  const dialog=useRef<HTMLDialogElement>(null);
  const [opened,setOpened]=useState(false);
  const href=safeRegisterHref(item.href);
@@ -72,6 +73,8 @@ export default function SprintRegisterRow({
      title={t("sprintDetail.registersEditRecord")+": "+item.title}>
      <BootstrapIcon name="pencil-square"/>
     </button>}
+    {writable&&<RegistryDeleteAction id={item.id} title={item.title} teamId={teamId}
+     onDeleted={()=>router.refresh()} iconOnly className="smn-sprint-register-edit smn-sprint-register-delete"/>}
    </span>
   </div>
   {opened&&typeof document!=="undefined"&&createPortal(
