@@ -45,8 +45,13 @@ export default function TicketsConsultation({snapshot,context,onBack}:Props){
  const scopeKey=teamId+"|"+cycleId+"|"+mode+"|"+snapshotId;
  // Reset filters and pagination when a different team/cycle/file is selected.
  useEffect(()=>{
-  setSearch("");setType("");setStatus("");setPriority("");setPrefix("");
-  setSort("jiraId");setDirection("asc");setPage(1);setData(null);
+  let active=true;
+  queueMicrotask(()=>{
+   if(!active)return;
+   setSearch("");setType("");setStatus("");setPriority("");setPrefix("");
+   setSort("jiraId");setDirection("asc");setPage(1);setData(null);
+  });
+  return()=>{active=false;};
  },[scopeKey]);
  const query=useMemo(()=>{
   if(!snapshot||!teamId||!cycleId||!mode)return null;
@@ -57,9 +62,9 @@ export default function TicketsConsultation({snapshot,context,onBack}:Props){
   }).toString();
  },[teamId,cycleId,mode,businessDate,snapshotId,search,type,status,priority,prefix,sort,direction,page,pageSize,snapshot]);
  useEffect(()=>{
-  if(!query){setState("ready");setData(null);return;}
+  if(!query){queueMicrotask(()=>{setState("ready");setData(null);});return;}
   const abort=new AbortController();
-  setState("loading");
+  queueMicrotask(()=>{if(!abort.signal.aborted)setState("loading");});
   void fetch("/api/admin/tickets/browse?"+query,{signal:abort.signal,cache:"no-store"})
    .then(async response=>{
     if(response.status===403)throw Error("forbidden");
