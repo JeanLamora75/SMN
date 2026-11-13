@@ -2,6 +2,7 @@
 
 import {useEffect,useMemo,useState} from "react";
 import BootstrapIcon from "../bootstrap-icon";
+import {jiraTicketUrl} from "@/lib/tickets/jira-links";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {TranslationKey} from "@/i18n/catalog";
 import type {TicketCycleContext} from "../tickets-cycle-context";
@@ -15,6 +16,7 @@ type Result={
  newer:{snapshotId:string;businessDate:string};
  counts:TicketComparisonCounts;
  total:number;page:number;pageSize:number;pageCount:number;changes:TicketChange[];
+ jiraBaseUrl:string|null;
 };
 type Props={
  context:TicketCycleContext;
@@ -218,7 +220,10 @@ export default function TicketsComparison({context,snapshots,onBack}:Props){
         <th scope="col">{t("tickets.compareFields")}</th>
        </tr></thead>
        <tbody>{data.changes.map(change=><tr key={change.jiraId}>
-        <td><strong>{change.jiraId}</strong></td>
+        <td>{jiraTicketUrl(data.jiraBaseUrl,change.jiraId)?<a
+         href={jiraTicketUrl(data.jiraBaseUrl,change.jiraId)!} target="_blank" rel="noopener noreferrer"
+         aria-label={t("tickets.jiraTicketOpen",{id:change.jiraId})}>{change.jiraId}</a>:
+         <strong>{change.jiraId}</strong>}</td>
         <td>{kindsText(change.kinds)}</td>
         <td>{change.before?.title??t("tickets.compareMissing")}</td>
         <td>{change.after?.title??t("tickets.compareMissing")}</td>
