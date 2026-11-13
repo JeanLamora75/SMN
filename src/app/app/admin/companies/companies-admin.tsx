@@ -63,7 +63,7 @@ export default function CompaniesAdmin(){
   draft.name!==""||draft.comment!==""||draft.color!=="blue";
  useUnsavedChanges(editorOpen&&(dirty||busy),t("draft.leaveWarning"));
 
- useEffect(()=>{setMounted(true)},[]);
+ useEffect(()=>{queueMicrotask(()=>setMounted(true));},[]);
  useEffect(()=>{
   if(!editorOpen)return;
   const dialog=dialogRef.current;
