@@ -2146,7 +2146,18 @@
     "zone": "IANA time zone",
     "save": "Save work slots",
     "saved": "Work slots saved",
-    "error": "Configuration unavailable or conflicting"
+    "error": "Configuration unavailable or conflicting",
+    "team": "Team",
+    "selectTeam": "Select a team",
+    "selectTeamRequired": "Select a Scrum team to load its work hours.",
+    "teamUnavailable": "The team context is unavailable. Check the selected team.",
+    "forbidden": "Access to this team's work hours is denied.",
+    "loadError": "Unable to load team work hours (HTTP {status}). Check the SMN server logs.",
+    "networkError": "Unable to connect to the SMN server to load work hours.",
+    "reload": "Reload work hours",
+    "conflict": "The configuration has changed. Reload the work hours before saving.",
+    "invalid": "Invalid work hours or time zone. Check all four times and the IANA time zone.",
+    "saveError": "Unable to save work hours (HTTP {status}). Check the SMN server logs."
   },
   "teamCockpit": {
     "title": "Team",
