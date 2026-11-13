@@ -27,7 +27,7 @@ export default function ExpressionGuide({view="cards"}:{view?:IndicatorView}){
  const t=useTranslation(),locale=useLocale();
  const [query,setQuery]=useState(""),[category,setCategory]=useState("all"),[copied,setCopied]=useState("");
  const categoryLabels:{[key:string]:string}={all:t("indicatorSettingsUi.all"),Calcul:t("indicatorSettingsUi.calculation"),Historique:t("indicatorSettingsUi.history"),Capacité:t("indicatorSettingsUi.capacity")};
- const localized=useMemo(()=>catalog.map((item,index)=>({...item,description:locale==="en"?englishDescriptions[index]:item.description})),[locale]);
+ const localized=useMemo(()=>catalog.map((item,index)=>({...item,name:locale==="en"&&item.name==="Opérateurs"?"Operators":locale==="en"&&item.name==="ROUND(VALEUR, N)"?"ROUND(VALUE, N)":item.name,description:locale==="en"?englishDescriptions[index]:item.description})),[locale]);
  const rows=useMemo(()=>localized.filter(item=>(category==="all"||item.category===category)&&
   `${item.name} ${item.description} ${item.example}`.toLocaleLowerCase(locale).includes(query.toLocaleLowerCase(locale))),[query,category,locale,localized]);
  return <section aria-label={t("indicatorSettingsUi.expressions")} className="smn-panel rounded-4 p-3 smn-indicator-guide-panel">
