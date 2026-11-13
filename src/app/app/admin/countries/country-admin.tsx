@@ -1,5 +1,6 @@
 "use client";
 import {useCallback,useEffect,useMemo,useRef,useState} from "react";
+import SettingsFilterPanel from "../settings/settings-filter-panel";
 import {useTranslation} from "@/i18n/client";
 import {annualDisplayStatus,currentParisYear,normalizeCountrySearch,
  type AnnualDisplayStatus,type TechnicalCoverage} from "@/lib/countries/year-status";
@@ -131,25 +132,8 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
   status==="configured"?"text-bg-success":status==="invalid"?"text-bg-danger":
   status==="review"?"text-bg-warning":"text-bg-secondary";
 
- return <section className="smn-panel p-3 p-lg-4" aria-labelledby="country-catalog-heading">
-  <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
-   <div>
-    <h2 className="h5 mb-1" id="country-catalog-heading">{t("countries.listTitle")}</h2>
-    <p className="text-muted small mb-0">{t("countries.nationalOnly")}</p>
-   </div>
-   {canManage&&<div className="d-flex flex-wrap gap-2">
-    <button ref={addCountryRef} type="button" className="btn btn-primary"
-     onClick={()=>{renameOpenerCode.current=null;setForm({mode:"create"});}}>
-     {t("countries.addTitle")}
-    </button>
-    <button type="button" className="btn btn-outline-secondary"
-     aria-expanded={showTools} aria-controls="country-tools"
-     onClick={()=>setShowTools(v=>!v)}>
-     {showTools?t("countries.closeTools"):t("countries.openTools")}
-    </button>
-   </div>}
-  </div>
-  <div className="row g-3 align-items-end mb-3">
+ return <div className="d-grid gap-3">
+  <SettingsFilterPanel>  <div className="row g-3 align-items-end">
    <div className="col-12 col-md-3">
     <label htmlFor="country-archive-filter" className="form-label">
      {t("countries.lifecycleFilterLabel")}
@@ -189,6 +173,25 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
       aria-label={t("countries.nextYear")} onClick={()=>setSelectedYear(year=>year+1)}>›</button>
     </div>
    </div>
+  </div>
+  </SettingsFilterPanel>
+  <section className="smn-panel p-3 p-lg-4" aria-labelledby="country-catalog-heading">
+  <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+   <div>
+    <h2 className="h5 mb-1" id="country-catalog-heading">{t("countries.listTitle")}</h2>
+    <p className="text-muted small mb-0">{t("countries.nationalOnly")}</p>
+   </div>
+   {canManage&&<div className="d-flex flex-wrap gap-2">
+    <button ref={addCountryRef} type="button" className="btn btn-primary"
+     onClick={()=>{renameOpenerCode.current=null;setForm({mode:"create"});}}>
+     {t("countries.addTitle")}
+    </button>
+    <button type="button" className="btn btn-outline-secondary"
+     aria-expanded={showTools} aria-controls="country-tools"
+     onClick={()=>setShowTools(v=>!v)}>
+     {showTools?t("countries.closeTools"):t("countries.openTools")}
+    </button>
+   </div>}
   </div>
   {notice&&<p role={["saved","renameSaved","calendarRefreshed","lifecycleSaved","lifecycleArchived","lifecycleReactivated"].includes(notice)?"status":"alert"}
    className={"alert "+(["saved","renameSaved","calendarRefreshed","lifecycleSaved","lifecycleArchived","lifecycleReactivated"].includes(notice)?"alert-success":"alert-warning")}>
@@ -295,5 +298,6 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
   {activeCountry&&<CountryCalendarModal key={activeCountry.code+":"+selectedYear}
    country={activeCountry} initialYear={selectedYear} onClose={closeCalendar}
    canManage={canManage&&!activeCountry.archived} onChanged={refresh}/>}
- </section>;
+ </section>
+ </div>;
 }
