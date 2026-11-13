@@ -101,3 +101,15 @@
  .smn-sprint-ceremony-cockpit-dialog .smn-cockpit-modal-body{padding:16px}
  .smn-sprint-ceremony-cockpit-dialog .smn-operational-event-time-row{grid-template-columns:minmax(0,1fr)}
 }
+
+/* Registry row actions: edit followed by permanent deletion. */
+.smn-sprint-detail-cockpit .smn-sprint-register-action{
+ display:flex;align-items:center;justify-content:flex-end;gap:6px;
+}
+.smn-sprint-detail-cockpit .smn-sprint-register-delete{
+ color:var(--bs-danger,#dc3545);
+}
+.smn-sprint-detail-cockpit .smn-sprint-register-delete:hover,
+.smn-sprint-detail-cockpit .smn-sprint-register-delete:focus-visible{
+ border-color:var(--bs-danger,#dc3545);
+}
