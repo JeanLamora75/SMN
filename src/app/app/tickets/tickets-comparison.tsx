@@ -3,6 +3,7 @@
 import {useEffect,useMemo,useState} from "react";
 import BootstrapIcon from "../bootstrap-icon";
 import {useLocale,useTranslation} from "@/i18n/client";
+import type {TranslationKey} from "@/i18n/catalog";
 import type {TicketCycleContext} from "../tickets-cycle-context";
 import type {
  TicketChange,TicketChangeField,TicketChangeKind,TicketComparisonCounts,
@@ -224,7 +225,7 @@ export default function TicketsComparison({context,snapshots,onBack}:Props){
         <td>{change.fields.length?<details>
          <summary>{change.fields.length} {t("tickets.compareFields")}</summary>
          <ul>{change.fields.map(field=><li key={field.field}>
-          <strong>{t("tickets."+fieldKeys[field.field])}</strong>:
+          <strong>{t(("tickets."+fieldKeys[field.field]) as TranslationKey)}</strong>:
           {" "}{field.before||t("tickets.compareNoValue")}
           {" → "}{field.after||t("tickets.compareNoValue")}
          </li>)}</ul>
