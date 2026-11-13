@@ -4,6 +4,7 @@ import {createPortal} from "react-dom";
 import {useDashboardModalFocus} from "../../dashboard-builder/modal-focus";
 import ui from "./indicator-definition-modal.module.css";
 import SettingsTabs from "../settings/settings-tabs";
+import SettingsFilterPanel from "../settings/settings-filter-panel";
 import FormulaPublicationEditor from "./formula-publication-editor";
 import DashboardSlotEditor from "./dashboard-slot-editor";
 import IndicatorCycles from "./indicator-cycles";
@@ -72,7 +73,12 @@ export default function IndicatorCatalog({teams,isAdmin,scope="team",activeTeamI
     <IndicatorCycles teamId={team} cycleType={cycleType} locale={locale}/>
    </section>}]:[]),
    ...(scope==="global"?[{id:"catalog",label:t("indicators.catalog"),content:<section>
-    <div className="d-flex flex-wrap gap-2 justify-content-between mb-3"><input aria-label={t("indicators.search")} placeholder={t("indicators.search")} type="search" className="form-control w-auto" value={search} onChange={e=>setSearch(e.target.value)}/><select aria-label={t("indicators.filter")} className="form-select w-auto" value={filter} onChange={e=>setFilter(e.target.value)}><option value="all">{t("indicators.all")}</option><option value="active">{t("indicators.active")}</option><option value="archived">{t("indicators.archived")}</option></select></div>
+    <SettingsFilterPanel><div className="row g-3 align-items-end">
+     <div className="col-12 col-md-8"><label htmlFor="indicator-catalog-search" className="form-label">{t("indicators.search")}</label>
+      <input id="indicator-catalog-search" placeholder={t("indicators.search")} type="search" className="form-control" value={search} onChange={e=>setSearch(e.target.value)}/></div>
+     <div className="col-12 col-md-4"><label htmlFor="indicator-catalog-status" className="form-label">{t("indicators.filter")}</label>
+      <select id="indicator-catalog-status" className="form-select" value={filter} onChange={e=>setFilter(e.target.value)}><option value="all">{t("indicators.all")}</option><option value="active">{t("indicators.active")}</option><option value="archived">{t("indicators.archived")}</option></select></div>
+    </div></SettingsFilterPanel>
     <div className="smn-panel rounded-4 p-3 table-responsive smn-indicator-global-list"><table className="table table-hover align-middle smn-indicator-guide-table"><thead><tr><th>{t("indicators.tag")}</th><th>{t("indicators.name")}</th><th>{t("indicators.type")}</th><th>{t("indicators.formula")}</th><th>{t("indicators.unit")}</th><th className="text-end">{t("indicators.actions")}</th></tr></thead><tbody>{defs.map(d=><tr key={d.id}><th scope="row">{d.tag}</th><td>{d.name}{d.archived_at&&<span className="badge text-bg-secondary ms-2">{t("indicators.archived")}</span>}</td><td>{t(d.indicator_type==="manual"?"indicators.manual":"indicators.computed")}</td><td className="text-break">{d.indicator_type==="computed"&&d.formula?<code>{d.formula}</code>:"—"}</td><td>{d.unit_name?(d.unit_short?`${d.unit_name} (${d.unit_short})`:d.unit_name):(d.unit_short||"—")}</td><td className="text-end"><div className="d-flex gap-2 justify-content-end">{isAdmin&&!d.archived_at&&<><button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>editor(d)}>{t("indicators.edit")}</button><button type="button" className="btn btn-sm btn-outline-danger" disabled={busy} onClick={()=>{if(window.confirm(t("indicators.confirmArchive")))void send({action:"archive",indicatorId:d.id});}}>{t("indicators.archive")}</button></>}</div></td></tr>)}</tbody></table>{defs.length===0&&<p role="status">{t("indicators.empty")}</p>}</div>
     <div className="smn-indicator-global-cards">
      <div className="row g-3">{defs.map(d=><div className="col-12 col-lg-6 col-xxl-4" key={d.id}>
