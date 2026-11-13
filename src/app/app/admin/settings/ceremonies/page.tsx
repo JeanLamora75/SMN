@@ -5,6 +5,8 @@ import {withAuthDb} from "@/server/auth/database";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import TemplateForm from "../../sprints/template-form";
+import TemplateCreateButton from "./template-create-button";
+import "./ceremony-templates-cockpit.css";
 import SettingsPageShell from "../settings-page-shell";
 
 export const dynamic="force-dynamic";
@@ -35,7 +37,8 @@ export default async function CeremonyTemplatesSettingsPage(){
  const t=(key:Parameters<typeof translate>[1])=>translate(locale,key);
  return <SettingsPageShell title={t("settingsSprint.ceremoniesTitle")}
   description={t("settingsSprint.ceremoniesScope")}
-  eyebrow={t("settingsCatalog.navigation.adminEyebrow")}>
+  eyebrow={t("settingsCatalog.navigation.adminEyebrow")}
+  action={<TemplateCreateButton/>}>
   <TemplateForm/>
  </SettingsPageShell>;
 }
