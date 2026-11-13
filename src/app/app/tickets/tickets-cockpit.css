@@ -56,3 +56,23 @@
  .smn-tickets-hero-actions .btn{min-height:38px;font-size:.8rem}
  .smn-tickets-hero{padding:15px}.smn-tickets-tabs{overflow-x:auto;flex-wrap:nowrap}
  .smn-tickets-tab{white-space:nowrap}}
+
+/* CSV import and replacement reuse the global Cockpit Agile dialog tokens. */
+.smn-tickets-import-dialog{width:min(650px,calc(100vw - 24px));max-width:650px}
+.smn-tickets-import-dialog .smn-cockpit-modal-header h2{display:flex;align-items:center;gap:10px}
+.smn-tickets-import-dialog .smn-tickets-import-form{min-height:0;max-height:inherit;
+ display:flex;flex-direction:column}
+.smn-tickets-import-dialog .smn-cockpit-modal-body{display:grid;gap:16px}
+.smn-tickets-import-intro{font-size:.91rem;color:var(--smn-muted);margin:0}
+.smn-tickets-import-field{display:grid;gap:5px}
+.smn-tickets-import-field .form-label{margin:0;color:var(--smn-heading)}
+.smn-tickets-import-field small{color:var(--smn-muted)}
+.smn-tickets-import-diagnostics{border:1px solid var(--smn-border);background:var(--smn-muted-soft);
+ border-radius:9px;padding:12px;font-size:.85rem}
+.smn-tickets-import-diagnostics strong{display:block;margin-bottom:8px;color:var(--smn-heading)}
+.smn-tickets-import-diagnostics ul{margin:0;padding-inline-start:20px;max-height:190px;overflow:auto}
+.smn-tickets-import-diagnostics li{margin-bottom:5px;overflow-wrap:anywhere}
+.smn-tickets-import-dialog .smn-cockpit-modal-footer{justify-content:flex-end;flex-wrap:wrap}
+.smn-tickets-import-dialog .smn-cockpit-modal-footer .btn{display:inline-flex;align-items:center;gap:7px}
+@media(max-width:575px){.smn-tickets-import-dialog{width:calc(100vw - 12px);
+ max-height:calc(100dvh - 12px)}.smn-tickets-import-dialog .smn-cockpit-modal-footer .btn{flex:1 1 auto}}
