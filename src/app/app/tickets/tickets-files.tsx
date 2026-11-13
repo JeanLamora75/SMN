@@ -38,7 +38,8 @@ export default function TicketsFiles(){
   // Never retain a selected file when switching the team or the cycle.
   if(previous.current!==key){
    previous.current=key;
-   queueMicrotask(()=>{if(!ctrl.signal.aborted){setItems([]);setSelectedId(null);setFeedback(null);}});
+   if(dialog.current?.open)dialog.current.close();
+   queueMicrotask(()=>{if(!ctrl.signal.aborted){setItems([]);setSelectedId(null);setTarget(null);setFeedback(null);}});
   }
   if(!key||cycleState!=="ready"||!teamId||!cycleId||!mode){
    queueMicrotask(()=>{if(!ctrl.signal.aborted)setState("ready");});
@@ -137,7 +138,8 @@ export default function TicketsFiles(){
       <h2 id="smn-tickets-list-heading"><BootstrapIcon name="list-ul"/> {t("tickets.listTitle")}</h2>
       <span className="smn-tickets-count">{items.length}</span>
      </header>
-     {!cycleId||!teamId||!mode?<p className="smn-tickets-empty">{t("tickets.noCycle")}</p>:
+     {cycleState==="error"?<div role="alert" className="alert alert-danger">{t("tickets.error")}</div>:
+      !cycleId||!teamId||!mode?<p className="smn-tickets-empty">{t("tickets.noCycle")}</p>:
       loading?<p role="status" className="smn-tickets-empty">{t("tickets.loading")}</p>:
       cycleState==="error"||state==="error"?<div role="alert" className="alert alert-danger">
        {t("tickets.error")}
