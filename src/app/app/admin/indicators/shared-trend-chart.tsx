@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useState} from "react";
+import Image from "next/image";
 import {useTranslation} from "@/i18n/client";
 export type SharedChartType="bar"|"line"|"area"|"pie"|"donut"|"gauge";
 export type SharedChartPayload={
@@ -67,6 +68,6 @@ export default function SharedTrendChart({payload,downloadName}:{payload:SharedC
   {catalogError&&<p className="alert alert-warning" role="alert">{tr("unavailable")}</p>}
   {!catalogError&&loading&&<p role="status">{tr("loading")}</p>}
   {error&&<p role="alert" className="alert alert-warning">{tr("unavailable")}</p>}
-  {url&&!loading&&<img src={url} alt={payload.series.map(s=>s.name).join(", ")} className="w-100 h-auto d-block"/>}
+  {url&&!loading&&<Image unoptimized src={url} alt={payload.series.map(s=>s.name).join(", ")} width={960} height={560} className="w-100 h-auto d-block"/>}
  </div>;
 }
