@@ -1,6 +1,7 @@
 "use client";
 import {useMemo,useState} from "react";
 import type {IndicatorView} from "./settings-tabs";
+import SettingsFilterPanel from "../settings-filter-panel";
 import {useLocale,useTranslation} from "@/i18n/client";
 
 type Entry={name:string;category:"Calcul"|"Historique"|"Capacité";description:string;example:string;available:boolean};
@@ -30,11 +31,13 @@ export default function ExpressionGuide({view="cards"}:{view?:IndicatorView}){
  const localized=useMemo(()=>catalog.map((item,index)=>({...item,name:locale==="en"&&item.name==="Opérateurs"?"Operators":locale==="en"&&item.name==="ROUND(VALEUR, N)"?"ROUND(VALUE, N)":item.name,description:locale==="en"?englishDescriptions[index]:item.description})),[locale]);
  const rows=useMemo(()=>localized.filter(item=>(category==="all"||item.category===category)&&
   `${item.name} ${item.description} ${item.example}`.toLocaleLowerCase(locale).includes(query.toLocaleLowerCase(locale))),[query,category,locale,localized]);
- return <section aria-label={t("indicatorSettingsUi.expressions")} className="smn-panel rounded-4 p-3 smn-indicator-guide-panel">
+ return <div className="d-grid gap-3">
+ <SettingsFilterPanel>  <div className="row g-2"><div className="col-md-8"><label htmlFor="expression-search" className="form-label">{t("indicatorSettingsUi.search")}</label><input id="expression-search" className="form-control" value={query} onChange={e=>setQuery(e.target.value)} placeholder={t("indicatorSettingsUi.expressionsPlaceholder")}/></div>
+  <div className="col-md-4"><label htmlFor="expression-category" className="form-label">{t("indicatorSettingsUi.category")}</label><select id="expression-category" className="form-select" value={category} onChange={e=>setCategory(e.target.value)}>{["all","Calcul","Historique","Capacité"].map(v=><option key={v} value={v}>{categoryLabels[v]}</option>)}</select></div></div>
+ </SettingsFilterPanel>
+ <section aria-label={t("indicatorSettingsUi.expressions")} className="smn-panel rounded-4 p-3 smn-indicator-guide-panel">
   <h2 className="h5">{t("indicatorSettingsUi.expressions")}</h2>
   <p className="text-secondary small">{t("indicatorSettingsUi.expressionsIntro")}</p>
-  <div className="row g-2 mb-3"><div className="col-md-8"><label htmlFor="expression-search" className="form-label">{t("indicatorSettingsUi.search")}</label><input id="expression-search" className="form-control" value={query} onChange={e=>setQuery(e.target.value)} placeholder={t("indicatorSettingsUi.expressionsPlaceholder")}/></div>
-  <div className="col-md-4"><label htmlFor="expression-category" className="form-label">{t("indicatorSettingsUi.category")}</label><select id="expression-category" className="form-select" value={category} onChange={e=>setCategory(e.target.value)}>{["all","Calcul","Historique","Capacité"].map(v=><option key={v} value={v}>{categoryLabels[v]}</option>)}</select></div></div>
   <p aria-live="polite" className="small text-secondary">{t("indicatorSettingsUi.expressionsCount",{count:rows.length})}</p>
   {view==="list"?<div className="table-responsive"><table className="table table-hover align-middle smn-indicator-guide-table">
    <thead><tr><th scope="col">{t("indicatorSettingsUi.expression")}</th><th scope="col">{t("indicatorSettingsUi.category")}</th><th scope="col">{t("indicatorSettingsUi.utility")}</th><th scope="col">{t("indicatorSettingsUi.example")}</th><th scope="col">{t("indicatorSettingsUi.actions")}</th></tr></thead>
@@ -48,5 +51,6 @@ export default function ExpressionGuide({view="cards"}:{view?:IndicatorView}){
    <button type="button" className="btn btn-outline-secondary btn-sm smn-indicator-copy-icon" aria-label={t("indicatorSettingsUi.copy")+": "+entry.name} title={t("indicatorSettingsUi.copy")} disabled={!entry.available} onClick={()=>{void navigator.clipboard.writeText(entry.example).then(()=>setCopied(entry.name)).catch(()=>setCopied(""));}}><i className="bi bi-clipboard" aria-hidden="true"/></button></div>
    {copied===entry.name&&<span role="status" className="small text-success">{t("indicatorSettingsUi.exampleCopied")}</span>}
   </article></div>)}</div>}
- </section>;
+ </section>
+ </div>;
 }
