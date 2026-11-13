@@ -3,6 +3,7 @@ import {useCallback,useEffect,useMemo,useRef,useState,type FormEvent} from "reac
 import {createPortal} from "react-dom";
 import {OPEN_TEAM_EDITOR} from "./team-create-button";
 import {useTranslation} from "@/i18n/client";
+import SettingsFilterPanel from "../settings-filter-panel";
 import {filterSettingsTeams} from "@/lib/settings-collection-filter";
 
 type Team={
@@ -158,16 +159,8 @@ export default function TeamsSettings(){
   }finally{setSaving(false);}
  }
  return <div className="smn-teams-settings">
-  <section aria-labelledby="smn-teams-list-title">
-   <div className="smn-panel rounded-4 p-3 p-md-4">
-    <div className="d-flex align-items-center justify-content-between gap-2 mb-3">
-     <h2 className="h5 mb-0" id="smn-teams-list-title">{t("teamSettings.title")}</h2>
-     <button type="button" className="btn btn-sm btn-outline-secondary"
-      onClick={()=>void requestList()} disabled={saving||loading}>
-      {t("teamSettings.retry")}
-     </button>
-    </div>
-    <div className="smn-teams-settings-filters mb-3">
+  <section aria-labelledby="smn-teams-list-title" className="d-grid gap-3">
+   <SettingsFilterPanel>    <div className="smn-teams-settings-filters">
      <label className="form-label mb-0">{t("settingsCollections.searchTeams")}
       <input type="search" className="form-control mt-1" value={query} onChange={event=>setQuery(event.target.value)} disabled={loading} />
      </label>
@@ -178,6 +171,15 @@ export default function TeamsSettings(){
        <option value="archived">{t("settingsCollections.archived")}</option>
       </select>
      </label>
+    </div>
+   </SettingsFilterPanel>
+   <div className="smn-panel rounded-4 p-3 p-md-4">
+    <div className="d-flex align-items-center justify-content-between gap-2 mb-3">
+     <h2 className="h5 mb-0" id="smn-teams-list-title">{t("teamSettings.title")}</h2>
+     <button type="button" className="btn btn-sm btn-outline-secondary"
+      onClick={()=>void requestList()} disabled={saving||loading}>
+      {t("teamSettings.retry")}
+     </button>
     </div>
     {!loading&&<p role="status" aria-live="polite" className="small text-secondary mb-3">{t("settingsCollections.results",{count:shown.length,total:items.length})}</p>}
     {loading?<p role="status">{t("teamSettings.loading")}</p>:
