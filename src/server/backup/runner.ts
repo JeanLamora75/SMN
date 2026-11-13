@@ -17,6 +17,8 @@ import {inspectExtraArchives,encryptExtraArchives,pdfArchiveDirectory}
 import {officeReportsDirectory} from "../reports/office-storage";
 import {officeTemplatesDirectory} from "../reports/office-catalog";
 import {captureFenceUnchanged} from "./capture-fence";
+import {captureTicketTransfer,ticketStorageDirectory} from "./tickets-transfer";
+import {sealedFile} from "./files";
 import {safeBackupFailureStage,type BackupFailureStage} from "./failure-stage";
 
 type Admin=Readonly<{id:string;role:string;password_hash:string}>;
@@ -117,7 +119,7 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
  await privateFolder(root,true);
  const source=installedPrivateDocumentsDirectory();
  if(source&&sameOrNested(root,source))throw new Error("backup-root-overlaps-documents");
- for(const folder of [pdfArchiveDirectory(),officeReportsDirectory(),officeTemplatesDirectory()])
+ for(const folder of [pdfArchiveDirectory(),officeReportsDirectory(),officeTemplatesDirectory(),ticketStorageDirectory()])
   if(sameOrNested(root,folder)||source&&sameOrNested(source,folder))
    throw new Error("backup-root-overlaps-extra-archives");
  const uri=await installedDatabaseUri();
@@ -148,6 +150,8 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    const inventory=await scanDocuments(source);
    failureStage="office-pdf-inventory";
    const extras=await inspectExtraArchives(client);
+   failureStage="tickets-inventory";
+   const tickets=await captureTicketTransfer();
    failureStage="staging";
    await privateFolder(packages,true);
    staging=join(packages,"."+id+".partial");
@@ -169,18 +173,23 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    const documents=await encryptDocuments(source,inventory,join(staging,"documents"),key);
    failureStage="archive-encryption";
    const archiveFiles=await encryptExtraArchives(extras,key,staging);
+   await mkdir(join(staging,"tickets"),{mode:0o700});
+   const ticketPart=await sealedFile(key,tickets.bytes,
+    join(staging,"tickets","00000.enc"),"tickets/00000.enc");
    failureStage="source-recheck";
    const after=await scanDocuments(source);
    if(JSON.stringify(inventory)!==JSON.stringify(after))
     throw new Error("backup-documents-changed");
    if(JSON.stringify(extras)!==JSON.stringify(await inspectExtraArchives(client)))
     throw new Error("backup-extra-archives-changed");
+   if((await captureTicketTransfer()).report.sha256!==tickets.report.sha256)
+    throw Error("backup-tickets-changed");
    failureStage="wal-consistency";
    const end=await client.query<{lsn:string}>("SELECT pg_current_wal_lsn()::text AS lsn");
    if(!captureFenceUnchanged({walLsn:begin.rows[0].lsn,documents:inventory,archives:extras},
     {walLsn:end.rows[0]?.lsn??"",documents:after,archives:await inspectExtraArchives(client)}))
     throw Error("backup-database-changed-during-capture");
-   const manifest={version:4,id,createdAt,installation:"singleton",
+   const manifest={version:5,id,createdAt,installation:"singleton",
     installationSource:"singleton:"+new Date(meta.rows[0].installation_created_at).toISOString(),
     appVersion:appPackage.version,
     schemaVersion:meta.rows[0].schema_version,postgresVersion:meta.rows[0].pg_version,
@@ -188,6 +197,8 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
      sourceName:document.name,...documents[index],
     })),reportPdfs:archiveFiles.pdf,officeReports:archiveFiles.office,
     officeTemplates:archiveFiles.templates,
+    ticketFiles:[{sourceName:"tickets-transfer-v1.json",...ticketPart}],
+    ticketInventory:tickets.report,
     consistency:{method:"wal-fence-v1",walLsn:begin.rows[0].lsn}};
    failureStage="manifest-encryption";
    const sealed=seal(key,Buffer.from(JSON.stringify(manifest),"utf8"));
@@ -209,6 +220,8 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    if(!captureFenceUnchanged({walLsn:begin.rows[0].lsn,documents:inventory,archives:extras},
     {walLsn:finalWal.rows[0]?.lsn??"",documents:finalDocs,archives:finalArchives}))
     throw Error("backup-scope-changed-before-publication");
+   if((await captureTicketTransfer()).report.sha256!==tickets.report.sha256)
+    throw Error("backup-tickets-changed-before-publication");
    failureStage="publish";
    await rename(staging,join(packages,id));
    staging="";
