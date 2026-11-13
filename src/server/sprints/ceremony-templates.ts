@@ -119,3 +119,29 @@ export async function saveTemplate(db:Client,actorId:string,raw:unknown,requeste
   await db.query("COMMIT");return {ok:true as const,id,revision};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
+
+/** Permanently delete a template only when no Sprint occurrence depends on it. */
+export async function deleteTemplate(db:Client,actorId:string,id:string,revision:number,requestedTeamId?:string|null){
+ if(!/^[0-9a-f-]{36}$/i.test(id)||!Number.isSafeInteger(revision)||revision<1)
+  return {ok:false as const,error:"invalid-input" as const};
+ await ensureTemplateSchema(db);
+ const teamId=await activeTeam(db,{accountId:actorId,role:"admin"},requestedTeamId);
+ await db.query("BEGIN");
+ try{
+  const row=await db.query<{revision:number}>(`SELECT revision FROM public.smn_scrum_ceremony_template
+   WHERE id=$1 AND team_id=$2 FOR UPDATE`,[id,teamId]);
+  if(!row.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
+  if(row.rows[0].revision!==revision){await db.query("ROLLBACK");return {ok:false as const,error:"conflict" as const};}
+  const occurrences=await db.query(`SELECT 1 FROM public.smn_scrum_template_occurrence WHERE template_id=$1 LIMIT 1`,[id]);
+  if(occurrences.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"has-occurrences" as const};}
+  await db.query(`DELETE FROM public.smn_scrum_ceremony_template_history WHERE template_id=$1`,[id]);
+  await db.query(`DELETE FROM public.smn_scrum_ceremony_template WHERE id=$1 AND team_id=$2`,[id,teamId]);
+  await db.query("COMMIT");
+  return {ok:true as const};
+ }catch(error){
+  await db.query("ROLLBACK").catch(()=>undefined);
+  // A concurrent occurrence insert is protected by the database foreign key.
+  if((error as {code?:string}).code==="23503")return {ok:false as const,error:"has-occurrences" as const};
+  throw error;
+ }
+}
