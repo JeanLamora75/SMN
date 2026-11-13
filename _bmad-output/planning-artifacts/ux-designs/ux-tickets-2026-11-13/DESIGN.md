@@ -120,3 +120,9 @@ Deux nouvelles confirmations sont obligatoires dans le module Tickets, avec **le
 - **Supprimer ce fichier ?** : afficher le nom du fichier et sa date métier, et proposer **Annuler** / **Supprimer** (action destructive clairement identifiable).
 
 Ces modales emploient les mêmes classes `.smn-cockpit-modal`, `.smn-cockpit-modal-header`, `.smn-cockpit-modal-body`, `.smn-cockpit-modal-footer` que les autres dialogues SMN. La liste des fichiers comporte une action de suppression par ligne ; sa visibilité dépend des droits. Pas d'alerte navigateur non stylée ni de confirmation implicite.
+
+## Avenant visuel — sprint clôturé et statuts de terminaison (13/11/2026)
+
+- Dans les tableaux, **Done** et **Terminé** ont le traitement visuel d'un ticket terminé, par texte et indicateur de statut, sans couleur seule.
+- Sur sprint clôturé, **Supprimer** n'est pas une action activable ; l'absence ou désactivation est cohérente avec les autres actions interdites dans SMN et reste compréhensible avec aide contextuelle accessible.
+- Tout refus de suppression à cause de la clôture conserve les motifs et la présentation **Cockpit Agile** (messages, blocs, modales si ouvertes), sans dialogue navigateur brut.
