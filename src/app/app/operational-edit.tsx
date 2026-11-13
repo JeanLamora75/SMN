@@ -171,20 +171,22 @@ function EventForm({id,kind,teamId,cycleId,timeZone,canManage,saved,onCancel}:{
    <input className="form-control" required maxLength={160} value={title}
     disabled={readonly||kind==="ceremony"||busy} onChange={e=>setTitle(e.target.value)}/>
   </label>
-  <label className="form-label">{t("dashboard.operational.edit.start")} ({timeZone})
-   <input className="form-control" type="datetime-local" required value={when}
-    disabled={readonly||busy} onChange={e=>setWhen(e.target.value)}/>
-  </label>
-  <label className="form-label">{t("dashboard.operational.edit.duration")}
-   <input className="form-control" type="number" min={1} max={kind==="ceremony"?600:480} required value={duration}
-    disabled={readonly||busy} onChange={e=>setDuration(Number(e.target.value))}/>
-  </label>
-  <label className="form-label">{t("sprintDetail.ceremonyActualDuration")}
-   <input className="form-control" type="number" min={0} max={1440} step={1}
-    value={actualMinutes??""} disabled={readonly||busy}
-    placeholder={t("sprintDetail.ceremonyNotRecorded")}
-    onChange={e=>setActualMinutes(e.target.value===""?null:Number(e.target.value))}/>
-  </label>
+  <div className="smn-operational-event-time-row">
+   <label className="form-label">{t("dashboard.operational.edit.start")} ({timeZone})
+    <input className="form-control" type="datetime-local" required value={when}
+     disabled={readonly||busy} onChange={e=>setWhen(e.target.value)}/>
+   </label>
+   <label className="form-label">{t("dashboard.operational.edit.duration")}
+    <input className="form-control" type="number" min={1} max={kind==="ceremony"?600:480} required value={duration}
+     disabled={readonly||busy} onChange={e=>setDuration(Number(e.target.value))}/>
+   </label>
+   <label className="form-label">{t("sprintDetail.ceremonyActualDuration")}
+    <input className="form-control" type="number" min={0} max={1440} step={1}
+     value={actualMinutes??""} disabled={readonly||busy}
+     placeholder={t("sprintDetail.ceremonyNotRecorded")}
+     onChange={e=>setActualMinutes(e.target.value===""?null:Number(e.target.value))}/>
+   </label>
+  </div>
   <label className="form-label">{t("dashboard.operational.edit.status")}
    <select className="form-select" value={status} disabled={readonly||busy}
     onChange={e=>setStatus(e.target.value)}>
@@ -245,20 +247,23 @@ export default function OperationalEdit(props:Props){
     <BootstrapIcon name="arrow-right"/>
    </Link>}
   </span>
-  {opened&&typeof document!=="undefined"&&createPortal(<dialog ref={ref} className="smn-operational-create-dialog"
+  {opened&&typeof document!=="undefined"&&createPortal(<dialog ref={ref}
+    className={"smn-operational-create-dialog"+(props.kind==="event"?" smn-sprint-ceremony-cockpit-dialog":"")}
     aria-labelledby={dialogId} onClose={()=>setOpened(false)}>
-   <div className="smn-operational-create-dialog-inner">
-    <header className="d-flex align-items-center justify-content-between gap-3 mb-3">
+   <div className={props.kind==="event"?"modal-content smn-cockpit-modal":"smn-operational-create-dialog-inner"}>
+    <header className={props.kind==="event"?"smn-cockpit-modal-header":"d-flex align-items-center justify-content-between gap-3 mb-3"}>
      <h2 className="h5 mb-0" id={dialogId}>{t("dashboard.operational.edit.heading")}: {props.title}</h2>
      <button type="button" className="btn-close" aria-label={t("dashboard.operational.quickAdd.close")}
       onClick={close}/>
     </header>
-    <EditBody props={props} close={close}/>
-    {!(props.kind==="event"&&props.eventKind)&&
-     <div className="d-flex justify-content-end mt-3">
-      <button type="button" className="btn btn-outline-secondary" onClick={close}>
-       {t("dashboard.operational.quickAdd.cancel")}</button>
-     </div>}
+    <div className={props.kind==="event"?"smn-cockpit-modal-body":""}>
+     <EditBody props={props} close={close}/>
+     {!(props.kind==="event"&&props.eventKind)&&
+      <div className="d-flex justify-content-end mt-3">
+       <button type="button" className="btn btn-outline-secondary" onClick={close}>
+        {t("dashboard.operational.quickAdd.cancel")}</button>
+      </div>}
+    </div>
    </div>
   </dialog>,document.body)}
  </>;
