@@ -23,6 +23,8 @@ export type PresenceMember=Readonly<{
 export type PresenceData=Readonly<{
  state:"available";source:"calendar-estimate"|"closure-snapshot";
  snapshotVersion:number|null;hoursPerJh:number;
+ /** Role capacity is calculated using effective assignment versions, not headcount. */
+ roleCapacityJh?:Readonly<{productOwner:number|null;scrumMaster:number|null}>;
  members:readonly PresenceMember[];totalPresenceJh:number|null;
 }>;
 export type PresenceUnavailable=Readonly<{
@@ -169,8 +171,14 @@ export function presenceFromSnapshot(value:unknown,version:number):SprintPresenc
  const sum=members.every(x=>x.presenceJh!==null)?
   round(members.reduce((v,x)=>v+(x.presenceJh??0),0)):null;
  if(v.totalPresenceJh!==sum)return {state:"unavailable",reason:"read-failed"};
+ const capacities=object(v.roleCapacityJh);
+ const validRoleValue=(n:unknown)=>n===null||(typeof n==="number"&&Number.isFinite(n)&&n>=0);
+ if(capacities&&(!validRoleValue(capacities.productOwner)||!validRoleValue(capacities.scrumMaster)))
+  return {state:"unavailable",reason:"read-failed"};
  return {state:"available",source:"closure-snapshot",snapshotVersion:version,
-  hoursPerJh:v.hoursPerJh as number,members,totalPresenceJh:sum};
+  hoursPerJh:v.hoursPerJh as number,members,totalPresenceJh:sum,
+  ...(capacities?{roleCapacityJh:{productOwner:capacities.productOwner as number|null,
+   scrumMaster:capacities.scrumMaster as number|null}}:{})};
 }
 /** Sprint endAt is exclusive, and calendar dates must follow the Sprint zone. */
 export function sprintPresenceDates(sprint:{
