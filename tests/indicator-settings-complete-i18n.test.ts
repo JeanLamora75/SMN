@@ -23,7 +23,7 @@ test("expression descriptions, categories and clipboard labels switch with langu
  assert.match(guide,/indicatorSettingsUi\.copy/);
  const list=guide.match(/const englishDescriptions=\[([^;]+)\];/)?.[1];
  assert.ok(list,"English expression descriptions must exist");
- assert.equal(JSON.parse("["+list+"]").length,16);
+ assert.equal(JSON.parse(list).length,16);
 });
 test("all 41 recommended indicator records have translated reference descriptions without modifying formulas or tags",()=>{
  assert.equal(recommendedIndicators.length,41);
