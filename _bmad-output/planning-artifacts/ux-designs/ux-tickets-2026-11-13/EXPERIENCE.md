@@ -4,7 +4,7 @@ status: "partial-validation"
 updated: "2026-11-13"
 description: "Contrat comportemental BMAD des écrans et modales Tickets"
 sources:
-  - "../../../architecture/architecture-tickets-2026-11-13/CONTRAT-FONCTIONNEL-ET-TECHNIQUE.md"
+  - "../../architecture/architecture-tickets-2026-11-13/CONTRAT-FONCTIONNEL-ET-TECHNIQUE.md"
   - "../../../../docs/UX-REFERENTIEL-BMAD.md"
 ---
 
