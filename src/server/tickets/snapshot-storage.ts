@@ -21,6 +21,7 @@ export type TicketSnapshotMetadata={
  originalFilename:string;
  importedBy:string;
  rowCount:number;
+ csvBytes:number;
  sha256:string;
 };
 export class TicketStorageError extends Error{
@@ -117,7 +118,8 @@ async function lockDate(directory:string,action:()=>Promise<void>):Promise<void>
 function validMetadata(meta:TicketSnapshotMetadata,scope:TicketScope,date:string):boolean{
  return meta.teamId===scope.teamId&&meta.cycleId===scope.cycleId&&meta.mode===scope.mode&&
  meta.businessDate===date&&/^[a-f0-9]{64}$/.test(meta.sha256)&&
- Number.isSafeInteger(meta.rowCount)&&meta.rowCount>=0;
+ Number.isSafeInteger(meta.rowCount)&&meta.rowCount>=0&&
+ (meta.csvBytes===undefined||(Number.isSafeInteger(meta.csvBytes)&&meta.csvBytes>=0));
 }
 function validateFilename(filename:string):string{
  if(typeof filename!=="string"||filename.length===0||filename.length>MAX_NAME||
@@ -162,6 +164,7 @@ export async function saveTicketSnapshot(
    teamId:scope.teamId,cycleId:scope.cycleId,mode:scope.mode,
    businessDate:input.businessDate,importedAt:new Date().toISOString(),
    originalFilename:name,importedBy:input.actorId,rowCount:parsed.rows.length,
+   csvBytes:csvBuffer.byteLength,
    sha256:createHash("sha256").update(csvBuffer).digest("hex"),
   };
   let published=false;
