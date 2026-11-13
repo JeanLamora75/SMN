@@ -6,11 +6,12 @@ import {useTranslation} from "@/i18n/client";
 import BootstrapIcon from "./bootstrap-icon";
 import {privateNavigation,activePrivateEntry,type PrivateMode,type PrivateRole} from "@/lib/private-navigation";
 
-export default function PrivateNavigation({mode,role,canManageIndicators,onNavigate}:{
+export default function PrivateNavigation({mode,role,canManageIndicators,onNavigate,ticketsHref}:{
   mode:PrivateMode|null;
   role:PrivateRole;
   canManageIndicators?:boolean;
   onNavigate?:()=>void;
+  ticketsHref?:string;
 }) {
   const pathname=usePathname();
   const t=useTranslation();
@@ -24,7 +25,7 @@ export default function PrivateNavigation({mode,role,canManageIndicators,onNavig
         <ul className="smn-private-nav-list">
           {group.entries.map(entry=><li key={entry.id}>
             {entry.href?
-              <Link href={entry.href} onClick={onNavigate} title={t(entry.label)}
+              <Link href={entry.id==="tickets"&&ticketsHref?ticketsHref:entry.href} onClick={onNavigate} title={t(entry.label)}
                 aria-label={t(entry.label)}
                 className={"smn-nav-link"+(activePrivateEntry(pathname,entry)?" is-active":"")}
                 aria-current={activePrivateEntry(pathname,entry)?"page":undefined}>
