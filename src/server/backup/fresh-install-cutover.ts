@@ -18,6 +18,7 @@ import {installedPrivateDocumentsDirectory} from "../documents/storage-path";
 import {pdfArchiveDirectory} from "./extra-archives";
 import {officeReportsDirectory} from "../reports/office-storage";
 import {officeTemplatesDirectory} from "../reports/office-catalog";
+import {ticketStorageDirectory} from "./tickets-transfer";
 import {inspectOfflineRestoreMaintenance} from "./restore-maintenance";
 import {freshCutoverMac,FRESH_CUTOVER_GENESIS} from "./fresh-cutover-journal";
 
@@ -36,7 +37,7 @@ type Stage="intent"|"files-promoted"|"source-parked"|"candidate-promoted"|
  "verified"|"rollback-started"|"rolled-back"|"incident";
 type FileOperation={active:string;prepared:string;rollback:string;state:"ready"|"parked"|"promoted"};
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const FILES=["documents","report-pdfs","office-reports","office-templates"] as const;
+const FILES=["documents","report-pdfs","office-reports","office-templates","tickets"] as const;
 function safeDbIdent(s:string){return '"'+s+'"';}
 async function exists(path:string){
  try{return await lstat(path);}catch(e){
@@ -45,31 +46,39 @@ async function exists(path:string){
  }
 }
 async function fingerprintsByGroups(paths:readonly string[]){
- if(paths.length!==4)throw Error("migration-file-groups-invalid");
- const rows:string[]=[];let count=0,bytes=0;
- for(let i=0;i<paths.length;i++){
-  const info=await lstat(paths[i]);
+ if(paths.length!==FILES.length)throw Error("migration-file-groups-invalid");
+ const rows:{name:string;hash:string;size:number}[]=[];
+ async function inspect(folder:string,group:string,parts:string[]):Promise<void>{
+  const info=await lstat(folder);
   if(!info.isDirectory()||info.isSymbolicLink())
    throw Error("migration-file-root-untrusted");
-  const names=(await readdir(paths[i])).sort();
-  for(const name of names){
-   if(!/^[A-Za-z0-9_. -]{1,220}$/.test(name)||
-    name.startsWith(".")||name===".."||name===".")
+  for(const name of (await readdir(folder)).sort()){
+   if(!/^[A-Za-z0-9_. -]{1,220}$/.test(name)||name.startsWith("."))
     throw Error("migration-file-name-untrusted");
-   const path=join(paths[i],name),file=await lstat(path);
-   if(!file.isFile()||file.isSymbolicLink()||file.size<1||
-    file.size>20*1024*1024)throw Error("migration-file-untrusted");
-   const data=await readFile(path);
-   if(data.length!==file.size)throw Error("migration-file-changed");
-   rows.push(FILES[i]+"/"+name+"|"+
-    createHash("sha256").update(data).digest("hex")+"|"+data.length);
-   count++;bytes+=data.length;
-   if(count>2800||bytes>600*1024*1024)
-    throw Error("migration-file-limit");
+   const child=join(folder,name),stat=await lstat(child);
+   if(stat.isSymbolicLink())throw Error("migration-file-link-untrusted");
+   if(stat.isDirectory()){
+    if(group!=="tickets"||parts.length>=6)
+     throw Error("migration-file-nesting-untrusted");
+    await inspect(child,group,[...parts,name]);
+   }else{
+    if(!stat.isFile()||stat.size<1||stat.size>20*1024*1024)
+     throw Error("migration-file-untrusted");
+    const raw=await readFile(child);
+    if(raw.length!==stat.size)throw Error("migration-file-changed");
+    rows.push({name:group+"/"+[...parts,name].join("/"),
+     hash:createHash("sha256").update(raw).digest("hex"),size:raw.length});
+   }
+   if(rows.length>8000)throw Error("migration-file-limit");
   }
  }
- return {sha256:createHash("sha256").update(rows.join("\n")).digest("hex"),
-  count,bytes};
+ for(let i=0;i<paths.length;i++)await inspect(paths[i],FILES[i],[]);
+ rows.sort((a,b)=>a.name<b.name?-1:a.name>b.name?1:0);
+ const bytes=rows.reduce((total,item)=>total+item.size,0);
+ if(bytes>800*1024*1024)throw Error("migration-file-limit");
+ return {sha256:createHash("sha256").update(rows.map(item=>
+  item.name+"|"+item.hash+"|"+item.size).join("\n")).digest("hex"),
+  count:rows.length,bytes};
 }
 async function emptyFolder(path:string){
  let info=await exists(path);
