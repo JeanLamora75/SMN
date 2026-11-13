@@ -1,5 +1,6 @@
 "use client";
-import {useEffect,useMemo,useState,type FormEvent} from "react";
+import {useEffect,useMemo,useRef,useState,type FormEvent} from "react";
+import {createPortal} from "react-dom";
 import {useTranslation} from "@/i18n/client";
 import type {TranslationKey,TranslationParams} from "@/i18n/catalog";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
@@ -45,6 +46,10 @@ export default function CompaniesAdmin(){
  const t=useTranslation();
  const [items,setItems]=useState<Company[]>([]);
  const [selected,setSelected]=useState<Company|null>(null);
+ const [editorOpen,setEditorOpen]=useState(false);
+ const [mounted,setMounted]=useState(false);
+ const dialogRef=useRef<HTMLDialogElement>(null);
+ const openerRef=useRef<HTMLElement|null>(null);
  const [draft,setDraft]=useState<Draft>(blank);
  const [busy,setBusy]=useState(false);
  const [message,setMessage]=useState("");
@@ -55,8 +60,17 @@ export default function CompaniesAdmin(){
  const [view,setView]=useState<View>("list");
  const dirty=selected?draft.name!==selected.name||draft.comment!==(selected.comment??"")||draft.color!==selected.color:
   draft.name!==""||draft.comment!==""||draft.color!=="blue";
- useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
+ useUnsavedChanges(editorOpen&&(dirty||busy),t("draft.leaveWarning"));
 
+ useEffect(()=>{setMounted(true)},[]);
+ useEffect(()=>{
+  if(!editorOpen)return;
+  const dialog=dialogRef.current;
+  if(!dialog)return;
+  if(!dialog.open)dialog.showModal();
+  dialog.querySelector<HTMLInputElement>("#company-name")?.focus();
+  return()=>{if(dialog.open)dialog.close();openerRef.current?.focus()};
+ },[editorOpen]);
  useEffect(()=>{
   void Promise.resolve().then(()=>{
    try{if(window.localStorage.getItem(VIEW_KEY)==="cards")setView("cards")}catch{/* Optional preference */}
@@ -82,13 +96,20 @@ export default function CompaniesAdmin(){
   return()=>controller.abort();
  },[t]);
  function resetEditor(){
-  setSelected(null);setDraft(blank());setError("");
+  setSelected(null);setDraft(blank());setEditorOpen(false);setError("");
+ }
+ function closeEditor(){
+  if(busy)return;
+  if(dirty&&!window.confirm(t("companiesAdmin.unsaved")))return;
+  resetEditor();
  }
  function edit(company:Company|null){
-  if(dirty&&!window.confirm(t("companiesAdmin.unsaved")))return;
+  if(busy)return;
+  if(editorOpen&&dirty&&!window.confirm(t("companiesAdmin.unsaved")))return;
+  openerRef.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
   setSelected(company);
   setDraft(company?{name:company.name,comment:company.comment??"",color:company.color}:blank());
-  setMessage("");setError("");
+  setMessage("");setError("");setEditorOpen(true);
  }
  function changeView(next:View){
   setView(next);
@@ -113,7 +134,7 @@ export default function CompaniesAdmin(){
  }
  async function archive(company:Company){
   if(busy)return;
-  if(dirty&&!window.confirm(t("companiesAdmin.unsaved")))return;
+  if(editorOpen&&dirty&&!window.confirm(t("companiesAdmin.unsaved")))return;
   const action=company.archivedAt?"reactivate":"archive";
   if(!window.confirm(t(action==="archive"?"companiesAdmin.archiveConfirm":"companiesAdmin.reactivateConfirm")))return;
   setBusy(true);setError("");setMessage("");
@@ -197,9 +218,19 @@ export default function CompaniesAdmin(){
     </div>)}
    </div>}
   </section>
-  <section className="smn-panel rounded-4 p-3 p-lg-4" aria-label={t(selected?"companiesAdmin.editTitle":"companiesAdmin.createTitle")}>
-   <h2 className="h5 mb-3">{t(selected?"companiesAdmin.editTitle":"companiesAdmin.createTitle")}</h2>
-   <form onSubmit={save} className="row g-3">
+  {mounted&&editorOpen&&createPortal(<dialog ref={dialogRef} className="smn-company-cockpit-dialog"
+   aria-labelledby="smn-company-dialog-title" onCancel={event=>{event.preventDefault();closeEditor()}}>
+   <div className="smn-company-cockpit-modal">
+    <header className="smn-company-cockpit-header">
+     <div className="smn-company-cockpit-identity"><span className="smn-company-cockpit-icon" aria-hidden="true">▦</span>
+      <div><span className="smn-company-cockpit-eyebrow">COCKPIT AGILE</span>
+       <h2 id="smn-company-dialog-title" className="h5 mb-0">{t(selected?"companiesAdmin.editTitle":"companiesAdmin.createTitle")}</h2></div></div>
+     <button type="button" className="btn-close" disabled={busy} aria-label={t("companiesAdmin.cancel")} onClick={closeEditor}/>
+    </header>
+    <form id="smn-company-dialog-form" onSubmit={save}>
+     <div className="smn-company-cockpit-body">
+     {error&&<div role="alert" className="alert alert-warning">{error}</div>}
+     <div className="row g-3">
     <div className="col-12 col-lg-5">
      <label htmlFor="company-name" className="form-label">{t("companiesAdmin.name")}</label>
      <input id="company-name" className="form-control" required maxLength={120} disabled={busy} value={draft.name} onChange={e=>setDraft(x=>({...x,name:e.target.value}))}/>
@@ -214,11 +245,14 @@ export default function CompaniesAdmin(){
       {palette.map(color=><option key={color} value={color}>{t((`companiesAdmin.colorNames.${color}`) as TranslationKey)}</option>)}
      </select>
     </div>
-    <div className="col-12 d-flex flex-wrap gap-2">
-     <button type="submit" className="btn btn-primary" disabled={busy||!draft.name.trim()||!dirty}>{t(busy?"companiesAdmin.saving":"companiesAdmin.save")}</button>
-     <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={()=>edit(null)}>{t("companiesAdmin.cancel")}</button>
-    </div>
-   </form>
-  </section>
+     </div>
+     </div>
+     <footer className="smn-company-cockpit-footer d-flex justify-content-end flex-wrap gap-2">
+      <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={closeEditor}>{t("companiesAdmin.cancel")}</button>
+      <button type="submit" className="btn btn-primary" disabled={busy||!draft.name.trim()||!dirty}>{t(busy?"companiesAdmin.saving":"companiesAdmin.save")}</button>
+     </footer>
+    </form>
+   </div>
+  </dialog>,document.body)}
  </div>;
 }
