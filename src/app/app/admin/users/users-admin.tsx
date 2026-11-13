@@ -105,7 +105,7 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
     setEditor(null);setUsername("");setEmail("");setPassword("");setRole("user");
     setMessage("");setMessageError(false);
   }
-  useEffect(()=>{setMounted(true);},[]);
+  useEffect(()=>{queueMicrotask(()=>setMounted(true));},[]);
   useEffect(()=>{
     window.addEventListener(OPEN_ACCOUNT_CREATE,openCreate);
     return()=>window.removeEventListener(OPEN_ACCOUNT_CREATE,openCreate);
