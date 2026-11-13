@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useRef,useState,type FormEvent} from "react";
+import {createPortal} from "react-dom";
 import {useTranslation} from "@/i18n/client";
 import CountryFlag from "./country-flag";
 
@@ -19,6 +20,8 @@ export default function CountryFormModal({mode,country,onClose,onSaved}:Props){
  const [fieldError,setFieldError]=useState<"code"|"name"|null>(null);
  const [error,setError]=useState("");
  const dialog=useRef<HTMLDialogElement>(null);
+ const [mounted,setMounted]=useState(false);
+ useEffect(()=>setMounted(true),[]);
  const firstField=useRef<HTMLInputElement>(null);
  useEffect(()=>{
   const element=dialog.current;
@@ -72,18 +75,20 @@ export default function CountryFormModal({mode,country,onClose,onSaved}:Props){
    setError(t("countries.failed"));
   }finally{setBusy(false);}
  };
- return <dialog ref={dialog} onCancel={event=>{if(busy)event.preventDefault();}}
+ return mounted?createPortal(<dialog ref={dialog} onCancel={event=>{if(busy)event.preventDefault();else onClose();}}
   onClose={onClose}
-  className="bg-body text-body border-0 shadow-lg rounded-3 p-0 w-100"
-  aria-labelledby="country-edit-title" style={{maxWidth:"520px"}}>
-  <form onSubmit={event=>{void submit(event);}} className="p-4">
-   <div className="d-flex justify-content-between align-items-start gap-3 mb-3">
+  className="smn-country-editor-dialog"
+  aria-labelledby="country-edit-title">
+  <form onSubmit={event=>{void submit(event);}}>
+   <header className="smn-country-editor-header">
+    <div className="smn-country-editor-identity"><span className="smn-country-editor-symbol" aria-hidden="true">▦</span><div><span className="smn-country-editor-eyebrow">COCKPIT AGILE</span>
     <h2 id="country-edit-title" className="h5 mb-0">
      {mode==="create"?t("countries.addTitle"):t("countries.renameTitle")}
-    </h2>
+    </h2></div></div>
     <button type="button" className="btn-close" aria-label={t("countries.close")}
      disabled={busy} onClick={onClose}/>
-   </div>
+   </header>
+   <div className="smn-country-editor-body">
    <div className="mb-3">
     <label htmlFor="country-edit-code" className="form-label">{t("countries.code")}</label>
     {mode==="rename"?
@@ -113,13 +118,14 @@ export default function CountryFormModal({mode,country,onClose,onSaved}:Props){
    </div>
    {mode==="rename"&&<p className="small text-muted">{t("countries.isoImmutable")}</p>}
    {error&&<p id="country-edit-error" className="text-danger small" role="alert">{error}</p>}
-   <div className="d-flex justify-content-end gap-2 mt-4">
+   </div>
+   <footer className="smn-country-editor-footer d-flex justify-content-end gap-2">
     <button type="button" className="btn btn-outline-secondary"
      disabled={busy} onClick={onClose}>{t("countries.cancel")}</button>
     <button type="submit" className="btn btn-primary" disabled={busy}>
      {busy?t("countries.loading"):t("common.save")}
     </button>
-   </div>
+   </footer>
   </form>
- </dialog>;
+ </dialog>,document.body):null;
 }
