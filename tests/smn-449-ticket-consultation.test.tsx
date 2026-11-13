@@ -47,7 +47,7 @@ test("tri naturel des clés, tri numérique des SP et données inconnues sans z�
  assert.deepEqual(byId.rows.map(row=>row.jiraId),["PRO-2","PRO-20","PRO-25"]);
  const byPoints=browseTicketCsv(csv,{sort:"storyPoints",direction:"desc"});
  assert.deepEqual(byPoints.rows.slice(0,3).map(row=>row.storyPoints),["8","3","2"]);
- assert.equal(byPoints.rows.at(-1)?.storyPoints,"inconnu");
+ assert.deepEqual(new Set(byPoints.rows.slice(-2).map(row=>row.storyPoints)),new Set(["","inconnu"]));
 });
 
 test("pagination bornée, page trop haute ramenée à la dernière",()=>{
