@@ -112,3 +112,11 @@ Rayons et bordures identiques aux écrans Cockpit Agile existants. Les pastilles
 ## Vérification visuelle préalable à la livraison
 
 Comparer côte à côte le module Tickets et les écrans Cockpit Agile déjà livrés (Centre Rapports, Paramètres) pour en-tête, panneaux, boutons, modales, thèmes, responsive et lisibilité. Les états vide, erreur d'upload, comparaison sans second fichier et permissions limitées doivent aussi être vérifiés. **Cette recette n'est pas exécutée au moment de la rédaction.**
+
+## Avenant visuel — modales de remplacement et suppression (13/11/2026)
+
+Deux nouvelles confirmations sont obligatoires dans le module Tickets, avec **le rendu Cockpit Agile natif** : 
+- **Remplacer le fichier du [date métier] ?** : afficher le nom du fichier existant, rappeler qu'il sera écrasé, et proposer **Annuler** / **Remplacer** (action explicite).
+- **Supprimer ce fichier ?** : afficher le nom du fichier et sa date métier, et proposer **Annuler** / **Supprimer** (action destructive clairement identifiable).
+
+Ces modales emploient les mêmes classes `.smn-cockpit-modal`, `.smn-cockpit-modal-header`, `.smn-cockpit-modal-body`, `.smn-cockpit-modal-footer` que les autres dialogues SMN. La liste des fichiers comporte une action de suppression par ligne ; sa visibilité dépend des droits. Pas d'alerte navigateur non stylée ni de confirmation implicite.
