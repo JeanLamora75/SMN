@@ -6,7 +6,7 @@ import {dirname,resolve,join} from "node:path";
 import {fileURLToPath} from "node:url";
 import {mkdtemp,writeFile,rm,readFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
-import puppeteer from "puppeteer-core";
+import puppeteer,{type ElementHandle} from "puppeteer-core";
 import {detectChrome} from "../scripts/report-chrome.mjs";
 import {validateTicketCsv} from "../src/lib/ticket-csv-contract";
 
@@ -126,7 +126,7 @@ test("SMN-457 — Chromium : import invalide, conflit de date, modale de remplac
    assert.equal(await page.$eval("dialog",element=>getComputedStyle(element).position),"fixed");
    const initialFocus=await page.evaluate(()=>document.activeElement?.closest("dialog")!==null);
    assert.equal(initialFocus,true,"Focus initial contenu dans la modale native");
-   const fileInput=await page.$("#smn-tickets-import-file");
+   const fileInput=await page.$("#smn-tickets-import-file") as ElementHandle<HTMLInputElement>|null;
    assert.ok(fileInput);
    await fileInput.uploadFile(bad);
    await page.$eval("#smn-tickets-import-date",element=>{
@@ -149,7 +149,7 @@ test("SMN-457 — Chromium : import invalide, conflit de date, modale de remplac
    const current=await page.$("dialog.smn-tickets-import-dialog[open]");
    if(!current)await page.click("#reopen");
    await page.waitForSelector("#smn-tickets-import-file");
-   await (await page.$("#smn-tickets-import-file"))!.uploadFile(good);
+   await (await page.$("#smn-tickets-import-file") as ElementHandle<HTMLInputElement>)!.uploadFile(good);
    await page.$eval("#smn-tickets-import-date",element=>{
     const input=element as HTMLInputElement;
     Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,"value")!.set!.call(input,"2026-11-01");
