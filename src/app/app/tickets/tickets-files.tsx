@@ -5,6 +5,7 @@ import BootstrapIcon from "../bootstrap-icon";
 import TicketsImportDialog from "./tickets-import-dialog";
 import TicketsConsultation from "./tickets-consultation";
 import TicketsComparison from "./tickets-comparison";
+import UniversalIndicatorInput from "../admin/indicators/universal-input";
 import {useTicketsCycle} from "../tickets-cycle-context";
 import {useLocale,useTranslation} from "@/i18n/client";
 
@@ -73,6 +74,8 @@ export default function TicketsFiles(){
  const selected=items.find(item=>item.snapshotId===selectedId)??null;
  const isClosed=closed||mode==="scrum"&&cycleStatus==="closed";
  const canDelete=role==="admin"&&!isClosed;
+ const canEditIndicators=(context.canManageIndicators??role==="admin")&&
+  cycleState==="ready"&&!!teamId&&!!cycleId&&(mode==="scrum"||mode==="kanban");
  const canImport=role==="admin"&&cycleState==="ready"&&state==="ready"&&!!key;
  function askDelete(item:Snapshot){
   if(!canDelete)return;
@@ -104,9 +107,15 @@ export default function TicketsFiles(){
      <p>{t("tickets.subtitle")}</p>
     </div>
     <div className="smn-tickets-hero-actions">
-     <button className="btn btn-light" disabled title={t("tickets.unavailableAction")}>
-      <BootstrapIcon name="sliders"/> {t("tickets.indicators")}
-     </button>
+     {canEditIndicators&&teamId&&cycleId&&(mode==="scrum"||mode==="kanban")?
+      <UniversalIndicatorInput key={teamId+"|"+mode+"|"+cycleId}
+       teamId={teamId} cycleType={mode} cycleId={cycleId}
+       buttonClassName="btn btn-light" buttonIcon="sliders"
+       buttonLabel={t("tickets.indicators")}/>
+      :<button className="btn btn-light" type="button" disabled
+        title={t("tickets.indicatorsUnavailable")}>
+       <BootstrapIcon name="sliders"/> {t("tickets.indicators")}
+      </button>}
      <button className="btn btn-light" type="button" disabled={state!=="ready"||items.length<2}
       title={items.length<2?t("tickets.compareNotEnough"):t("tickets.compare")}
       onClick={()=>setActiveTab("compare")}>
