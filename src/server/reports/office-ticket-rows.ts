@@ -4,7 +4,8 @@ import {compareTicketSnapshots,type TicketComparison} from "@/lib/ticket-csv-com
 import {readTicketSnapshot,type TicketScope,type TicketSnapshotMetadata} from "@/server/tickets/snapshot-storage";
 
 export const officeTicketSources=[
- "TICKETS","TICKET_SUMMARY","TICKET_CHANGES","TICKET_COMPARE_SUMMARY",
+ "TICKETS","TICKET_SUMMARY","TICKET_BY_TYPE","TICKET_BY_STATUS","TICKET_BY_PREFIX",
+ "TICKET_CHANGES","TICKET_COMPARE_SUMMARY",
 ] as const;
 export type OfficeTicketSource=typeof officeTicketSources[number];
 type Row=Record<string,string|null>;
@@ -115,13 +116,18 @@ export async function readOfficeTicketProjection(scope:TicketScope,
  if(needComparison&&!previous)throw new OfficeTicketSourceError("snapshot-missing");
  if(previous&&request.previous)checkMetadata(previous.metadata,request.previous);
  const rows:OfficeTicketProjection["rows"]={};
- if(required.includes("TICKETS")||required.includes("TICKET_SUMMARY")){
+ if(required.some(x=>["TICKETS","TICKET_SUMMARY","TICKET_BY_TYPE","TICKET_BY_STATUS","TICKET_BY_PREFIX"].includes(x))){
   const parsed=browseTicketCsv(current.csv);
   if(required.includes("TICKETS"))rows.TICKETS=parsed.rows.map(row=>({
    TICKET_ID:row.jiraId,TICKET_TYPE:row.issueType,TICKET_TITLE:row.title,
    TICKET_PRIORITY:row.priority,TICKET_STATUS:row.status,TICKET_SP:row.storyPoints,
   }));
   if(required.includes("TICKET_SUMMARY"))rows.TICKET_SUMMARY=toRows(parsed.summary.all);
+  const groupRows=(groups:readonly {value:string;count:number}[]):Row[]=>
+   groups.map(group=>({TICKET_GROUP_VALUE:group.value,TICKET_GROUP_COUNT:String(group.count)}));
+  if(required.includes("TICKET_BY_TYPE"))rows.TICKET_BY_TYPE=groupRows(parsed.summary.all.byType);
+  if(required.includes("TICKET_BY_STATUS"))rows.TICKET_BY_STATUS=groupRows(parsed.summary.all.byStatus);
+  if(required.includes("TICKET_BY_PREFIX"))rows.TICKET_BY_PREFIX=groupRows(parsed.summary.all.byPrefix);
  }
  if(previous&&request.previous){
   const comparison=compareTicketSnapshots(
