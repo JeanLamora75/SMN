@@ -83,7 +83,7 @@ export default function AbsenceCategoriesAdmin(){
   if(dirty&&!window.confirm(t("draft.discardWarning")))return;
   setEditorOpen(false);adopt(EMPTY);
  }
- useEffect(()=>setMounted(true),[]);
+ useEffect(()=>{queueMicrotask(()=>setMounted(true));},[]);
  useEffect(()=>{
   window.addEventListener(OPEN_ABSENCE_CATEGORY,newCategory);
   return()=>window.removeEventListener(OPEN_ABSENCE_CATEGORY,newCategory);
