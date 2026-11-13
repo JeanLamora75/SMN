@@ -11,8 +11,8 @@ import {tmpdir} from "node:os";
  */
 const SAFE=/^smn_restore_test_[a-z0-9_]{6,40}$/;
 const FILE=/^[A-Za-z0-9_. -]{1,220}$/;
-const FOLDERS=new Set(["documents","report-pdfs","office-reports","office-templates"]);
-const MAX_FILES=2800,MAX_BYTES=600*1024*1024;
+const FOLDERS=new Set(["documents","report-pdfs","office-reports","office-templates","tickets"]);
+const MAX_FILES=8000,MAX_BYTES=800*1024*1024;
 export type FileSnapshot=Readonly<{sha256:string;count:number;bytes:number}>;
 export type FileCutoverInput=Readonly<{
  originalRoot:string;candidateRoot:string;rollbackRoot:string;
@@ -26,6 +26,30 @@ export function validateFileCutoverDrill(x:FileCutoverInput):boolean{
   !isAbsolute(insideTemp)&&roots.every(r=>isAbsolute(r)&&r===resolve(r)&&SAFE.test(basename(r)))&&
   new Set(roots).size===3&&new Set(roots.map(dirname)).size===1;
 }
+async function listTicketFiles(root:string):Promise<string[]>{
+ const files:string[]=[];
+ async function visit(directory:string,parts:string[]):Promise<void>{
+  for(const name of (await readdir(directory)).sort()){
+   if(!/^[A-Za-z0-9_.-]{1,180}$/.test(name)||name.startsWith("."))
+    throw Error("restore-tickets-path-invalid");
+   const rel=[...parts,name].join("/"),location=join(directory,name),stat=await lstat(location);
+   if(stat.isSymbolicLink())throw Error("restore-tickets-symlink");
+   if(stat.isDirectory()){
+    if(parts.length>=6)throw Error("restore-tickets-depth");
+    await visit(location,[...parts,name]);
+   }else if(stat.isFile()){
+    if(!(/^[A-Za-z0-9_-]+\/(?:scrum|kanban)\/[A-Za-z0-9_-]+\/\d{4}-\d{2}-\d{2}\/current\.json$/.test(rel)||
+       /^[A-Za-z0-9_-]+\/(?:scrum|kanban)\/[A-Za-z0-9_-]+\/\d{4}-\d{2}-\d{2}\/versions\/[a-f0-9-]{36}\/(?:metadata\.json|snapshot\.csv)$/.test(rel)||
+       rel==="jira-config.json"))
+     throw Error("restore-tickets-path-invalid");
+    files.push(rel);
+   }else throw Error("restore-tickets-entry-invalid");
+   if(files.length>5000)throw Error("restore-tickets-too-many");
+  }
+ }
+ await visit(root,[]);
+ return files;
+}
 export async function inspectRestoreFileTree(root:string):Promise<FileSnapshot>{
  const rootStat=await lstat(root);
  if(!rootStat.isDirectory()||rootStat.isSymbolicLink())
@@ -38,11 +62,11 @@ export async function inspectRestoreFileTree(root:string):Promise<FileSnapshot>{
   const folder=join(root,group),s=await lstat(folder);
   if(!s.isDirectory()||s.isSymbolicLink())
    throw Error("restore-file-folder-untrusted");
-  const names=await readdir(folder);
+  const names=group==="tickets"?await listTicketFiles(folder):await readdir(folder);
   for(const name of names.sort()){
-   if(!FILE.test(name)||name==="."||name===".."||
+   if((group!=="tickets"&&!FILE.test(name))||name==="."||name===".."||
     name.startsWith("."))throw Error("restore-file-name-invalid");
-   const file=join(folder,name),stat=await lstat(file);
+   const file=join(folder,...name.split("/")),stat=await lstat(file);
    if(!stat.isFile()||stat.isSymbolicLink()||stat.size<=0||
     stat.size>20*1024*1024)throw Error("restore-file-untrusted");
    count++;bytes+=stat.size;
