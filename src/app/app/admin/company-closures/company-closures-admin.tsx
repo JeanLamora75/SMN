@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import {useEffect,useState,type FormEvent} from "react";
+import SettingsFilterPanel from "../settings/settings-filter-panel";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 
@@ -116,7 +117,7 @@ export default function CompanyClosuresAdmin(){
    }}>{t("common.retry")}</button>
   </p>}
   {catalog&&loadState==="ready"&&<>
-   {companyMode?<div><label htmlFor="closure-company" className="form-label">Entreprise</label><select id="closure-company" className="form-select" value={companyId} onChange={e=>{if(dirty&&!window.confirm(t("draft.discardWarning")))return;setCompanyId(e.target.value);setEditor(empty());setLoadState("loading");void reload(e.target.value).catch(()=>setLoadState("error"));}}>{companies.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div>:<h3 className="h6">{t("companyClosures.team",{team:catalog.team!.name})}</h3>}
+   {companyMode?<SettingsFilterPanel><div><label htmlFor="closure-company" className="form-label">Entreprise</label><select id="closure-company" className="form-select" value={companyId} onChange={e=>{if(dirty&&!window.confirm(t("draft.discardWarning")))return;setCompanyId(e.target.value);setEditor(empty());setLoadState("loading");void reload(e.target.value).catch(()=>setLoadState("error"));}}>{companies.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div></SettingsFilterPanel>:<h3 className="h6">{t("companyClosures.team",{team:catalog.team!.name})}</h3>}
    <div className="table-responsive">
     <table className="table table-sm">
      <thead><tr>
