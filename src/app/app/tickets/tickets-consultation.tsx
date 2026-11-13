@@ -3,6 +3,7 @@
 import {useEffect,useMemo,useState} from "react";
 import BootstrapIcon from "../bootstrap-icon";
 import TicketsMetrics from "./tickets-metrics";
+import {jiraTicketUrl} from "@/lib/tickets/jira-links";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {TranslationKey} from "@/i18n/catalog";
 import type {TicketCycleContext} from "../tickets-cycle-context";
@@ -163,7 +164,10 @@ export default function TicketsConsultation({snapshot,context,onBack}:Props){
          {t(`tickets.${column.label}`)}{sort===column.key?" "+(direction==="asc"?"↑":"↓"):""}
         </button></th>)}</tr></thead>
        <tbody>{data.rows.map(row=><tr key={row.jiraId}>
-        <td><strong>{row.jiraId}</strong></td>
+        <td>{jiraTicketUrl(data.jiraBaseUrl,row.jiraId)?<a
+          href={jiraTicketUrl(data.jiraBaseUrl,row.jiraId)!} target="_blank" rel="noopener noreferrer"
+          aria-label={t("tickets.jiraTicketOpen",{id:row.jiraId})}>{row.jiraId}</a>:
+          <strong>{row.jiraId}</strong>}</td>
         <td>{row.issueType||t("tickets.browseMissing")}</td>
         <td className="smn-tickets-browse-title">{row.title||t("tickets.browseMissing")}</td>
         <td>{row.priority||t("tickets.browseMissing")}</td>
@@ -193,7 +197,7 @@ export default function TicketsConsultation({snapshot,context,onBack}:Props){
       </button>
      </div>
     </div>}
-    <p className="smn-tickets-note">{t("tickets.browseJiraLinkPending")}</p>
+    {!data?.jiraBaseUrl&&<p className="smn-tickets-note">{t("tickets.jiraSettingsNoUrl")}</p>}
    </section>
   </>}
  </div>;
