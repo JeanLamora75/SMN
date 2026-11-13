@@ -5211,6 +5211,9 @@
     "compareFieldsPriority": "Priorité",
     "compareFieldsStatus": "Statut",
     "compareFieldsSp": "Story Points",
-    "compareClear": "Effacer les filtres"
+    "compareClear": "Effacer les filtres",
+    "indicatorsUnavailable": "Sélectionnez un cycle et vérifiez vos droits de saisie d’indicateurs.",
+    "indicatorsManualOnly": "Saisie manuelle uniquement : les données des CSV, leurs totaux et les comparaisons ne préremplissent jamais ces indicateurs.",
+    "indicatorsCurrentCycle": "Cycle sélectionné : {cycle}"
   }
 }
