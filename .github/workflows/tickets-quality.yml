@@ -14,6 +14,7 @@ on:
       - "tests/smn-45*-ticket*"
       - "tests/smn-455-office-tickets.test.ts"
       - "tests/smn-456-tickets-backup-transfer.test.ts"
+      - "tests/smn-457-tickets-browser-interactions.test.ts"
       - ".github/workflows/tickets-quality.yml"
   workflow_dispatch:
 permissions:
@@ -68,3 +69,18 @@ jobs:
         run: npm run lint
       - name: Vérifier i18n
         run: npm run i18n:check
+
+  browser-interactions:
+    name: Chromium — interactions réelles Tickets
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: npm install --no-package-lock --no-audit --no-fund --legacy-peer-deps
+      - name: SMN-457 — vraie modale, import valide/invalide, remplacement, clavier FR/EN
+        run: npx tsx --test tests/smn-457-tickets-browser-interactions.test.ts
