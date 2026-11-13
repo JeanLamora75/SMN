@@ -161,7 +161,7 @@ export default function TicketsConsultation({snapshot,context,onBack}:Props){
         <button type="button" className="smn-tickets-sort-button" onClick={()=>orderBy(column.key)}
          aria-label={t(`tickets.${column.label}` as TranslationKey)+" · "+t(sort===column.key&&direction==="desc"?
            "tickets.browseSortDesc":"tickets.browseSortAsc")}>
-         {t(`tickets.${column.label}`)}{sort===column.key?" "+(direction==="asc"?"↑":"↓"):""}
+         {t(`tickets.${column.label}` as TranslationKey)}{sort===column.key?" "+(direction==="asc"?"↑":"↓"):""}
         </button></th>)}</tr></thead>
        <tbody>{data.rows.map(row=><tr key={row.jiraId}>
         <td>{jiraTicketUrl(data.jiraBaseUrl,row.jiraId)?<a
