@@ -23,11 +23,14 @@ export default function CadenceForm(){
  }
  const days=[1,2,3,4,5,6,7];
  return <section className="smn-panel p-4">
-  <h2 className="h5">{t("scrumCadence.title")}</h2>
-  <p className="text-secondary">{t("scrumCadence.intro")}</p>
   {draft&&<form onSubmit={submit} className="d-grid gap-3">
-   <div><label htmlFor="cadence-weeks" className="form-label">{t("scrumCadence.weeks")}</label>
-   <select id="cadence-weeks" className="form-select" disabled={busy} value={draft.durationWeeks} onChange={e=>change("durationWeeks",Number(e.target.value))}>{[1,2,3,4].map(x=><option key={x} value={x}>{x}</option>)}</select></div>
+   <div className="row g-3">
+    <div className="col-12 col-md-6"><label htmlFor="cadence-weeks" className="form-label">{t("scrumCadence.weeks")}</label>
+     <select id="cadence-weeks" className="form-select" disabled={busy} value={draft.durationWeeks} onChange={e=>change("durationWeeks",Number(e.target.value))}>{[1,2,3,4].map(x=><option key={x} value={x}>{x}</option>)}</select>
+    </div>
+    <div className="col-12 col-md-6">
+      </div>
+   </div>
    <div className="row g-3">
     <div className="col-md-6"><label htmlFor="cadence-start-day" className="form-label">{t("scrumCadence.startDay")}</label>
     <select id="cadence-start-day" className="form-select" disabled={busy} value={draft.startDay} onChange={e=>change("startDay",Number(e.target.value))}>{days.map(x=><option key={x} value={x}>{t(`scrumCadence.days.${x}` as "scrumCadence.days.1")}</option>)}</select></div>
