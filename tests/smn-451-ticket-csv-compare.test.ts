@@ -1,5 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
 import {compareTicketSnapshots,TicketComparisonError,type TicketSnapshotRef} from "../src/lib/ticket-csv-compare";
 
 const header="Id jira,Type de ticket,Titre du ticket,Priorité,Statut,Story points";
@@ -116,4 +117,15 @@ test("SMN-451 : erreurs explicites sur date métier invalide",()=>{
  assert.throws(()=>compareTicketSnapshots({reference:ref("2025-02-30"),csv:oldCsv},
   {reference:newRef,csv:newCsv}),
   (e:unknown)=>e instanceof TicketComparisonError&&e.code==="invalid-snapshot-reference");
+});
+
+test("SMN-451 : API en lecture seule, versionnée et paginée sans exposition inter-cycle",()=>{
+ const api=readFileSync("src/app/api/admin/tickets/compare/route.ts","utf8");
+ for(const expected of ["authorizeApi","public.smn_account","c.team_id=$2","readTicketSnapshot",
+  "stale-snapshot","compareTicketSnapshots","pageCount","Cache-Control"])
+  assert.ok(api.includes(expected),expected);
+ assert.match(api,/a\.role IN \('admin','user'\)/);
+ assert.match(api,/first\.metadata\.snapshotId!==firstId/);
+ assert.match(api,/second\.metadata\.snapshotId!==secondId/);
+ assert.doesNotMatch(api,/saveTicketSnapshot|INSERT INTO|UPDATE public|DELETE FROM/);
 });
