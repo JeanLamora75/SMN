@@ -71,3 +71,13 @@ La liste des **statuts terminés** est une décision fonctionnelle ouverte. Les 
 Schéma CSV exact ; statut de terminaison ; droits de suppression et traitement des cycles clôturés ; collisions de dates ; limites et performance ; format des exports Office ; sélection des photographies ; nommage/stockage par équipe/instance ; gestion éventuelle de plusieurs URL Jira ; ergonomie Cockpit Agile.
 
 **Pas de développement, test, migration SQL, modification Jira ou validation BMAD officielle réalisé par ce document.**
+
+## Avenant décisionnel — 13/11/2026 : colonnes et gestion des fichiers (validé)
+
+Les six colonnes du CSV sont **obligatoirement**, dans cet ordre : **Id jira**, **Type de ticket**, **Titre du ticket**, **Priorité**, **Statut**, **Story points**. Aucune autre colonne n'est exigée dans le contrat initial. L'orthographe/casse et le séparateur/format numérique seront précisés dans la Story de validation ; conserver ces intitulés fonctionnels exacts comme référence. L'identifiant Jira est une clé ticket `PREFIXE-NUMERO` ; le préfixe permet les regroupements.
+
+**Un fichier par date métier et par équipe/cycle.** À l'upload, si une photographie existe déjà pour la date choisie, **demander confirmation explicite du remplacement** dans une modale Cockpit Agile, avec date et fichier concerné. Si l'utilisateur annule, le CSV et JSON existants restent inchangés ; s'il confirme, valider entièrement le nouveau CSV puis remplacer atomiquement la paire CSV+JSON. L'horodatage réel d'import du nouveau fichier doit correspondre à l'opération effective. Ne jamais exposer une paire partielle ou perdre le fichier précédent à la suite d'un échec. Les modalités de journalisation/audit de l'ancienne version restent à vérifier auprès des services existants.
+
+**Suppression autorisée depuis la liste des fichiers**, par action de ligne et confirmation explicite dans une modale Cockpit Agile mentionnant la date métier et le fichier. Supprimer la photographie CSV et son JSON de façon cohérente, avec contrôle des permissions serveur et rafraîchissement de la liste. Les règles en cas de sprint clôturé et la politique d'audit/récupération restent à valider avec l'architecture existante.
+
+Ces décisions **remplacent** les mentions antérieures « colonnes à décider », « collisions de date à arbitrer », « suppression à arbitrer » dans ce document. Elles ne valident pas les autres décisions ouvertes (statuts terminés, performance, droits sur cycle clôturé, etc.).
