@@ -50,7 +50,7 @@ export async function GET(request:NextRequest):Promise<Response>{
     JOIN public.smn_installation i ON i.id=t.installation_id
     WHERE c.id=$1 AND c.team_id=$2 AND c.deleted_at IS NULL
       AND a.id=$3 AND a.is_active=true AND a.must_change_password=false
-      AND a.role='admin' AND i.state='initialized'
+      AND a.role IN ('admin','user') AND i.state='initialized'
       AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))=$4
       AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false
     LIMIT 1`,[cycleId,teamId,actor.id,mode]);
