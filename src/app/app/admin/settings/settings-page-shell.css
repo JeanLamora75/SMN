@@ -25,3 +25,9 @@
  width:100%;
 }
 @media(max-width:700px){.smn-settings-detail-hero{padding:1.3rem}}
+
+.smn-settings-detail-hero{position:relative}
+.smn-settings-detail-hero-action{float:right;margin-left:16px;margin-bottom:10px}
+.smn-settings-detail-hero-action .btn{border:1px solid rgba(255,255,255,.75);color:#fff;background:rgba(255,255,255,.12);font-weight:700;border-radius:9px}
+.smn-settings-detail-hero-action .btn:hover{background:rgba(255,255,255,.23);color:#fff}
+@media(max-width:600px){.smn-settings-detail-hero-action{float:none;display:flex;justify-content:flex-end;margin:0 0 12px}}
