@@ -44,7 +44,7 @@ if(signingSecret){
 await cp(".next/standalone", appDir, { recursive: true, force: true, dereference: true });
 // Standalone tracing can copy source-only files. The deliverable is runtime-only.
 for(const name of [".git",".github",".agents","_bmad","_bmad-output",
-  "src","tests","docs",".env",".env.local",".env.example"]){
+  "src","tests","docs","data",".env",".env.local",".env.example"]){
  await rm(path.join(appDir,name),{recursive:true,force:true});
 }
 // The installed application may be replaced independently of its persistent data.
