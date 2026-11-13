@@ -160,3 +160,10 @@ Le Scrum Master clique Indicateurs. Une modale Cockpit Agile présente les indic
 5. Tous les dialogues ci-dessus suivent impérativement `{components.modal}`, via `.smn-cockpit-modal`, et respectent les permissions, la navigation clavier, le focus, les thèmes et l'i18n FR/EN.
 
 Ces choix remplacent les anciennes questions ouvertes sur les dates en doublon et l'existence d'une action de suppression ; les droits sur un cycle clôturé et la récupération après suppression restent à qualifier.
+
+## Avenant ergonomique validé — 13/11/2026 : statut et suppression en clôture
+
+- Les états **Done** et **Terminé** sont visuellement et fonctionnellement reconnus comme terminés dans la consultation et dans la comparaison (sans imposer un vocabulaire limité aux autres valeurs de statut).
+- Les six colonnes métier sont la référence, **sans contraindre artificiellement les valeurs de type, priorité, statut et autres champs**. Les valeurs impossibles à analyser sont signalées clairement ; aucun zéro fictif.
+- Pour un **sprint clôturé**, le bouton **Supprimer** d'un fichier CSV est indisponible, avec une explication accessible. Une confirmation ouverte juste avant la clôture ne doit pas permettre de supprimer après clôture : l'API recontrôle le statut. Les autres actions non concernées ne sont pas bloquées implicitement.
+- Les modales de remplacement et suppression conservent le rendu **Cockpit Agile**. Une demande de suppression refusée à cause de la clôture affiche un message i18n clair et conserve la liste intacte.
