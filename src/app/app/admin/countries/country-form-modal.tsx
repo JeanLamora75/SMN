@@ -28,7 +28,7 @@ export default function CountryFormModal({mode,country,onClose,onSaved}:Props){
   if(element&&!element.open)element.showModal();
   firstField.current?.focus();
   return ()=>{if(element?.open)element.close();};
- },[]);
+ },[mounted]);
 
  const submit=async(event:FormEvent<HTMLFormElement>)=>{
   event.preventDefault();
