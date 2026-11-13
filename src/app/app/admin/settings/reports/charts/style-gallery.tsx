@@ -1,6 +1,7 @@
 "use client";
 import {useCallback,useEffect,useMemo,useState,type FormEvent} from "react";
 import Link from "next/link";
+import SettingsFilterPanel from "../../settings-filter-panel";
 import Image from "next/image";
 import {useLocale,useTranslation} from "@/i18n/client";
 import {CHART_TYPES,type ChartType} from "@/server/reports/chart-style-contract";
