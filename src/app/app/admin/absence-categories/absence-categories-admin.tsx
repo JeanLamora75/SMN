@@ -188,6 +188,7 @@ export default function AbsenceCategoriesAdmin(){
       <button type="button" className="btn-close" aria-label={t("absenceCategories.cancel")} disabled={busy} onClick={closeEditor}/>
      </header>
      <form id="smn-absence-category-form" className="smn-absence-category-form d-grid gap-3" onSubmit={submit}>
+    {notice&&isError&&<p role="alert" className="alert alert-warning">{notice}</p>}
     <div>
      <label htmlFor="absence-category-name" className="form-label">
       {t("absenceCategories.name")}</label>
@@ -231,7 +232,7 @@ export default function AbsenceCategoriesAdmin(){
     </div>
    </dialog>,document.body)}
   </>}
-  {notice&&<p className={"alert "+(isError?"alert-warning":"alert-success")}
+  {notice&&!editorOpen&&<p className={"alert "+(isError?"alert-warning":"alert-success")}
    role={isError?"alert":"status"}>{notice}</p>}
  </section>;
 }
