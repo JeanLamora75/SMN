@@ -2,6 +2,7 @@
 import {useEffect,useMemo,useRef,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
+import SettingsFilterPanel from "../settings/settings-filter-panel";
 import {filterSettingsCeremonies} from "@/lib/settings-collection-filter";
 import {OPEN_CEREMONY_TEMPLATE} from "../settings/ceremonies/template-create-button";
 import {IconPicker} from "../../icon-picker";
@@ -94,10 +95,8 @@ export default function TemplateForm(){
   }catch{setError(t("ceremonyTemplates.error"))}finally{setBusy(false)}
  }
 
- return <section className="smn-panel p-4 smn-ceremony-templates-panel">
-  <h2 className="h4">{t("ceremonyTemplates.title")}</h2>
-  <p>{t("ceremonyTemplates.intro")}</p>
-  <div className="row g-3 mb-3">
+ return <div className="d-grid gap-3 smn-ceremony-templates-panel">
+  <SettingsFilterPanel>  <div className="row g-3">
    <div className="col-md-7"><label className="form-label" htmlFor="template-search">{t("settingsCollections.searchTemplates")}</label>
     <input type="search" id="template-search" className="form-control" value={query} onChange={event=>setQuery(event.target.value)}/></div>
    <div className="col-md-5"><label className="form-label" htmlFor="template-status">{t("settingsCollections.filterStatus")}</label>
@@ -107,6 +106,10 @@ export default function TemplateForm(){
      <option value="inactive">{t("settingsCollections.inactive")}</option>
     </select></div>
   </div>
+  </SettingsFilterPanel>
+  <section className="smn-panel p-4">
+  <h2 className="h4">{t("ceremonyTemplates.title")}</h2>
+  <p>{t("ceremonyTemplates.intro")}</p>
   <p role="status" aria-live="polite" className="small text-secondary">{t("settingsCollections.results",{count:matchCount,total:rows.length})}</p>
   {matchCount===0&&<p className="small text-secondary" role="status">{t("settingsCollections.noMatches")} <button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>{setQuery("");setStateFilter("all");}}>{t("settingsCollections.reset")}</button></p>}
   <div className="table-responsive">
@@ -191,5 +194,6 @@ export default function TemplateForm(){
     </footer>
    </div>
   </dialog>}
- </section>;
+ </section>
+ </div>;
 }
