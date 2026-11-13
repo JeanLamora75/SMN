@@ -21,6 +21,9 @@ export function classifyDistributionPath(relative) {
   const parts=segments(relative);
   if (parts.some(part=>PRIVATE_NAMES.has(part.toLowerCase())))
     return "private";
+  if (parts[0].toLowerCase()==="app"&&parts.length>1&&
+      ["data","config","updates"].includes(parts[1].toLowerCase()))
+    return "persistent";
   if (PERSISTENT.includes(parts[0].toLowerCase()))
     return "persistent";
   return "application";
