@@ -62,7 +62,7 @@ export default function SprintCapacityPanel({data,canViewNames,teamId,locale,t}:
   <p className="small text-secondary">
    {t("sprintDetail.presenceMethod")}
   </p>
-  <p className="small text-secondary">Le total de présence additionne les demi-journées disponibles de tous les membres affectés. La capacité de développement retient uniquement leur part de rôle Agile Développeur, pondérée par l’affectation et la contribution. Les calendriers doivent être effectifs aux dates du Sprint.</p>
+  <p className="small text-secondary">{t("sprintDetail.presenceRoleMethod")}</p>
   {!data||data.state==="unavailable"?<div className="alert alert-warning" role="status">
    {t(data?.state==="unavailable"&&data.reason==="history-missing"?
     "sprintDetail.presenceHistoryMissing":
@@ -73,14 +73,14 @@ export default function SprintCapacityPanel({data,canViewNames,teamId,locale,t}:
      {t("sprintDetail.presenceSnapshot",{version:data.snapshotVersion??"?"})}
     </p>:
     <p className="small text-secondary">{t("sprintDetail.presenceForecast")}</p>}
-   <div className="row g-3 mb-3">
-    <div className="col-12 col-md-6 col-xl-4">
+   <div className="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-3 mb-3">
+    <div className="col">
      <div className="border rounded-3 p-3 h-100">
       <p className="small text-secondary mb-1">{t("sprintDetail.presenceTotal")}</p>
       <strong className="fs-4">{fmt(data.totalPresenceJh)}</strong>
      </div>
     </div>
-    <div className="col-12 col-md-6 col-xl-4">
+    <div className="col">
      <div className="border rounded-3 p-3 h-100">
       <p className="small text-secondary mb-1">{t("sprintDetail.presenceDevelopmentTotal")}</p>
       <strong className="fs-4">{fmt(totalSprintDevelopmentJh(data.members))}</strong>
