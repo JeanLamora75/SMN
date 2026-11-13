@@ -4,6 +4,7 @@ import {useEffect,useRef,useState} from "react";
 import BootstrapIcon from "../bootstrap-icon";
 import TicketsImportDialog from "./tickets-import-dialog";
 import TicketsConsultation from "./tickets-consultation";
+import TicketsComparison from "./tickets-comparison";
 import {useTicketsCycle} from "../tickets-cycle-context";
 import {useLocale,useTranslation} from "@/i18n/client";
 
@@ -23,7 +24,7 @@ export default function TicketsFiles(){
  const {teamId,cycleId,mode,role,cycleName,cycleStatus,state:cycleState}=context;
  const [items,setItems]=useState<Snapshot[]>([]);
  const [selectedId,setSelectedId]=useState<string|null>(null);
- const [activeTab,setActiveTab]=useState<"files"|"browse">("files");
+ const [activeTab,setActiveTab]=useState<"files"|"browse"|"compare">("files");
  const [state,setState]=useState<UiState>("loading");
  const [closed,setClosed]=useState(false);
  const [version,setVersion]=useState(0);
@@ -106,7 +107,9 @@ export default function TicketsFiles(){
      <button className="btn btn-light" disabled title={t("tickets.unavailableAction")}>
       <BootstrapIcon name="sliders"/> {t("tickets.indicators")}
      </button>
-     <button className="btn btn-light" disabled title={t("tickets.unavailableAction")}>
+     <button className="btn btn-light" type="button" disabled={state!=="ready"||items.length<2}
+      title={items.length<2?t("tickets.compareNotEnough"):t("tickets.compare")}
+      onClick={()=>setActiveTab("compare")}>
       <BootstrapIcon name="bar-chart-line"/> {t("tickets.compare")}
      </button>
      {role==="admin"&&<button className="btn btn-light" type="button"
@@ -126,9 +129,12 @@ export default function TicketsFiles(){
       aria-selected={activeTab==="browse"} onClick={()=>{if(selected)setActiveTab("browse");}}>
      {t("tickets.consultation")}
     </button>
-    <button className="smn-tickets-tab" role="tab" type="button" disabled
-      aria-selected="false" title={t("tickets.comingSoon")}>
-     {t("tickets.comparison")}
+    <button id="smn-tickets-compare-tab" className={"smn-tickets-tab"+(activeTab==="compare"?" is-active":"")}
+      role="tab" type="button" disabled={state!=="ready"||items.length<2}
+      aria-selected={activeTab==="compare"} aria-controls="smn-tickets-compare-panel"
+      title={items.length<2?t("tickets.compareNotEnough"):t("tickets.comparison")}
+      onClick={()=>setActiveTab("compare")}>
+     <BootstrapIcon name="bar-chart-line"/> {t("tickets.comparison")}
     </button>
    </div>
   </header>
@@ -140,6 +146,7 @@ export default function TicketsFiles(){
     </div>
     {isClosed&&<span className="smn-tickets-status">{t("tickets.closed")}</span>}
    </section>
+   {state==="ready"&&items.length===1&&<p className="smn-tickets-note" role="status">{t("tickets.compareNotEnough")}</p>}
    {feedback&&<p role="status" className={"alert "+(feedback==="error"?"alert-danger":"alert-success")}>
     {t(feedback==="error"?"tickets.deleteError":feedback==="imported"?"tickets.importSuccess":"tickets.deleted")}
    </p>}
@@ -213,6 +220,11 @@ export default function TicketsFiles(){
   {activeTab==="browse"&&<div id="smn-tickets-browse-panel" role="tabpanel" aria-labelledby="smn-tickets-browse-tab">
    <TicketsConsultation snapshot={selected} context={context} onBack={()=>setActiveTab("files")}/>
   </div>}
+  {activeTab==="compare"&&<div id="smn-tickets-compare-panel" role="tabpanel"
+    aria-labelledby="smn-tickets-compare-tab">
+    <TicketsComparison key={key+"|"+items.map(item=>item.snapshotId).join("|")}
+      context={context} snapshots={items} onBack={()=>setActiveTab("files")}/>
+   </div>}
   {importOpen&&importScope.current===key&&teamId&&cycleId&&mode&&<TicketsImportDialog
     key={key} scope={{teamId,cycleId,mode}} cycleName={cycleName??""}
     onClose={()=>setImportOpen(false)}
