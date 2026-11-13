@@ -57,3 +57,9 @@ test("primary tables and modals are still present after filter extraction",()=>{
   assert.ok(read(file).includes(token),name);
  }
 });
+
+test("indicator catalog keeps visible spacing between filters and results",()=>{
+ const source=read("src/app/app/admin/indicators/catalog-client.tsx");
+ assert.match(source,/<SettingsFilterPanel className="mb-3">/);
+ assert.match(source,/<\/SettingsFilterPanel>\s*<div className="smn-panel rounded-4 p-3 table-responsive smn-indicator-global-list"/);
+});
