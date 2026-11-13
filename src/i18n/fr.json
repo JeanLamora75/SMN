@@ -5142,6 +5142,25 @@
     "browseFiltersNote": "Les filtres s'appliquent uniquement au CSV sélectionné.",
     "browseJiraLinkPending": "Les liens Jira seront activés après configuration dans Paramètres.",
     "browseBack": "Retour aux fichiers",
-    "browseRetry": "Réessayer"
+    "browseRetry": "Réessayer",
+    "metricsTitle": "Synthèse des tickets",
+    "metricsScope": "Périmètre des calculs",
+    "metricsFiltered": "Résultats filtrés",
+    "metricsAll": "Fichier entier",
+    "metricsFilteredDescription": "Calculs effectués sur tous les tickets correspondant aux filtres, toutes pages confondues.",
+    "metricsAllDescription": "Calculs effectués sur tous les tickets de cette photographie CSV, sans les filtres.",
+    "metricsFilterActive": "Les filtres actifs réduisent ce périmètre.",
+    "metricsTickets": "Nombre de tickets",
+    "metricsCompleted": "Tickets terminés",
+    "metricsSum": "Total Story Points interprétables",
+    "metricsNumeric": "Tickets avec SP numériques",
+    "metricsMissing": "SP absents : {count}",
+    "metricsInvalid": "SP non interprétables : {count}",
+    "metricsUnavailable": "—",
+    "metricsNoSum": "Aucune valeur numérique exploitable. Ce total est indisponible, et non égal à zéro.",
+    "metricsByType": "Par type de ticket",
+    "metricsByStatus": "Par statut",
+    "metricsByPrefix": "Par préfixe Jira",
+    "metricsNoGroups": "Aucun ticket dans ce périmètre."
   }
 }
