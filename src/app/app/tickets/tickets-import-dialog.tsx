@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect,useRef,useState} from "react";
+import {useEffect,useRef,useState,type FormEvent} from "react";
 import BootstrapIcon from "../bootstrap-icon";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {TicketScope} from "@/server/tickets/snapshot-storage";
@@ -9,7 +9,7 @@ type Snapshot={snapshotId:string;businessDate:string;originalFilename:string};
 type CsvDiagnostic={line:number;column:string;code:string;message:string;severity:"error"|"warning"};
 type Preview={valid:boolean;rowCount:number;errors:CsvDiagnostic[];warnings:CsvDiagnostic[]};
 type ImportProps={
- scope:TicketScope;cycleName:string;snapshots:readonly Snapshot[];
+ scope:TicketScope;cycleName:string;
  onClose:()=>void;onSaved:(snapshotId:string)=>void;
 };
 const MAX_FILE_BYTES=8*1024*1024;
@@ -23,7 +23,7 @@ const errorKeys={
 } as const;
 type ErrorCode=keyof typeof errorKeys;
 
-export default function TicketsImportDialog({scope,cycleName,snapshots,onClose,onSaved}:ImportProps){
+export default function TicketsImportDialog({scope,cycleName,onClose,onSaved}:ImportProps){
  const t=useTranslation(),locale=useLocale();
  const dialog=useRef<HTMLDialogElement>(null);
  const busyRef=useRef(false);
@@ -36,7 +36,6 @@ export default function TicketsImportDialog({scope,cycleName,snapshots,onClose,o
  const [preview,setPreview]=useState<Preview|null>(null);
  const [csv,setCsv]=useState<string|null>(null);
  const [existing,setExisting]=useState<Snapshot|null>(null);
- const [knownSnapshots,setKnownSnapshots]=useState<readonly Snapshot[]>(snapshots);
  const localeCode=locale==="en"?"en-GB":"fr-FR";
  const displayDate=(date:string)=>new Intl.DateTimeFormat(localeCode,{
   day:"2-digit",month:"long",year:"numeric",timeZone:"UTC",
@@ -62,7 +61,6 @@ export default function TicketsImportDialog({scope,cycleName,snapshots,onClose,o
   if(!response.ok)throw Error("list-failed");
   const data=await response.json() as {snapshots?:Snapshot[]};
   if(!Array.isArray(data.snapshots))throw Error("list-invalid");
-  setKnownSnapshots(data.snapshots);
   return data.snapshots;
  }
  async function performSave(content:string,expected?:string){
@@ -110,7 +108,7 @@ export default function TicketsImportDialog({scope,cycleName,snapshots,onClose,o
    busyRef.current=false;setBusy(false);
   }
  }
- async function submit(event:React.FormEvent<HTMLFormElement>){
+ async function submit(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
   if(busyRef.current)return;
   setMessage("");setPreview(null);
