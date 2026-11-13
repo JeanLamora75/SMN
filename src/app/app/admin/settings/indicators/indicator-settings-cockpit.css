@@ -30,3 +30,12 @@
 .smn-indicator-settings-cockpit .smn-indicator-global-list .smn-indicator-guide-table th:last-child,
 .smn-indicator-settings-cockpit .smn-indicator-global-list .smn-indicator-guide-table td:last-child{text-align:right}
 .smn-indicator-settings-cockpit .smn-indicator-global-list .smn-indicator-guide-table td code{white-space:normal;overflow-wrap:anywhere}
+
+
+/* Compact, accessible clipboard actions in both expression guide layouts. */
+.smn-indicator-guide-panel .smn-indicator-copy-icon{
+ display:inline-flex;align-items:center;justify-content:center;
+ flex:0 0 36px;width:36px;height:36px;padding:0;
+ border-radius:8px;white-space:nowrap;
+}
+.smn-indicator-guide-panel .smn-indicator-copy-icon .bi{font-size:1rem;line-height:1}
