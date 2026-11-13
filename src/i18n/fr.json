@@ -2444,6 +2444,10 @@
       "chartStyles": {
         "title": "Styles de graphiques",
         "description": "Personnaliser les styles visuels des graphiques des rapports."
+      },
+      "jira": {
+        "title": "Liens Jira",
+        "description": "Configurer l’adresse de votre instance Jira pour ouvrir les tickets depuis les photographies CSV. Aucun accès API Jira n’est effectué."
       }
     },
     "view": {
@@ -2487,7 +2491,8 @@
       "chartStyles": "graphiques styles graphiques présentation visualisation office word powerpoint rapports",
       "users": "utilisateurs comptes droits autorisations habilitations",
       "security": "sécurité sessions mot de passe accès personnel",
-      "maintenance": "maintenance mises à jour maj mise a jour mise a jour offline update backup sauvegardes restauration audit journal historique"
+      "maintenance": "maintenance mises à jour maj mise a jour mise a jour offline update backup sauvegardes restauration audit journal historique",
+      "jira": "jira liens tickets configuration url"
     },
     "navigation": {
       "back": "← Paramètres",
@@ -5214,6 +5219,25 @@
     "compareClear": "Effacer les filtres",
     "indicatorsUnavailable": "Sélectionnez un cycle et vérifiez vos droits de saisie d’indicateurs.",
     "indicatorsManualOnly": "Saisie manuelle uniquement : les données des CSV, leurs totaux et les comparaisons ne préremplissent jamais ces indicateurs.",
-    "indicatorsCurrentCycle": "Cycle sélectionné : {cycle}"
+    "indicatorsCurrentCycle": "Cycle sélectionné : {cycle}",
+    "jiraSettingsTitle": "Connexion Jira (liens)",
+    "jiraSettingsDescription": "Configurer l’adresse de votre instance Jira pour ouvrir les tickets depuis les photographies CSV. Aucun accès API Jira n’est effectué.",
+    "jiraSettingsLabel": "URL de base Jira HTTPS",
+    "jiraSettingsPlaceholder": "https://exemple.atlassian.net",
+    "jiraSettingsHelp": "Saisissez uniquement la base de votre instance, sans /browse ni clé de ticket. Les liens seront ouverts dans un nouvel onglet.",
+    "jiraSettingsSave": "Enregistrer",
+    "jiraSettingsSaving": "Enregistrement…",
+    "jiraSettingsClear": "Effacer la configuration",
+    "jiraSettingsLoadError": "Impossible de charger la configuration Jira.",
+    "jiraSettingsSaveError": "Impossible d’enregistrer l’URL Jira.",
+    "jiraSettingsInvalid": "L’URL doit être une adresse HTTPS valide, sans compte, paramètre ni fragment.",
+    "jiraSettingsConflict": "La configuration Jira a été modifiée ailleurs. Rechargez-la avant de recommencer.",
+    "jiraSettingsSaved": "Configuration Jira enregistrée.",
+    "jiraSettingsUnchanged": "Aucune modification.",
+    "jiraSettingsReload": "Recharger",
+    "jiraSettingsPreview": "Exemple de lien",
+    "jiraSettingsNoUrl": "Aucun lien Jira configuré.",
+    "jiraSettingsReadOnly": "Seul un administrateur peut modifier cette adresse.",
+    "jiraTicketOpen": "Ouvrir {id} dans Jira"
   }
 }
