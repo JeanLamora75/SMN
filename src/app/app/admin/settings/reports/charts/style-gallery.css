@@ -1,9 +1,4 @@
-.smn-chart-style-page{--smn-chart-primary:#1b508d;--smn-chart-border:#d8e3ee}
-.smn-chart-style-hero{padding:1.55rem 1.8rem;border-radius:18px;
- background:linear-gradient(115deg,var(--smn-chart-primary),#142b4c);color:#fff}
-.smn-chart-style-hero h1{font-size:clamp(1.4rem,2.5vw,1.85rem);font-weight:750;margin:.3rem 0}
-.smn-chart-style-hero p{margin:0;color:#e6edf9}
-.smn-chart-style-hero .smn-chart-style-eyebrow{font-size:.74rem;letter-spacing:.12em;font-weight:700;color:#c9e0f8}
+.smn-chart-style-page{--smn-chart-primary:var(--smn-brand);--smn-chart-border:var(--smn-border)}
 .smn-chart-gallery-controls{border:1px solid var(--smn-chart-border);border-radius:14px}
 .smn-chart-filter-grid{display:grid;grid-template-columns:minmax(180px,2fr) repeat(2,minmax(155px,1fr)) auto;align-items:end;gap:1rem}
 .smn-chart-filter-action{padding-bottom:1px}
@@ -32,7 +27,6 @@
  .smn-chart-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.smn-chart-card-grid,.smn-chart-skeleton,.smn-chart-default-grid,
  .smn-chart-filter-grid{grid-template-columns:1fr}
- .smn-chart-style-hero{padding:1.3rem}
  .smn-chart-filter-action .btn{width:100%}}
 @media(prefers-reduced-motion:reduce){.smn-chart-skeleton-item{animation:none}}
 
