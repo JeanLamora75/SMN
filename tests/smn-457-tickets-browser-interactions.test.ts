@@ -113,6 +113,7 @@ test("SMN-457 — Chromium : import invalide, conflit de date, modale de remplac
   browser=await puppeteer.launch({executablePath:chrome.path,headless:true,
    args:["--no-sandbox","--disable-dev-shm-usage","--no-first-run"]});
   for(const lang of ["fr","en"] as const){
+   const baselineWrites=writes.length;
    const page=await browser.newPage();
    const errors:string[]=[];
    page.on("pageerror",error=>errors.push(error.message));
@@ -136,18 +137,15 @@ test("SMN-457 — Chromium : import invalide, conflit de date, modale de remplac
    });
    await page.click("button[type=submit]");
    await page.waitForSelector("dialog [role=alert]");
-   assert.equal(writes.length,lang==="fr"?0:2,"CSV invalide refusé sans publication");
+   assert.equal(writes.length,baselineWrites,"CSV invalide refusé sans publication");
    await fileInput.uploadFile(good);
    await page.click("button[type=submit]");
-   await page.waitForFunction(()=>document.querySelector("#smn-tickets-import-title")?.textContent?.includes(
-    document.documentElement.lang==="en"?"Replace":"Remplacer"),{timeout:15000}).catch(async()=>{
-     await page.waitForSelector(".alert-warning");
-   });
-   assert.equal(writes.length,lang==="fr"?0:2,"Une date existante nécessite une confirmation préalable");
+   await page.waitForSelector("dialog .alert-warning");
+   assert.equal(writes.length,baselineWrites,"Une date existante nécessite une confirmation préalable");
    assert.ok(await page.$("dialog.smn-tickets-import-dialog[open]"),"Confirmation dans une modale native");
    await page.keyboard.press("Escape");
    // Cancel either returns to the form or closes the modal, never publishes.
-   assert.equal(writes.length,lang==="fr"?0:2);
+   assert.equal(writes.length,baselineWrites);
    const current=await page.$("dialog.smn-tickets-import-dialog[open]");
    if(!current)await page.click("#reopen");
    await page.waitForSelector("#smn-tickets-import-file");
