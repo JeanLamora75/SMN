@@ -11,6 +11,7 @@ test("application files remain updateable",()=>{
 test("persistent data, PostgreSQL runtime and update staging cannot be overwritten",()=>{
   for(const file of ["data/postgres/data/PG_VERSION","data/office/reports/report.docx",
     "data/office/templates/template.pptx","data/documents/private.pdf",
+    "data/tickets/jira-config.json","data/tickets/team-1/scrum/cycle-1/2026-11-01/current.json",
     "config/settings.json","CONFIG/settings.json",
     "runtime/postgres/pgsql/bin/pg_ctl.exe",
     "updates/stage.zip","DATA/postgres/data","RUNTIME/node.exe"]){
