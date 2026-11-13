@@ -1,5 +1,5 @@
 /* Dashboard Builder — Cockpit Agile. Scope local: no changes to PrivateShell. */
-.blockRow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;align-items:stretch;grid-auto-flow:row dense}
+.blockRow{display:grid;grid-template-columns:repeat(var(--smn-row-columns,4),minmax(0,1fr));gap:1rem;align-items:stretch;grid-auto-flow:row dense}
 .blockCell{grid-column:span var(--smn-block-width,1);min-width:0;display:flex}
 .blockCell>*{width:100%}
 .fixedContent{min-width:0;overflow:auto}
