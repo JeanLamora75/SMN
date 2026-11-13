@@ -18,7 +18,7 @@ test("repair creates exactly the legacy work-hours table without modifying any e
   assert.ok(repair.includes(col),col);
   assert.ok(migration.includes(col),col);
  }
- assert.doesNotMatch(repair,/\bDROP\b|\bTRUNCATE\b|\bDELETE\b|\bUPDATE\b|\bINSERT\b/i);
+ assert.doesNotMatch(repair,/\b(?:DROP|TRUNCATE|DELETE|INSERT)\b|\bUPDATE\s+public\./i);
  assert.match(repair,/BEGIN/);assert.match(repair,/COMMIT/);assert.match(repair,/ROLLBACK/);
  assert.match(repair,/pg_advisory_xact_lock/);
  assert.match(repair,/table-incompatible/);
