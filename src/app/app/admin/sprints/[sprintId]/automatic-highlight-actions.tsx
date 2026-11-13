@@ -13,8 +13,8 @@ export default function AutomaticHighlightActions({id,teamId,title}:{
  const [busy,setBusy]=useState(false),[error,setError]=useState("");
  const tr=(key:"edit"|"delete"|"heading"|"save"|"cancel"|"confirm"|"error"|"conflict"|"title")=>
   t(("sprintHighlight."+key) as Parameters<typeof t>[0]);
- useEffect(()=>{if(open&&dialog.current&&!dialog.current.open)dialog.current.showModal();
-  return()=>{if(dialog.current?.open)dialog.current.close();};
+ useEffect(()=>{const current=dialog.current;if(open&&current&&!current.open)current.showModal();
+  return()=>{if(current?.open)current.close();};
  },[open]);
  const close=()=>{if(!busy){setOpen(false);setError("");}};
  async function change(action:"PATCH"|"DELETE"){
