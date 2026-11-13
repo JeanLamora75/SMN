@@ -1,0 +1,50 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import fr from "../src/i18n/fr.json";
+import en from "../src/i18n/en.json";
+const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
+const page=read("src/app/app/admin/users/page.tsx");
+const users=read("src/app/app/admin/users/users-admin.tsx");
+const button=read("src/app/app/admin/users/create-account-button.tsx");
+const css=read("src/app/app/admin/users/users-cockpit.css");
+test("Create an account action is in the Settings hero",()=>{
+ assert.match(page,/action=\{<CreateAccountButton\/>\}/);
+ assert.match(button,/dispatchEvent\(new Event\(OPEN_ACCOUNT_CREATE\)\)/);
+ assert.match(users,/addEventListener\(OPEN_ACCOUNT_CREATE,openCreate\)/);
+});
+test("account creation and role/access editing use a Cockpit modal",()=>{
+ assert.match(users,/createPortal\(<dialog/);
+ assert.match(users,/dialog\.showModal\(\)/);
+ assert.match(users,/smn-account-editor-header/);
+ assert.match(users,/smn-account-editor-body/);
+ assert.match(users,/smn-account-editor-footer/);
+ assert.match(users,/onCancel=\{event=>\{event\.preventDefault\(\);closeEditor\(\);\}\}/);
+ assert.match(users,/dirty&&!window\.confirm\(t\("draft\.discardWarning"\)\)/);
+ assert.match(users,/openerRef\.current\?\.focus\(\)/);
+ assert.match(users,/onSubmit=\{create\}/);
+ assert.match(users,/void save\(selected\.id\)/);
+ assert.doesNotMatch(users,/<section className="smn-panel p-4">\s*<h2 className="h5">\{t\("accounts\.createTitle"\)/);
+});
+test("table edit and modal save are accessible icon actions",()=>{
+ assert.match(users,/bi-pencil-square/);
+ assert.equal((users.match(/bi-floppy/g)??[]).length,2);
+ assert.match(users,/aria-label=\{t\("accounts\.editAccount"\)/);
+ assert.equal((users.match(/aria-label=\{t\("accounts\.save"\)\}/g)??[]).length,2);
+ assert.match(users,/disabled=\{busy\|\|self\}/);
+ assert.match(users,/disabled=\{busy\|\|!selectedChanged\}/);
+ assert.match(css,/\.smn-account-icon-action/);
+});
+test("account protections, confirmation and post-save refresh remain",()=>{
+ assert.match(users,/reconcileAccountEdits/);
+ assert.match(users,/useUnsavedChanges/);
+ assert.match(users,/method:"PATCH"/);
+ assert.match(users,/method:"POST"/);
+ assert.match(users,/refresh\(id\)/);
+ assert.match(users,/self=account\.id===selfId/);
+ assert.match(css,/--smn-context-start/);
+ assert.match(css,/--smn-context-end/);
+ assert.match(css,/@media\(max-width:700px\)/);
+ assert.ok(en.accounts.editAccount&&fr.accounts.editAccount);
+ assert.ok(en.accounts.cancel&&fr.accounts.cancel);
+});
