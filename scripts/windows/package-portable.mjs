@@ -171,6 +171,16 @@ if(existsSync(privateDocs)){
   throw Error("distribution-private-documents-not-empty");
 }
 await mkdir(privateDocs,{recursive:true});
+// SMN-456: Ticket CSV/JSON and Jira settings are private persistent data.
+// Both setup and application update archives must ship an EMPTY Tickets folder.
+const privateTickets=path.join(target,"data","tickets");
+if(existsSync(privateTickets)){
+ const info=await lstat(privateTickets);
+ if(!info.isDirectory()||info.isSymbolicLink()||
+  (await readdir(privateTickets)).length!==0)
+  throw Error("distribution-private-tickets-not-empty");
+}
+await mkdir(privateTickets,{recursive:true});
 await mkdir(path.join(target,"updates"), { recursive: true });
 await copyFile("scripts/recover-admin.mjs", path.join(appDir, "recover-admin.mjs"));
 const launch = "@echo off\r\nsetlocal\r\ncd /d \"%~dp0\"\r\nif not exist \"%~dp0runtime\\node\\node.exe\" (echo SMN : Node.js absent. & pause & exit /b 1)\r\nif /I \"%~1\"==\"--recover-admin\" (\r\n \"%~dp0runtime\\node\\node.exe\" \"%~dp0app\\recover-admin.mjs\"\r\n) else (\r\n \"%~dp0runtime\\node\\node.exe\" \"%~dp0runtime\\launcher.mjs\"\r\n)\r\nif errorlevel 1 pause\r\n";
