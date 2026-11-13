@@ -119,7 +119,15 @@ test("SMN-456 — source symlink et collision de destination interdits",async t=
  await mkdir(join(dest,"tickets"));
  await assert.rejects(stageTicketTransfer(bytes,join(dest,"tickets")),
   (e:unknown)=>e instanceof TicketTransferError&&e.code==="tickets-stage-not-pristine");
- await symlink(join(root,base,"current.json"),join(root,"linked.json"));
+ try{
+  await symlink(join(root,...base.split("/"),"current.json"),join(root,"linked.json"));
+ }catch(e){
+  if(["EPERM","EACCES"].includes((e as NodeJS.ErrnoException).code??"")){
+   t.diagnostic("Symlink non autorisé par Windows : contrôle source de chemin testé séparément");
+   return;
+  }
+  throw e;
+ }
  await assert.rejects(captureTicketTransfer(root),
   (e:unknown)=>e instanceof TicketTransferError);
 });
