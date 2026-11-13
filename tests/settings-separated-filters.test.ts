@@ -8,6 +8,7 @@ const read=(name:string)=>readFileSync(new URL("../"+name,import.meta.url),"utf8
 const panel=read("src/app/app/admin/settings/settings-filter-panel.tsx");
 const styles=read("src/app/app/admin/settings/settings-filter-panel.css");
 const cases=[
+ ["settings portal","src/app/app/admin/settings/settings-catalog-view.tsx",["smn-settings-search","settingsCatalog.view.switchLabel"]],
  ["teams","src/app/app/admin/settings/teams/teams-settings.tsx",["searchTeams","filterStatus"]],
  ["users","src/app/app/admin/users/users-admin.tsx",["searchUsers","filterStatus","filterRole"]],
  ["companies","src/app/app/admin/companies/companies-admin.tsx",["companiesAdmin.search","companiesAdmin.filter"]],
