@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import {useCallback,useEffect,useRef,useState,type ReactNode} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {TranslationKey} from "@/i18n/catalog";
@@ -78,7 +79,7 @@ export default function ChartStyleEditor({id,canEdit}:{id:string;canEdit:boolean
   JSON.stringify(original.config)===JSON.stringify(draft);
  const dirty=original!==null&&!saved;
  const editable=canEdit&&original?.source==="custom";
- const discard=useCallback(()=>{if(dirty)return window.confirm(tr("discardConfirm"));return true;},[dirty,t]);
+ const discard=useCallback(()=>{if(dirty)return window.confirm(t("chartStyles.editor.discardConfirm"));return true;},[dirty,t]);
  useEffect(()=>{
   let alive=true;
   void (async()=>{
@@ -309,7 +310,7 @@ export default function ChartStyleEditor({id,canEdit}:{id:string;canEdit:boolean
      <h2 className="h5">{tr("preview")}</h2>
      <p className="small text-secondary">{tr("demoData")}</p>
      <div className="smn-chart-preview-canvas">
-      {preview?<img src={preview} alt={tr("previewAlt")} width={960} height={560}/>:
+      {preview?<Image unoptimized src={preview} alt={tr("previewAlt")} width={960} height={560}/>:
        <p className="text-secondary text-center">{tr("previewPlaceholder")}</p>}
      </div>
      <p role="status" className="small mt-3">{tr(previewStatus==="ready"?"previewReady":
