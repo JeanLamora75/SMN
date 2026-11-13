@@ -13,6 +13,7 @@ const sections:ReadonlyArray<{prefix:string;destination:string}>= [
  {prefix:"/app/admin/registries",destination:"/app/admin/registries"},
  {prefix:"/app/admin/indicators",destination:"/app/admin/indicators"},
  {prefix:"/app/reports",destination:"/app/reports"},
+ {prefix:"/app/tickets",destination:"/app/tickets"},
  {prefix:"/app/admin/sprints",destination:"/app/admin/sprints"},
  {prefix:"/app/admin/settings/teams",destination:"/app/admin/settings/teams"},
  {prefix:"/app/admin/settings",destination:"/app/admin/settings"}
