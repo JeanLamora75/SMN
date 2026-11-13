@@ -6,7 +6,7 @@ import TicketsMetrics from "./tickets-metrics";
 import {jiraTicketUrl} from "@/lib/tickets/jira-links";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {TranslationKey} from "@/i18n/catalog";
-import type {TicketCycleContext} from "../tickets-cycle-context";
+import type {TicketsCycleContext} from "../tickets-cycle-context";
 import type {TicketBrowseDirection,TicketBrowseRow,TicketBrowseSort} from "@/lib/ticket-csv-browse";
 import type {TicketSummaryScopes} from "@/lib/ticket-csv-summary";
 
@@ -17,7 +17,7 @@ type BrowseResponse={
  summary:TicketSummaryScopes;
  jiraBaseUrl:string|null;
 };
-type Props={snapshot:Snapshot|null;context:TicketCycleContext;onBack:()=>void};
+type Props={snapshot:Snapshot|null;context:TicketsCycleContext;onBack:()=>void};
 const keys:ReadonlyArray<{key:TicketBrowseSort;label:string}>=[
  {key:"jiraId",label:"browseJiraId"},{key:"issueType",label:"browseTicketType"},
  {key:"title",label:"browseTicketTitle"},{key:"priority",label:"browseTicketPriority"},
