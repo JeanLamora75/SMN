@@ -34,7 +34,7 @@ export function validateOfficeTicketRequest(raw:unknown):OfficeTicketRequest|nul
  }
  const current=parse(item.current),previous=item.previous===undefined?undefined:parse(item.previous);
  if(!current||item.previous!==undefined&&!previous)return null;
- if(previous&&(previous.businessDate===current.businessDate||previous.snapshotId===current.snapshotId))return null;
+ if(previous&&(previous.businessDate>=current.businessDate||previous.snapshotId===current.snapshotId))return null;
  return {current,...(previous?{previous}:{})};
 }
 /** Template discovery never loads tickets when the model doesn't use them. */
