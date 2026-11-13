@@ -396,7 +396,9 @@
       "account-not-found": "This account no longer exists.",
       "forbidden": "This action is restricted to a signed-in Administrator.",
       "service-unavailable": "The SMN database is currently unavailable."
-    }
+    },
+    "editAccount": "Edit account",
+    "cancel": "Cancel"
   },
   "welcome": {
     "title": "Install Scrum Master Notebook",
