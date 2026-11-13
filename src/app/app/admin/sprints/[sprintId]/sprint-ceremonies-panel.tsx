@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SprintCeremoniesBulkAction from "./sprint-ceremonies-bulk-action";
+import HistoricalEventForm from "./historical-event-form";
 import BootstrapIcon from "../../../bootstrap-icon";
 import OperationalEdit from "../../../operational-edit";
 import {dashboardEventIcon,formatDashboardEventPeriod} from "@/lib/dashboard-card-format";
@@ -40,9 +41,9 @@ const minutes=(value:number|null,t:Text)=>value===null?t("sprintDetail.ceremonyN
  t("sprintDetail.ceremonyMinutes",{minutes:value});
 
 /** One semantic row per recorded ceremony; its snapshot is never edited. */
-export default function SprintCeremoniesPanel({sprintId,teamId,timeZone,locale,canManage,data,t}:{
+export default function SprintCeremoniesPanel({sprintId,teamId,timeZone,locale,canManage,canAddHistoricalMeeting=false,data,t}:{
  sprintId:string;teamId:string;timeZone:string;locale:"fr"|"en";
- canManage:boolean;data:SprintCeremoniesResult;t:Text;
+ canManage:boolean;canAddHistoricalMeeting?:boolean;data:SprintCeremoniesResult;t:Text;
 }){
  const href=(page:number)=>sprintDetailPath(sprintId)+"?"+
   new URLSearchParams({tab:"ceremonies",page:String(page)}).toString();
@@ -62,6 +63,7 @@ export default function SprintCeremoniesPanel({sprintId,teamId,timeZone,locale,c
       {data.snapshotVersion!==null?t("sprintDetail.ceremonySnapshot",{version:data.snapshotVersion}):
        t("sprintDetail.ceremonyCurrent")}
      </span>
+     {canAddHistoricalMeeting&&<HistoricalEventForm sprintId={sprintId}/>}
      {canManage&&data.source==="recorded-events"&&data.missingSources.length===0&&
       <SprintCeremoniesBulkAction sprintId={sprintId} teamId={teamId} total={data.total}/>}
     </div>
