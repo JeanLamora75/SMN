@@ -40,7 +40,7 @@ export default function AutomaticHighlightActions({id,teamId,title}:{
   <button type="button" className="smn-sprint-register-edit smn-sprint-register-delete"
    aria-label={tr("delete")+": "+title} title={tr("delete")+": "+title}
    disabled={busy} onClick={()=>void change("DELETE")}>
-   <BootstrapIcon name="trash3"/>
+   <BootstrapIcon name="trash-fill"/>
   </button>
   {error&&!open&&<span role="alert" className="small text-danger">{error}</span>}
   {open&&typeof document!=="undefined"&&createPortal(
