@@ -119,3 +119,9 @@ flowchart TD
 - **Suppression de photographie [ADOPTED] :** action explicite depuis la liste, confirmation Cockpit Agile et suppression cohérente du CSV et du JSON, contrôlée côté serveur par les permissions ; les implications sur l'audit/archives et les sprints clôturés restent à qualifier.
 
 Les points différés n°1 (colonnes principales) et n°2 (collision de date) sont donc **tranchés** par le présent avenant, même si le texte historique de la section « Différé » est conservé pour traçabilité.
+
+## Avenant de décision — 13 novembre 2026 (complément aux précédents)
+
+- **Statuts terminés [ADOPTED] :** dans les calculs et comparaisons CSV, les valeurs **Done** et **Terminé** signifient « terminé ». Ne pas traiter les autres statuts comme terminés sans validation ultérieure ; normaliser les variations de casse et les espaces sans altérer le CSV source.
+- **Colonnes [ADOPTED — précision récente] :** conserver comme champs métier les six libellés définis par l'utilisateur (`Id jira`, `Type de ticket`, `Titre du ticket`, `Priorité`, `Statut`, `Story points`), **sans contraintes métier supplémentaires sur les valeurs des colonnes**. Ne pas inventer d'énumérations obligatoires pour type, priorité ou statut. La lecture numérique des Story points et l'extraction des clés Jira sont nécessaires aux analyses, mais une valeur non exploitable n'est pas arbitrairement transformée en zéro. La précédente exigence d'un contrôle rigide d'ordre et de valeurs est **à réconcilier avec cette précision** avant le développement.
+- **Suppression [ADOPTED] :** aucune suppression de photographie CSV/JSON depuis un **sprint Scrum clôturé**. L'action est indisponible en interface, et l'API refuse systématiquement la suppression même sur appel direct. Les autres règles de modification de sprint clôturé et le cas des périodes Kanban ne sont pas décidés ici.
