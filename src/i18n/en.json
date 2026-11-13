@@ -1437,7 +1437,8 @@
     "conflict": "This category has changed since you opened it. Reload the catalogue before editing.",
     "notFound": "Category not found.",
     "catalogueFull": "The catalogue limit of 100 categories has been reached.",
-    "failed": "The change could not be confirmed. Reload and try again."
+    "failed": "The change could not be confirmed. Reload and try again.",
+    "cancel": "Cancel"
   },
   "regionalAbsence": {
     "intro": "A regional non-working day is not added to the national holiday calendar: record it as the member's own absence. The 'Other' category is suggested if active; a local name or reason is mandatory.",
