@@ -76,3 +76,26 @@
 .smn-tickets-import-dialog .smn-cockpit-modal-footer .btn{display:inline-flex;align-items:center;gap:7px}
 @media(max-width:575px){.smn-tickets-import-dialog{width:calc(100vw - 12px);
  max-height:calc(100dvh - 12px)}.smn-tickets-import-dialog .smn-cockpit-modal-footer .btn{flex:1 1 auto}}
+
+/* SMN-449 — Consultation Cockpit Agile : surfaces séparées et pleine largeur. */
+.smn-tickets-browse{display:grid;gap:16px;min-width:0}
+.smn-tickets-browse-provenance{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.smn-tickets-browse-provenance strong{display:flex;align-items:center;gap:9px;color:var(--smn-heading)}
+.smn-tickets-browse-provenance p{font-weight:650;margin:5px 0;color:var(--smn-foreground);overflow-wrap:anywhere}
+.smn-tickets-browse-provenance small{color:var(--smn-muted)}
+.smn-tickets-browse-filter-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.smn-tickets-browse-field{display:flex;flex-direction:column;gap:6px;min-width:0;font-size:.85rem;font-weight:650;color:var(--smn-heading)}
+.smn-tickets-browse-field :is(input,select){border-color:var(--smn-border);background:var(--smn-surface);color:var(--smn-foreground)}
+.smn-tickets-browse-filter-reset{align-self:end;display:flex}
+.smn-tickets-browse-results{min-width:0}
+.smn-tickets-browse-results .smn-tickets-panel-heading{flex-wrap:wrap}
+.smn-tickets-browse-table{min-width:780px}
+.smn-tickets-browse-title{max-width:430px;white-space:normal;overflow-wrap:anywhere}
+.smn-tickets-sort-button{border:0;background:none;color:inherit;text-align:left;font-weight:inherit;cursor:pointer;min-height:30px}
+.smn-tickets-sort-button:hover{text-decoration:underline}
+.smn-tickets-browse-done{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid var(--smn-border);border-radius:7px;background:var(--smn-muted-soft);font-weight:650}
+.smn-tickets-browse-pagination{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:15px}
+.smn-tickets-browse-pagination label,.smn-tickets-browse-pagination>div{display:flex;align-items:center;gap:9px;font-size:.85rem}
+.smn-tickets-browse-pagination .form-select{width:auto;min-width:74px;border-color:var(--smn-border);background-color:var(--smn-surface);color:var(--smn-foreground)}
+@media(max-width:1100px){.smn-tickets-browse-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.smn-tickets-browse-filter-grid{grid-template-columns:minmax(0,1fr)}.smn-tickets-browse-pagination>div{flex-wrap:wrap}}
