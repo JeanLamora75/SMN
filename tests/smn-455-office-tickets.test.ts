@@ -40,7 +40,7 @@ test("SMN-455 : découverte des marqueurs Word et PPTX uniquement",()=>{
  const ppt=writeZip([{name:"ppt/slides/slide1.xml",
   data:Buffer.from("<a:t>{{ROW:TICKET_CHANGES}}</a:t><a:t>{{ROW:TICKET_COMPARE_SUMMARY}}</a:t>")}]);
  assert.deepEqual(discoverOfficeTicketSources(ppt).sort(),["TICKET_CHANGES","TICKET_COMPARE_SUMMARY"]);
- assert.equal(officeTicketSources.length,4);
+ assert.equal(officeTicketSources.length,7);
 });
 test("SMN-455 : tableaux et synthèses du moteur commun avec provenance vérifiée",async t=>{
  const directory=await mkdtemp(path.join(tmpdir(),"smn-office-tickets-"));
@@ -56,12 +56,16 @@ test("SMN-455 : tableaux et synthèses du moteur commun avec provenance vérifi�
  try{
   const data=await readOfficeTicketProjection(scope,{
    current:ref(current),previous:ref(previous),
-  },["TICKETS","TICKET_SUMMARY","TICKET_CHANGES","TICKET_COMPARE_SUMMARY"]);
+  },["TICKETS","TICKET_SUMMARY","TICKET_BY_TYPE","TICKET_BY_STATUS","TICKET_BY_PREFIX","TICKET_CHANGES","TICKET_COMPARE_SUMMARY"]);
   assert.equal(data.provenance.current.sha256,current.sha256);
   assert.equal(data.provenance.previous?.snapshotId,previous.snapshotId);
   assert.equal(data.rows.TICKETS?.length,2);
   assert.equal(data.rows.TICKET_SUMMARY?.[0].TICKET_SP_SUM,"6");
   assert.equal(data.rows.TICKET_SUMMARY?.[0].TICKET_COMPLETED,"1");
+  assert.equal(data.rows.TICKET_BY_TYPE?.length,2);
+  assert.equal(data.rows.TICKET_BY_STATUS?.length,2);
+  assert.equal(data.rows.TICKET_BY_PREFIX?.[0].TICKET_GROUP_VALUE,"ABC");
+  assert.equal(data.rows.TICKET_BY_PREFIX?.[0].TICKET_GROUP_COUNT,"2");
   assert.equal(data.rows.TICKET_CHANGES?.length,3);
   assert.equal(data.rows.TICKET_COMPARE_SUMMARY?.[0].TICKET_ADDED,"1");
   assert.equal(data.rows.TICKET_COMPARE_SUMMARY?.[0].TICKET_REMOVED,"1");
