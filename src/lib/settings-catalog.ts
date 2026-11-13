@@ -32,7 +32,8 @@ const catalog:ReadonlyArray<{id:SettingsSection;entries:readonly RecordEntry[]}>
   {id:"capacity",icon:"hourglass-split",resources:["settings"],status:"planned"},
   {id:"indicators",icon:"bar-chart-line",resources:["settings"],href:"/app/admin/settings/indicators",adminOnly:true},
   {id:"registries",icon:"stack",resources:["settings"],href:"/app/admin/settings/registries"},
-  {id:"links",icon:"link-45deg",resources:["settings"],href:"/app/admin/settings/links",status:"partial",adminOnly:true}
+  {id:"links",icon:"link-45deg",resources:["settings"],href:"/app/admin/settings/links",status:"partial",adminOnly:true},
+  {id:"jira",icon:"ticket-perforated-fill",resources:["settings"],href:"/app/admin/settings/jira",adminOnly:true}
  ]},
  {id:"calendar",entries:[
   {id:"workingDays",icon:"calendar3",resources:["settings"],href:"/app/admin/settings/working-days",status:"partial",mode:"scrum"},
