@@ -30,6 +30,12 @@ export async function auditWindowsDistribution(root){
  if(!privateStat||!privateStat.isDirectory()||privateStat.isSymbolicLink()||
   (await readdir(privateDocs)).length!==0)
   throw Error("distribution-private-documents-not-empty");
+ // SMN-456: installer packages and updates must never carry private Tickets.
+ const privateTickets=path.join(root,"data","tickets");
+ const ticketStat=await lstat(privateTickets).catch(()=>null);
+ if(!ticketStat||!ticketStat.isDirectory()||ticketStat.isSymbolicLink()||
+    (await readdir(privateTickets)).length!==0)
+  throw Error("distribution-private-tickets-not-empty");
  const batch=await lstat(path.join(root,ROOT_FILES[0]));
  if(!batch.isFile()||batch.isSymbolicLink())throw Error("distribution-launcher-unsafe");
  const text=await readFile(path.join(root,ROOT_FILES[0]),"utf8");
