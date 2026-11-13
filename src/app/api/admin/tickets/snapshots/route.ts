@@ -59,7 +59,11 @@ export async function GET(req:NextRequest){
   mode:req.nextUrl.searchParams.get("mode"),
  });
  if(!scope)return Response.json({error:"invalid-input"},{status:400});
- try{return Response.json({snapshots:await listTicketSnapshots(scope,options())},{headers:{"Cache-Control":"no-store"}});}
+ try{
+  const context=await scopeExists(scope);
+  if(!context.exists)return Response.json({error:"cycle-not-found"},{status:404});
+  return Response.json({snapshots:await listTicketSnapshots(scope,options()),closed:context.closed},{headers:{"Cache-Control":"no-store"}});
+ }
  catch(e){return responseError(e);}
 }
 export async function POST(req:NextRequest){
