@@ -33,7 +33,7 @@ export default function TicketsFiles(){
  const [target,setTarget]=useState<Snapshot|null>(null);
  const [deleting,setDeleting]=useState(false);
  const [importOpen,setImportOpen]=useState(false);
- const importScope=useRef("");
+ const [importScope,setImportScope]=useState("");
  const dialog=useRef<HTMLDialogElement>(null);
  const previous=useRef("");
  const localeCode=locale==="en"?"en-GB":"fr-FR";
@@ -125,7 +125,7 @@ export default function TicketsFiles(){
      </button>
      {role==="admin"&&<button className="btn btn-light" type="button"
        disabled={!canImport} title={!canImport?t("tickets.noCycle"):t("tickets.importCsv")}
-       onClick={()=>{importScope.current=key;setImportOpen(true);}}>
+       onClick={()=>{setImportScope(key);setImportOpen(true);}}>
       <BootstrapIcon name="plus-lg"/> {t("tickets.importCsv")}
      </button>}
     </div>
@@ -236,7 +236,7 @@ export default function TicketsFiles(){
     <TicketsComparison key={key+"|"+items.map(item=>item.snapshotId).join("|")}
       context={context} snapshots={items} onBack={()=>setActiveTab("files")}/>
    </div>}
-  {importOpen&&importScope.current===key&&teamId&&cycleId&&mode&&<TicketsImportDialog
+  {importOpen&&importScope===key&&teamId&&cycleId&&mode&&<TicketsImportDialog
     key={key} scope={{teamId,cycleId,mode}} cycleName={cycleName??""}
     onClose={()=>setImportOpen(false)}
     onSaved={snapshotId=>{
