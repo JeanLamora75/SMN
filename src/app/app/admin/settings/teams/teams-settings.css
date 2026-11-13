@@ -1,0 +1,44 @@
+/* Teams — full-width list and theme-aware Cockpit Agile editor. */
+.smn-teams-settings{width:100%;min-width:0}
+.smn-teams-settings-filters{display:grid;grid-template-columns:minmax(0,2fr) minmax(180px,1fr);gap:14px;align-items:end}
+.smn-teams-settings-filters label{min-width:0}
+.smn-teams-settings-filters :is(input,select){width:100%;min-width:0}
+.smn-teams-settings-dialog{
+ width:min(92vw,760px);max-width:760px;max-height:90vh;max-height:90dvh;
+ padding:0;border:1px solid var(--smn-border);border-radius:16px;
+ background:var(--smn-surface);color:var(--smn-foreground);
+ box-shadow:0 24px 70px rgba(7,17,34,.35);overflow:auto;
+}
+.smn-teams-settings-dialog::backdrop{background:rgba(7,17,34,.64)}
+.smn-teams-settings-modal{background:var(--smn-surface);color:var(--smn-foreground)}
+.smn-teams-settings-modal-header{
+ position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:16px;
+ padding:20px 24px;color:#fff;background:linear-gradient(115deg,
+ color-mix(in srgb,var(--smn-context-start,var(--smn-brand)) 90%,#231b42),
+ color-mix(in srgb,var(--smn-context-end,var(--smn-brand)) 88%,#231b42));
+}
+.smn-teams-settings-modal-identity{display:flex;align-items:center;gap:14px;min-width:0}
+.smn-teams-settings-modal-icon{
+ display:flex;align-items:center;justify-content:center;flex:none;
+ width:44px;height:44px;border:1px solid rgba(255,255,255,.55);border-radius:11px;
+ background:rgba(255,255,255,.13);font-size:1.25rem;
+}
+.smn-teams-settings-modal-eyebrow{display:block;font-size:.69rem;letter-spacing:.075em;font-weight:750;opacity:.86;margin-bottom:4px}
+.smn-teams-settings-modal-header h2{color:#fff;font-weight:750}
+.smn-teams-settings-modal-header .btn-close{flex:none;background-color:#fff;opacity:1;border-radius:7px}
+.smn-teams-settings-modal-body{padding:22px 24px}
+.smn-teams-settings-modal-body :is(.form-control,.form-select){
+ background:var(--smn-surface);color:var(--smn-foreground);border-color:var(--smn-border);border-radius:8px
+}
+.smn-teams-settings-modal-footer{
+ position:sticky;bottom:0;padding:15px 24px;
+ border-top:1px solid var(--smn-border);background:var(--smn-muted-soft)
+}
+.smn-teams-settings-dialog :is(button,input,select,textarea):focus-visible{
+ outline:3px solid var(--smn-brand);outline-offset:2px
+}
+@media(max-width:720px){
+ .smn-teams-settings-filters{grid-template-columns:minmax(0,1fr)}
+ .smn-teams-settings-dialog{width:calc(100vw - 24px)}
+ .smn-teams-settings-modal-header,.smn-teams-settings-modal-body,.smn-teams-settings-modal-footer{padding:16px}
+}
