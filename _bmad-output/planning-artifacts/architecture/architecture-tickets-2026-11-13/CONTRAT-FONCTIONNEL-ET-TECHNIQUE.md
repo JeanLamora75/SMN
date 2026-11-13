@@ -81,3 +81,11 @@ Les six colonnes du CSV sont **obligatoirement**, dans cet ordre : **Id jira**, 
 **Suppression autorisée depuis la liste des fichiers**, par action de ligne et confirmation explicite dans une modale Cockpit Agile mentionnant la date métier et le fichier. Supprimer la photographie CSV et son JSON de façon cohérente, avec contrôle des permissions serveur et rafraîchissement de la liste. Les règles en cas de sprint clôturé et la politique d'audit/récupération restent à valider avec l'architecture existante.
 
 Ces décisions **remplacent** les mentions antérieures « colonnes à décider », « collisions de date à arbitrer », « suppression à arbitrer » dans ce document. Elles ne valident pas les autres décisions ouvertes (statuts terminés, performance, droits sur cycle clôturé, etc.).
+
+## Avenant fonctionnel — 13/11/2026 : statut, souplesse des colonnes, clôture
+
+1. Une valeur de **Statut** égale à **Done** ou **Terminé** est considérée comme terminée. Lors de la comparaison, un ticket présent dans les deux photographies devient « terminé » s'il passe d'un autre statut à l'une de ces valeurs ; le cas inverse est une réouverture.
+2. Les six champs métier annoncés restent la référence. **Aucune contrainte métier supplémentaire n'est imposée sur les valeurs des colonnes** : ne pas figer la liste des types de tickets, des priorités ou des statuts, ni inventer de limite de Story points. Les calculs utilisent les valeurs interprétables et signalent les données non interprétables sans les assimiler à zéro. La rigidité exacte des noms/ordre des en-têtes précédemment rédigée reste à réconcilier avec la demande de souplesse.
+3. **Suppression interdite pour un sprint clôturé** : aucune action Supprimer dans la liste pour ce sprint ; refus impératif de l'API même en cas d'appel direct. Le motif doit être compréhensible. Cette règle s'applique au CSV et au JSON, et concerne le statut réel du sprint côté serveur, non un statut transmis par le navigateur.
+
+Les dispositions antérieures contradictoires sur les contraintes de colonnes et l'ouverture des droits de suppression sont remplacées par cet avenant.
