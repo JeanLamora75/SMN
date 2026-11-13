@@ -1,0 +1,35 @@
+/* Scrum ceremony templates: Cockpit Agile table and modal, theme aware. */
+.smn-ceremony-templates-table{--bs-table-bg:transparent;--bs-table-color:var(--smn-foreground);--bs-table-border-color:var(--smn-border)}
+.smn-ceremony-templates-table thead{--bs-table-bg:var(--smn-muted-soft)}
+.smn-ceremony-templates-table th,.smn-ceremony-templates-table td{vertical-align:middle;padding:12px}
+.smn-ceremony-template-icon{width:35px;height:35px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--smn-border);border-radius:9px;background:var(--smn-muted-soft)}
+.smn-ceremony-template-dialog{
+ width:min(92vw,840px);max-width:840px;max-height:90vh;max-height:90dvh;
+ padding:0;border:1px solid var(--smn-border);border-radius:16px;overflow:auto;
+ background:var(--smn-surface);color:var(--smn-foreground);
+ box-shadow:0 24px 70px rgba(7,17,34,.38);
+}
+.smn-ceremony-template-dialog::backdrop{background:rgba(7,17,34,.62)}
+.smn-ceremony-template-modal{background:var(--smn-surface);color:var(--smn-foreground)}
+.smn-ceremony-template-header{
+ position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:16px;
+ padding:18px 24px;color:#fff;
+ background:linear-gradient(115deg,
+ color-mix(in srgb,var(--smn-context-start,var(--smn-brand)) 90%,#231b42),
+ color-mix(in srgb,var(--smn-context-end,var(--smn-brand)) 88%,#231b42));
+}
+.smn-ceremony-template-identity{display:flex;align-items:center;gap:14px;min-width:0}
+.smn-ceremony-template-header-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex:none;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.55);border-radius:11px;font-size:1.4rem}
+.smn-ceremony-template-eyebrow{font-size:.69rem;letter-spacing:.08em;font-weight:750;opacity:.86;display:block;margin-bottom:4px}
+.smn-ceremony-template-header h2{font-weight:750;color:#fff}
+.smn-ceremony-template-header .btn-close{background-color:#fff;opacity:1;border-radius:7px;flex:none}
+.smn-ceremony-template-body{padding:24px}
+.smn-ceremony-template-body :is(.form-control,.form-select){background:var(--smn-surface);color:var(--smn-foreground);border:1px solid var(--smn-border);border-radius:8px;min-height:39px}
+.smn-ceremony-template-body .form-label{font-weight:650}
+.smn-ceremony-template-footer{padding:15px 24px;border-top:1px solid var(--smn-border);background:var(--smn-muted-soft);position:sticky;bottom:0}
+.smn-ceremony-template-dialog :is(button,input,select,textarea):focus-visible{outline:3px solid var(--smn-brand);outline-offset:2px}
+@media(max-width:767.98px){
+ .smn-ceremony-template-dialog{width:calc(100vw - 24px)}
+ .smn-ceremony-template-header,.smn-ceremony-template-body,.smn-ceremony-template-footer{padding:16px}
+ .smn-ceremony-templates-table th,.smn-ceremony-templates-table td{padding:9px}
+}
