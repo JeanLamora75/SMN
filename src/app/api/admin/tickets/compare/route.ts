@@ -13,7 +13,7 @@ export const dynamic="force-dynamic";
 const idPattern=/^[a-zA-Z0-9_-]{1,100}$/;
 const datePattern=/^\d{4}-\d{2}-\d{2}$/;
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const allowed=new Set(["teamId","cycleId","mode","firstDate","firstId","secondDate","secondId","page","pageSize"]);
+const allowed=new Set(["teamId","cycleId","mode","firstDate","firstId","secondDate","secondId","kind","search","page","pageSize"]);
 
 function reject(error:string,status:number):Response{
  return Response.json({error},{status,headers:{"Cache-Control":"no-store"}});
@@ -36,6 +36,9 @@ export async function GET(request:NextRequest):Promise<Response>{
  const secondDate=params.get("secondDate")??"";
  const firstId=params.get("firstId")??"",secondId=params.get("secondId")??"";
  const rawPage=params.get("page")??"1",rawSize=params.get("pageSize")??"50";
+ const kind=params.get("kind")??"all",search=(params.get("search")??"").trim().slice(0,120);
+ const kinds=["all","added","removed","completed","reopened","storyPointsChanged","otherChanged"] as const;
+ if(!kinds.some(item=>item===kind))return reject("invalid-input",400);
  if(!idPattern.test(teamId)||!idPattern.test(cycleId)||
   (mode!=="scrum"&&mode!=="kanban")||
   !safeDate(firstDate)||!safeDate(secondDate)||
@@ -75,13 +78,18 @@ export async function GET(request:NextRequest):Promise<Response>{
    {reference:ref(firstDate,firstId),csv:first.csv},
    {reference:ref(secondDate,secondId),csv:second.csv},
   );
-  const pageSize=Number(rawSize),total=compared.changes.length;
+  const normalizedSearch=search.normalize("NFKD").replace(/[\\u0300-\\u036f]/g,"").toLocaleLowerCase();
+  const filtered=compared.changes.filter(item=>
+   (kind==="all"||item.kinds.some(value=>value===kind))&&
+   (!normalizedSearch||[item.jiraId,item.before?.title??"",item.after?.title??""].some(value=>
+    value.normalize("NFKD").replace(/[\\u0300-\\u036f]/g,"").toLocaleLowerCase().includes(normalizedSearch))));
+  const pageSize=Number(rawSize),total=filtered.length;
   const pageCount=Math.max(1,Math.ceil(total/pageSize));
   const page=Math.max(1,Math.min(Number(rawPage),pageCount));
   return Response.json({
    older:compared.older,newer:compared.newer,counts:compared.counts,
    total,page,pageSize,pageCount,
-   changes:compared.changes.slice((page-1)*pageSize,page*pageSize),
+   changes:filtered.slice((page-1)*pageSize,page*pageSize),
   },{headers:{"Cache-Control":"no-store"}});
  }catch(error){
   if(error instanceof TicketComparisonError){
