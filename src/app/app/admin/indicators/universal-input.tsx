@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useRef,useState} from "react";
+import {useEffect,useRef,useState,type ComponentProps} from "react";
 import {useRouter} from "next/navigation";
 import {useLocale,useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../../bootstrap-icon";
@@ -8,7 +8,7 @@ import styles from "./universal-input.module.css";
 type D={id:string;tag:string;name:string;indicator_type:string;formula:string|null};
 type Form={revision:number;definitions:D[];values:{indicator_id:string;value:string|null}[]};
 type Result={indicatorId:string;kind:string;value?:string;reason?:string;sourceTag?:string};
-export default function UniversalIndicatorInput({teamId,cycleType,cycleId,buttonLabel,buttonClassName,buttonIcon}:{teamId:string;cycleType:"scrum"|"kanban";cycleId:string;buttonLabel?:string;buttonClassName?:string;buttonIcon?:string}){
+export default function UniversalIndicatorInput({teamId,cycleType,cycleId,buttonLabel,buttonClassName,buttonIcon}:{teamId:string;cycleType:"scrum"|"kanban";cycleId:string;buttonLabel?:string;buttonClassName?:string;buttonIcon?:ComponentProps<typeof BootstrapIcon>["name"]}){
  const t=useTranslation(),locale=useLocale(),router=useRouter(),dialog=useRef<HTMLDialogElement>(null);
  const [open,setOpen]=useState(false),[form,setForm]=useState<Form|null>(null),[draft,setDraft]=useState<Record<string,string>>({}),[preview,setPreview]=useState<Result[]|null>(null),[systemRevision,setSystemRevision]=useState<number|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(""),[message,setMessage]=useState("");
  useEffect(()=>{if(!open)return;const node=dialog.current;if(node&&!node.open)node.showModal();return()=>{if(node?.open)node.close();};},[open]);
