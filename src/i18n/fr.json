@@ -1933,7 +1933,18 @@
     "save": "Enregistrer",
     "saved": "Modèle enregistré.",
     "error": "Impossible d'enregistrer le modèle.",
-    "capacity": "Les cérémonies ne sont jamais déduites de la capacité Développeur."
+    "capacity": "Les cérémonies ne sont jamais déduites de la capacité Développeur.",
+    "icon": "Icône",
+    "status": "Statut",
+    "actions": "Actions",
+    "edit": "Modifier le modèle",
+    "delete": "Supprimer le modèle",
+    "cancel": "Annuler",
+    "confirmDelete": "Supprimer définitivement le modèle « {name} » ? Les occurrences de Sprint existantes seront conservées et bloqueront la suppression.",
+    "deleted": "Modèle supprimé.",
+    "deleteError": "Impossible de supprimer le modèle.",
+    "hasOccurrences": "Ce modèle est déjà utilisé dans un Sprint. Il ne peut pas être supprimé définitivement. Désactivez-le pour empêcher de futures créations.",
+    "conflict": "Le modèle a changé depuis son affichage. Actualisez la liste."
   },
   "templateOccurrences": {
     "title": "Occurrences des modèles personnalisés",
