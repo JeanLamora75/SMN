@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {useTranslation} from "@/i18n/client";
 import {createPortal} from "react-dom";
+import SettingsFilterPanel from "../settings/settings-filter-panel";
 import {OPEN_ACCOUNT_CREATE} from "./create-account-button";
 import {filterSettingsUsers} from "@/lib/settings-collection-filter";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
@@ -125,9 +126,7 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
   const selectedEdit=selected?(edits[selected.id]??{role:selected.role,isActive:selected.is_active}):null;
   const selectedChanged=!!selected&&!!selectedEdit&&editedAccount(selected,selectedEdit);
   return <div className="d-grid gap-4">
-    <section className="smn-panel p-4">
-      <h2 className="h5">{t("accounts.existing")}</h2>
-      <div className="d-flex flex-wrap gap-3 align-items-end mb-3">
+    <SettingsFilterPanel>      <div className="d-flex flex-wrap gap-3 align-items-end mb-3">
         <label className="form-label mb-0 flex-grow-1" style={{minWidth:190,maxWidth:360}}>{t("settingsCollections.searchUsers")}
           <input type="search" className="form-control mt-1" value={query} onChange={event=>setQuery(event.target.value)} />
         </label>
@@ -143,6 +142,9 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
         </label>
         <button type="button" className="btn btn-outline-secondary" onClick={()=>{setQuery("");setStatusFilter("all");setRoleFilter("all");}} disabled={!query&&statusFilter==="all"&&roleFilter==="all"}>{t("settingsCollections.reset")}</button>
       </div>
+    </SettingsFilterPanel>
+    <section className="smn-panel p-4">
+      <h2 className="h5">{t("accounts.existing")}</h2>
       {status==="ready"&&<p role="status" aria-live="polite" className="small text-secondary">{t("settingsCollections.results",{count:displayed.length,total:accounts.length})}</p>}
       {status==="ready"&&displayed.length===0&&<p role="status" className="small text-secondary">{t("settingsCollections.noMatches")}</p>}
       {status==="loading"&&<p>{t("accounts.loading")}</p>}
