@@ -30,6 +30,19 @@ export const officeRowDefinitions:readonly RowDefinition[]=[
   fields:["ACTION_TITLE","ACTION_STATUS","ACTION_PRIORITY","ACTION_DATE"]},
  {source:"DECISIONS",fr:"Décisions",en:"Decisions",
   fields:["DECISION_TITLE","DECISION_STATUS","DECISION_PRIORITY","DECISION_DATE"]},
+ {source:"TICKETS",fr:"Tickets du CSV sélectionné",en:"Tickets from selected CSV",
+  fields:["TICKET_ID","TICKET_TYPE","TICKET_TITLE","TICKET_PRIORITY","TICKET_STATUS","TICKET_SP",
+   "TICKET_SOURCE_DATE","TICKET_SOURCE_SHA256"]},
+ {source:"TICKET_SUMMARY",fr:"Synthèse du CSV sélectionné",en:"Selected CSV summary",
+  fields:["TICKET_COUNT","TICKET_COMPLETED","TICKET_SP_SUM","TICKET_SP_NUMERIC",
+   "TICKET_SP_MISSING","TICKET_SP_INVALID","TICKET_SOURCE_DATE"]},
+ {source:"TICKET_CHANGES",fr:"Écarts entre deux photographies",en:"Changes between two snapshots",
+  fields:["TICKET_ID","TICKET_CHANGE_TYPES","TICKET_OLD_TITLE","TICKET_NEW_TITLE",
+   "TICKET_OLD_STATUS","TICKET_NEW_STATUS","TICKET_OLD_SP","TICKET_NEW_SP","TICKET_FIELDS_CHANGED"]},
+ {source:"TICKET_COMPARE_SUMMARY",fr:"Synthèse de comparaison",en:"Comparison summary",
+  fields:["TICKET_OLD_COUNT","TICKET_NEW_COUNT","TICKET_ADDED","TICKET_REMOVED",
+   "TICKET_COMPLETED","TICKET_REOPENED","TICKET_SP_CHANGED","TICKET_OTHER_CHANGED",
+   "TICKET_CHANGED_DISTINCT","TICKET_UNCHANGED","TICKET_SOURCE_DATE","TICKET_PREVIOUS_DATE"]},
  {source:"LINKS_TRANSVERSE",fr:"Liens transverses accessibles",en:"Accessible cross-team links",
   fields:["LINK_TITLE","LINK_URL","LINK_LABEL","LINK_DESCRIPTION","LINK_CATEGORY","LINK_SCOPE"]},
  {source:"LINKS_TEAM",fr:"Liens de l'équipe du rapport",en:"Report team links",
@@ -51,6 +64,14 @@ export const officeScalarDefinitions:readonly ScalarDefinition[]=[
  {key:"PRODUCT_VISION",fr:"Vision du produit (contexte de l'équipe)",en:"Product vision (team context)"},
  {key:"LINK_COUNT_TRANSVERSE",fr:"Nombre de liens transverses accessibles",en:"Count of accessible cross-team links"},
  {key:"LINK_COUNT_TEAM",fr:"Nombre de liens de l'équipe du rapport",en:"Count of report team links"},
+ {key:"TICKET_SOURCE_DATE",fr:"Date métier de la photographie principale",en:"Main snapshot business date",
+  noteFr:"Uniquement avec une source Tickets sélectionnée",noteEn:"Only when a Ticket source is selected"},
+ {key:"TICKET_SOURCE_ID",fr:"Identifiant de version CSV",en:"CSV snapshot version ID"},
+ {key:"TICKET_SOURCE_SHA256",fr:"Empreinte SHA-256 du CSV principal",en:"Main CSV SHA-256 hash"},
+ {key:"TICKET_SOURCE_IMPORTED_AT",fr:"Horodatage réel d'import",en:"Actual import timestamp"},
+ {key:"TICKET_PREVIOUS_DATE",fr:"Date métier du CSV antérieur",en:"Earlier CSV business date"},
+ {key:"TICKET_PREVIOUS_ID",fr:"Identifiant du CSV antérieur",en:"Earlier snapshot ID"},
+ {key:"TICKET_PREVIOUS_SHA256",fr:"Empreinte du CSV antérieur",en:"Earlier CSV hash"},
  {key:"INDICATOR_<TAG>",fr:"Valeur d'un indicateur actif de l'équipe",en:"Value of an active team indicator",
   noteFr:"Remplacer <TAG> par le tag réel du catalogue, par exemple INDICATOR_VELOCITY",
   noteEn:"Replace <TAG> with the actual catalog tag, e.g. INDICATOR_VELOCITY"}
@@ -134,6 +155,9 @@ export default function OfficeTags({locale="fr",expanded=false}:{locale?:Locale;
     "Exemple Word et PowerPoint : membres actifs triés d'abord par fonction, puis alphabétiquement par nom pour une même fonction. Fonctionne également dans les zones de texte PowerPoint.":
     "Word and PowerPoint example: active members sorted by professional function, then by name within each function. Also works in PowerPoint text boxes."}</p>
   </div>
+  <p className="small alert alert-info">{fr?
+   "Pour les tableaux TICKETS ou TICKET_SUMMARY, sélectionner une photographie dans Rapports > Modèles. Pour TICKET_CHANGES et TICKET_COMPARE_SUMMARY, sélectionner également une photographie antérieure du même sprint. La date, la version et l'empreinte sont vérifiées. Aucun indicateur v33 n'est écrit. Un nom de rapport déjà utilisé doit être changé.":
+   "For TICKETS or TICKET_SUMMARY rows, select a snapshot under Reports > Templates. For TICKET_CHANGES and TICKET_COMPARE_SUMMARY also choose an earlier snapshot from the same sprint. Business dates, versions and checksums are verified. v33 indicators are never updated. Use a new report filename if one already exists."}</p>
   <div className="table-responsive">
    <table className="table table-sm table-striped align-middle">
     <thead><tr><th scope="col">{fr?"Famille":"Family"}</th>
