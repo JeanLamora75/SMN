@@ -3,6 +3,7 @@ import {useCallback,useEffect,useMemo,useRef,useState,type FormEvent} from "reac
 import {createPortal} from "react-dom";
 import {OPEN_ABSENCE_CATEGORY} from "./absence-category-create-button";
 import {useTranslation} from "@/i18n/client";
+import SettingsFilterPanel from "../settings/settings-filter-panel";
 import {filterSettingsAbsences} from "@/lib/settings-collection-filter";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 
@@ -124,7 +125,8 @@ export default function AbsenceCategoriesAdmin(){
   finally{setBusy(false);}
  }
  const currentUse=categories.find(c=>c.id===draft.id);
- return <section className="smn-panel p-4 d-grid gap-4" aria-labelledby="absence-category-heading">
+ return <section className="d-grid gap-3" aria-labelledby="absence-category-heading">
+  <div className="smn-panel p-4 d-grid gap-3">
   <div>
    <h2 className="h5" id="absence-category-heading">{t("absenceCategories.title")}</h2>
    <p className="small text-secondary mb-0">{t("absenceCategories.description")}</p>
@@ -136,8 +138,9 @@ export default function AbsenceCategoriesAdmin(){
     onClick={()=>{setStatus("loading");void reload().catch(()=>setStatus("error"));}}>
     {t("common.retry")}</button>
   </div>}
+  </div>
   {status==="ready"&&<>
-   <div className="d-flex flex-wrap gap-3 align-items-end mb-1">
+   <SettingsFilterPanel>   <div className="d-flex flex-wrap gap-3 align-items-end">
     <label className="form-label mb-0 flex-grow-1" style={{maxWidth:400,minWidth:180}}>{t("settingsCollections.searchAbsences")}
      <input type="search" className="form-control mt-1" value={query} onChange={event=>setQuery(event.target.value)}/>
     </label>
@@ -150,6 +153,8 @@ export default function AbsenceCategoriesAdmin(){
     </label>
     <button type="button" className="btn btn-outline-secondary" onClick={()=>{setQuery("");setStateFilter("all");}} disabled={!query&&stateFilter==="all"}>{t("settingsCollections.reset")}</button>
    </div>
+   </SettingsFilterPanel>
+   <div className="smn-panel p-4 d-grid gap-3">
    <p role="status" aria-live="polite" className="small text-secondary mb-0">{t("settingsCollections.results",{count:filtered.length,total:categories.length})}</p>
    {filtered.length===0&&<p role="status" className="small text-secondary">{t("settingsCollections.noMatches")}</p>}
    <div className="table-responsive">
@@ -175,6 +180,7 @@ export default function AbsenceCategoriesAdmin(){
       </button></td>
      </tr>)}</tbody>
     </table>
+   </div>
    </div>
    {mounted&&editorOpen&&createPortal(<dialog ref={dialogRef} className="smn-absence-category-dialog"
     aria-labelledby="smn-absence-category-editor-title"
