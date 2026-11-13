@@ -187,3 +187,16 @@ export async function stageTicketTransfer(input:Buffer,destination:string):Promi
   return report;
  }catch(error){throw error;}
 }
+
+/** Paths of live snapshots to check against the restored PostgreSQL team/cycle catalog. */
+export function ticketTransferScopes(bundle:TicketTransfer):
+ Array<{teamId:string;mode:"scrum"|"kanban";cycleId:string}>{
+ const keys=new Map<string,{teamId:string;mode:"scrum"|"kanban";cycleId:string}>();
+ for(const entry of bundle.entries){
+  if(!entry.path.endsWith("/current.json"))continue;
+  const [teamId,mode,cycleId]=entry.path.split("/");
+  if(mode!=="scrum"&&mode!=="kanban")fail("tickets-mode-invalid");
+  keys.set(teamId+"|"+mode+"|"+cycleId,{teamId,mode,cycleId});
+ }
+ return [...keys.values()];
+}
