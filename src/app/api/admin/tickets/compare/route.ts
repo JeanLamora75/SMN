@@ -1,4 +1,5 @@
 import {NextRequest} from "next/server";
+import {readJiraConfig} from "@/server/tickets/jira-config";
 import {authorizeApi} from "@/server/auth/authorization";
 import {withSessionReadDb} from "@/server/auth/database";
 import {
@@ -86,8 +87,9 @@ export async function GET(request:NextRequest):Promise<Response>{
   const pageSize=Number(rawSize),total=filtered.length;
   const pageCount=Math.max(1,Math.ceil(total/pageSize));
   const page=Math.max(1,Math.min(Number(rawPage),pageCount));
+  const jiraBaseUrl=(await readJiraConfig()).baseUrl;
   return Response.json({
-   older:compared.older,newer:compared.newer,counts:compared.counts,
+   jiraBaseUrl,older:compared.older,newer:compared.newer,counts:compared.counts,
    total,page,pageSize,pageCount,
    changes:filtered.slice((page-1)*pageSize,page*pageSize),
   },{headers:{"Cache-Control":"no-store"}});
