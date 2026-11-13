@@ -6,7 +6,7 @@ import {createGzip} from "node:zlib";
 import type {BackupInventoryEntry} from "./verification";
 
 const ID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
-const PART=/^(?:database\.pgcustom\.enc|(?:documents|report-pdfs|office-reports|office-templates)\/[0-9]{5}\.enc)$/;
+const PART=/^(?:database\.pgcustom\.enc|(?:documents|report-pdfs|office-reports|office-templates|tickets)\/[0-9]{5}\.enc)$/;
 const BLOCK=512;
 
 /** Minimal USTAR writer. No plaintext or local backup key enters the transport. */
