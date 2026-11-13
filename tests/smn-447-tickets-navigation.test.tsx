@@ -1,6 +1,5 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {createElement} from "react";
 import {renderToStaticMarkup} from "react-dom/server";
 import {LocaleProvider} from "../src/i18n/client";
 import {TicketsCycleProvider,type TicketsCycleContext} from "../src/app/app/tickets-cycle-context";
@@ -13,8 +12,7 @@ const base:TicketsCycleContext={
  cycleName:"Sprint 11",cycleStatus:"active",state:"loading",
 };
 function render(context:TicketsCycleContext=base,locale:"fr"|"en"="fr"){
- return renderToStaticMarkup(createElement(LocaleProvider,{locale},
-  createElement(TicketsCycleProvider,{value:context},createElement(TicketsFiles))));
+ return renderToStaticMarkup(<LocaleProvider locale={locale}><TicketsCycleProvider value={context}><TicketsFiles/></TicketsCycleProvider></LocaleProvider>);
 }
 
 test("La navigation Tickets est accessible en Scrum et Kanban, au rôle admin et user",()=>{
@@ -57,7 +55,7 @@ test("Les onglets et actions des Stories futures ne prétendent pas être foncti
 test("Le mode lecture et le sprint clôturé sont explicités",()=>{
  const html=render({...base,cycleStatus:"closed",role:"user",state:"ready"}, "fr");
  assert.match(html,/Sprint clôturé/);
- assert.match(html,/Aucun CSV importé/);
+ assert.match(html,/Chargement des fichiers/);
  const english=render({...base,role:"user"}, "en");
  assert.match(english,/CSV snapshots/);
  assert.match(english,/Loading files/);
