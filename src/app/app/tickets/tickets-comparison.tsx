@@ -5,7 +5,7 @@ import BootstrapIcon from "../bootstrap-icon";
 import {jiraTicketUrl} from "@/lib/tickets/jira-links";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {TranslationKey} from "@/i18n/catalog";
-import type {TicketCycleContext} from "../tickets-cycle-context";
+import type {TicketsCycleContext} from "../tickets-cycle-context";
 import type {
  TicketChange,TicketChangeField,TicketChangeKind,TicketComparisonCounts,
 } from "@/lib/ticket-csv-compare";
@@ -19,7 +19,7 @@ type Result={
  jiraBaseUrl:string|null;
 };
 type Props={
- context:TicketCycleContext;
+ context:TicketsCycleContext;
  snapshots:readonly Snapshot[];
  onBack:()=>void;
 };
@@ -122,7 +122,7 @@ export default function TicketsComparison({context,snapshots,onBack}:Props){
  return <div className="smn-tickets-compare" aria-label={t("tickets.compareTitle")}>
   <section className="smn-tickets-panel" aria-labelledby="smn-tickets-compare-choice-title">
    <div className="smn-tickets-panel-heading">
-    <h2 id="smn-tickets-compare-choice-title"><BootstrapIcon name="files"/> {t("tickets.compareChoose")}</h2>
+    <h2 id="smn-tickets-compare-choice-title"><BootstrapIcon name="list-ul"/> {t("tickets.compareChoose")}</h2>
     <button className="btn btn-outline-secondary btn-sm" type="button" onClick={onBack}>
      <BootstrapIcon name="arrow-left"/> {t("tickets.compareBack")}
     </button>
@@ -199,7 +199,7 @@ export default function TicketsComparison({context,snapshots,onBack}:Props){
       </select>
      </label>
      <div><button className="btn btn-outline-secondary" type="button" onClick={resetFilters}>
-      <BootstrapIcon name="arrow-counterclockwise"/> {t("tickets.compareClear")}</button></div>
+      <BootstrapIcon name="funnel"/> {t("tickets.compareClear")}</button></div>
     </div>
    </section>
    <section className="smn-tickets-panel smn-tickets-compare-results" aria-labelledby="smn-tickets-compare-results-title">
