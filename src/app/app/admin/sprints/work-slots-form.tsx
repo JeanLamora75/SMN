@@ -33,7 +33,7 @@ export default function WorkSlotsForm({teams=[]}:{teams?:readonly {id:string;nam
   }catch{setMessage(t("epic4WorkSlots.networkError"));}
   finally{setBusy(false);}
  }
- useEffect(()=>{if(teams.length===1){setTeamId(teams[0].id);void Promise.resolve().then(()=>load(teams[0].id));}},[]);
+ useEffect(()=>{if(teams.length===1){const id=teams[0].id;queueMicrotask(()=>{setTeamId(id);void load(id);});}},[]);
  async function repairSchema(){
   if(busy||!missingSchema||!window.confirm(t("epic4WorkSlots.repairConfirm")))return;
   setBusy(true);setMessage("");
