@@ -2146,7 +2146,18 @@
     "zone": "Fuseau IANA",
     "save": "Enregistrer les plages",
     "saved": "Plages enregistrées",
-    "error": "Configuration indisponible ou conflictuelle"
+    "error": "Configuration indisponible ou conflictuelle",
+    "team": "Équipe",
+    "selectTeam": "Sélectionner une équipe",
+    "selectTeamRequired": "Sélectionnez une équipe Scrum pour charger les horaires.",
+    "teamUnavailable": "Le contexte de l'équipe est indisponible. Vérifiez la sélection de l'équipe.",
+    "forbidden": "Accès refusé aux horaires de cette équipe.",
+    "loadError": "Impossible de charger les horaires de l'équipe (HTTP {status}). Consultez les journaux du serveur SMN.",
+    "networkError": "Impossible de joindre le serveur SMN pour charger les horaires.",
+    "reload": "Recharger les horaires",
+    "conflict": "La configuration a changé. Rechargez les horaires avant d'enregistrer.",
+    "invalid": "Horaires ou fuseau horaire invalides. Vérifiez les quatre heures et le fuseau IANA.",
+    "saveError": "Enregistrement indisponible (HTTP {status}). Consultez les journaux du serveur SMN."
   },
   "teamCockpit": {
     "title": "Équipe",
