@@ -78,11 +78,11 @@ export async function GET(request:NextRequest):Promise<Response>{
    {reference:ref(firstDate,firstId),csv:first.csv},
    {reference:ref(secondDate,secondId),csv:second.csv},
   );
-  const normalizedSearch=search.normalize("NFKD").replace(/[\\u0300-\\u036f]/g,"").toLocaleLowerCase();
+  const normalizedSearch=search.normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase();
   const filtered=compared.changes.filter(item=>
    (kind==="all"||item.kinds.some(value=>value===kind))&&
    (!normalizedSearch||[item.jiraId,item.before?.title??"",item.after?.title??""].some(value=>
-    value.normalize("NFKD").replace(/[\\u0300-\\u036f]/g,"").toLocaleLowerCase().includes(normalizedSearch))));
+    value.normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().includes(normalizedSearch))));
   const pageSize=Number(rawSize),total=filtered.length;
   const pageCount=Math.max(1,Math.ceil(total/pageSize));
   const page=Math.max(1,Math.min(Number(rawPage),pageCount));
