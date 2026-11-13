@@ -20,6 +20,7 @@ import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/
 import {readOfficeMemberGroups,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
 import {discoverOfficeBusinessSources,readOfficeBusinessRows} from "@/server/reports/office-business-rows";
 import {readOfficeLinkRows} from "@/server/reports/office-link-rows";
+import {discoverOfficeTicketSources,validateOfficeTicketRequest,readOfficeTicketProjection,OfficeTicketSourceError,type OfficeTicketProjection,type OfficeTicketSource} from "@/server/reports/office-ticket-rows";
 import {activateOfficeLinkLabels} from "../../../../../../../scripts/smn-423-office-link-hyperlinks.mjs";
 import {readOfficeContextScalars} from "@/server/reports/office-context-scalars";
 import {inspectOfficeReport,saveOfficeReport,OfficeSaveConflict,OfficeSaveFailure} from "@/server/reports/office-storage";
@@ -69,12 +70,17 @@ export async function POST(req:NextRequest){
  let selected:Awaited<ReturnType<typeof readOfficeTemplateById>>;
  let chartCount=0;
  let businessSources:ReturnType<typeof discoverOfficeBusinessSources>=[];
+ let ticketSources:OfficeTicketSource[]=[];
  try{
   selected=await readOfficeTemplateById(modelId);
   if(!selected)return jsonResult({error:"template-unavailable"},404);
   chartCount=discoverOfficeChartTags(selected.bytes,selected.template.format).length;
   businessSources=discoverOfficeBusinessSources(selected.bytes);
+  ticketSources=discoverOfficeTicketSources(selected.bytes);
  }catch{return jsonResult({error:"office-chart-invalid-tag"},422);}
+ const ticketRequest=input.ticketSnapshots===undefined?null:validateOfficeTicketRequest(input.ticketSnapshots);
+ if(ticketSources.length>0&&!ticketRequest)return jsonResult({error:"office-ticket-source-required"},422);
+ if(input.ticketSnapshots!==undefined&&!ticketRequest)return jsonResult({error:"office-ticket-invalid-selection"},400);
  let styleSnapshot:Awaited<ReturnType<typeof loadOfficeStyleSnapshot>>|null=null;
  let payload:{values:ReturnType<typeof buildScalarValues>;
   rows:Record<string,Record<string,string|null>[]>;report:ReportData|null;
@@ -124,6 +130,24 @@ export async function POST(req:NextRequest){
    return jsonResult({error:"technical-limit"},422);
   return jsonResult({error:"forbidden"},403);
  }
+ let ticketProjection:OfficeTicketProjection|null=null;
+ if(ticketSources.length&&ticketRequest){
+  try{
+   ticketProjection=await readOfficeTicketProjection({teamId:teamId as string,cycleId:cycleId as string,mode:"scrum"},ticketRequest,ticketSources);
+  }catch(error){
+   const code=error instanceof OfficeTicketSourceError?error.code:"office-ticket-unavailable";
+   return jsonResult({error:code},code==="stale-snapshot"?409:code==="snapshot-missing"?404:422);
+  }
+  // Enforce provenance as part of the rendered data rather than a separate mutable label.
+  const a=ticketProjection.provenance.current,b=ticketProjection.provenance.previous;
+  const provenance={TICKET_SOURCE_DATE:a.businessDate,TICKET_SOURCE_ID:a.snapshotId,
+   TICKET_SOURCE_SHA256:a.sha256,TICKET_SOURCE_IMPORTED_AT:a.importedAt,
+   TICKET_PREVIOUS_DATE:b?.businessDate??null,TICKET_PREVIOUS_ID:b?.snapshotId??null,
+   TICKET_PREVIOUS_SHA256:b?.sha256??null};
+  for(const rows of Object.values(ticketProjection.rows))for(const row of rows??[])Object.assign(row,provenance);
+  Object.assign(payload.values,provenance);
+  Object.assign(payload.rows,ticketProjection.rows);
+ }
  try{
   // Validate the selected style on both "check" and generation, before offering
   // overwrite confirmation. No style is persisted to templates or global settings.
@@ -169,6 +193,8 @@ export async function POST(req:NextRequest){
   if(!isSupportedOfficePackage(withCharts,selected.template.format))
    return jsonResult({error:"generation-failed"},422);
   if(action==="save"){
+   if(ticketProjection&&input.expectedFingerprint!=="absent")
+    return jsonResult({error:"save-conflict"},409);
    try{
     const saved=await saveOfficeReport(withCharts,filename,selected.template.format,input.expectedFingerprint as string);
     return jsonResult({saved:true,filename:saved.filename,directory:saved.directory});
