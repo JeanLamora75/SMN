@@ -6,6 +6,7 @@ export type TicketsCycleContext=Readonly<{
  teamId:string|null;
  mode:PrivateMode|null;
  role:PrivateRole;
+ canManageIndicators?:boolean;
  cycleId:string;
  cycleName:string|null;
  cycleStatus:string|null;
