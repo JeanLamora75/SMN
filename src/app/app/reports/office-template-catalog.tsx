@@ -56,9 +56,11 @@ export default function OfficeTemplateCatalog({
  const styleOverride=()=>reportStyleId?{reportStyleId}:{};
  useEffect(()=>{
   const controller=new AbortController();
-  setTicketSelected("");setTicketPrevious("");setTicketSnapshots([]);setTicketsLoadError(false);
+  queueMicrotask(()=>{if(!controller.signal.aborted){
+   setTicketSelected("");setTicketPrevious("");setTicketSnapshots([]);
+   setTicketsLoadError(false);setTicketsLoading(!!(teamId&&cycle));
+  }});
   if(!teamId||!cycle)return ()=>controller.abort();
-  setTicketsLoading(true);
   void fetch("/api/admin/tickets/snapshots?"+new URLSearchParams({teamId,cycleId:cycle,mode:"scrum"}),{
    cache:"no-store",signal:controller.signal,
   }).then(async response=>{
