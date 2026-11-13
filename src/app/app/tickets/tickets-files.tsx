@@ -111,7 +111,9 @@ export default function TicketsFiles(){
       <UniversalIndicatorInput key={teamId+"|"+mode+"|"+cycleId}
        teamId={teamId} cycleType={mode} cycleId={cycleId}
        buttonClassName="btn btn-light" buttonIcon="sliders"
-       buttonLabel={t("tickets.indicators")}/>
+       buttonLabel={t("tickets.indicators")}
+       contextLabel={t("tickets.indicatorsCurrentCycle",{cycle:cycleName??cycleId})}
+       manualOnlyNotice={t("tickets.indicatorsManualOnly")}/>
       :<button className="btn btn-light" type="button" disabled
         title={t("tickets.indicatorsUnavailable")}>
        <BootstrapIcon name="sliders"/> {t("tickets.indicators")}
