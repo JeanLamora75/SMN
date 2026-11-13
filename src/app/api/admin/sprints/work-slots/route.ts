@@ -8,7 +8,17 @@ const target={type:"settings",exists:true,inScope:true} as const;
 export async function GET(req:NextRequest){
  const actor=await authorizeApi(req,"read",target);
  if(!actor)return jsonResult({error:"forbidden"},403);
- try{return jsonResult(await withAuthDb(db=>getTeamSlots(db,{accountId:actor.id,role:actor.role},req.nextUrl.searchParams.get("teamId"))));}catch(error){console.error("smn-work-slots-read-unavailable",error instanceof Error?error.message:"unknown");return jsonResult({error:"unavailable"},503);}
+ try{return jsonResult(await withAuthDb(db=>getTeamSlots(db,{accountId:actor.id,role:actor.role},req.nextUrl.searchParams.get("teamId"))));}catch(error){
+  const reason=error instanceof Error?error.message:"unknown";
+  console.error("smn-work-slots-read-unavailable",reason);
+  if(reason==="team-context-unavailable"||reason==="scrum-team-unavailable")
+   return jsonResult({error:reason},409);
+  if(reason==="team-access-forbidden"||reason==="team-context-not-ready")
+   return jsonResult({error:reason},403);
+  if((error as {code?:string})?.code==="42P01")
+   return jsonResult({error:"work-slots-schema-unavailable"},503);
+  return jsonResult({error:"unavailable"},503);
+ }
 }
 export async function PUT(req:NextRequest){
  const actor=await authorizeApi(req,"write",target);if(!actor)return jsonResult({error:"forbidden"},403);
