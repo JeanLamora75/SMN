@@ -25,7 +25,7 @@ export default function TicketsFiles(){
  const [state,setState]=useState<UiState>("loading");
  const [closed,setClosed]=useState(false);
  const [version,setVersion]=useState(0);
- const [feedback,setFeedback]=useState<"error"|"deleted"|null>(null);
+ const [feedback,setFeedback]=useState<"error"|"deleted"|"imported"|null>(null);
  const [target,setTarget]=useState<Snapshot|null>(null);
  const [deleting,setDeleting]=useState(false);
  const [importOpen,setImportOpen]=useState(false);
@@ -137,7 +137,7 @@ export default function TicketsFiles(){
     {isClosed&&<span className="smn-tickets-status">{t("tickets.closed")}</span>}
    </section>
    {feedback&&<p role="status" className={"alert "+(feedback==="error"?"alert-danger":"alert-success")}>
-    {t(feedback==="error"?"tickets.deleteError":"tickets.deleted")}
+    {t(feedback==="error"?"tickets.deleteError":feedback==="imported"?"tickets.importSuccess":"tickets.deleted")}
    </p>}
    <div className="smn-tickets-layout">
     <section className="smn-tickets-panel smn-tickets-files" aria-labelledby="smn-tickets-list-heading">
@@ -207,7 +207,7 @@ export default function TicketsFiles(){
     onSaved={snapshotId=>{
       setImportOpen(false);
       setSelectedId(snapshotId);
-      setFeedback(null);
+      setFeedback("imported");
       setVersion(value=>value+1);
     }}
   />}
