@@ -4,6 +4,7 @@ import {canAccess} from "@/server/access-policy";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import TeamsSettings from "./teams-settings";
+import TeamCreateButton from "./team-create-button";
 import SettingsPageShell from "../settings-page-shell";
 
 export const dynamic="force-dynamic";
@@ -18,7 +19,8 @@ export default async function TeamsSettingsPage(){
  const locale=await requestLocale();
  return <SettingsPageShell title={translate(locale,"teamSettings.title")}
   description={translate(locale,"teamSettings.intro")}
-  eyebrow={translate(locale,"settingsCatalog.navigation.adminEyebrow")}>
+  eyebrow={translate(locale,"settingsCatalog.navigation.adminEyebrow")}
+  action={<TeamCreateButton/>}>
   <TeamsSettings/>
  </SettingsPageShell>;
 }
