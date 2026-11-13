@@ -41,7 +41,8 @@ export async function rollbackVerifiedNewComputerCutover(
   join(process.cwd(),"data","documents"),
   join(process.cwd(),".smn-private","report-archives"),
   join(process.cwd(),"data","office","reports"),
-  join(process.cwd(),"data","office","templates")
+  join(process.cwd(),"data","office","templates"),
+  join(process.cwd(),"data","tickets")
  ];
  let admin:Client|null=null;
  let locked=false;
