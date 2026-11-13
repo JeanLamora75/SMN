@@ -124,6 +124,16 @@ export default function OfficeTemplateCatalog({
   if(result?.error==="schema-not-ready"){
    setError(tr("officeReportStyleUnavailable"));return;
   }
+  if(result?.error==="office-ticket-source-required"||result?.error==="office-ticket-invalid-selection"){
+   setError(tr("officeTicketSourceRequired"));return;
+  }
+  if(result?.error==="previous-required"){
+   setError(tr("officeTicketPreviousRequired"));return;
+  }
+  if(result?.error==="snapshot-missing"||result?.error==="stale-snapshot"||
+     result?.error==="snapshot-invalid"){
+   setError(tr("officeTicketSnapshotMissing"));return;
+  }
   if(result?.error==="forbidden"){
    setError(tr("officeReportStyleForbidden"));return;
   }
