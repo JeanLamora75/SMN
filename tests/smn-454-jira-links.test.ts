@@ -62,7 +62,7 @@ test("SMN-454 : liens sécurisés dans Consultation et Comparaison",()=>{
 test("SMN-454 : entrée Paramètres et chaînes FR EN",()=>{
  assert.match(read("src/lib/settings-catalog.ts"),/id:"jira"/);
  for(const lang of ["fr","en"] as const){
-  const json=JSON.parse(read(`src/i18n/${lang}.json`)) as Record<string,any>;
+  const json=JSON.parse(read(`src/i18n/${lang}.json`)) as {settingsCatalog:{items:{jira:{title:string}};keywords:{jira:string}};tickets:{jiraSettingsTitle:string;jiraTicketOpen:string}};
   assert.ok(json.settingsCatalog.items.jira.title);
   assert.ok(json.settingsCatalog.keywords.jira);
   assert.ok(json.tickets.jiraSettingsTitle);
