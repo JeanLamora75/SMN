@@ -3,8 +3,8 @@ import {useEffect,useRef,useState,type KeyboardEvent as ReactKeyboardEvent,type 
 import {createPortal} from "react-dom";
 
 /** SMN-298 : piège de focus, Échap, retour au déclencheur, verrouillage du scroll. */
-export default function LinkDialog({titleId,children,onClose,locked=false,large=false}:{
- titleId:string;children:ReactNode;onClose:()=>void;locked?:boolean;large?:boolean;
+export default function LinkDialog({titleId,children,onClose,locked=false,large=false,cockpit=false}:{
+ titleId:string;children:ReactNode;onClose:()=>void;locked?:boolean;large?:boolean;cockpit?:boolean;
 }){
  const ref=useRef<HTMLDivElement>(null);
  const [mounted,setMounted]=useState(false);
@@ -34,7 +34,7 @@ export default function LinkDialog({titleId,children,onClose,locked=false,large=
   }
  };
  if(!mounted)return null;
- return createPortal(<div ref={ref} tabIndex={-1} className="modal d-block" role="dialog"
+ return createPortal(<div ref={ref} tabIndex={-1} className={"modal d-block"+(cockpit?" smn-links-cockpit-dialog":"")} role="dialog"
   aria-modal="true" aria-labelledby={titleId} onKeyDown={keydown}
   style={{backgroundColor:"rgba(0,0,0,.55)"}}>
   <div className={"modal-dialog modal-dialog-centered modal-dialog-scrollable"+(large?" modal-lg":"")}>
