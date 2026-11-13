@@ -4284,7 +4284,9 @@
       "cycle": "Cycle",
       "status": "Statut",
       "configureHint": "Les valeurs enregistrées ne sont affichées que si l’indicateur est actif pour cette équipe et visible sur cet écran.",
-      "configureAction": "Configurer les indicateurs"
+      "configureAction": "Configurer les indicateurs",
+      "columnsHint": "{count} indicateur(s) affiché(s) pour cette équipe. Faites défiler le tableau horizontalement si nécessaire.",
+      "tableScroll": "Tableau des indicateurs par cycle, défilement horizontal"
     },
     "input": {
       "kanbanTitle": "Saisie des indicateurs Kanban",
@@ -4380,7 +4382,17 @@
       "default": "Style par défaut du type",
       "maxSlices": "Les secteurs et anneaux acceptent au maximum six sprints : réduisez la période.",
       "maxCycles": "Le moteur graphique prend en charge jusqu'à 24 sprints : réduisez la période."
-    }
+    },
+    "recalculationDone": "Recalcul terminé : {results} résultat(s) sur {cycles} cycle(s).",
+    "recalculating": "Recalcul en cours…",
+    "recalculate": "Recalculer les indicateurs",
+    "manageColumns": "Gérer les colonnes",
+    "recalculationHint": "Les indicateurs calculés sont enregistrés par cycle. Recalculez après la création d'une formule historique si les anciens résultats sont absents.",
+    "definitionEyebrow": "Cockpit Agile · Administration des indicateurs",
+    "definitionSubtitle": "Définissez les propriétés de cet indicateur dans le catalogue global.",
+    "expressionGuide": "Consulter le guide des expressions",
+    "saveHint": "Les changements seront enregistrés après validation.",
+    "saving": "Enregistrement…"
   },
   "chartStyles": {
     "title": "Styles graphiques",
