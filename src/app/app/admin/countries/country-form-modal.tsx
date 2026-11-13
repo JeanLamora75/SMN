@@ -21,7 +21,7 @@ export default function CountryFormModal({mode,country,onClose,onSaved}:Props){
  const [error,setError]=useState("");
  const dialog=useRef<HTMLDialogElement>(null);
  const [mounted,setMounted]=useState(false);
- useEffect(()=>setMounted(true),[]);
+ useEffect(()=>{queueMicrotask(()=>setMounted(true));},[]);
  const firstField=useRef<HTMLInputElement>(null);
  useEffect(()=>{
   const element=dialog.current;
