@@ -1,6 +1,7 @@
 "use client";
 import {useCallback,useEffect,useMemo,useState,type FormEvent} from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {useLocale,useTranslation} from "@/i18n/client";
 import {CHART_TYPES,type ChartType} from "@/server/reports/chart-style-contract";
 import {filterGalleryStyles,usedAsDefault,canDeleteGalleryStyle,
@@ -55,7 +56,7 @@ export function StylePreview({style}:{style:Style}){
  },[style.id,style.revision,style.config,locale]);
  return <div className="smn-chart-gallery-render" role="group"
   aria-label={t("chartStyles.gallery.previewLabel")}>
-  {image?<img className="smn-chart-preview" src={image} alt={
+  {image?<Image unoptimized className="smn-chart-preview" src={image} alt={
    t("chartStyles.gallery.previewAlt").replace("{name}",style.name)
   } width={960} height={560}/>:<div className="smn-chart-preview-placeholder" role="status">
    {t(status==="error"?"chartStyles.gallery.previewError":"chartStyles.gallery.previewLoading")}
