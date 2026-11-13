@@ -105,7 +105,11 @@ export default function SettingsForm() {
         <p className="small text-secondary">{t("settings.fixedInfo")}</p>
         <div className="row g-3">
           <div className="col-md-6"><label className="form-label" htmlFor="fixed-mode">{t("settings.mode")}</label>
-            <input className="form-control" id="fixed-mode" value={saved.mode==="scrum"?"Scrum":"Kanban"} readOnly/></div>
+            <select className="form-select" id="fixed-mode" value={saved.mode} disabled aria-describedby="settings-fixed-mode-info">
+              <option value="scrum">Scrum</option>
+              <option value="kanban">Kanban</option>
+            </select>
+            <p id="settings-fixed-mode-info" className="small text-secondary mt-1">{t("settings.fixedInfo")}</p></div>
           <div className="col-md-6"><label className="form-label" htmlFor="fixed-product">{t("settings.product")}</label>
             <input className="form-control" id="fixed-product" value={saved.product} readOnly/></div>
         </div>
