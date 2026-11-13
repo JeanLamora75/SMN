@@ -46,7 +46,11 @@ export function discoverOfficeTicketSources(bytes:Buffer):OfficeTicketSource[]{
   const normalized=part.data.toString("utf8")
    .replace(/<\/(?:w:t|a:t)>[\s\S]*?<(?:w:t|a:t)(?:\s[^>]*)?>/g,"");
   for(const source of officeTicketSources)
-   if(normalized.includes("{{ROW:"+source+"}}"))sources.add(source);
+   if(normalized.includes("{{ROW:"+source+"}}")||
+     normalized.includes("{{ROW:"+source+"|"))sources.add(source);
+  if(/\\{\\{TICKET_PREVIOUS_(?:DATE|ID|SHA256)\\}\\}/.test(normalized))sources.add("TICKET_COMPARE_SUMMARY");
+  else if(/\\{\\{TICKET_SOURCE_(?:DATE|ID|SHA256|IMPORTED_AT)\\}\\}/.test(normalized))
+   sources.add("TICKET_SUMMARY");
  }
  return [...sources];
 }
