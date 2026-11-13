@@ -1,4 +1,5 @@
 import {isCompletedTicketStatus,validateTicketCsv,type TicketCsvRow} from "./ticket-csv-contract";
+import {summarizeTicketRows,type TicketSummaryScopes} from "./ticket-csv-summary";
 
 export type TicketBrowseSort="jiraId"|"issueType"|"title"|"priority"|"status"|"storyPoints";
 export type TicketBrowseDirection="asc"|"desc";
@@ -13,6 +14,7 @@ export type TicketBrowseRow=Pick<TicketCsvRow,"line"|"jiraId"|"issueType"|"title
 export type TicketBrowseResult={
  rows:TicketBrowseRow[];total:number;page:number;pageSize:number;pageCount:number;
  sourceCount:number;
+ summary:TicketSummaryScopes;
  facets:{issueTypes:string[];statuses:string[];priorities:string[];prefixes:string[]};
 };
 
@@ -50,6 +52,8 @@ export function browseTicketCsv(csv:string,filters:TicketBrowseFilters={}):Ticke
   return [row.jiraId,row.issueType,row.title,row.priority,row.status,row.storyPoints]
    .some(value=>normalize(value).includes(search));
  });
+ // Both scopes are calculated before pagination: never summarize only the visible page.
+ const summary:TicketSummaryScopes={all:summarizeTicketRows(all),filtered:summarizeTicketRows(filtered)};
  const sort=filters.sort??"jiraId",direction=filters.direction==="desc"?-1:1;
  filtered.sort((a,b)=>{
   if(sort==="storyPoints"){
@@ -67,7 +71,7 @@ export function browseTicketCsv(csv:string,filters:TicketBrowseFilters={}):Ticke
  const page=Math.max(1,Math.min(pageCount,requested));
  return {
   rows:filtered.slice((page-1)*pageSize,page*pageSize),
-  total:filtered.length,page,pageSize,pageCount,sourceCount:all.length,
+  total:filtered.length,page,pageSize,pageCount,sourceCount:all.length,summary,
   facets:{
    issueTypes:unique(all.map(r=>r.issueType).filter(Boolean)),
    statuses:unique(all.map(r=>r.status).filter(Boolean)),
