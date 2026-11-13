@@ -162,13 +162,14 @@ export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs
  const root=process.cwd();
  const actual=[
   installedPrivateDocumentsDirectory(),pdfArchiveDirectory(),
-  officeReportsDirectory(),officeTemplatesDirectory()
+  officeReportsDirectory(),officeTemplatesDirectory(),ticketStorageDirectory()
  ];
  const defaults=[
   join(root,"data","documents"),
   join(root,".smn-private","report-archives"),
   join(root,"data","office","reports"),
-  join(root,"data","office","templates")
+  join(root,"data","office","templates"),
+  join(root,"data","tickets")
  ];
  if(actual.some((dir,i)=>!same(dir,defaults[i]))||
   !same(join(managed,"data"),join(root,"data","postgres","data")))
