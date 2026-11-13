@@ -52,3 +52,10 @@
 @media(max-width:880px){.inputGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.dialog{width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}.shell{max-height:calc(100dvh - 18px)}.header{padding:15px}.body{padding:17px 14px}.inputGrid{grid-template-columns:minmax(0,1fr);gap:10px}.inputCard{min-height:108px}.computedRow{grid-template-columns:minmax(0,1fr);gap:5px}.footer{padding:12px 14px}.footer :global(.btn){flex:1;padding:7px 8px}}
 @media(prefers-reduced-motion:reduce){.inputCard,.chevron{transition:none}}
+
+/* Shared v33 input: contextual note when opened from Tickets. */
+.contextNotice{border:1px solid var(--smn-border,#d8e3ef);border-radius:10px;
+ padding:12px 15px;margin-bottom:16px;background:var(--smn-muted-soft,#f4f7fb);
+ color:var(--smn-foreground,#172b4d);font-size:.85rem}
+.contextNotice strong{display:block;color:var(--smn-heading,#15375e);margin-bottom:5px}
+.contextNotice p{margin:0}
