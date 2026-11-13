@@ -31,7 +31,8 @@ test("team editing uses Cockpit Agile modal, protects changes and restores focus
  }
 });
 test("filter controls share a responsive row and modal follows the active palette",()=>{
- assert.match(editor,/className="smn-teams-settings-filters mb-3"/);
+ assert.match(editor,/className="smn-teams-settings-filters"/);
+ assert.match(editor,/<SettingsFilterPanel>/);
  assert.match(styles,/grid-template-columns:minmax\(0,2fr\) minmax\(180px,1fr\)/);
  assert.match(styles,/@media\(max-width:720px\)/);
  assert.match(styles,/--smn-context-start/);
