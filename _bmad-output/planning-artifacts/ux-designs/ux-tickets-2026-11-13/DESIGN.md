@@ -4,7 +4,7 @@ status: "partial-validation"
 updated: "2026-11-13"
 description: "Contrat visuel BMAD pour tous les écrans et modales du module Tickets"
 sources:
-  - "../../../architecture/architecture-tickets-2026-11-13/ARCHITECTURE-SPINE.md"
+  - "../../architecture/architecture-tickets-2026-11-13/ARCHITECTURE-SPINE.md"
   - "../../../../docs/UX-REFERENTIEL-BMAD.md"
 colors:
   primary: "inherit:--smn-brand / palette SMN active"
