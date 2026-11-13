@@ -1,5 +1,7 @@
 "use client";
-import {useCallback,useEffect,useMemo,useState,type FormEvent} from "react";
+import {useCallback,useEffect,useMemo,useRef,useState,type FormEvent} from "react";
+import {createPortal} from "react-dom";
+import {OPEN_TEAM_EDITOR} from "./team-create-button";
 import {useTranslation} from "@/i18n/client";
 import {filterSettingsTeams} from "@/lib/settings-collection-filter";
 
@@ -23,6 +25,10 @@ export default function TeamsSettings(){
  const t=useTranslation();
  const [items,setItems]=useState<Team[]>([]);
  const [selected,setSelected]=useState<string|null>(null);
+ const [modalOpen,setModalOpen]=useState(false);
+ const [mounted,setMounted]=useState(false);
+ const dialogRef=useRef<HTMLDialogElement>(null);
+ const openerRef=useRef<HTMLElement|null>(null);
  const [values,setValues]=useState<Values>(blank);
  const [canWrite,setCanWrite]=useState(false);
  const [loading,setLoading]=useState(true);
@@ -33,7 +39,7 @@ export default function TeamsSettings(){
  const [stateFilter,setStateFilter]=useState<"all"|"active"|"archived">("all");
  const current=items.find(team=>team.id===selected)??null;
  const initial=current?valuesFrom(current):blank;
- const dirty=!same(initial,values);
+ const dirty=modalOpen&&!same(initial,values);
  const hasName=values.name.trim().length>0;
  const shown=useMemo(()=>filterSettingsTeams(items,query,stateFilter),[items,query,stateFilter]);
  const requestList=useCallback(async()=>{
@@ -52,6 +58,20 @@ export default function TeamsSettings(){
   }finally{setLoading(false);}
  },[t]);
  useEffect(()=>{void Promise.resolve().then(()=>requestList());},[requestList]);
+ useEffect(()=>{setMounted(true);},[]);
+ useEffect(()=>{
+  const openNew=()=>changeTeam(null);
+  window.addEventListener(OPEN_TEAM_EDITOR,openNew);
+  return()=>window.removeEventListener(OPEN_TEAM_EDITOR,openNew);
+ });
+ useEffect(()=>{
+  if(!modalOpen)return;
+  const dialog=dialogRef.current;
+  if(!dialog)return;
+  dialog.showModal();
+  dialog.querySelector<HTMLInputElement>("#smn-team-settings-name")?.focus();
+  return()=>{if(dialog.open)dialog.close();openerRef.current?.focus();};
+ },[modalOpen]);
  useEffect(()=>{
   if(!dirty)return;
   const protect=(event:BeforeUnloadEvent)=>{
@@ -64,9 +84,15 @@ export default function TeamsSettings(){
  function changeTeam(next:string|null){
   if(saving)return;
   if(dirty&&!window.confirm(t("teamSettings.confirmDiscard")))return;
+  openerRef.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
   const team=items.find(item=>item.id===next)??null;
   setSelected(team?.id??null);setValues(team?valuesFrom(team):blank);
-  setError("");setNotice("");
+  setError("");setNotice("");setModalOpen(true);
+ }
+ function closeTeam(){
+  if(saving)return;
+  if(dirty&&!window.confirm(t("teamSettings.confirmDiscard")))return;
+  setModalOpen(false);setSelected(null);setValues(blank);setError("");
  }
  function setField(key:keyof Values,value:string){
   setValues(old=>({...old,[key]:value}));setError("");setNotice("");
@@ -124,15 +150,15 @@ export default function TeamsSettings(){
     return;
    }
    // Rafraîchir la liste, sans modifier l'équipe active dans le shell.
-   setSelected(null);setValues(blank);
+   setSelected(null);setValues(blank);setModalOpen(false);
    setNotice(t(current?"teamSettings.saved":"teamSettings.created"));
    await requestList();
   }catch{
    setError(t("teamSettings.saveFailed"));
   }finally{setSaving(false);}
  }
- return <div className="row g-4">
-  <section className="col-12 col-xl-4" aria-labelledby="smn-teams-list-title">
+ return <div className="smn-teams-settings">
+  <section aria-labelledby="smn-teams-list-title">
    <div className="smn-panel rounded-4 p-3 p-md-4">
     <div className="d-flex align-items-center justify-content-between gap-2 mb-3">
      <h2 className="h5 mb-0" id="smn-teams-list-title">{t("teamSettings.title")}</h2>
@@ -141,11 +167,7 @@ export default function TeamsSettings(){
       {t("teamSettings.retry")}
      </button>
     </div>
-    <button type="button" className={"btn w-100 mb-3 "+(!selected?"btn-primary":"btn-outline-primary")}
-     onClick={()=>changeTeam(null)} disabled={saving||loading}>
-     {t("teamSettings.newTeam")}
-    </button>
-    <div className="d-grid gap-2 mb-3">
+    <div className="smn-teams-settings-filters mb-3">
      <label className="form-label mb-0">{t("settingsCollections.searchTeams")}
       <input type="search" className="form-control mt-1" value={query} onChange={event=>setQuery(event.target.value)} disabled={loading} />
      </label>
@@ -156,8 +178,8 @@ export default function TeamsSettings(){
        <option value="archived">{t("settingsCollections.archived")}</option>
       </select>
      </label>
-     {!loading&&<p role="status" aria-live="polite" className="small text-secondary mb-0">{t("settingsCollections.results",{count:shown.length,total:items.length})}</p>}
     </div>
+    {!loading&&<p role="status" aria-live="polite" className="small text-secondary mb-3">{t("settingsCollections.results",{count:shown.length,total:items.length})}</p>}
     {loading?<p role="status">{t("teamSettings.loading")}</p>:
      items.length===0?<p className="text-secondary">{t("teamSettings.noTeams")}</p>:
      shown.length===0?<div role="status"><p className="text-secondary">{t("settingsCollections.noMatches")}</p><button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>{setQuery("");setStateFilter("all");}}>{t("settingsCollections.reset")}</button></div>:
@@ -174,11 +196,16 @@ export default function TeamsSettings(){
      </ul>}
    </div>
   </section>
-  <section className="col-12 col-xl-8" aria-labelledby="smn-teams-form-title">
-   <div className="smn-panel rounded-4 p-3 p-md-4">
-    <h2 className="h5 mb-2" id="smn-teams-form-title">
-     {t(current?"teamSettings.editTeam":"teamSettings.newTeam")}
-    </h2>
+  {mounted&&modalOpen&&createPortal(<dialog ref={dialogRef} className="smn-teams-settings-dialog"
+   aria-labelledby="smn-teams-form-title" onCancel={event=>{event.preventDefault();closeTeam();}}>
+   <div className="smn-teams-settings-modal">
+    <header className="smn-teams-settings-modal-header">
+     <div className="smn-teams-settings-modal-identity"><span className="smn-teams-settings-modal-icon" aria-hidden="true">♧</span>
+      <div><span className="smn-teams-settings-modal-eyebrow">COCKPIT AGILE</span>
+      <h2 className="h5 mb-0" id="smn-teams-form-title">{t(current?"teamSettings.editTeam":"teamSettings.newTeam")}</h2></div></div>
+     <button type="button" className="btn-close" aria-label={t("teamSettings.cancel")} onClick={closeTeam} disabled={saving}/>
+    </header>
+    <div className="smn-teams-settings-modal-body">
     <p className="text-secondary small">{t("teamSettings.description")}</p>
     {!canWrite&&!loading&&<p className="alert alert-info" role="status">
      {t("teamSettings.unavailable")}
@@ -186,7 +213,7 @@ export default function TeamsSettings(){
     {notice&&<p className="alert alert-success" role="status">{notice}</p>}
     {error&&<p className="alert alert-warning" role="alert">{error}</p>}
     {current&&<div className="d-flex justify-content-end mb-3"><button type="button" className="btn btn-outline-secondary" disabled={saving||!canWrite} onClick={()=>void toggleArchived()}>{t(current.isArchived?"settingsCollections.reactivateTeam":"settingsCollections.archiveTeam")}</button></div>}
-    <form className="d-grid gap-3" data-smn-unsaved-changes={dirty?"true":"false"}
+    <form id="smn-teams-settings-form" className="d-grid gap-3" data-smn-unsaved-changes={dirty?"true":"false"}
      onSubmit={event=>void submit(event)}>
      <div>
       <label htmlFor="smn-team-settings-name" className="form-label">
@@ -235,18 +262,20 @@ export default function TeamsSettings(){
        maxLength={5000} value={values.productGoal} disabled={!canWrite||saving||loading||!!current?.isArchived}
        onChange={event=>setField("productGoal",event.target.value)}/>
      </div>
-     <div className="d-flex flex-wrap gap-2 justify-content-end">
+    </form>
+    </div>
+    <footer className="smn-teams-settings-modal-footer d-flex flex-wrap gap-2 justify-content-end">
       <button type="button" className="btn btn-outline-secondary"
-       onClick={()=>changeTeam(null)} disabled={saving||loading}>
+       onClick={closeTeam} disabled={saving||loading}>
        {t("teamSettings.cancel")}
       </button>
-      <button type="submit" className="btn btn-primary"
+      <button type="submit" form="smn-teams-settings-form" className="btn btn-primary"
        disabled={!canWrite||loading||saving||!!current?.isArchived||!hasName||current!==null&&!dirty}>
        {t(current?"teamSettings.save":"teamSettings.create")}
       </button>
-     </div>
-    </form>
+    </footer>
    </div>
-  </section>
+  </dialog>,document.body)}
+  {notice&&<p className="alert alert-success mt-3" role="status">{notice}</p>}
  </div>;
 }
