@@ -147,6 +147,7 @@ test("SMN-456 — sauvegarde, transport, vérification, staging et cutover racco
   "src/server/backup/portable-import.ts",
   "src/server/backup/restore-sandbox.ts",
   "src/server/backup/fresh-install-cutover.ts",
+  "src/server/backup/fresh-cutover-rollback.ts",
  ]){
   const code=readFileSync(file,"utf8");
   assert.match(code,/(?:tickets|TicketTransfer)/i,file);
@@ -158,4 +159,6 @@ test("SMN-456 — sauvegarde, transport, vérification, staging et cutover racco
  const runner=readFileSync("src/server/backup/runner.ts","utf8");
  assert.match(runner,/version:5/);
  assert.match(runner,/backup-tickets-changed-before-publication/);
+ const rollback=readFileSync("src/server/backup/fresh-cutover-rollback.ts","utf8");
+ assert.match(rollback,/join\(process\.cwd\(\),"data","tickets"\)/);
 });
