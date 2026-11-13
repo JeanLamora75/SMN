@@ -32,12 +32,12 @@ export default function IndicatorCycles({teamId,cycleType,locale}:{teamId:string
  return <section className="smn-indicator-cycles" aria-label={t("indicators.reporting.title")}>
   {error&&<p role="alert" className="alert alert-warning">{t("indicators.reporting.unavailable")}</p>}
   {!data&&!error&&<p role="status">{t("indicators.reporting.loading")}</p>}
-  {data&&<><p className="small text-body-secondary mb-2">{data.columns.length} indicateur(s) affiché(s) pour cette équipe. Faites défiler le tableau horizontalement si nécessaire.</p><div className="table-responsive smn-indicator-cycle-scroll" tabIndex={0} role="region" aria-label="Tableau des indicateurs par cycle, défilement horizontal"><table className="table table-hover align-middle smn-indicator-cycle-table">
+  {data&&<><p className="small text-body-secondary mb-2">{t("indicators.reporting.columnsHint",{count:data.columns.length})}</p><div className="table-responsive smn-indicator-cycle-scroll" tabIndex={0} role="region" aria-label={t("indicators.reporting.tableScroll")}><table className="table table-hover align-middle smn-indicator-cycle-table">
    <thead><tr><th scope="col" className="smn-cycle-name-col">{t("indicators.reporting.cycle")}</th><th scope="col" className="smn-cycle-status-col">{t("indicators.reporting.status")}</th><th scope="col" className="smn-cycle-period-col">{t("indicators.dashboard.period")}</th>
     {data.columns.map(column=><th scope="col" key={column.id} title={column.name} aria-label={column.name} tabIndex={0} className="text-end smn-indicator-heading"><abbr title={column.name} className="smn-indicator-initials">{indicatorHeaderInitials(column.name)}</abbr></th>)}
     <th scope="col" className="text-end">{t("indicators.actions")}</th></tr></thead>
    <tbody>{data.cycles.map(cycle=><tr key={cycle.id}>
-    <th scope="row" className="smn-cycle-name-col">{cycle.name}</th><td className="smn-cycle-status-col">{cycle.status}</td><td className="smn-cycle-period-col text-nowrap">{date(cycle.startAt)} — {date(cycle.endAt)}</td>
+    <th scope="row" className="smn-cycle-name-col">{cycle.name}</th><td className="smn-cycle-status-col">{t((("sprintStates."+cycle.status) as Parameters<typeof t>[0]))}</td><td className="smn-cycle-period-col text-nowrap">{date(cycle.startAt)} — {date(cycle.endAt)}</td>
     {data.columns.map(column=><td key={column.id} className="text-end">{value(cycle.values[column.id],column.unit)}</td>)}
     <td className="text-end"><UniversalIndicatorInput key={cycle.id} teamId={teamId} cycleType={cycleType} cycleId={cycle.id} buttonLabel={t("indicators.edit")}/></td>
    </tr>)}</tbody>
