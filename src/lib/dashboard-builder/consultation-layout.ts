@@ -14,3 +14,9 @@ export function gridColumns(block:DashboardBlock):string{
  const active=template.slots.filter(cell=>block.slots.some(s=>s.templateSlotId===cell.slotId&&hasContent(s)));
  return active.length?active.map(cell=>`${cell.columnSpan}fr`).join(" "):"minmax(0,1fr)";
 }
+
+/** Keep existing four-column layouts unchanged, expanding only when a row needs five or six cells. */
+export function dashboardRowColumns(blocks:readonly Pick<DashboardBlock,"dimensions">[]):number{
+ const requested=blocks.reduce((total,block)=>total+(block.dimensions?.width??1),0);
+ return Math.min(6,Math.max(4,requested));
+}
