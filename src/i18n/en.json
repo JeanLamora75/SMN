@@ -4061,7 +4061,19 @@
     "officeProgressSaving": "Saving the report…",
     "officeProgressIndeterminate": "Work in progress; percentage unavailable",
     "officeProgressWorking": "Working…",
-    "officeProgressPleaseWait": "This window will close automatically when the report is ready."
+    "officeProgressPleaseWait": "This window will close automatically when the report is ready.",
+    "officeTicketSourceTitle": "CSV ticket data (optional)",
+    "officeTicketSourceHelp": "Select a snapshot when your template contains TICKETS tags. Comparison tags require an earlier snapshot. No v33 indicator is changed.",
+    "officeTicketCurrent": "Main snapshot",
+    "officeTicketNone": "No snapshot",
+    "officeTicketPrevious": "Earlier snapshot (comparison)",
+    "officeTicketNoComparison": "No comparison",
+    "officeTicketLoadError": "Unable to load the sprint's CSV snapshots.",
+    "officeTicketAlreadySaved": "A report with this name already exists. Choose another name: ticket-based reports are never overwritten.",
+    "officeTicketSourceRequired": "This template contains ticket tags: select a valid snapshot.",
+    "officeTicketSnapshotMissing": "A selected snapshot is missing or was replaced. Refresh the list.",
+    "officeTicketPreviousRequired": "This template compares tickets: select an earlier snapshot.",
+    "officeTicketInvalidSelection": "Invalid snapshot selection."
   },
   "reportsStudio": {
     "modes": "Studio modes",
