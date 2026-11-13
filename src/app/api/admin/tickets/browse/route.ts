@@ -3,6 +3,7 @@ import {authorizeApi} from "@/server/auth/authorization";
 import {withSessionReadDb} from "@/server/auth/database";
 import {readTicketSnapshot,TicketStorageError,type TicketScope} from "@/server/tickets/snapshot-storage";
 import {browseTicketCsv,type TicketBrowseSort,type TicketBrowseDirection} from "@/lib/ticket-csv-browse";
+import {readJiraConfig} from "@/server/tickets/jira-config";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -66,7 +67,8 @@ export async function GET(request:NextRequest):Promise<Response>{
    priority:params.get("priority")??"",prefix:params.get("prefix")??"",
    sort,direction,page,pageSize,
   });
-  return Response.json({snapshot:stored.metadata,...browse,jiraBaseUrl:null},
+  const jiraBaseUrl=(await readJiraConfig()).baseUrl;
+  return Response.json({snapshot:stored.metadata,...browse,jiraBaseUrl},
    {headers:{"Cache-Control":"no-store"}});
  }catch(error){
   if(error instanceof TicketStorageError){
