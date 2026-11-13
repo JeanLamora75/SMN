@@ -1,4 +1,3 @@
-import "server-only";
 import {createHash,randomUUID} from "node:crypto";
 import {open,readFile,readdir,realpath,rename,mkdir,lstat,rm,writeFile} from "node:fs/promises";
 import path from "node:path";
@@ -196,6 +195,7 @@ export async function listTicketSnapshots(scope:TicketScope,options:TicketStorag
   if(!DATE.test(date))continue;
   const dir=dateFolder(scope,date,root);
   try{
+   await secureDirectory(dir);
    const id=await readCurrent(dir);
    if(!id)continue;
    const meta=await readMetadata(dir,id);
@@ -213,6 +213,7 @@ export async function readTicketSnapshot(scope:TicketScope,businessDate:string,o
  Promise<{metadata:TicketSnapshotMetadata;csv:string}|null>{
  checkScope(scope);checkDate(businessDate);await options.authorize(scope,"read");
  const root=baseDirectory(options.directory),dir=dateFolder(scope,businessDate,root);
+ await secureDirectory(dir);
  const current=await readCurrent(dir);
  if(!current)return null;
  const metadata=await readMetadata(dir,current);
