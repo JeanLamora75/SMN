@@ -2,6 +2,7 @@
 
 import {useEffect,useRef,useState} from "react";
 import BootstrapIcon from "../bootstrap-icon";
+import TicketsImportDialog from "./tickets-import-dialog";
 import {useTicketsCycle} from "../tickets-cycle-context";
 import {useLocale,useTranslation} from "@/i18n/client";
 
@@ -27,6 +28,8 @@ export default function TicketsFiles(){
  const [feedback,setFeedback]=useState<"error"|"deleted"|null>(null);
  const [target,setTarget]=useState<Snapshot|null>(null);
  const [deleting,setDeleting]=useState(false);
+ const [importOpen,setImportOpen]=useState(false);
+ const importScope=useRef("");
  const dialog=useRef<HTMLDialogElement>(null);
  const previous=useRef("");
  const localeCode=locale==="en"?"en-GB":"fr-FR";
@@ -39,6 +42,7 @@ export default function TicketsFiles(){
   if(previous.current!==key){
    previous.current=key;
    if(dialog.current?.open)dialog.current.close();
+   setImportOpen(false);
    queueMicrotask(()=>{if(!ctrl.signal.aborted){setItems([]);setSelectedId(null);setTarget(null);setFeedback(null);}});
   }
   if(!key||cycleState!=="ready"||!teamId||!cycleId||!mode){
@@ -65,6 +69,7 @@ export default function TicketsFiles(){
  const selected=items.find(item=>item.snapshotId===selectedId)??null;
  const isClosed=closed||mode==="scrum"&&cycleStatus==="closed";
  const canDelete=role==="admin"&&!isClosed;
+ const canImport=role==="admin"&&cycleState==="ready"&&state==="ready"&&!!key;
  function askDelete(item:Snapshot){
   if(!canDelete)return;
   setFeedback(null);setTarget(item);dialog.current?.showModal();
@@ -101,9 +106,11 @@ export default function TicketsFiles(){
      <button className="btn btn-light" disabled title={t("tickets.unavailableAction")}>
       <BootstrapIcon name="bar-chart-line"/> {t("tickets.compare")}
      </button>
-     <button className="btn btn-light" disabled title={t("tickets.unavailableAction")}>
+     {role==="admin"&&<button className="btn btn-light" type="button"
+       disabled={!canImport} title={!canImport?t("tickets.noCycle"):t("tickets.importCsv")}
+       onClick={()=>{importScope.current=key;setImportOpen(true);}}>
       <BootstrapIcon name="plus-lg"/> {t("tickets.importCsv")}
-     </button>
+     </button>}
     </div>
    </div>
    <div className="smn-tickets-tabs" role="tablist" aria-label={t("tickets.title")}>
@@ -194,6 +201,16 @@ export default function TicketsFiles(){
     </aside>
    </div>
   </div>
+  {importOpen&&importScope.current===key&&teamId&&cycleId&&mode&&<TicketsImportDialog
+    key={key} scope={{teamId,cycleId,mode}} cycleName={cycleName??""}
+    onClose={()=>setImportOpen(false)}
+    onSaved={snapshotId=>{
+      setImportOpen(false);
+      setSelectedId(snapshotId);
+      setFeedback(null);
+      setVersion(value=>value+1);
+    }}
+  />}
   <dialog className="smn-cockpit-modal smn-tickets-dialog" ref={dialog}
    aria-labelledby="smn-tickets-delete-title"
    onClose={()=>{if(!deleting)setTarget(null);}}>
