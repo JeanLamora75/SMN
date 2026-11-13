@@ -1,5 +1,5 @@
 import {createHash,randomUUID} from "node:crypto";
-import {open,readFile,readdir,realpath,rename,mkdir,lstat,rm,writeFile} from "node:fs/promises";
+import {open,readFile,readdir,realpath,rename,mkdir,lstat,rm} from "node:fs/promises";
 import path from "node:path";
 import {validateTicketCsv,TICKET_CSV_SCHEMA_VERSION} from "@/lib/ticket-csv-contract";
 
@@ -96,7 +96,9 @@ async function readCurrent(directory:string):Promise<string|null>{
 }
 async function readMetadata(directory:string,id:string):Promise<TicketSnapshotMetadata>{
  if(!GENERATION.test(id))throw new TicketStorageError("invalid-snapshot");
- const file=path.join(directory,"versions",id,"metadata.json");
+ const versionDir=path.join(directory,"versions",id);
+ await secureDirectory(versionDir);
+ const file=path.join(versionDir,"metadata.json");
  const meta=JSON.parse((await readSafeFile(file)).toString("utf8")) as TicketSnapshotMetadata;
  if(meta.snapshotId!==id)throw new TicketStorageError("invalid-metadata");
  return meta;
@@ -171,12 +173,15 @@ export async function saveTicketSnapshot(
    try{await metaHandle.writeFile(JSON.stringify(meta,null,2));await metaHandle.sync();}
    finally{await metaHandle.close();}
    const next=path.join(dir,".next-"+snapshotId+".json");
-   await writeFile(next,JSON.stringify({snapshotId} satisfies Current),{flag:"wx",mode:0o600});
+   const pointer=await open(next,"wx",0o600);
+   try{await pointer.writeFile(JSON.stringify({snapshotId} satisfies Current));await pointer.sync();}
+   finally{await pointer.close();}
    await rename(next,path.join(dir,"current.json"));
    published=true;
    saved=meta;
-   // Old generation is hidden from all reads once the pointer switches.
-   // Do not risk failing a successful publish for garbage collection.
+   // Once the pointer changes, a replaced version is no longer a current file.
+   // Cleanup failures are non-fatal and must not roll back a published snapshot.
+   if(previous)await rm(path.join(dir,"versions",previous),{recursive:true,force:true}).catch(()=>{});
   }finally{
    if(!published)await rm(versionDir,{recursive:true,force:true}).catch(()=>{});
   }
