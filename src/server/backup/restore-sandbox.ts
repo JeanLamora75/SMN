@@ -54,7 +54,9 @@ function metadata(value:unknown):Manifest{
    m.officeReports.length>200))||
   ((m.version===4||m.version===5)&&(!Array.isArray(m.officeTemplates)||
    m.officeTemplates.length>200||m.consistency?.method!=="wal-fence-v1"||
-   !/^[a-f0-9]+\/[a-f0-9]+$/i.test(m.consistency?.walLsn??""))))
+   !/^[a-f0-9]+\/[a-f0-9]+$/i.test(m.consistency?.walLsn??"")))||
+  (m.version===5&&(!Array.isArray(m.ticketFiles)||m.ticketFiles.length!==1||
+   !m.ticketInventory||!Number.isSafeInteger(m.ticketInventory.files))))
   throw Error("manifest-invalid");
  return m as Manifest;
 }
