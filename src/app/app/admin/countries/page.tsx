@@ -5,6 +5,7 @@ import {canAccess} from "@/server/access-policy";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import CountryAdmin from "./country-admin";
+import "./country-cockpit.css";
 
 export const dynamic="force-dynamic";
 
