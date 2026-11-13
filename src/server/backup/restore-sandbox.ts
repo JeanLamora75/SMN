@@ -13,19 +13,22 @@ import {scanDocuments,type BackupComponent} from "./files";
 import {validateSandboxTarget} from "./restore-sandbox-policy";
 import {validExtraName} from "./extra-archives";
 import {inspectRestoreFileTree} from "./restore-file-cutover-drill";
+import {stageTicketTransfer,inspectTicketTransferBytes} from "./tickets-transfer";
 import {managedPostgresExecutable} from "../bootstrap/managed-paths";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 type DocumentPart=BackupComponent&{sourceName:string};
-type Manifest={version:2|3|4;id:string;schemaVersion:number;postgresVersion:string;
+type Manifest={version:2|3|4|5;id:string;schemaVersion:number;postgresVersion:string;
  database:BackupComponent;documents:DocumentPart[];
  reportPdfs?:DocumentPart[];officeReports?:DocumentPart[];
- officeTemplates?:DocumentPart[];consistency?:{method:string;walLsn:string}};
+ officeTemplates?:DocumentPart[];ticketFiles?:DocumentPart[];
+ ticketInventory?:{files:number;snapshots:number;bytes:number;sha256:string};
+ consistency?:{method:string;walLsn:string}};
 export type RehearsalResult={
  archiveId:string;status:"reconstructed-in-sandbox"|"incomplete-archive-scope";
  sandboxOnly:true;restoredTables:number;verifiedDocuments:number;
  verifiedReportPdfs:number;verifiedOfficeReports:number;
- verifiedOfficeTemplates:number;
+ verifiedOfficeTemplates:number;verifiedTickets:number;
  missingDocumentReferences:number;archiveHashChecked:true;
  databaseAndDocumentsConsistent:boolean;activeInstallationModified:false;
  fileStagingRetained:boolean;fileSnapshotSha256:string|null;
@@ -43,13 +46,13 @@ function executable():string{
 function metadata(value:unknown):Manifest{
  if(!value||typeof value!=="object")throw Error("manifest-invalid");
  const m=value as Partial<Manifest>;
- if(![2,3,4].includes(m.version as number)||!UUID.test(m.id??"")||!m.database||
+ if(![2,3,4,5].includes(m.version as number)||!UUID.test(m.id??"")||!m.database||
   !Array.isArray(m.documents)||m.documents.length>2000||
   m.documents.reduce((sum,part)=>sum+(Number(part.size)||0),0)>512*1024*1024||
   ((m.version??0)>=3&&(!Array.isArray(m.reportPdfs)||
    !Array.isArray(m.officeReports)||m.reportPdfs.length>200||
    m.officeReports.length>200))||
-  (m.version===4&&(!Array.isArray(m.officeTemplates)||
+  ((m.version===4||m.version===5)&&(!Array.isArray(m.officeTemplates)||
    m.officeTemplates.length>200||m.consistency?.method!=="wal-fence-v1"||
    !/^[a-f0-9]+\/[a-f0-9]+$/i.test(m.consistency?.walLsn??""))))
   throw Error("manifest-invalid");
@@ -158,6 +161,23 @@ export async function rehearseBackupRestore(options:{
   }
   const files={pdf:manifest.reportPdfs??[],office:manifest.officeReports??[],
    template:manifest.officeTemplates??[]};
+  let ticketsCount=0;
+  if(manifest.version===5){
+   const part=manifest.ticketFiles?.[0];
+   if(!part||part.sourceName!=="tickets-transfer-v1.json"||part.path!=="tickets/00000.enc")
+    throw Error("restore-tickets-component-invalid");
+   const bundle=await decryptComponent(join(packageDir,part.path),part,key,150*1024*1024);
+   try{
+    const inspected=inspectTicketTransferBytes(bundle);
+    const expected=manifest.ticketInventory;
+    if(!expected||JSON.stringify(inspected.report)!==JSON.stringify(expected))
+     throw Error("restore-tickets-inventory-mismatch");
+    await stageTicketTransfer(bundle,join(staging,"tickets"));
+    ticketsCount=inspected.report.files;
+   }finally{bundle.fill(0);}
+  }else{
+   await mkdir(join(staging,"tickets"),{mode:0o700});
+  }
   for(const kind of ["pdf","office","template"] as const){
    const parts=files[kind];
    if(!parts.length)continue;
@@ -236,7 +256,7 @@ export async function rehearseBackupRestore(options:{
     file.size!==ref.byte_length)
     throw Error("restore-pdf-references-missing");
   }
-  const missing=manifest.version===4?0:Math.max(1,pdfRefs.rows.length);
+  const missing=manifest.version===4||manifest.version===5?0:Math.max(1,pdfRefs.rows.length);
   const count=await sandbox.query<{n:string}>(`
    SELECT count(*)::text AS n FROM pg_catalog.pg_class c
    JOIN pg_catalog.pg_namespace ns ON ns.oid=c.relnamespace
@@ -251,7 +271,7 @@ export async function rehearseBackupRestore(options:{
    try{
     const inspected=await inspectRestoreFileTree(stagingOutput);
     const expectedFiles=manifest.documents.length+files.pdf.length+
-     files.office.length+files.template.length;
+     files.office.length+files.template.length+ticketsCount;
     if(inspected.count!==expectedFiles)
      throw Error("restore-staged-files-missing");
     stagedFingerprint=inspected.sha256;
@@ -264,7 +284,7 @@ export async function rehearseBackupRestore(options:{
    "incomplete-archive-scope",sandboxOnly:true,
    restoredTables:Number(count.rows[0]?.n),verifiedDocuments:inventory.length/2,
    verifiedReportPdfs:files.pdf.length,verifiedOfficeReports:files.office.length,
-   verifiedOfficeTemplates:files.template.length,
+   verifiedOfficeTemplates:files.template.length,verifiedTickets:ticketsCount,
    missingDocumentReferences:missing,archiveHashChecked:true,
    databaseAndDocumentsConsistent:missing===0,activeInstallationModified:false,
    fileStagingRetained:stagedFingerprint!==null,fileSnapshotSha256:stagedFingerprint,
