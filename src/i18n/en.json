@@ -5211,6 +5211,9 @@
     "compareFieldsPriority": "Priority",
     "compareFieldsStatus": "Status",
     "compareFieldsSp": "Story Points",
-    "compareClear": "Clear filters"
+    "compareClear": "Clear filters",
+    "indicatorsUnavailable": "Select a cycle and check your indicator editing permissions.",
+    "indicatorsManualOnly": "Manual entry only: CSV data, totals and comparisons never prefill these indicators.",
+    "indicatorsCurrentCycle": "Selected cycle: {cycle}"
   }
 }
