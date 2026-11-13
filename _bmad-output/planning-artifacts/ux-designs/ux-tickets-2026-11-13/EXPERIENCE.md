@@ -150,3 +150,13 @@ Le Scrum Master clique Indicateurs. Une modale Cockpit Agile présente les indic
 - [ ] Tests UX sur thème clair/sombre, desktop/mobile, absence de fichier, erreur, permissions, chargement.
 
 **État de livraison :** contrat documentaire, aucune implémentation ni recette attestée.
+
+## Décisions UX complémentaires validées — 13/11/2026
+
+1. Import CSV à **six colonnes** : `Id jira`, `Type de ticket`, `Titre du ticket`, `Priorité`, `Statut`, `Story points`, dans cet ordre. La modale d'import présente les erreurs de structure/colonnes avec une formulation compréhensible.
+2. Pour le même **sprint/période, équipe et date métier**, une photographie déjà présente déclenche **une modale Cockpit Agile de confirmation du remplacement** indiquant le fichier et la date. Boutons **Annuler** et **Remplacer** ; aucun remplacement sans confirmation ; annuler laisse les fichiers inchangés.
+3. Sur chaque ligne de la liste des photographies, proposer l'action **Supprimer** dans les actions autorisées. Clic → **modale Cockpit Agile de confirmation** avec nom du fichier et date métier, puis suppression cohérente de la photographie ; liste et synthèse actualisées, sans sélection fantôme. Annuler ne fait rien.
+4. Durant un remplacement ou une suppression, désactiver les actions conflictuelles ; n'afficher un succès qu'après confirmation du serveur. Si l'opération échoue, conserver la photographie existante et un message explicite.
+5. Tous les dialogues ci-dessus suivent impérativement `{components.modal}`, via `.smn-cockpit-modal`, et respectent les permissions, la navigation clavier, le focus, les thèmes et l'i18n FR/EN.
+
+Ces choix remplacent les anciennes questions ouvertes sur les dates en doublon et l'existence d'une action de suppression ; les droits sur un cycle clôturé et la récupération après suppression restent à qualifier.
