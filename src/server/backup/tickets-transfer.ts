@@ -1,6 +1,6 @@
 import {createHash} from "node:crypto";
 import {lstat,readdir,readFile,mkdir,writeFile} from "node:fs/promises";
-import {join,resolve,isAbsolute,relative,sep} from "node:path";
+import {join,resolve,isAbsolute,relative} from "node:path";
 import {validateTicketCsv} from "@/lib/ticket-csv-contract";
 import {normalizeJiraBaseUrl} from "@/lib/tickets/jira-links";
 import type {TicketSnapshotMetadata} from "@/server/tickets/snapshot-storage";
@@ -178,14 +178,12 @@ export async function stageTicketTransfer(input:Buffer,destination:string):Promi
  if(rel!== "tickets"||!isAbsolute(destination)||resolve(destination)!==destination)
   fail("tickets-stage-invalid");
  await mkdir(destination,{mode:0o700});
- try{
-  for(const entry of bundle.entries){
+ for(const entry of bundle.entries){
    const path=join(destination,...entry.path.split("/"));
    await mkdir(resolve(path,".."),{recursive:true,mode:0o700});
    await writeFile(path,Buffer.from(entry.data,"base64"),{flag:"wx",mode:0o600});
-  }
-  return report;
- }catch(error){throw error;}
+ }
+ return report;
 }
 
 /** Paths of live snapshots to check against the restored PostgreSQL team/cycle catalog. */
