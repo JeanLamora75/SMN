@@ -13,7 +13,7 @@ import {scanDocuments,type BackupComponent} from "./files";
 import {validateSandboxTarget} from "./restore-sandbox-policy";
 import {validExtraName} from "./extra-archives";
 import {inspectRestoreFileTree} from "./restore-file-cutover-drill";
-import {stageTicketTransfer,inspectTicketTransferBytes} from "./tickets-transfer";
+import {stageTicketTransfer,inspectTicketTransferBytes,ticketTransferScopes,type TicketTransfer} from "./tickets-transfer";
 import {managedPostgresExecutable} from "../bootstrap/managed-paths";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -164,6 +164,7 @@ export async function rehearseBackupRestore(options:{
   const files={pdf:manifest.reportPdfs??[],office:manifest.officeReports??[],
    template:manifest.officeTemplates??[]};
   let ticketsCount=0;
+  let ticketBundle:TicketTransfer|null=null;
   if(manifest.version===5){
    const part=manifest.ticketFiles?.[0];
    if(!part||part.sourceName!=="tickets-transfer-v1.json"||part.path!=="tickets/00000.enc")
@@ -171,6 +172,7 @@ export async function rehearseBackupRestore(options:{
    const bundle=await decryptComponent(join(packageDir,part.path),part,key,150*1024*1024);
    try{
     const inspected=inspectTicketTransferBytes(bundle);
+    ticketBundle=inspected.bundle;
     const expected=manifest.ticketInventory;
     if(!expected||JSON.stringify(inspected.report)!==JSON.stringify(expected))
      throw Error("restore-tickets-inventory-mismatch");
@@ -240,6 +242,20 @@ export async function rehearseBackupRestore(options:{
    AND state='initialized'`);
   if(installed.rowCount!==1||installed.rows[0].schema_version!==manifest.schemaVersion)
    throw Error("restore-schema-mismatch");
+  // A cryptographically valid CSV must also belong to an actual restored team/cycle.
+  if(ticketBundle){
+   const scopes=ticketTransferScopes(ticketBundle);
+   for(const item of scopes){
+    const table=item.mode==="scrum"?"smn_sprint":"smn_kanban_period";
+    const found=await sandbox.query(`
+     SELECT 1 FROM public.${table} c
+     JOIN public.smn_team t ON t.id=c.team_id
+     WHERE t.id::text=$1 AND c.id::text=$2 AND c.deleted_at IS NULL
+       AND t.installation_id='singleton'
+     LIMIT 1`,[item.teamId,item.cycleId]);
+    if(found.rowCount!==1)throw Error("restore-tickets-orphan-cycle");
+   }
+  }
   const foreign=await sandbox.query<{n:string}>(`
    SELECT count(*)::text AS n FROM pg_catalog.pg_constraint
    WHERE contype='f' AND convalidated=false`);
