@@ -7,11 +7,12 @@ const EMPTY:Slots={morningStart:"",morningEnd:"",afternoonStart:"",afternoonEnd:
 export default function WorkSlotsForm({teams=[]}:{teams?:readonly {id:string;name:string}[]}){
  const t=useTranslation();const [slots,setSlots]=useState<Slots>(EMPTY),[zone,setZone]=useState("Europe/Paris"),[revision,setRevision]=useState(0),[teamId,setTeamId]=useState<string|null>(null),[message,setMessage]=useState(""),[busy,setBusy]=useState(false);
  const [original,setOriginal]=useState<{slots:Slots;zone:string}|null>(null);
+ const [missingSchema,setMissingSchema]=useState(false);
  const dirty=original!==null&&(JSON.stringify(slots)!==JSON.stringify(original.slots)||zone!==original.zone);
  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
  async function load(selectedTeamId:string|null=teamId){
   if(!selectedTeamId){setMessage(t("epic4WorkSlots.selectTeamRequired"));return;}
-  setBusy(true);setMessage("");
+  setBusy(true);setMessage("");setMissingSchema(false);
   try{
    const response=await fetch("/api/admin/sprints/work-slots?teamId="+encodeURIComponent(selectedTeamId),{cache:"no-store"});
    if(!response.ok){const err=await response.json().catch(()=>({})) as {error?:string};
@@ -19,7 +20,9 @@ export default function WorkSlotsForm({teams=[]}:{teams?:readonly {id:string;nam
      err.error==="scrum-team-unavailable"?"epic4WorkSlots.notScrum":
      err.error==="team-context-unavailable"?"epic4WorkSlots.teamUnavailable":
      response.status===403?"epic4WorkSlots.forbidden":"epic4WorkSlots.loadError";
-    setMessage(t(key,{status:response.status}));return;}
+    setMessage(t(key,{status:response.status}));
+    if(err.error==="work-slots-schema-unavailable")setMissingSchema(true);
+    return;}
    const data=await response.json() as {teamId?:string;current?:{slots:Slots;zone:string;revision:number}|null};
    if(!data.teamId){setMessage(t("epic4WorkSlots.teamUnavailable"));return;}
    setTeamId(data.teamId);
@@ -31,6 +34,24 @@ export default function WorkSlotsForm({teams=[]}:{teams?:readonly {id:string;nam
   finally{setBusy(false);}
  }
  useEffect(()=>{if(teams.length===1){setTeamId(teams[0].id);void Promise.resolve().then(()=>load(teams[0].id));}},[]);
+ async function repairSchema(){
+  if(busy||!missingSchema||!window.confirm(t("epic4WorkSlots.repairConfirm")))return;
+  setBusy(true);setMessage("");
+  try{
+   const response=await fetch("/api/admin/sprints/work-slots/repair",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({confirm:"REPAIR_MISSING_WORK_SLOTS_TABLE"})
+   });
+   const result=await response.json().catch(()=>({})) as {ok?:boolean;error?:string};
+   if(!response.ok||!result.ok){
+    setMessage(t(result.error==="table-incompatible"?"epic4WorkSlots.repairIncompatible":"epic4WorkSlots.repairError"));
+    return;
+   }
+   setMissingSchema(false);
+   await load(teamId);
+  }catch{setMessage(t("epic4WorkSlots.repairError"));}
+  finally{setBusy(false);}
+ }
  async function save(){
   if(!teamId){setMessage(t("epic4WorkSlots.selectTeamRequired"));return;}
   setBusy(true);setMessage("");
@@ -67,6 +88,12 @@ export default function WorkSlotsForm({teams=[]}:{teams?:readonly {id:string;nam
  <label className="form-label mt-3" htmlFor="slot-zone">{t("epic4WorkSlots.zone")}</label><input className="form-control" id="slot-zone" value={zone} onChange={e=>setZone(e.target.value)} maxLength={80}/>
  <button type="button" className="btn btn-primary mt-3" disabled={busy||!teamId||!original||Object.values(slots).some(v=>!v)} onClick={save}>{t("epic4WorkSlots.save")}</button>
  <button type="button" className="btn btn-outline-secondary mt-3 ms-2" disabled={busy} onClick={()=>void load()}>{t("epic4WorkSlots.reload")}</button>
+ {missingSchema&&<div className="mt-3" role="group" aria-label={t("epic4WorkSlots.repairTitle")}>
+  <p className="small text-secondary mb-2">{t("epic4WorkSlots.repairHelp")}</p>
+  <button type="button" className="btn btn-outline-warning" disabled={busy} onClick={()=>void repairSchema()}>
+   {t("epic4WorkSlots.repairButton")}
+  </button>
+ </div>}
  {message&&<p role="alert" className="mt-2">{message}</p>}
  </section>;
 }
