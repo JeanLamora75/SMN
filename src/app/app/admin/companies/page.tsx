@@ -4,6 +4,7 @@ import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import {canAccess} from "@/server/access-policy";
 import CompaniesAdmin from "./companies-admin";
+import "./companies-cockpit-modal.css";
 import SettingsPageShell from "../settings/settings-page-shell";
 export const dynamic="force-dynamic";
 export default async function CompaniesPage(){
