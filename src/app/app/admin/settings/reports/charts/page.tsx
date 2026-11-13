@@ -4,6 +4,7 @@ import {canAccess} from "@/server/access-policy";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import ChartStyleGallery from "./style-gallery";
+import SettingsPageShell from "../../settings-page-shell";
 import "./style-gallery.css";
 
 export const dynamic="force-dynamic";
@@ -16,12 +17,12 @@ export default async function ChartStylesPage(){
  if(!canAccess(actor,"read",{type:"settings",exists:true,inScope:true}))redirect("/app");
  const locale=await requestLocale();
  const t=(key:Parameters<typeof translate>[1])=>translate(locale,key);
- return <main className="smn-page smn-team-page smn-chart-style-page container-fluid px-3 px-lg-4 py-4">
-  <header className="smn-chart-style-hero mb-4">
-   <p className="smn-chart-style-eyebrow">{t("settingsCatalog.navigation.chartEyebrow")}</p>
-   <h1>{t("chartStyles.gallery.heading")}</h1>
-   <p>{t("chartStyles.gallery.intro")}</p>
-  </header>
-  <ChartStyleGallery isAdmin={actor.role==="admin"}/>
- </main>;
+ return <SettingsPageShell
+  eyebrow={t("settingsCatalog.navigation.chartEyebrow")}
+  title={t("chartStyles.gallery.heading")}
+  description={t("chartStyles.gallery.intro")}>
+  <div className="smn-chart-style-page">
+   <ChartStyleGallery isAdmin={actor.role==="admin"}/>
+  </div>
+ </SettingsPageShell>;
 }
