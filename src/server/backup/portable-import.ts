@@ -31,7 +31,8 @@ function parseHeader(raw:Buffer){
  const size=parseInt(digits,8),expect=parseInt(checksum,8);
  const limit=name==="index.json"?1024*1024:
   name==="manifest.enc"?4*1024*1024:
-  name==="database.pgcustom.enc"?MAX_SIZE:20*1024*1024;
+  name==="database.pgcustom.enc"?MAX_SIZE:
+  name==="tickets/00000.enc"?150*1024*1024:20*1024*1024;
  if(!Number.isSafeInteger(size)||size<1||size>limit)
   throw Error("portable-entry-size-invalid");
  const copy=Buffer.from(raw);
