@@ -110,7 +110,7 @@ export default function PrivateShell({children,username,role,mode,product,team,t
 
   const cycleLabel=mode==="kanban"?"dashboard.shell.period":"dashboard.shell.sprint";
   const selectedCycle=sprints.find(item=>item.id===selectedCycleId);
-  const ticketsCycle={teamId,mode,role,cycleId:selectedCycleId,
+  const ticketsCycle={teamId,mode,role,canManageIndicators,cycleId:selectedCycleId,
     cycleName:selectedCycle?.name??null,cycleStatus:selectedCycle?.status??null,state:cycleState};
   return <div className={`smn-dashboard smn-private-layout${collapsed?" is-collapsed":""}${mobileOpen?" mobile-open":""}`}>
     <header className="smn-dashboard-topbar">
