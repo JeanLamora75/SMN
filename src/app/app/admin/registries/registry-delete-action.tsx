@@ -50,7 +50,7 @@ export default function RegistryDeleteAction({id,title,teamId,onDeleted,classNam
   <button type="button" className={className??"btn btn-sm btn-outline-danger"}
    disabled={busy} aria-label={tr("button")+" : "+title}
    title={tr("button")+" : "+title} onClick={()=>void remove()}>
-   {iconOnly?<BootstrapIcon name="trash3"/>:busy?tr("deleting"):compactLabel?t("dashboardRecordDelete.button"):tr("button")}
+   {iconOnly?<BootstrapIcon name="trash-fill"/>:busy?tr("deleting"):compactLabel?t("dashboardRecordDelete.button"):tr("button")}
   </button>
   {error&&<span className="text-danger small d-block" role="alert">{error}</span>}
  </>;
