@@ -65,3 +65,39 @@
 .smn-sprint-edit-dialog .smn-indicator-dialog-form .btn-primary:not(:disabled):hover{background-color:#153f70;border-color:#153f70}
 .smn-sprint-edit-dialog .smn-indicator-dialog-form .btn-primary:disabled{opacity:1;background:#1b508d;border-color:#1b508d;color:#fff;cursor:not-allowed}
 @media(max-width:650px){.smn-sprint-edit-dialog{width:calc(100vw - 24px)}.smn-sprint-edit-dialog .smn-indicator-dialog-form{padding:16px}}
+
+/* Portal-based ceremony editor: the dialog lives under <body>, outside the Sprint page wrapper. */
+.smn-sprint-ceremony-cockpit-dialog{
+ width:min(94vw,840px);max-width:840px;max-height:90vh;padding:0;
+ border:1px solid var(--smn-border);border-radius:16px;
+ background:var(--smn-surface);color:var(--smn-foreground);
+ box-shadow:0 24px 70px rgba(7,26,52,.35);overflow:auto;
+}
+.smn-sprint-ceremony-cockpit-dialog::backdrop{background:rgba(7,17,34,.62)}
+.smn-sprint-ceremony-cockpit-dialog .smn-cockpit-modal{
+ border:0;border-radius:16px;overflow:hidden;background:var(--smn-surface);color:var(--smn-foreground)
+}
+.smn-sprint-ceremony-cockpit-dialog .smn-cockpit-modal-header{
+ display:flex;justify-content:space-between;align-items:center;gap:16px;
+ padding:18px 24px;background:linear-gradient(115deg,var(--smn-brand),#10294d);color:#fff
+}
+.smn-sprint-ceremony-cockpit-dialog .smn-cockpit-modal-header h2{color:#fff;font-weight:700}
+.smn-sprint-ceremony-cockpit-dialog .smn-cockpit-modal-header .btn-close{
+ flex:none;background-color:#fff;opacity:1;border-radius:6px
+}
+.smn-sprint-ceremony-cockpit-dialog .smn-cockpit-modal-body{padding:24px}
+.smn-sprint-ceremony-cockpit-dialog .smn-operational-event-time-row{
+ display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1.3fr);
+ gap:12px;align-items:end
+}
+.smn-sprint-ceremony-cockpit-dialog .smn-operational-event-time-row .form-label{
+ display:block;min-width:0;margin-bottom:0
+}
+.smn-sprint-ceremony-cockpit-dialog .smn-operational-event-time-row .form-control{
+ display:block;width:100%;min-width:0;margin-top:6px
+}
+@media(max-width:700px){
+ .smn-sprint-ceremony-cockpit-dialog{width:calc(100vw - 24px)}
+ .smn-sprint-ceremony-cockpit-dialog .smn-cockpit-modal-body{padding:16px}
+ .smn-sprint-ceremony-cockpit-dialog .smn-operational-event-time-row{grid-template-columns:minmax(0,1fr)}
+}
