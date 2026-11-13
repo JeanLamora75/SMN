@@ -20,7 +20,7 @@ export default function JiraSettingsForm(){
    setSaved(json.settings);setUrl(json.settings.baseUrl??"");
   }catch{setError(t("tickets.jiraSettingsLoadError"));}
  },[t]);
- useEffect(()=>{void load();},[load]);
+ useEffect(()=>{void Promise.resolve().then(load);},[load]);
  const normalized=url?normalizeJiraBaseUrl(url):null;
  const invalid=!!url&&!normalized;
  const dirty=!!saved&&(saved.baseUrl??"")!==(normalized??url);
