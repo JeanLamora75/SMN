@@ -3,6 +3,7 @@
 import {useEffect,useRef,useState} from "react";
 import BootstrapIcon from "../bootstrap-icon";
 import TicketsImportDialog from "./tickets-import-dialog";
+import TicketsConsultation from "./tickets-consultation";
 import {useTicketsCycle} from "../tickets-cycle-context";
 import {useLocale,useTranslation} from "@/i18n/client";
 
@@ -22,6 +23,7 @@ export default function TicketsFiles(){
  const {teamId,cycleId,mode,role,cycleName,cycleStatus,state:cycleState}=context;
  const [items,setItems]=useState<Snapshot[]>([]);
  const [selectedId,setSelectedId]=useState<string|null>(null);
+ const [activeTab,setActiveTab]=useState<"files"|"browse">("files");
  const [state,setState]=useState<UiState>("loading");
  const [closed,setClosed]=useState(false);
  const [version,setVersion]=useState(0);
@@ -43,6 +45,7 @@ export default function TicketsFiles(){
    previous.current=key;
    if(dialog.current?.open)dialog.current.close();
    setImportOpen(false);
+   setActiveTab("files");
    queueMicrotask(()=>{if(!ctrl.signal.aborted){setItems([]);setSelectedId(null);setTarget(null);setFeedback(null);}});
   }
   if(!key||cycleState!=="ready"||!teamId||!cycleId||!mode){
@@ -114,12 +117,13 @@ export default function TicketsFiles(){
     </div>
    </div>
    <div className="smn-tickets-tabs" role="tablist" aria-label={t("tickets.title")}>
-    <button id="smn-tickets-files-tab" className="smn-tickets-tab is-active" role="tab" type="button"
-      aria-controls="smn-tickets-files-panel" aria-selected="true">
+    <button id="smn-tickets-files-tab" className={"smn-tickets-tab"+(activeTab==="files"?" is-active":"")} role="tab" type="button"
+      aria-controls="smn-tickets-files-panel" aria-selected={activeTab==="files"} onClick={()=>setActiveTab("files")}>
      <BootstrapIcon name="list-ul"/> {t("tickets.files")}
     </button>
-    <button className="smn-tickets-tab" role="tab" type="button" disabled
-      aria-selected="false" title={t("tickets.comingSoon")}>
+    <button id="smn-tickets-browse-tab" className={"smn-tickets-tab"+(activeTab==="browse"?" is-active":"")} role="tab" type="button"
+      aria-controls="smn-tickets-browse-panel" disabled={!selected}
+      aria-selected={activeTab==="browse"} onClick={()=>{if(selected)setActiveTab("browse");}}>
      {t("tickets.consultation")}
     </button>
     <button className="smn-tickets-tab" role="tab" type="button" disabled
@@ -128,7 +132,7 @@ export default function TicketsFiles(){
     </button>
    </div>
   </header>
-  <div id="smn-tickets-files-panel" role="tabpanel" aria-labelledby="smn-tickets-files-tab">
+  {activeTab==="files"&&<div id="smn-tickets-files-panel" role="tabpanel" aria-labelledby="smn-tickets-files-tab">
    <section className="smn-tickets-context smn-tickets-panel" aria-label={t("tickets.cycle")}>
     <BootstrapIcon name="calendar-check"/>
     <div><strong>{t("tickets.cycle")}</strong>
@@ -177,6 +181,11 @@ export default function TicketsFiles(){
             aria-pressed={item.snapshotId===selectedId} onClick={()=>setSelectedId(item.snapshotId)}>
            <BootstrapIcon name="list-ul"/> {t("tickets.select")}
           </button>
+          <button className="btn btn-outline-primary btn-sm" type="button"
+           onClick={()=>{setSelectedId(item.snapshotId);setActiveTab("browse");}}
+           aria-label={t("tickets.consultation")+" : "+item.originalFilename}>
+           <BootstrapIcon name="arrow-right"/> {t("tickets.consultation")}
+          </button>
           {role==="admin"&&<button className="btn btn-outline-danger btn-sm" type="button"
             disabled={!canDelete} title={!canDelete?t("tickets.deleteClosed"):t("tickets.delete")}
             aria-label={t("tickets.delete")+" : "+item.originalFilename}
@@ -200,7 +209,10 @@ export default function TicketsFiles(){
      <p className="smn-tickets-note">{t("tickets.selectedHelp")}</p>
     </aside>
    </div>
-  </div>
+  </div>}
+  {activeTab==="browse"&&<div id="smn-tickets-browse-panel" role="tabpanel" aria-labelledby="smn-tickets-browse-tab">
+   <TicketsConsultation snapshot={selected} context={context} onBack={()=>setActiveTab("files")}/>
+  </div>}
   {importOpen&&importScope.current===key&&teamId&&cycleId&&mode&&<TicketsImportDialog
     key={key} scope={{teamId,cycleId,mode}} cycleName={cycleName??""}
     onClose={()=>setImportOpen(false)}
