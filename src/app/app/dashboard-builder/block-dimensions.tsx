@@ -58,7 +58,7 @@ export function BlockDimensionControl({value,onChange,disabled=false}:{
       <div className="col-12 col-lg-5">
        <h3 className={ui.sectionTitle}>Aperçu de la disposition</h3>
        <div className={ui.preview}>
-        <div className="small fw-semibold mb-3">Bloc dans une grille de quatre colonnes</div>
+        <div className="small fw-semibold mb-3">Bloc dans une grille de quatre colonnes (jusqu’à six selon le contenu de la ligne)</div>
         <div className={ui.inlinePreview} style={{gridTemplateColumns:"repeat(4,minmax(0,1fr))"}}>
          <div className={ui.previewCell} style={{gridColumn:`span ${draft.width}`,height:draft.height==="auto"?70:Math.round(draft.height/5)}}/>
          {Array.from({length:4-draft.width},(_,i)=><div className={ui.previewCell} key={i} style={{opacity:.35}}/>)}
