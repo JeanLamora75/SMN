@@ -86,7 +86,19 @@ export default function SprintCapacityPanel({data,canViewNames,teamId,locale,t}:
       <strong className="fs-4">{fmt(totalSprintDevelopmentJh(data.members))}</strong>
      </div>
     </div>
-    <div className="col-12 col-md-6 col-xl-4">
+    <div className="col">
+     <div className="border rounded-3 p-3 h-100">
+      <p className="small text-secondary mb-1">{t("sprintDetail.presenceProductOwnerTotal")}</p>
+      <strong className="fs-4">{fmt(data.roleCapacityJh?.productOwner??null)}</strong>
+     </div>
+    </div>
+    <div className="col">
+     <div className="border rounded-3 p-3 h-100">
+      <p className="small text-secondary mb-1">{t("sprintDetail.presenceScrumMasterTotal")}</p>
+      <strong className="fs-4">{fmt(data.roleCapacityJh?.scrumMaster??null)}</strong>
+     </div>
+    </div>
+    <div className="col">
      <div className="border rounded-3 p-3 h-100">
       <p className="small text-secondary mb-1">{t("sprintDetail.presenceMembers")}</p>
       <strong className="fs-4">{data.members.length}</strong>
