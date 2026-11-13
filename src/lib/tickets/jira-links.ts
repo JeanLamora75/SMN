@@ -17,7 +17,8 @@ export function normalizeJiraBaseUrl(raw:string):string|null{
 export function jiraTicketUrl(base:string|null|undefined,jiraId:string):string|null{
  const normalized=base?normalizeJiraBaseUrl(base):null;
  if(!normalized||typeof jiraId!=="string"||jiraId.length>160)return null;
- const key=jiraId.trim();
+ if(jiraId.trim()!==jiraId)return null;
+ const key=jiraId;
  if(!/^[\p{L}\p{N}][\p{L}\p{N}._-]{0,159}$/u.test(key))return null;
  return normalized+"/browse/"+encodeURIComponent(key);
 }
