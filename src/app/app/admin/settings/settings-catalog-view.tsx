@@ -5,6 +5,7 @@ import {useTranslation} from "@/i18n/client";
 import {filterSettingsGroups} from "@/lib/settings-catalog-search";
 import type {SettingsGroup} from "@/lib/settings-catalog";
 import BootstrapIcon from "../../bootstrap-icon";
+import SettingsFilterPanel from "./settings-filter-panel";
 
 type View="cards"|"list";
 /** Separate from the team roster preference. */
@@ -29,7 +30,20 @@ export default function SettingsCatalogView({groups}:{groups:SettingsGroup[]}){
   try{window.localStorage.setItem(SETTINGS_VIEW_STORAGE_KEY,next);}catch{/* private mode */}
  }
  return <div className="smn-settings-catalog">
-  <div className="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+  <SettingsFilterPanel className="mb-4" actions={<>    <div className="btn-group" role="group" aria-label={t("settingsCatalog.view.switchLabel")}>
+    <button type="button" className={"btn "+(view==="cards"?"btn-primary":"btn-outline-secondary")}
+     aria-label={t("settingsCatalog.view.cards")} aria-pressed={view==="cards"}
+     title={t("settingsCatalog.view.cards")} onClick={()=>choose("cards")}>
+     <BootstrapIcon name="grid-3x3-gap"/>
+    </button>
+    <button type="button" className={"btn "+(view==="list"?"btn-primary":"btn-outline-secondary")}
+     aria-label={t("settingsCatalog.view.list")} aria-pressed={view==="list"}
+     title={t("settingsCatalog.view.list")} onClick={()=>choose("list")}>
+     <BootstrapIcon name="list-ul"/>
+    </button>
+   </div>
+ </>}>
+  <div className="d-flex flex-wrap gap-3 align-items-end">
    <div className="flex-grow-1" style={{maxWidth:600,minWidth:240}}>
     <label className="form-label fw-semibold" htmlFor="smn-settings-search">
      {t("settingsCatalog.search.label")}
@@ -46,19 +60,8 @@ export default function SettingsCatalogView({groups}:{groups:SettingsGroup[]}){
      </button>}
     </div>
    </div>
-   <div className="btn-group" role="group" aria-label={t("settingsCatalog.view.switchLabel")}>
-    <button type="button" className={"btn "+(view==="cards"?"btn-primary":"btn-outline-secondary")}
-     aria-label={t("settingsCatalog.view.cards")} aria-pressed={view==="cards"}
-     title={t("settingsCatalog.view.cards")} onClick={()=>choose("cards")}>
-     <BootstrapIcon name="grid-3x3-gap"/>
-    </button>
-    <button type="button" className={"btn "+(view==="list"?"btn-primary":"btn-outline-secondary")}
-     aria-label={t("settingsCatalog.view.list")} aria-pressed={view==="list"}
-     title={t("settingsCatalog.view.list")} onClick={()=>choose("list")}>
-     <BootstrapIcon name="list-ul"/>
-    </button>
-   </div>
   </div>
+  </SettingsFilterPanel>
   {query.trim()!==""&&<p className="small text-secondary mb-3" role="status" aria-live="polite">
    {t("settingsCatalog.search.results",{count:matches})}
   </p>}
