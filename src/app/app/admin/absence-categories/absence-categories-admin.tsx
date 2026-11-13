@@ -1,5 +1,7 @@
 "use client";
-import {useCallback,useEffect,useMemo,useState,type FormEvent} from "react";
+import {useCallback,useEffect,useMemo,useRef,useState,type FormEvent} from "react";
+import {createPortal} from "react-dom";
+import {OPEN_ABSENCE_CATEGORY} from "./absence-category-create-button";
 import {useTranslation} from "@/i18n/client";
 import {filterSettingsAbsences} from "@/lib/settings-collection-filter";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
@@ -22,6 +24,10 @@ export default function AbsenceCategoriesAdmin(){
  const [categories,setCategories]=useState<Category[]>([]);
  const [status,setStatus]=useState<"loading"|"ready"|"error">("loading");
  const [draft,setDraft]=useState<Draft>(EMPTY);
+ const [editorOpen,setEditorOpen]=useState(false);
+ const [mounted,setMounted]=useState(false);
+ const dialogRef=useRef<HTMLDialogElement>(null);
+ const openerRef=useRef<HTMLElement|null>(null);
  const [baseline,setBaseline]=useState(JSON.stringify(EMPTY));
  const [busy,setBusy]=useState(false);
  const [notice,setNotice]=useState("");
@@ -30,7 +36,7 @@ export default function AbsenceCategoriesAdmin(){
  const [stateFilter,setStateFilter]=useState<"all"|"active"|"inactive">("all");
  const filtered=useMemo(()=>filterSettingsAbsences(categories,query,stateFilter),[categories,query,stateFilter]);
  const dirty=JSON.stringify(draft)!==baseline;
- useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
+ useUnsavedChanges(editorOpen&&(dirty||busy),t("draft.leaveWarning"));
  const reload=useCallback(async()=>{
   const response=await fetch("/api/admin/absence-categories",{cache:"no-store"});
   if(!response.ok)throw Error("absence-categories-load");
@@ -58,14 +64,37 @@ export default function AbsenceCategoriesAdmin(){
   setDraft(next);setBaseline(JSON.stringify(next));setNotice("");setIsError(false);
  }
  function edit(category:Category){
-  if(dirty&&!window.confirm(t("draft.discardWarning")))return;
+  if(busy)return;
+  if(editorOpen&&dirty&&!window.confirm(t("draft.discardWarning")))return;
+  openerRef.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
   adopt({id:category.id,updatedAt:category.updatedAt,name:category.name,
    color:category.color,isActive:category.isActive});
+  setEditorOpen(true);
  }
  function newCategory(){
-  if(dirty&&!window.confirm(t("draft.discardWarning")))return;
-  adopt(EMPTY);
+  if(busy||status!=="ready")return;
+  if(editorOpen&&dirty&&!window.confirm(t("draft.discardWarning")))return;
+  openerRef.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
+  adopt(EMPTY);setEditorOpen(true);
  }
+ function closeEditor(){
+  if(busy)return;
+  if(dirty&&!window.confirm(t("draft.discardWarning")))return;
+  setEditorOpen(false);adopt(EMPTY);
+ }
+ useEffect(()=>setMounted(true),[]);
+ useEffect(()=>{
+  window.addEventListener(OPEN_ABSENCE_CATEGORY,newCategory);
+  return()=>window.removeEventListener(OPEN_ABSENCE_CATEGORY,newCategory);
+ });
+ useEffect(()=>{
+  if(!editorOpen)return;
+  const dialog=dialogRef.current;
+  if(!dialog)return;
+  if(!dialog.open)dialog.showModal();
+  dialog.querySelector<HTMLInputElement>("#absence-category-name")?.focus();
+  return()=>{if(dialog.open)dialog.close();openerRef.current?.focus();};
+ },[editorOpen,mounted]);
  const update=<K extends keyof Draft>(key:K,value:Draft[K])=>
   setDraft(current=>({...current,[key]:value}));
  async function submit(event:FormEvent<HTMLFormElement>){
@@ -89,7 +118,7 @@ export default function AbsenceCategoriesAdmin(){
     return;
    }
    await reload();
-   adopt(EMPTY);
+   adopt(EMPTY);setEditorOpen(false);
    setNotice(t(isEditing?"absenceCategories.saved":"absenceCategories.created"));
   }catch{setIsError(true);setNotice(t("absenceCategories.failed"));}
   finally{setBusy(false);}
@@ -147,8 +176,18 @@ export default function AbsenceCategoriesAdmin(){
      </tr>)}</tbody>
     </table>
    </div>
-   <form className="d-grid gap-3 border-top pt-3" onSubmit={submit}>
-    <h3 className="h6">{t(draft.id?"absenceCategories.editTitle":"absenceCategories.createTitle")}</h3>
+   {mounted&&editorOpen&&createPortal(<dialog ref={dialogRef} className="smn-absence-category-dialog"
+    aria-labelledby="smn-absence-category-editor-title"
+    onCancel={event=>{event.preventDefault();closeEditor();}}>
+    <div className="smn-absence-category-modal">
+     <header className="smn-absence-category-header">
+      <div className="smn-absence-category-identity"><span className="smn-absence-category-symbol" aria-hidden="true">◈</span>
+       <div><span className="smn-absence-category-eyebrow">COCKPIT AGILE</span>
+        <h2 className="h5 mb-0" id="smn-absence-category-editor-title">{t(draft.id?"absenceCategories.editTitle":"absenceCategories.createTitle")}</h2>
+       </div></div>
+      <button type="button" className="btn-close" aria-label={t("absenceCategories.cancel")} disabled={busy} onClick={closeEditor}/>
+     </header>
+     <form id="smn-absence-category-form" className="smn-absence-category-form d-grid gap-3" onSubmit={submit}>
     <div>
      <label htmlFor="absence-category-name" className="form-label">
       {t("absenceCategories.name")}</label>
@@ -184,13 +223,13 @@ export default function AbsenceCategoriesAdmin(){
     </div>}
     <p className="small text-secondary mb-0">{t("absenceCategories.noDelete")}</p>
     <p className="small text-secondary mb-0">{t("absenceCategories.medicalPrivacy")}</p>
-    <div className="d-flex flex-wrap gap-2">
-     <button className="btn btn-primary" type="submit" disabled={busy}>
-      {t(draft.id?"absenceCategories.save":"absenceCategories.create")}</button>
-     <button className="btn btn-outline-secondary" type="button" disabled={busy}
-      onClick={newCategory}>{t("absenceCategories.new")}</button>
+     <footer className="smn-absence-category-footer d-flex flex-wrap justify-content-end gap-2">
+      <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={closeEditor}>{t("absenceCategories.cancel")}</button>
+      <button className="btn btn-primary" type="submit" disabled={busy}>{t(draft.id?"absenceCategories.save":"absenceCategories.create")}</button>
+     </footer>
+     </form>
     </div>
-   </form>
+   </dialog>,document.body)}
   </>}
   {notice&&<p className={"alert "+(isError?"alert-warning":"alert-success")}
    role={isError?"alert":"status"}>{notice}</p>}
