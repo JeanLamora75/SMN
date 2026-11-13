@@ -2159,7 +2159,13 @@
     "invalid": "Horaires ou fuseau horaire invalides. Vérifiez les quatre heures et le fuseau IANA.",
     "saveError": "Enregistrement indisponible (HTTP {status}). Consultez les journaux du serveur SMN.",
     "schemaUnavailable": "La table PostgreSQL des horaires d'équipe est absente. Vérifiez la migration de la base SMN avant de configurer les horaires.",
-    "notScrum": "L'équipe sélectionnée n'utilise pas Scrum. Choisissez une équipe Scrum."
+    "notScrum": "L'équipe sélectionnée n'utilise pas Scrum. Choisissez une équipe Scrum.",
+    "repairTitle": "Réparation des horaires d'équipe",
+    "repairHelp": "La table des horaires manque dans le schéma SMN. Cette réparation ajoute uniquement la table vide manquante. Les autres données restent intactes. Elle ne crée pas d'horaires fictifs.",
+    "repairButton": "Réparer la structure des horaires",
+    "repairConfirm": "Créer la table manquante des horaires d'équipe dans PostgreSQL ? Cette opération est additive et ne modifie aucune donnée existante.",
+    "repairIncompatible": "Une table des horaires existe, mais sa structure n'est pas conforme. Aucune réparation automatique n'a été effectuée.",
+    "repairError": "La réparation n'a pas abouti. Aucun horaire existant n'a été modifié. Consultez le journal du serveur SMN."
   },
   "teamCockpit": {
     "title": "Équipe",
