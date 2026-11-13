@@ -7,6 +7,8 @@ import AbsenceCategoriesAdmin from "./absence-categories-admin";
 import AbsenceCategoryCreateButton from "./absence-category-create-button";
 import "./absence-category-cockpit.css";
 import SettingsPageShell from "../settings/settings-page-shell";
+import AddCategoryButton from "./add-category-button";
+import "./absence-category-cockpit.css";
 
 export const dynamic="force-dynamic";
 export default async function AbsenceCategoriesPage(){
