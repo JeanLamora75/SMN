@@ -24,7 +24,6 @@ import SprintGoalsPanel from "./sprint-goals-panel";
 import UniversalIndicatorInput from "../../indicators/universal-input";
 import {indicatorTeams} from "@/server/indicators/team-access";
 import SprintCeremoniesPanel from "./sprint-ceremonies-panel";
-import HistoricalEventForm from "./historical-event-form";
 import HistoricalPartialForm from "./historical-partial-form";
 import SprintCapacityPanel from "./sprint-capacity-panel";
 import IndicatorReporting from "../../indicators/reporting-view";
@@ -152,8 +151,9 @@ export default async function SprintDetailPage({params,searchParams}:{
      active==="ceremonies"?<><SprintCeremoniesPanel
       sprintId={cycle.id} teamId={teamId} timeZone={cycle.timeZone} locale={locale}
       canManage={canManage&&cycle.status!=="closed"}
+      canAddHistoricalMeeting={canManage&&cycle.status==="finished"}
       t={(key,params)=>translate(locale,key,params)}
-      data={ceremonies??{state:"unavailable",reason:"read-failed"}}/>{canManage&&cycle.status==="finished"&&<HistoricalEventForm sprintId={cycle.id}/>}</>:
+      data={ceremonies??{state:"unavailable",reason:"read-failed"}}/></>:
      active==="capacity"?<SprintCapacityPanel
       teamId={teamId} canViewNames={canViewMembers} data={canViewMembers?presence:null} locale={locale}
       t={(key,params)=>translate(locale,key,params)}/>:
