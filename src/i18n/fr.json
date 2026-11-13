@@ -2637,6 +2637,17 @@
     "not_held": "Non tenue",
     "cancelled": "Annulée"
   },
+  "sprintHighlight": {
+    "edit": "Éditer",
+    "delete": "Supprimer définitivement",
+    "heading": "Modifier le fait marquant",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "confirm": "Supprimer définitivement « {title} » ? Le fait marquant sera supprimé, mais son élément source sera conservé.",
+    "error": "Impossible de modifier ou supprimer ce fait marquant.",
+    "conflict": "Le fait marquant a été modifié entre-temps. Actualisez la page.",
+    "title": "Titre du fait marquant"
+  },
   "sprintDetail": {
     "tabs": {
       "objectives": "Objectifs",
