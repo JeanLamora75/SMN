@@ -4,6 +4,7 @@ import {readFileSync} from "node:fs";
 import {createDefaultDashboardLayout,validateDashboardLayout} from "../src/server/dashboard-builder/layout";
 import {updateBlockDimensions,validateBlockDimensions} from "../src/lib/dashboard-builder/dimensions";
 import {getDashboardTemplate} from "../src/lib/dashboard-builder/templates";
+import {dashboardRowColumns} from "../src/lib/dashboard-builder/consultation-layout";
 test("SMN-368 AC1: immutable dimensions persist as block metadata",()=>{
  const original=createDefaultDashboardLayout("scrum");
  const id=original.rows[0].blocks[0].id;
@@ -39,4 +40,20 @@ test("SMN-368 AC2/AC4: floating panel and mobile overrides",()=>{
  assert.match(css,/overflow:auto/);
  assert.match(page,/gridColumn/);
  assert.match(page,/gridRow/);
+});
+
+test("SMN-368: consultation rows grow to five or six columns without changing four-column defaults",()=>{
+ const blocks=(count:number)=>Array.from({length:count},()=>({dimensions:undefined}));
+ assert.equal(dashboardRowColumns(blocks(1)),4);
+ assert.equal(dashboardRowColumns(blocks(4)),4);
+ assert.equal(dashboardRowColumns(blocks(5)),5);
+ assert.equal(dashboardRowColumns(blocks(6)),6);
+ assert.equal(dashboardRowColumns(blocks(7)),6);
+ assert.equal(dashboardRowColumns([{dimensions:{width:3 as const,height:"auto" as const}},...blocks(2)]),5);
+ const css=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-dimensions.module.css",import.meta.url),"utf8");
+ const page=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-consultation.tsx",import.meta.url),"utf8");
+ assert.match(css,/repeat\(var\(--smn-row-columns,4\),minmax\(0,1fr\)\)/);
+ assert.match(css,/@media\(max-width:1199\.98px\)/);
+ assert.match(css,/@media\(max-width:767\.98px\)/);
+ assert.match(page,/dashboardRowColumns\(row\.map\(item=>item\.block\)\)/);
 });
