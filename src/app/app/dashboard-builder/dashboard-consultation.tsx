@@ -17,7 +17,7 @@ import type {VisualizationModel} from "@/server/dashboard-builder/visualizations
 import {getDashboardTemplate} from "@/lib/dashboard-builder/templates";
 import {resolveTachometerRatio} from "@/lib/dashboard-builder/tachometer";
 import styles from "./dashboard-dimensions.module.css";
-import {visibleSlots,gridColumns} from "@/lib/dashboard-builder/consultation-layout";
+import {visibleSlots,gridColumns,dashboardRowColumns} from "@/lib/dashboard-builder/consultation-layout";
 export {visibleSlots,gridColumns} from "@/lib/dashboard-builder/consultation-layout";
 import type {CSSProperties,ReactNode} from "react";
 
@@ -149,7 +149,7 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
     </div>
    </div>
   </header>
-  {rows.length>0?rows.map((row,i)=><div className={`${styles.blockRow} mb-3`} key={i} style={{"--smn-row-columns":Math.min(6,Math.max(4,row.reduce((total,item)=>total+(item.block.dimensions?.width??1),0)))} as CSSProperties}>
+  {rows.length>0?rows.map((row,i)=><div className={`${styles.blockRow} mb-3`} key={i} style={{"--smn-row-columns":dashboardRowColumns(row.map(item=>item.block))} as CSSProperties}>
    {row.map(({block,content})=><div className={styles.blockCell} key={block.id} data-width={block.dimensions?.width??1} style={{"--smn-block-width":block.dimensions?.width??1} as CSSProperties}>{content}</div>)}
   </div>):<section className="smn-panel p-4" role="status">
    <p className="mb-0">Aucune donnée configurée pour ce tableau de bord.</p>
