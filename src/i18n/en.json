@@ -5285,6 +5285,9 @@
     "noResults": "No articles match your search.",
     "resultsCount": "Articles found",
     "indexError": "Search is temporarily unavailable.",
-    "retrySearch": "Try again"
+    "retrySearch": "Try again",
+    "close": "Close",
+    "loading": "Loading help…",
+    "fullGuide": "Read the full guide"
   }
 }
