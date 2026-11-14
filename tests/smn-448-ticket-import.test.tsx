@@ -9,7 +9,7 @@ import type {TicketScope} from "../src/server/tickets/snapshot-storage";
 import {translate} from "../src/i18n/catalog";
 
 const scope:TicketScope={teamId:"team_1",cycleId:"sprint_1",mode:"scrum"};
-const columns="Id jira,Type de ticket,Titre du ticket,Priorité,Statut,Story points";
+const columns=TICKET_CSV_COLUMNS.join(",");
 const content=columns+"\nXYZ-22,Task,Titre libre,Critique,Terminé,3\n";
 const src=(path:string)=>readFileSync(path,"utf8");
 
@@ -93,7 +93,9 @@ test("La modale affiche les six en-têtes CSV exacts du contrat, en FR et EN",()
   const html=renderToStaticMarkup(<LocaleProvider locale={language}>
    <TicketsImportDialog scope={scope} cycleName="Sprint 3" onClose={()=>{}} onSaved={()=>{}}/>
   </LocaleProvider>);
-  assert.match(html,/smn-tickets-import-columns/);
+  assert.match(html,/<details class="smn-tickets-import-columns">/);
+  assert.doesNotMatch(html,/<details class="smn-tickets-import-columns" open/);
+  assert.match(html,/<summary id="smn-tickets-import-columns-title">/);
   assert.match(html,/<ol>/);
   for(const column of TICKET_CSV_COLUMNS)
    assert.ok(html.includes("<code>"+column+"</code>"),"Colonne attendue : "+column);
