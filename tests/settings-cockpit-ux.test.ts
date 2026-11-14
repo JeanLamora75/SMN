@@ -9,8 +9,8 @@ const admin={role:"admin",is_active:true,must_change_password:false};
 describe("Centre Paramètres Cockpit — contrats structurels",()=>{
  it("présente le Cockpit et la nouvelle rubrique Liens",()=>{
   const groups=settingsCatalog("scrum",admin);
-  assert.deepEqual(groups.map(g=>g.entries.length),[3,3,5,4,1,3]);
-  assert.equal(groups.flatMap(g=>g.entries).length,19);
+  assert.deepEqual(groups.map(g=>g.entries.length),[3,3,6,4,1,3]);
+  assert.equal(groups.flatMap(g=>g.entries).length,20);
   const view=source("src/app/app/admin/settings/settings-catalog-view.tsx");
   assert.match(view,/settingsCatalog\.search\.placeholder/);
  });
