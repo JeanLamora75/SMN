@@ -7,7 +7,7 @@ export type TicketStoryPointSummary=Readonly<{
  missingCount:number;
  invalidCount:number;
 }>;
-export type TicketGroupCount=Readonly<{value:string;count:number}>;
+export type TicketGroupCount=Readonly<{value:string;count:number;storyPoints:TicketStoryPointSummary}>;
 export type TicketSummary=Readonly<{
  ticketCount:number;
  completedCount:number;
@@ -39,37 +39,46 @@ function formatDecimal(coefficient:bigint,scale:number):string{
  const fraction=abs.slice(point).replace(/0+$/,"");
  return (negative?"-":"")+abs.slice(0,point)+(fraction?"."+fraction:"");
 }
-function countBy(rows:readonly TicketBrowseRow[],field:"issueType"|"status"|"prefix"):TicketGroupCount[]{
- const counts=new Map<string,number>();
- for(const row of rows){
-  const value=row[field].trim();
-  counts.set(value,(counts.get(value)??0)+1);
- }
- return [...counts].sort((a,b)=>b[1]-a[1]||
-  a[0].localeCompare(b[0],"fr",{sensitivity:"base",numeric:true}))
-  .map(([value,count])=>({value,count}));
+function sumStoryPoints(decimals:readonly Decimal[]):string|null{
+ if(!decimals.length)return null;
+ const maxScale=decimals.reduce((max,item)=>Math.max(max,item.scale),0);
+ const total=decimals.reduce((sum,item)=>
+  sum+item.coefficient*10n**BigInt(maxScale-item.scale),0n);
+ return formatDecimal(total,maxScale);
 }
-
-/** Pure and reusable by Consultation and future Word/PPT reports. */
-export function summarizeTicketRows(rows:readonly TicketBrowseRow[]):TicketSummary{
+function summarizePoints(rows:readonly TicketBrowseRow[]):TicketStoryPointSummary{
  const decimals:Decimal[]=[];
- let missingCount=0,invalidCount=0,completedCount=0;
+ let missingCount=0,invalidCount=0;
  for(const row of rows){
-  if(row.completed)completedCount++;
   if(!row.storyPoints.trim()){missingCount++;continue;}
   const parsed=parseDecimal(row.storyPoints);
   if(parsed===null){invalidCount++;continue;}
   decimals.push(parsed);
  }
- const maxScale=decimals.reduce((max,item)=>Math.max(max,item.scale),0);
- const total=decimals.reduce((sum,item)=>
-  sum+item.coefficient*10n**BigInt(maxScale-item.scale),0n);
+ return {
+  sum:sumStoryPoints(decimals),numericCount:decimals.length,missingCount,invalidCount,
+ };
+}
+function countBy(rows:readonly TicketBrowseRow[],field:"issueType"|"status"|"prefix"):TicketGroupCount[]{
+ const counts=new Map<string,TicketBrowseRow[]>();
+ for(const row of rows){
+  const value=row[field].trim();
+  const group=counts.get(value)??[];
+  group.push(row);
+  counts.set(value,group);
+ }
+ return [...counts].sort((a,b)=>b[1].length-a[1].length||
+  a[0].localeCompare(b[0],"fr",{sensitivity:"base",numeric:true}))
+  .map(([value,group])=>({value,count:group.length,storyPoints:summarizePoints(group)}));
+}
+
+/** Pure and reusable by Consultation and future Word/PPT reports. */
+export function summarizeTicketRows(rows:readonly TicketBrowseRow[]):TicketSummary{
+ let completedCount=0;
+ for(const row of rows)if(row.completed)completedCount++;
  return {
   ticketCount:rows.length,completedCount,
-  storyPoints:{
-   sum:decimals.length?formatDecimal(total,maxScale):null,
-   numericCount:decimals.length,missingCount,invalidCount,
-  },
+  storyPoints:summarizePoints(rows),
   byType:countBy(rows,"issueType"),
   byStatus:countBy(rows,"status"),
   byPrefix:countBy(rows,"prefix"),
