@@ -4,7 +4,7 @@ import {createServer} from "node:http";
 import {createRequire} from "node:module";
 import {dirname,join,resolve} from "node:path";
 import {fileURLToPath} from "node:url";
-import {readFile} from "node:fs/promises";
+import {readFile,mkdir} from "node:fs/promises";
 import puppeteer from "puppeteer-core";
 import {detectChrome} from "../scripts/report-chrome.mjs";
 
@@ -50,6 +50,7 @@ test("SMN-469 — real Chromium: FR/EN contextual help, read-only network, focus
  const chrome=await detectChrome();
  assert.equal(chrome.ok,true,"Chromium/Chrome required; no simulated success");
  const js=await browserBundle();
+ await mkdir(join(root,"audit-output","help-qa"),{recursive:true});
  const css=(await Promise.all([
   readFile(join(root,"src/app/app/help/help-dialog.css"),"utf8"),
   readFile(join(root,"src/app/modal-cockpit.css"),"utf8")
@@ -96,6 +97,11 @@ test("SMN-469 — real Chromium: FR/EN contextual help, read-only network, focus
    assert.equal(aria.modal,"true");
    assert.ok(aria.label);
    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute("data-initial-focus")),"true");
+   await page.keyboard.press("Shift+Tab");
+   assert.equal(await page.evaluate(()=>document.activeElement?.closest("dialog")!==null),true,"Focus remains in dialog");
+   await page.keyboard.press("Tab");
+   assert.equal(await page.evaluate(()=>document.activeElement?.closest("dialog")!==null),true,"Tab remains in dialog");
+   await page.screenshot({path:join(root,"audit-output","help-qa",locale+"-dialog.png")});
    await page.keyboard.press("Escape");
    await page.waitForFunction(()=>!document.querySelector("dialog[open]"));
    assert.equal(await page.$eval("#draft",node=>(node as HTMLInputElement).value),"Still editing");
@@ -107,6 +113,7 @@ test("SMN-469 — real Chromium: FR/EN contextual help, read-only network, focus
     await page.waitForSelector("dialog[open]");
     const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);
     assert.equal(overflow,false,"No horizontal overflow on mobile");
+    await page.screenshot({path:join(root,"audit-output","help-qa","en-mobile-dark.png")});
     await page.keyboard.press("Escape");
    }
    await page.close();
