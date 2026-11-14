@@ -123,6 +123,7 @@
     "administration": "ADMINISTRATION",
     "users": "User accounts",
     "settings": "General settings",
+      "help": "Help",
     "helperTitle": "An interface that grows with you",
     "helperText": "Features are added gradually. No fictional data is displayed.",
     "management": "MANAGEMENT",
@@ -5257,5 +5258,23 @@
     "jiraTicketOpen": "Open {id} in Jira",
     "importExpectedColumnsTitle": "Required CSV column headers",
     "importExpectedColumnsHelp": "Only these six header names are accepted. They may appear in any order, and additional columns are allowed."
+  },
+  "helpCenter": {
+    "title": "Help center",
+    "subtitle": "Explore SMN features and find available instructions.",
+    "gettingStarted": "Get started",
+    "configuration": "Configure SMN",
+    "modules": "Module guides",
+    "troubleshooting": "FAQ and troubleshooting",
+    "empty": "No article is available yet.",
+    "articleUnavailable": "This article is not available yet.",
+    "articleNotFound": "This article is not available to you or does not exist.",
+    "back": "Back to Help center",
+    "open": "Read article",
+    "upcoming": "More guides will be added over time.",
+    "searchUpcoming": "Search across articles is coming soon.",
+    "fallback": "This article has not yet been translated into your language; the French version is shown.",
+    "firstSetup": "Initial setup",
+    "firstSetupComing": "The guided setup checklist is coming soon."
   }
 }
