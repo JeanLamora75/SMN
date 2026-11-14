@@ -14,6 +14,7 @@ import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import BootstrapIcon from "../bootstrap-icon";
 import {SafeHelpMarkdown} from "./safe-markdown";
+import {helpArticleLabel} from "./help-article-labels";
 import "./help-center.css";
 
 export const dynamic="force-dynamic";
@@ -50,7 +51,7 @@ export default async function HelpPage({searchParams}:{searchParams:Promise<{art
  const articleId=typeof requested==="string"?requested:null;
  const selected=articleId?visible.find(item=>item.id===articleId):null;
  const result=selected?await loadHelpContent(selected.id,locale,account,mode):null;
- const titleFor=(id:string)=>id==="overview"?t("overview"):id==="tickets"?t("tickets"):id;
+ const titleFor=(id:string)=>helpArticleLabel(id,locale);
  return <main className="smn-page smn-team-page smn-help-center container-fluid px-3 px-lg-4 py-4">
   <header className="smn-help-hero mb-4">
    <p className="smn-help-eyebrow">SMN</p>
