@@ -1,0 +1,76 @@
+name: SMN-469 — Recette Aide FR-EN et hors ligne
+on:
+  push:
+    branches: [main]
+    paths:
+      - "content/help/**"
+      - "src/app/app/help/**"
+      - "src/server/help-*.ts"
+      - "src/lib/help-*.ts"
+      - "src/app/api/help/**"
+      - "scripts/build-help-index.mjs"
+      - "scripts/windows/verify-offline-help.mjs"
+      - "scripts/windows/package-portable.mjs"
+      - "tests/smn-45*-help-*.ts"
+      - "tests/smn-46*-help-*.ts"
+      - "tests/smn-468-offline-help.test.mjs"
+      - "tests/smn-469-help-*.ts"
+      - "_bmad-output/planning-artifacts/ux-designs/ux-aide-smn-2026-11-14/**"
+      - ".github/workflows/help-quality.yml"
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: smn-help-quality-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  help-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - name: Dépendances verrouillées
+        run: pnpm install --frozen-lockfile
+      - name: Valider contenu et index embarqués
+        run: |
+          node scripts/build-help-index.mjs --check
+          node --test tests/smn-468-offline-help.test.mjs
+      - name: Contrats HELP-01 à HELP-30 — sécurité, langues, droits, contenu et localStorage
+        run: |
+          pnpm exec tsx --test \
+            tests/smn-459-help-catalog.test.ts \
+            tests/smn-460-help-content.test.ts \
+            tests/smn-461-help-center.test.ts \
+            tests/smn-462-help-search.test.ts \
+            tests/smn-463-help-context-dialog.test.ts \
+            tests/smn-464-help-header.test.ts \
+            tests/smn-465-help-checklist.test.ts \
+            tests/smn-466-help-first-setup.test.ts \
+            tests/smn-467-help-guides.test.ts \
+            tests/smn-469-help-contract.test.ts
+      - name: Chromium réel — interactions Aide et stockage local FR/EN
+        run: |
+          pnpm exec tsx --test \
+            tests/smn-464-help-browser.test.ts \
+            tests/smn-465-help-checklist-browser.test.ts \
+            tests/smn-469-help-browser.test.ts
+      - name: TypeScript et i18n
+        run: |
+          pnpm typecheck
+          pnpm i18n:check
+      - name: Build SMN avec les ressources documentaires
+        run: pnpm build
