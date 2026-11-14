@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {compareTicketSnapshots,TicketComparisonError,type TicketSnapshotRef} from "../src/lib/ticket-csv-compare";
 
-const header="Id jira,Type de ticket,Titre du ticket,Priorité,Statut,Story points";
+const header="id,type,resume,priority,status,sp";
 const ref=(date:string,snapshotId=date,teamId="team-1",cycleId="sprint-3",mode:"scrum"|"kanban"="scrum"):TicketSnapshotRef=>
  ({teamId,cycleId,mode,snapshotId,businessDate:date});
 const oldRef=ref("2025-05-10","snapshot-old"),newRef=ref("2025-05-17","snapshot-new");
@@ -94,7 +94,7 @@ test("SMN-451 : refuse le même identifiant ou la même date métier",()=>{
   (e:unknown)=>e instanceof TicketComparisonError&&e.code==="same-business-date");
 });
 test("SMN-451 : refuse CSV invalide et Jira dupliqué, sans résultat partiel",()=>{
- const missing="Id jira,Statut\nA-1,Done";
+ const missing="id,status\nA-1,Done";
  const duplicate=[header,"ABC-1,Bug,Un,Haute,Done,1","abc-1,Bug,Deux,Haute,Terminé,3"].join("\n");
  for(const csv of [missing,duplicate]){
   assert.throws(()=>compareTicketSnapshots({reference:oldRef,csv},{reference:newRef,csv:newCsv}),
