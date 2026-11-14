@@ -13,3 +13,10 @@
 .smn-help-article{max-width:none}
 .smn-help-article :is(h1,h2,h3){margin-top:1.1rem;margin-bottom:.75rem}
 @media(max-width:730px){.smn-help-grid{grid-template-columns:minmax(0,1fr)}.smn-help-hero{padding:1.3rem}}
+
+.smn-help-setup-list{list-style:decimal;padding-left:1.5rem;margin:0}
+.smn-help-setup-step{padding:1rem .5rem;border-top:1px solid var(--smn-border,var(--bs-border-color,#dce3ed))}
+.smn-help-setup-step::marker{font-weight:700;color:var(--smn-brand,var(--bs-primary))}
+.smn-help-setup-step .badge{white-space:normal;text-align:center}
+.smn-help-setup-step .btn:focus-visible{outline:2px solid var(--smn-brand,var(--bs-primary));outline-offset:2px}
+@media(max-width:575.98px){.smn-help-setup-list{padding-left:1.2rem}.smn-help-setup-step{padding-inline:0}}
