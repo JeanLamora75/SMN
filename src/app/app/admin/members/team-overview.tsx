@@ -132,6 +132,7 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
     </section>
    </div>
    <div className="smn-team-hero-actions">
+    <HelpHeaderAction screenTitle={t("teamCockpit.title")} className="btn smn-team-view-button"/>
     <div className="smn-team-view-switch" role="group" aria-label={t("teamUX.displayMode")}>
      <button type="button" className="btn smn-team-view-button" aria-pressed={view==="list"} onClick={()=>choose("list")}><BootstrapIcon name="list-ul"/><span>{t("teamCockpit.list")}</span></button>
      <button type="button" className="btn smn-team-view-button" aria-pressed={view==="cards"} onClick={()=>choose("cards")}><BootstrapIcon name="grid-3x3-gap"/><span>{t("teamCockpit.cards")}</span></button>
