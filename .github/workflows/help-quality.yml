@@ -45,10 +45,10 @@ jobs:
           run_install: false
       - name: Dépendances verrouillées
         run: pnpm install --frozen-lockfile
-      - name: Valider contenu et index embarqués
-        run: |
-          node scripts/build-help-index.mjs --check
-          node --test tests/smn-468-offline-help.test.mjs
+      - name: Vérifier la fraîcheur des index d'aide
+        run: node scripts/build-help-index.mjs --check
+      - name: Vérifier la couverture des ressources et le paquet autonome
+        run: node --test --test-reporter=spec tests/smn-468-offline-help.test.mjs
       - name: Contrats HELP-01 à HELP-30 — sécurité, langues, droits, contenu et localStorage
         run: |
           pnpm exec tsx --test \
