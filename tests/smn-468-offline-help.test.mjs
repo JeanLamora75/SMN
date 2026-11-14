@@ -36,7 +36,7 @@ test("SMN-468 — missing articles and missing or stale indexes block packaging"
   await unlink(path.join(installed,".index","en.json"));
   await assert.rejects(verifyOfflineHelp(installed),/ENOENT/);
   await cp(source,installed,{recursive:true,force:true});
-  await writeFile(path.join(installed,"fr","overview.md"),"# Texte périmé\n\nNouvelle version non indexée.");
+  await writeFile(path.join(installed,"fr","overview.md"),"# Texte périmé\n\nCe document a été modifié volontairement et contient assez de texte pour dépasser le seuil minimal de taille tout en rendant son index de recherche obsolète.");
   await assert.rejects(verifyOfflineHelp(installed),/help-package-index-stale/);
  }finally{await rm(temp,{recursive:true,force:true});}
 });
