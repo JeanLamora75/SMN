@@ -3,6 +3,7 @@ import {tmpdir} from "node:os";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {buildHelpIndexes} from "./build-help-index.mjs";
+import {validateCamilleDraft} from "./camille-document-contract.mjs";
 
 const projectRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 
@@ -34,13 +35,29 @@ export async function runCamillePilot({root=projectRoot,evidenceFile}={}){
    await mkdir(path.join(directory,locale),{recursive:true});
    await writeFile(path.join(directory,locale,"overview.md"),created[locale],"utf8");
   }
+  const verifiedAt=new Date().toISOString().slice(0,10);
+  for(const locale of ["fr","en"]){
+   await validateCamilleDraft({
+    root,articleId:"overview",locale,markdown:created[locale],
+    evidence:[{claim:"Le Centre d'aide est accessible en tant que page SMN",
+     status:"vérifié",verifiedAt,
+     sources:["src/lib/help-catalog.ts","src/app/app/help/page.tsx"]}]
+   });
+  }
   const initial=await buildHelpIndexes({base:directory});
   await buildHelpIndexes({base:directory,check:true});
   for(const locale of ["fr","en"]){
    const target=path.join(directory,locale,"overview.md");
    const original=await readFile(target,"utf8");
    if(original!==created[locale])throw Error("camille-pilot-unexpected-created-draft");
-   await writeFile(target,original+appended[locale],"utf8");
+   const updatedDraft=original+appended[locale];
+   await validateCamilleDraft({
+    root,articleId:"overview",locale,markdown:updatedDraft,
+    evidence:[{claim:"La checklist utilise localStorage",
+     status:"vérifié",verifiedAt,
+     sources:["src/app/app/help/help-setup-checklist.tsx"]}]
+   });
+   await writeFile(target,updatedDraft,"utf8");
    if((await readFile(target,"utf8"))===original)throw Error("camille-pilot-no-change");
   }
   let rejectedStale=false;
