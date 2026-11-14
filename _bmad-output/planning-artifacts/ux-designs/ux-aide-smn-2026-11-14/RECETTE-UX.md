@@ -25,6 +25,23 @@
 | HELP-19 | FR/EN, clair/sombre, palettes, sidebar fermée, 200% zoom, mobile portrait et tablette sans overflow forcé | Non testé |
 | HELP-20 | L'aide fonctionne hors Internet à partir de la documentation installée, sans fournisseur externe requis | Non testé |
 
+## Contrats complémentaires validés par Winston (14/11/2026)
+
+| ID | Contrôle attendu | État |
+|---|---|---|
+| HELP-21 | Aucune table, migration, requête API mutante ou écriture PostgreSQL provoquée par le Centre d'aide, les modales ou la checklist | Non testé |
+| HELP-22 | Progression strictement locale dans `localStorage`, conservée au rechargement sur le même navigateur/origine ; aucune synchronisation ni intégration à la sauvegarde SMN | Non testé |
+| HELP-23 | Absence ou erreur de stockage local signalée ; aucune confirmation de sauvegarde mensongère | Non testé |
+| HELP-24 | Articles longs séparés des fichiers JSON généraux, un dossier et index par langue, identifiants stables | Non testé |
+| HELP-25 | Chargement initial sans corps documentaires ; ouverture d'une aide ciblée sans chargement des autres articles ni locales | Non testé |
+| HELP-26 | Index de recherche chargé pour la langue active seulement ; absence de requête à une API web externe ou à PostgreSQL | Non testé |
+| HELP-27 | Ajout d'une langue documentaire sans duplication des composants ; contrôle de couverture des articles, liens et traductions | Non testé |
+| HELP-28 | Consultation du ZIP Windows hors Internet externe, y compris recherche et modale, serveur SMN local démarré | Non testé |
+| HELP-29 | Repli de traduction visible et explicite, sans afficher une page française comme si elle était traduite | Non testé |
+| HELP-30 | Les états de la checklist ne contiennent aucune donnée personnelle ou métier et n'impliquent aucune validation automatique | Non testé |
+
+**Référence d'architecture :** [ARCHITECTURE-AIDE.md](ARCHITECTURE-AIDE.md).
+
 ## Preuves attendues
 
 - Captures Centre d'aide desktop/mobile et modale d'un écran Paramètres, dans les thèmes disponibles.
