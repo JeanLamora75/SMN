@@ -13,7 +13,7 @@ You must be signed in and have access to at least one team. Editing the catalog 
 
 ## Administration
 
-- An administrator can review [indicator settings](/app/admin/settings/indicators), definitions and permissions.
+- An administrator can review indicator settings from Settings, including definitions and permissions.
 - Before changing a formula, inspect its dependencies and potential effects on dashboards and reports.
 - If an action is unavailable, review your role and selected team rather than bypassing access checks.
 
