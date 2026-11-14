@@ -6,6 +6,7 @@ import {withSessionReadDb} from "@/server/auth/database";
 import {readAccountDashboard} from "@/server/dashboard/read";
 import {helpCatalog,type HelpSection,type HelpMode} from "@/lib/help-catalog";
 import {loadHelpContent} from "@/server/help-content";
+import {searchHelp} from "@/server/help-search";
 import {availableHelpArticleIds} from "@/server/help-available";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
@@ -22,13 +23,13 @@ const sections:readonly {id:HelpSection;key:"gettingStarted"|"configuration"|"mo
  {id:"troubleshooting",key:"troubleshooting",icon:"search"}
 ];
 
-export default async function HelpPage({searchParams}:{searchParams:Promise<{article?:string|string[]}>}){
+export default async function HelpPage({searchParams}:{searchParams:Promise<{article?:string|string[];q?:string|string[]}>}){
  const account=await currentAccount();
  if(!account)redirect("/login");
  if(account.must_change_password)redirect("/change-password");
  if(!canAccess(account,"read",{type:"collective",exists:true,inScope:true}))redirect("/app");
  const locale=await requestLocale();
- const t=(name:"title"|"subtitle"|"gettingStarted"|"configuration"|"modules"|"troubleshooting"|"empty"|"articleUnavailable"|"articleNotFound"|"back"|"open"|"upcoming"|"searchUpcoming"|"fallback"|"firstSetup"|"firstSetupComing"|"overview"|"tickets")=>
+ const t=(name:"title"|"subtitle"|"gettingStarted"|"configuration"|"modules"|"troubleshooting"|"empty"|"articleUnavailable"|"articleNotFound"|"back"|"open"|"upcoming"|"searchUpcoming"|"searchLabel"|"searchPlaceholder"|"searchButton"|"clearSearch"|"noResults"|"resultsCount"|"indexError"|"retrySearch"|"fallback"|"firstSetup"|"firstSetupComing"|"overview"|"tickets")=>
   translate(locale,(`helpCenter.${name}`) as Parameters<typeof translate>[1]);
  // This is an existing read-only SMN projection; help itself never mutates business data.
  const context=await withSessionReadDb(db=>readAccountDashboard(db,
@@ -38,7 +39,11 @@ export default async function HelpPage({searchParams}:{searchParams:Promise<{art
  const permitted=helpCatalog(account,mode);
  const available=await availableHelpArticleIds(locale);
  const visible=permitted.filter(item=>available.has(item.id));
- const requested=(await searchParams).article;
+ const params=await searchParams;
+ const requested=params.article;
+ const rawQuery=typeof params.q==="string"?params.q:"";
+ const query=rawQuery.trim().slice(0,120);
+ const searchResult=!requested&&query?await searchHelp(query,locale,account,mode):null;
  const articleId=typeof requested==="string"?requested:null;
  const selected=articleId?visible.find(item=>item.id===articleId):null;
  const result=selected?await loadHelpContent(selected.id,locale,account,mode):null;
@@ -62,7 +67,35 @@ export default async function HelpPage({searchParams}:{searchParams:Promise<{art
      <p role="status" className="text-secondary">{selected?t("articleUnavailable"):t("articleNotFound")}</p>}
    </section>:
    <>
-    <p className="smn-help-search-notice text-secondary mb-4"><BootstrapIcon name="search"/> {t("searchUpcoming")}</p>
+    <section className="smn-panel rounded-4 p-4 mb-4 smn-help-search">
+     <form method="get" action="/app/help" role="search" className="smn-help-search-form">
+      <label htmlFor="smn-help-query" className="form-label fw-semibold">{t("searchLabel")}</label>
+      <div className="d-flex gap-2 flex-wrap">
+       <input id="smn-help-query" name="q" type="search" className="form-control flex-grow-1"
+        defaultValue={query} placeholder={t("searchPlaceholder")} maxLength={120}/>
+       <button type="submit" className="btn btn-primary d-inline-flex align-items-center gap-2">
+        <BootstrapIcon name="search"/>{t("searchButton")}
+       </button>
+       {query&&<Link className="btn btn-outline-secondary" href="/app/help">{t("clearSearch")}</Link>}
+      </div>
+     </form>
+     {searchResult&&<div className="mt-3" aria-live="polite">
+      {searchResult.status==="unavailable"?
+       <div role="alert"><p>{t("indexError")}</p>
+        <Link className="btn btn-outline-primary" href={`/app/help?q=${encodeURIComponent(query)}`}>{t("retrySearch")}</Link>
+       </div>:
+       searchResult.hits.length===0?<p className="mb-0">{t("noResults")}</p>:
+       <div><p className="text-secondary">{t("resultsCount")} : {searchResult.hits.length}</p>
+        <ul className="list-unstyled mb-0">
+         {searchResult.hits.map(item=><li key={item.id} className="mb-2">
+          <Link className="smn-help-article-link" href={`/app/help?article=${encodeURIComponent(item.id)}`}>
+           {item.title}<BootstrapIcon name="arrow-right"/>
+          </Link>
+         </li>)}
+        </ul>
+       </div>}
+     </div>}
+    </section>
     <div className="smn-help-grid mb-4">
      {sections.map(section=>{
       const items=visible.filter(item=>item.section===section.id);
