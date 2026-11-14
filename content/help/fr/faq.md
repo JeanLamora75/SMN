@@ -26,7 +26,7 @@ Vérifiez le cycle, l'équipe, les saisies et les sources de la formule. Une abs
 
 ## Pourquoi une sauvegarde ne peut-elle pas être restaurée ?
 
-L'inventaire des archives et les contrôles de restauration sont accessibles dans [Maintenance](/app/admin/settings/maintenance), selon vos droits. Une archive présente n'implique pas l'autorisation de restaurer ; les protections de restauration doivent être satisfaites.
+Si votre compte dispose des autorisations nécessaires, vous pouvez consulter l'inventaire des archives et les contrôles de restauration depuis Paramètres > Maintenance. Une archive présente n'implique pas l'autorisation de restaurer ; les protections de restauration doivent être satisfaites.
 
 ## Pourquoi mes coches d'aide ont-elles disparu sur un autre ordinateur ?
 
