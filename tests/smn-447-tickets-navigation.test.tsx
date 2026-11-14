@@ -29,6 +29,9 @@ test("SMN-447 — Tickets reste accessible au rôle admin et utilisateur en Scru
    const tickets=entries.find(entry=>entry.id==="tickets");
    assert.equal(tickets?.href,"/app/tickets");
    assert.equal(tickets?.label,"tickets.navigation");
+   const ids=entries.map(entry=>entry.id);
+   assert.equal(ids.indexOf("tickets"),ids.indexOf("cycles")+1);
+   assert.equal(ids.indexOf("centralCalendar"),ids.indexOf("tickets")+1);
    assert.ok(tickets&&activePrivateEntry("/app/tickets",tickets));
    assert.ok(tickets&&activePrivateEntry("/app/tickets/detail",tickets));
   }
