@@ -41,8 +41,10 @@ describe("SMN-25 — structure responsive et accessibilité de base",()=>{
     assert.match(css,/\.smn-accounts-responsive\{overflow-x:visible;\}/);
     assert.match(css,/\.smn-accounts-table tbody td\{display:grid/);
     assert.match(css,/content:attr\(data-label\)/);
-    assert.match(table,/aria-label=\{t\("accounts\.roleFor"/);
-    assert.match(table,/aria-label=\{t\("accounts\.accessFor"/);
+    assert.match(table,/data-label=\{t\("accounts\.roleCol"\)\}/);
+    assert.match(table,/id="account-edit-role"/);
+    assert.match(table,/data-label=\{t\("accounts\.accessCol"\)\}/);
+    assert.match(table,/smn-account-editor-dialog/);
   });
   it("relie les messages des formulaires à leurs contrôles et distingue erreurs de succès",()=>{
     for(const [path,selector] of [
