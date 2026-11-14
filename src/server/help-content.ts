@@ -1,5 +1,6 @@
 import {readFile} from "node:fs/promises";
 import path from "node:path";
+import {helpResourcesRoot} from "./help-path";
 import {helpArticleById,type HelpMode} from "@/lib/help-catalog";
 import type {AccessActor} from "@/server/access-policy";
 
@@ -10,7 +11,7 @@ export type HelpContentResult=
 
 const ID=/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const LOCALE=/^[a-z]{2,3}(?:-[a-z]{2})?$/;
-const DEFAULT_ROOT=path.join(process.cwd(),"content","help");
+const DEFAULT_ROOT=helpResourcesRoot();
 
 /**
  * Reads one permitted article at a time. No wildcard imports, SQL or HTTP.
