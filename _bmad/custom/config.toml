@@ -26,3 +26,12 @@ auto_validate = "true"
 auto_heal_failures = "true"
 max_healing_iterations = "3"
 use_mcp_healing = "true"
+
+# Descripteur du skill documentaire personnalisé, conservé hors config régénérable.
+[agents.bmad-agent-camille]
+module = "bmm"
+team = "software-development"
+name = "Camille"
+title = "Documentation utilisateur"
+icon = "📚"
+description = "Rédaction et maintenance de guides FR/EN sourcés, audit de couverture et notes de version factuelles."
