@@ -19,7 +19,7 @@ describe("Localized help loading",()=>{
   if(r.status!=="ready")return;
   assert.equal(r.contentLocale,"en");
   assert.equal(r.isFallback,false);
-  assert.match(r.markdown,/Getting started/);
+  assert.match(r.markdown,/First-time configuration/);
   assert.equal(helpContentNotice(r),null);
   assert.doesNotMatch(r.markdown,/Bien démarrer/);
  });
@@ -35,7 +35,7 @@ describe("Localized help loading",()=>{
  it("does not reveal an article restricted to administrators",async()=>{
   const r=await loadHelpContent("general-settings","fr",user,"scrum",root);
   assert.equal(r.status,"forbidden");
-  assert.equal((await loadHelpContent("general-settings","fr",admin,"scrum",root)).status,"unavailable");
+  assert.equal((await loadHelpContent("general-settings","fr",admin,"scrum",root)).status,"ready");
  });
  it("blocks unknown IDs, invalid locales, path traversal and inapplicable modes",async()=>{
   for(const id of ["../secrets","__proto__","not-registered","tickets/other"]){
@@ -61,7 +61,7 @@ describe("Localized help loading",()=>{
  });
  it("keeps long help bodies out of the global language catalogs",async()=>{
   const [fr,en]=await Promise.all(["fr","en"].map(x=>readFile(path.join("src/i18n",x+".json"),"utf8")));
-  for(const body of ["Getting started with SMN","Bien démarrer avec SMN","The Tickets module provides"]){
+  for(const body of ["First-time configuration of SMN","Première configuration de SMN","The Tickets module provides"]){
    assert.equal(fr.includes(body),false);
    assert.equal(en.includes(body),false);
   }
