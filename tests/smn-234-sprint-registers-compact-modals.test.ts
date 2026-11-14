@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {describe,it} from "node:test";
 import {createElement} from "react";
 import {renderToStaticMarkup} from "react-dom/server";
+import {AppRouterContext} from "next/dist/shared/lib/app-router-context.shared-runtime";
 import {readFileSync} from "node:fs";
 import SprintRegisterRow from "../src/app/app/admin/sprints/[sprintId]/sprint-register-row";
 import type {RegisterKind,SprintRegister} from "../src/lib/sprint-registers";
@@ -16,13 +17,13 @@ const fixture=(kind:RegisterKind,href:string|null="/app/admin/registries/"+id):S
  closedAt:null,teamIds:["team-1"],sprintIds:["sprint-1"],href
 });
 const render=(kind:RegisterKind,opts:{manage?:boolean;historical?:boolean;href?:string|null}={})=>
- renderToStaticMarkup(createElement(SprintRegisterRow,{
+ renderToStaticMarkup(createElement(AppRouterContext.Provider,{value:{back(){},forward(){},refresh(){},push(){},replace(){},prefetch(){}}},createElement(SprintRegisterRow,{
   item:fixture(kind,opts.href===undefined?undefined:opts.href),
   teamId:"team-1",canManage:opts.manage??true,historical:opts.historical??false,
   typeLabel:"Risques",statusLabel:kind==="highlight"?null:"Ouvert",
   priorityLabel:kind==="risk"?"Priorité : Moyenne":null,
   dateLabel:"Date métier",formattedDate:"24 oct. 2026"
- }));
+ })));
 
 describe("SMN-234 — Registres compacts et modales de l'onglet Sprint",()=>{
  it("statut avant titre, priorité, date et crayon sur la même ligne",()=>{
