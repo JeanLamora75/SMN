@@ -103,3 +103,23 @@ test("La modale affiche les six en-têtes CSV exacts du contrat, en FR et EN",()
   assert.match(html,language==="fr"?/Leur ordre est libre/:/They can appear in any order/);
  }
 });
+
+test("Les fichiers CSV UTF-8 et Windows-1252 conservent les accents",()=>{
+ const {decodeTicketCsvBytes}=require("../src/lib/ticket-csv-encoding") as typeof import("../src/lib/ticket-csv-encoding");
+ const csv=columns+"\nSMN-46,Story,Capacité de développement et jours fériés,Medium,Terminé,2\n";
+ const utf8=decodeTicketCsvBytes(new TextEncoder().encode(csv));
+ assert.equal(utf8.encoding,"utf-8");
+ assert.equal(validateTicketCsv(utf8.text).rows[0].title,"Capacité de développement et jours fériés");
+ const windows1252=Uint8Array.from([...csv].map(char=>{
+  const code=char.charCodeAt(0);
+  assert.ok(code<=255,"Fixture uniquement compatible avec Windows-1252");
+  return code;
+ }));
+ const decoded=decodeTicketCsvBytes(windows1252);
+ assert.equal(decoded.encoding,"windows-1252");
+ const parsed=validateTicketCsv(decoded.text);
+ assert.equal(parsed.valid,true);
+ assert.equal(parsed.rows[0].title,"Capacité de développement et jours fériés");
+ assert.equal(parsed.rows[0].status,"Terminé");
+ assert.doesNotMatch(decoded.text,/\uFFFD/);
+});
