@@ -16,7 +16,7 @@ export default function TicketsMetrics({summary,hasFilters}:Props){
   <h4 id={id}>{title}</h4>
   {items.length?<div className="smn-tickets-metric-breakdown-table">
    <div className="smn-tickets-metric-breakdown-header">
-    <span className="visually-hidden">{title}</span>
+    <span aria-hidden="true" />
     <span>{t("tickets.metricsTickets")}</span>
     <span>{t("tickets.metricsGroupStoryPoints")}</span>
    </div>
