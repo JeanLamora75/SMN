@@ -196,11 +196,13 @@ export default function TicketsImportDialog({scope,cycleName,onClose,onSaved}:Im
       accept=".csv,text/csv" required disabled={busy}
       onChange={event=>{setFile(event.target.files?.[0]??null);clearValidation();}}/>
      <small>{t("tickets.importFileHelp")}</small>
-     <section className="smn-tickets-import-columns" aria-labelledby="smn-tickets-import-columns-title">
-      <h3 id="smn-tickets-import-columns-title">{t("tickets.importExpectedColumnsTitle")}</h3>
-      <ol>{TICKET_CSV_COLUMNS.map(column=><li key={column}><code>{column}</code></li>)}</ol>
-      <p>{t("tickets.importExpectedColumnsHelp")}</p>
-     </section>
+     <details className="smn-tickets-import-columns">
+      <summary id="smn-tickets-import-columns-title">{t("tickets.importExpectedColumnsTitle")}</summary>
+      <div className="smn-tickets-import-columns-content">
+       <ol>{TICKET_CSV_COLUMNS.map(column=><li key={column}><code>{column}</code></li>)}</ol>
+       <p>{t("tickets.importExpectedColumnsHelp")}</p>
+      </div>
+     </details>
     </div>
     <div className="smn-tickets-import-field">
      <label className="form-label" htmlFor="smn-tickets-import-date">{t("tickets.importDate")}</label>
