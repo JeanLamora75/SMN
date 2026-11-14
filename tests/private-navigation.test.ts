@@ -16,7 +16,7 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
   for(const role of ["admin","user"] as const){
    const main=privateNavigation("scrum",role)[0].entries;
    assert.deepEqual(main.map(e=>e.id),[
-    "dashboard","members","cycles","centralCalendar","risks","links","reporting","tickets"
+    "dashboard","members","cycles","tickets","centralCalendar","risks","links","reporting"
    ]);
    assert.equal(privateNavigation("scrum",role).flatMap(g=>g.entries)
     .filter(e=>e.id==="settings").length,role==="admin"?1:0);
@@ -90,7 +90,11 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
     }
   assert.deepEqual(privateNavigation("scrum","admin")[0].entries
    .map(e=>translate("fr",e.label)),
-   ["Tableau de Bord","Équipe","Sprint","Calendrier","Registre","Liens","Rapports","Tickets"]);
+   ["Tableau de Bord","Équipes","Sprints","Tickets","Calendrier","Registre","Liens","Rapports"]);
+  assert.deepEqual(privateNavigation("scrum","admin",true)[0].entries.map(e=>translate("en",e.label)),
+   ["Dashboard","Teams","Sprints","Tickets","Calendar","Indicators","Register","Links","Reports"]);
+  assert.deepEqual(privateNavigation("scrum","admin",true)[0].entries.map(e=>translate("fr",e.label)),
+   ["Tableau de Bord","Équipes","Sprints","Tickets","Calendrier","Indicateurs","Registre","Liens","Rapports"]);
   assert.equal(translate("fr","navigation.entries.settings"),"Paramètres");
  });
  it("conserve le contrôle d'accès serveur indépendamment de l'affichage des menus",()=>{
