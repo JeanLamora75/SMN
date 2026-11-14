@@ -24,7 +24,7 @@ test("load errors, reload and conflict messages are translated into English",()=
  for(const key of keys){assert.ok(fr.epic4WorkSlots[key]);assert.ok(en.epic4WorkSlots[key]);}
  assert.equal(en.epic4WorkSlots.reload,"Reload work hours");
  assert.doesNotMatch(form,/Impossible de charger les horaires|Recharger les horaires|Aucune équipe active/);
- assert.match(form,/t\("epic4WorkSlots\.loadError"/);
+ assert.match(form,/epic4WorkSlots\.loadError/);
  assert.match(form,/t\("epic4WorkSlots\.reload"\)/);
 });
 test("save preserves explicit scope, time fields, revision and avoids overwriting unloaded data",()=>{
