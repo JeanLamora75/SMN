@@ -38,7 +38,7 @@ async function bundle(){
    build.onResolve({filter:/^react$/,namespace:"fixture"},()=>
     ({path:require.resolve("react")}));
    // The production component imports CSS; browser fixture styles are served separately.
-   build.onResolve({filter:/\\.css$/},()=>({path:"help-css",namespace:"fixture-style"}));
+   build.onResolve({filter:/\.css$/},()=>({path:"help-css",namespace:"fixture-style"}));
    build.onLoad({filter:/.*/,namespace:"fixture-style"},()=>
     ({contents:"",loader:"js"}));
    build.onLoad({filter:/.*/,namespace:"fixture"},()=>({
@@ -68,6 +68,7 @@ test("SMN-465 — Chromium: progression locale, recharge, réversibilité et err
    args:["--no-sandbox","--disable-dev-shm-usage","--no-first-run"]});
   const url="http://127.0.0.1:"+address.port+"/";
   const page=await browser.newPage();
+  await page.evaluateOnNewDocument("globalThis.__name = (fn) => fn;");
   await page.goto(url);
   await page.addScriptTag({content:javascript});
   await page.waitForSelector(".smn-help-setup-step");
@@ -99,6 +100,7 @@ test("SMN-465 — Chromium: progression locale, recharge, réversibilité et err
   assert.match(await page.$eval(".smn-help-onboarding",node=>node.textContent??""),/0 étapes déclarées terminées/);
   const isolated=await browser.createBrowserContext();
   const other=await isolated.newPage();
+  await other.evaluateOnNewDocument("globalThis.__name = (fn) => fn;");
   await other.goto(url);
   await other.addScriptTag({content:javascript});
   await other.waitForSelector(".smn-help-setup-step");
