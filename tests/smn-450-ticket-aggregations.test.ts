@@ -115,6 +115,8 @@ test("SMN-450 — écrans Cockpit Agile et i18n FR/EN des métriques",()=>{
  assert.match(ui,/summary\.filtered/);
  assert.match(ui,/group\.storyPoints\.sum/);
  assert.match(ui,/tickets\.metricsGroupStoryPoints/);
+ assert.match(ui,/<span aria-hidden="true"\s*\/>/);
+ assert.doesNotMatch(ui,/className="visually-hidden">\{title\}<\/span>/);
  assert.match(ui,/summary\.all/);
  assert.match(page,/<TicketsMetrics summary=\{data\.summary\}/);
  for(const lang of ["fr","en"] as const)
