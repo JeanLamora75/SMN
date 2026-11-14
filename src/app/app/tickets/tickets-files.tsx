@@ -194,7 +194,7 @@ export default function TicketsFiles(){
          <td>{importLabel(item.importedAt)}</td>
          <td>{item.rowCount}</td>
          <td><div className="smn-tickets-row-actions">
-          <button className="btn btn-outline-primary btn-sm" type="button"
+          <button className={"btn btn-sm smn-tickets-select-button "+(item.snapshotId===selectedId?"btn-primary is-selected":"btn-outline-primary")} type="button"
             aria-label={t("tickets.fileSelected",{filename:item.originalFilename})}
             aria-pressed={item.snapshotId===selectedId} onClick={()=>setSelectedId(item.snapshotId)}>
            <BootstrapIcon name="list-ul"/> {t("tickets.select")}
