@@ -5285,6 +5285,9 @@
     "noResults": "Aucun article ne correspond à votre recherche.",
     "resultsCount": "Articles trouvés",
     "indexError": "La recherche est momentanément indisponible.",
-    "retrySearch": "Réessayer"
+    "retrySearch": "Réessayer",
+    "close": "Fermer",
+    "loading": "Chargement de l’aide…",
+    "fullGuide": "Consulter le guide complet"
   }
 }
