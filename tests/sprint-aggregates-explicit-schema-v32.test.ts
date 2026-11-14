@@ -6,6 +6,13 @@ const services=["creation.ts","goals.ts","historical-actual-capacity.ts","histor
 test("Sprint: huit services d'agrégats sans DDL à l'exécution",()=>{
  for(const name of readdirSync(new URL("../src/server/sprints/",import.meta.url)).filter(n=>n.endsWith(".ts"))){
   const src=read("src/server/sprints/"+name);
+  if(name==="work-slot-schema-repair.ts"){
+   // This admin-only repair deliberately creates one legacy table after explicit authorization.
+   assert.match(src,/export async function repairMissingWorkSlotsTable/);
+   assert.match(src,/CREATE TABLE public\.smn_team_work_slots/);
+   assert.match(src,/pg_advisory_xact_lock/);
+   continue;
+  }
   assert.doesNotMatch(src,/\b(?:CREATE|ALTER|DROP)\s+(?:TABLE|INDEX)\b/i,name);
   if(services.includes(name)){
    const relocated=name==="story-points.ts"||name==="ticket-counts.ts";
