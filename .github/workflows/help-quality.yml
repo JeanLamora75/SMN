@@ -4,6 +4,11 @@ on:
     branches: [main]
     paths:
       - "content/help/**"
+      - ".agents/skills/bmad-agent-camille/**"
+      - "_bmad/custom/bmad-agent-camille.toml"
+      - "_bmad/custom/config.toml"
+      - "scripts/camille-*.mjs"
+      - "tests/smn-470-camille-skill.test.mjs"
       - "src/app/app/help/**"
       - "src/server/help-*.ts"
       - "src/lib/help-*.ts"
@@ -91,6 +96,18 @@ jobs:
           path: audit-output/help-qa/*.png
           if-no-files-found: warn
           retention-days: 14
+      - name: SMN-470 — valider le skill Camille et ses cinq critères Jira
+        run: node --test --test-reporter=spec tests/smn-470-camille-skill.test.mjs
+      - name: SMN-470 — exécuter le pilote documentaire FR/EN isolé
+        run: node scripts/camille-pilot.mjs --evidence _bmad-output/test-artifacts/camille/pilot-smn-470.md
+      - name: Archiver les preuves du pilote Camille
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smn-470-camille-pilot
+          path: _bmad-output/test-artifacts/camille/pilot-smn-470.md
+          if-no-files-found: warn
+          retention-days: 30
       - name: TypeScript et i18n
         run: |
           pnpm typecheck
