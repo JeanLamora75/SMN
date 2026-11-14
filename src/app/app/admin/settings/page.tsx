@@ -6,6 +6,7 @@ import {translate} from "@/i18n/catalog";
 import {withAuthDb} from "@/server/auth/database";
 import {settingsCatalog} from "@/lib/settings-catalog";
 import SettingsCatalogView from "./settings-catalog-view";
+import HelpHeaderAction from "../../help/help-header-action";
 export const dynamic="force-dynamic";
 export default async function SettingsPortalPage(){
  const account=await currentAccount();
@@ -29,7 +30,10 @@ export default async function SettingsPortalPage(){
  const groups=settingsCatalog(mode,account);
  return <main className="smn-page smn-team-page container-fluid py-4 px-3 px-lg-4">
   <header className="mb-4">
+   <div className="d-flex justify-content-between align-items-start gap-3 flex-wrap">
    <h1 className="h3">{t("navigation.entries.settings")}</h1>
+   <HelpHeaderAction screenTitle={t("navigation.entries.settings")}/>
+   </div>
    <p className="text-secondary">{t("settingsPortal.subtitle")}</p>
   </header>
   <SettingsCatalogView groups={groups}/>
