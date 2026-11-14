@@ -97,6 +97,31 @@ test("SMN-450 — tri des regroupements et libellés libres sans catalogue contr
  assert.equal(summary.byType[1].storyPoints.sum,null);
 });
 
+
+test("Répartition estimé/non estimé : zéro est estimé et invalides restent non estimés",()=>{
+ const summary=browseTicketCsv(sample).summary.all;
+ assert.deepEqual(summary.byEstimation.map(({value,count,storyPoints})=>({
+  value,count,sum:storyPoints.sum,
+ })),[
+  {value:"estimated",count:4,sum:"4"},
+  {value:"notEstimated",count:2,sum:"0"},
+ ]);
+ const filtered=browseTicketCsv(sample,{issueType:"Story",page:1,pageSize:25});
+ assert.equal(filtered.summary.filtered.byEstimation[0].count,1);
+ assert.equal(filtered.summary.filtered.byEstimation[0].storyPoints.sum,"2");
+ assert.equal(filtered.summary.filtered.byEstimation[1].count,1);
+ assert.equal(filtered.summary.filtered.byEstimation[1].storyPoints.sum,"0");
+ assert.equal(filtered.summary.all.byEstimation[0].count,4);
+ const missing=browseTicketCsv(header+"\\nA-1,Story,Non estimé,Low,To do,ND").summary.all;
+ assert.equal(missing.byEstimation[0].count,0);
+ assert.equal(missing.byEstimation[1].count,1);
+ assert.equal(missing.byEstimation[1].storyPoints.sum,"0");
+ const zero=browseTicketCsv(header+"\\nA-1,Story,Zéro,Low,To do,0").summary.all;
+ assert.equal(zero.byEstimation[0].count,1);
+ assert.equal(zero.byEstimation[0].storyPoints.sum,"0");
+ assert.equal(zero.byEstimation[1].count,0);
+});
+
 test("SMN-450 — service de consultation expose les deux périmètres avant pagination",()=>{
  const api=readFileSync("src/app/api/admin/tickets/browse/route.ts","utf8");
  const engine=readFileSync("src/lib/ticket-csv-browse.ts","utf8");
@@ -115,13 +140,14 @@ test("SMN-450 — écrans Cockpit Agile et i18n FR/EN des métriques",()=>{
  assert.match(ui,/summary\.filtered/);
  assert.match(ui,/group\.storyPoints\.sum/);
  assert.match(ui,/tickets\.metricsGroupStoryPoints/);
+ assert.match(ui,/current\.byEstimation/);
  assert.match(ui,/<span aria-hidden="true"\s*\/>/);
  assert.doesNotMatch(ui,/className="visually-hidden">\{title\}<\/span>/);
  assert.match(ui,/summary\.all/);
  assert.match(page,/<TicketsMetrics summary=\{data\.summary\}/);
  for(const lang of ["fr","en"] as const)
   for(const key of ["metricsTitle","metricsFiltered","metricsAll","metricsByStatus",
-   "metricsMissing","metricsInvalid","metricsNoSum","metricsByPrefix","metricsGroupStoryPoints"]){
+   "metricsMissing","metricsInvalid","metricsNoSum","metricsByPrefix","metricsGroupStoryPoints","metricsByStoryPoints","metricsEstimated","metricsNotEstimated"]){
    const value=translate(lang,("tickets."+key) as Parameters<typeof translate>[1]);
    assert.ok(value.trim());
    assert.doesNotMatch(value,/translation unavailable|traduction indisponible/i);
