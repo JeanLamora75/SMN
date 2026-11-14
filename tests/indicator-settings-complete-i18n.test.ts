@@ -21,7 +21,7 @@ test("expression descriptions, categories and clipboard labels switch with langu
  assert.match(guide,/englishDescriptions/);
  assert.match(guide,/categoryLabels\[entry\.category\]/);
  assert.match(guide,/indicatorSettingsUi\.copy/);
- const list=guide.match(/const englishDescriptions=\[([^;]+)\];/)?.[1];
+ const list=guide.match(/const englishDescriptions=(\[[\s\S]*?\]);/)?.[1];
  assert.ok(list,"English expression descriptions must exist");
  assert.equal(JSON.parse(list).length,16);
 });
