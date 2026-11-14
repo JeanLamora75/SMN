@@ -1,5 +1,6 @@
 import {readFile} from "node:fs/promises";
 import path from "node:path";
+import {helpResourcesRoot} from "./help-path";
 import {helpCatalog,type HelpMode} from "@/lib/help-catalog";
 import type {AccessActor} from "@/server/access-policy";
 
@@ -36,7 +37,7 @@ export function rankHelpSearch(
 /** The index is generated during build; only the active locale is read. No DB or external fetch. */
 export async function searchHelp(
  query:string,locale:string,actor:AccessActor|null|undefined,mode:HelpMode|null,
- root:string=path.join(process.cwd(),"content/help/.index")
+ root:string=path.join(helpResourcesRoot(),".index")
 ):Promise<HelpSearchResponse>{
  if(!LOCALE.test(locale))return {status:"unavailable",hits:[]};
  const permitted=new Set(helpCatalog(actor,mode).map(article=>article.id));
