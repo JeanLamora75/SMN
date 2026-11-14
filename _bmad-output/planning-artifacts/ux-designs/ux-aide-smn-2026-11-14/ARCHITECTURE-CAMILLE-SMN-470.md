@@ -34,7 +34,7 @@ _bmad-output/
   planning-artifacts/ux-designs/ux-aide-smn-2026-11-14/
     ARCHITECTURE-CAMILLE-SMN-470.md
   test-artifacts/camille/
-    pilot-s mn-470.md           # nom exact à utiliser : pilot-smn-470.md
+    pilot-smn-470.md         # rapport du scénario pilote
 tests/
   smn-470-camille-skill.test.mjs
 ```
