@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useCallback,useEffect,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 type Slots={morningStart:string;morningEnd:string;afternoonStart:string;afternoonEnd:string};
@@ -10,7 +10,7 @@ export default function WorkSlotsForm({teams=[]}:{teams?:readonly {id:string;nam
  const [missingSchema,setMissingSchema]=useState(false);
  const dirty=original!==null&&(JSON.stringify(slots)!==JSON.stringify(original.slots)||zone!==original.zone);
  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
- async function load(selectedTeamId:string|null=teamId){
+ const load=useCallback(async (selectedTeamId:string|null)=>{
   if(!selectedTeamId){setMessage(t("epic4WorkSlots.selectTeamRequired"));return;}
   setBusy(true);setMessage("");setMissingSchema(false);
   try{
@@ -32,8 +32,14 @@ export default function WorkSlotsForm({teams=[]}:{teams?:readonly {id:string;nam
    }else{setSlots(EMPTY);setRevision(0);setOriginal({slots:EMPTY,zone});}
   }catch{setMessage(t("epic4WorkSlots.networkError"));}
   finally{setBusy(false);}
- }
- useEffect(()=>{if(teams.length===1){const id=teams[0].id;queueMicrotask(()=>{setTeamId(id);void load(id);});}},[]);
+ },[t,zone]);
+ const soleTeamId=teams.length===1?teams[0].id:null;
+ const lastAutoLoadedTeam=useRef<string|null>(null);
+ useEffect(()=>{
+  if(!soleTeamId||lastAutoLoadedTeam.current===soleTeamId)return;
+  lastAutoLoadedTeam.current=soleTeamId;
+  queueMicrotask(()=>{setTeamId(soleTeamId);void load(soleTeamId);});
+ },[soleTeamId,load]);
  async function repairSchema(){
   if(busy||!missingSchema||!window.confirm(t("epic4WorkSlots.repairConfirm")))return;
   setBusy(true);setMessage("");
@@ -87,7 +93,7 @@ export default function WorkSlotsForm({teams=[]}:{teams?:readonly {id:string;nam
  <div className="row g-2">{fields.map(([key,label])=><div className="col-6" key={key}><label className="form-label" htmlFor={"slot-"+key}>{t(({morningStart:"epic4WorkSlots.morningStart",morningEnd:"epic4WorkSlots.morningEnd",afternoonStart:"epic4WorkSlots.afternoonStart",afternoonEnd:"epic4WorkSlots.afternoonEnd"} as const)[label])}</label><input type="time" className="form-control" id={"slot-"+key} value={slots[key]} onChange={e=>setSlots(v=>({...v,[key]:e.target.value}))}/></div>)}</div>
  <label className="form-label mt-3" htmlFor="slot-zone">{t("epic4WorkSlots.zone")}</label><input className="form-control" id="slot-zone" value={zone} onChange={e=>setZone(e.target.value)} maxLength={80}/>
  <button type="button" className="btn btn-primary mt-3" disabled={busy||!teamId||!original||Object.values(slots).some(v=>!v)} onClick={save}>{t("epic4WorkSlots.save")}</button>
- <button type="button" className="btn btn-outline-secondary mt-3 ms-2" disabled={busy} onClick={()=>void load()}>{t("epic4WorkSlots.reload")}</button>
+ <button type="button" className="btn btn-outline-secondary mt-3 ms-2" disabled={busy} onClick={()=>void load(teamId)}>{t("epic4WorkSlots.reload")}</button>
  {missingSchema&&<div className="mt-3" role="group" aria-label={t("epic4WorkSlots.repairTitle")}>
   <p className="small text-secondary mb-2">{t("epic4WorkSlots.repairHelp")}</p>
   <button type="button" className="btn btn-outline-warning" disabled={busy} onClick={()=>void repairSchema()}>
