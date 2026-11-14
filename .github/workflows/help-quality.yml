@@ -47,8 +47,14 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Vérifier la fraîcheur des index d'aide
         run: node scripts/build-help-index.mjs --check
-      - name: Vérifier la couverture des ressources et le paquet autonome
-        run: node --test --test-reporter=spec tests/smn-468-offline-help.test.mjs
+      - name: HELP offline 1 — couverture source
+        run: node --test --test-reporter=spec --test-name-pattern="source documentary" tests/smn-468-offline-help.test.mjs
+      - name: HELP offline 2 — copie de distribution
+        run: node --test --test-reporter=spec --test-name-pattern="Windows-like" tests/smn-468-offline-help.test.mjs
+      - name: HELP offline 3 — rejet ressources manquantes
+        run: node --test --test-reporter=spec --test-name-pattern="missing articles" tests/smn-468-offline-help.test.mjs
+      - name: HELP offline 4 — contrat packaging
+        run: node --test --test-reporter=spec --test-name-pattern="application packaging" tests/smn-468-offline-help.test.mjs
       - name: Contrats HELP-01 à HELP-30 — sécurité, langues, droits, contenu et localStorage
         run: |
           pnpm exec tsx --test \
