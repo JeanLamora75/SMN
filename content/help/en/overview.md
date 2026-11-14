@@ -10,16 +10,16 @@ This guide covers your first steps with Scrum Master Notebook after installation
 
 ## First configuration after sign-in
 
-- **general**: review [General settings](/app/admin/settings/general) as an administrator.
-- **team**: create a team under [Settings > Teams](/app/admin/settings/teams) if authorized.
+- **general**: if you are an administrator, review General settings from the Settings menu.
+- **team**: if you are an administrator, create a team from Settings > Teams.
 - **calendar**: check the [Team calendar](/app/team-calendar) and applicable working days.
-- **members**: check member profiles and assignments in [Team / Members](/app/admin/members).
-- **cadence**: prepare [Sprints](/app/admin/sprints) for Scrum or [Kanban periods](/app/admin/kanban-periods) for Kanban. Use the workflow for your team's mode.
+- **members**: if your account has the required access, review member profiles and assignments under Team / Members.
+- **cadence**: prepare sprints for Scrum or Kanban periods for Kanban, using the section that matches your team's Agile mode.
 - **tickets**: review [Tickets](/app/tickets) after selecting a team and cycle.
 - **reports**: open [Reports](/app/reports) when the required data is available.
-- **backup**: inspect backup features under [Maintenance](/app/admin/settings/maintenance) if permitted.
+- **backup**: if your account has backup permissions, open the Backups tab under Settings > Maintenance.
 
-These are real application screens. Some are unavailable without administration permissions; the checklist limits its steps based on your rights and Agile mode. Do not use an administrative action unless you are authorized.
+The direct links above lead to screens authorized accounts can read. Administrative operations are described without misleading links: use SMN navigation only when your account has the required rights. The Help center checklist filters applicable steps by your role and Agile mode.
 
 ## Track your progress
 
@@ -29,4 +29,4 @@ Progress is stored only in the browser profile for this SMN origin. It is not tr
 
 ## Backup and restore
 
-A backup archive alone does not authorize restoration. Check the verification status and security prerequisites under Maintenance before taking action.
+A backup archive alone does not authorize restoration. If your account can access Settings > Maintenance, review verification results and security prerequisites before restoring.
