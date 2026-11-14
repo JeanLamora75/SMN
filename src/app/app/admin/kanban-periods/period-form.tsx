@@ -2,6 +2,7 @@
 import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
+import HelpHeaderAction from "../../help/help-header-action";
 import {periodFromStart,normalizePeriodName} from "@/server/kanban/dates";
 type Cadence={frequency:"monthly"|"weekly"|"biweekly";timeZone:string;startDay:number;revision:number};
 export default function KanbanPeriodForm({canManage}:{canManage:boolean}){
