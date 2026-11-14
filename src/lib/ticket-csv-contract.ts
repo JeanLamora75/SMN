@@ -38,15 +38,6 @@ const MAX_ROWS = 20000;
 const normalize = (value: string): string =>
   value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase().replace(/\s+/g, " ");
 
-const columnAliases: Readonly<Record<TicketCsvColumn, readonly string[]>> = {
-  "id": ["id", "Id jira"],
-  "type": ["type", "Type de ticket"],
-  "resume": ["resume", "Titre du ticket"],
-  "priority": ["priority", "Priorité"],
-  "status": ["status", "Statut"],
-  "sp": ["sp", "Story points"],
-};
-
 export function isCompletedTicketStatus(status: string): boolean {
   const normalized = normalize(status);
   return normalized === "done" || normalized === "termine";
@@ -183,9 +174,8 @@ export function validateTicketCsv(raw: string): TicketCsvValidation {
       message: "Le fichier est vide ou ne contient aucun en-tête.", severity: "error" });
   } else {
     for (const column of TICKET_CSV_COLUMNS) {
-      const aliases = columnAliases[column].map(normalize);
       const matches = columns.flatMap((value, index) =>
-        aliases.includes(normalize(value)) ? [index] : []);
+        normalize(value) === normalize(column) ? [index] : []);
       if (matches.length === 0) {
         errors.push({ line: header.line, column, code: "missing-column",
           message: `Colonne manquante : ${column}.`, severity: "error" });
