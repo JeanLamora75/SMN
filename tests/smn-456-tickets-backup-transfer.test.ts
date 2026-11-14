@@ -12,7 +12,7 @@ import {
 import {inspectRestoreFileTree} from "../src/server/backup/restore-file-cutover-drill";
 import {fingerprintCurrentFileInventories} from "../src/server/backup/current-managed-file-fingerprint";
 
-const header="Id jira,Type de ticket,Titre du ticket,Priorité,Statut,Story points";
+const header="id,type,resume,priority,status,sp";
 const csv=header+"\nABC-1,Story,Ticket restauré,Haute,Terminé,3\n";
 const hash=(b:Buffer)=>createHash("sha256").update(b).digest("hex");
 const snapshotId=randomUUID(),date="2026-11-01";
