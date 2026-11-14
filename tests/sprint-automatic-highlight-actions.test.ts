@@ -12,7 +12,7 @@ test("live generated highlights get both actions; snapshots never get writable c
  assert.match(row,/const automaticHighlight=!historical&&item\.kind==="highlight"&&href===null&&canManage/);
  assert.match(row,/automaticHighlight&&<AutomaticHighlightActions/);
  assert.match(action,/name="pencil-square"/);
- assert.match(action,/name="trash3"/);
+ assert.match(action,/name="trash-fill"/);
  assert.match(action,/aria-label=\{tr\("delete"\)\+": "\+title\}/);
  assert.match(action,/window\.confirm\(tr\("confirm"\)/);
 });
