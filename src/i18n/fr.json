@@ -5277,6 +5277,14 @@
     "firstSetup": "Première configuration",
     "firstSetupComing": "Le parcours guidé et sa checklist arriveront prochainement.",
     "overview": "Présentation de SMN",
-    "tickets": "Tickets"
+    "tickets": "Tickets",
+    "searchLabel": "Rechercher dans la documentation",
+    "searchPlaceholder": "Ex. : tickets, équipe, configuration…",
+    "searchButton": "Rechercher",
+    "clearSearch": "Effacer la recherche",
+    "noResults": "Aucun article ne correspond à votre recherche.",
+    "resultsCount": "Articles trouvés",
+    "indexError": "La recherche est momentanément indisponible.",
+    "retrySearch": "Réessayer"
   }
 }
