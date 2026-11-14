@@ -61,7 +61,7 @@ export default function HelpSetupChecklist({steps}:{steps:readonly HelpSetupStep
      </div>
      <div className="d-flex flex-wrap align-items-center gap-2">
       <Link href={step.route} className="btn btn-sm btn-outline-secondary">
-       <BootstrapIcon name="box-arrow-up-right"/> {copy.openScreen}
+       <BootstrapIcon name="arrow-right"/> {copy.openScreen}
       </Link>
       <Link href={"/app/help?article="+encodeURIComponent(step.articleId)}
        className="btn btn-sm btn-outline-secondary">{copy.guide}</Link>
