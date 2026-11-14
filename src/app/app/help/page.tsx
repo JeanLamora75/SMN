@@ -5,6 +5,8 @@ import {canAccess} from "@/server/access-policy";
 import {withSessionReadDb} from "@/server/auth/database";
 import {readAccountDashboard} from "@/server/dashboard/read";
 import {helpCatalog,type HelpSection,type HelpMode} from "@/lib/help-catalog";
+import {helpSetupSteps} from "@/lib/help-setup";
+import HelpSetupChecklist from "./help-setup-checklist";
 import {loadHelpContent} from "@/server/help-content";
 import {searchHelp} from "@/server/help-search";
 import {availableHelpArticleIds} from "@/server/help-available";
@@ -37,6 +39,7 @@ export default async function HelpPage({searchParams}:{searchParams:Promise<{art
  const rawMode=context?.context?.mode;
  const mode:HelpMode|null=rawMode==="scrum"||rawMode==="kanban"?rawMode:null;
  const permitted=helpCatalog(account,mode);
+ const setupSteps=helpSetupSteps(permitted,mode);
  const available=await availableHelpArticleIds(locale);
  const visible=permitted.filter(item=>available.has(item.id));
  const params=await searchParams;
@@ -113,10 +116,7 @@ export default async function HelpPage({searchParams}:{searchParams:Promise<{art
       </section>;
      })}
     </div>
-    <section className="smn-panel rounded-4 p-4 smn-help-onboarding">
-     <h2 className="h5">{t("firstSetup")}</h2>
-     <p className="text-secondary mb-0">{t("firstSetupComing")}</p>
-    </section>
+    <HelpSetupChecklist steps={setupSteps}/>
    </>
   }
  </main>;
