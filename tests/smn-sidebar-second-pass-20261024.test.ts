@@ -5,30 +5,30 @@ import {privateNavigation,activePrivateEntry,type NavigationIcon} from "../src/l
 import {translate} from "../src/i18n/catalog";
 
 const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
-const ids=["dashboard","members","cycles","centralCalendar","risks","links","reporting"];
-const labels=["Tableau de Bord","Équipe","Sprint","Calendrier","Registre","Liens","Rapports"];
+const ids=["dashboard","members","cycles","tickets","centralCalendar","risks","links","reporting"];
+const labels=["Tableau de Bord","Équipes","Sprints","Tickets","Calendrier","Registre","Liens","Rapports"];
 
 describe("SMN — navigation latérale, second lot (six menus et Paramètres)",()=>{
- it("ordonne exactement les six menus demandés, sans sous-rubriques supplémentaires",()=>{
+ it("ordonne les menus métier, sans sous-rubriques supplémentaires",()=>{
   for(const role of ["admin","user"] as const){
    const groups=privateNavigation("scrum",role);
    assert.deepEqual(groups[0].entries.map(e=>e.id),ids);
    assert.deepEqual(groups[0].entries.map(e=>translate("fr",e.label)),labels);
    assert.equal(groups.length,role==="admin"?2:1);
    const all=groups.flatMap(g=>g.entries);
-   assert.deepEqual(all.slice(0,7).map(e=>e.id),ids);
+   assert.deepEqual(all.slice(0,8).map(e=>e.id),ids);
    assert.ok(!all.some(e=>["reviews","briefs","security","events"].includes(e.id)));
   }
  });
  it("conserve les destinations métier existantes sans fabriquer de page de rapports",()=>{
   const entries=privateNavigation("scrum","admin").flatMap(g=>g.entries);
   assert.deepEqual(entries.map(e=>e.href),[
-   "/app","/app/admin/members","/app/admin/sprints",
+   "/app","/app/admin/members","/app/admin/sprints","/app/tickets",
    "/app/team-calendar","/app/admin/registries","/app/admin/links","/app/reports","/app/admin/settings"
   ]);
   assert.equal(entries.filter(e=>e.id==="settings").length,1);
-  assert.equal(activePrivateEntry("/app/admin/registries/example",entries[4]),true);
-  assert.equal(activePrivateEntry("/app",entries[5]),false);
+  assert.equal(activePrivateEntry("/app/admin/registries/example",entries[5]),true);
+  assert.equal(activePrivateEntry("/app",entries[6]),false);
  });
  it("l'icône Registre est autorisée par NavigationIcon et réellement dessinée",()=>{
   const icon:NavigationIcon="stack";
