@@ -9,7 +9,7 @@ import {
 } from "../src/server/tickets/snapshot-storage";
 
 const scope:TicketScope={teamId:"team_1",cycleId:"sprint_1",mode:"scrum"};
-const header="Id jira,Type de ticket,Titre du ticket,Priorité,Statut,Story points";
+const header="id,type,resume,priority,status,sp";
 const csv=(status="Done")=>header+"\nTKT-1,Bug,Erreur dans la page,High,"+status+",3\n";
 async function fixture(t:{after:(callback:()=>Promise<void>)=>void}){
  const directory=await mkdtemp(path.join(tmpdir(),"smn-ticket-storage-"));
@@ -57,7 +57,7 @@ test("CSV invalide : aucun remplacement ni publication",async t=>{
  const {options}=await fixture(t);
  const first=await saveTicketSnapshot(scope,input(),options);
  await assert.rejects(
-  saveTicketSnapshot(scope,{...input("Id jira,Statut\nTKT-1,Done"),expectedSnapshotId:first.snapshotId},options),
+  saveTicketSnapshot(scope,{...input("id,status\nTKT-1,Done"),expectedSnapshotId:first.snapshotId},options),
   (e:unknown)=>e instanceof TicketStorageError&&e.code==="invalid-csv",
  );
  assert.equal((await readTicketSnapshot(scope,"2025-05-23",options))?.metadata.snapshotId,first.snapshotId);
