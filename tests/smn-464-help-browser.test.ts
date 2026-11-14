@@ -45,6 +45,13 @@ async function browserFixture(){
     ({path:"navigation",namespace:"fixture"}));
    build.onResolve({filter:/^next\/link$/},()=>
     ({path:"link",namespace:"fixture"}));
+   // Resolve React from the repository, not from the virtual fixture namespace.
+   build.onResolve({filter:/^react$/,namespace:"fixture"},()=>
+    ({path:require.resolve("react")}));
+   // The production component imports CSS; browser fixture styles are served separately.
+   build.onResolve({filter:/\\.css$/},()=>({path:"help-css",namespace:"fixture-style"}));
+   build.onLoad({filter:/.*/,namespace:"fixture-style"},()=>
+    ({contents:"",loader:"js"}));
    build.onLoad({filter:/.*/,namespace:"fixture"},(args:any)=>({
     contents:args.path==="navigation"?
      "export const usePathname=()=>window.location.pathname;":
