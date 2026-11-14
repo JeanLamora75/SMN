@@ -61,10 +61,13 @@ describe("SMN-28 — brouillons, sauvegardes explicites et sécurité",()=>{
     const settings=source("src/app/app/admin/settings/settings-form.tsx");
     const accounts=source("src/app/app/admin/users/users-admin.tsx");
     const security=source("src/app/app/security/security-form.tsx");
-    for(const component of [settings,accounts,security]){
+    for(const component of [settings,security]){
       assert.match(component,/useUnsavedChanges\(dirty\|\|busy/);
       assert.match(component,/draft\.pending/);
     }
+    assert.match(accounts,/useUnsavedChanges\(\(!!editor&&dirty\)\|\|busy/);
+    assert.match(accounts,/smn-account-editor-dialog/);
+    assert.match(accounts,/dirty&&!window\.confirm\(t\("draft\.discardWarning"\)\)/);
     assert.match(settings,/dirty&&\!window\.confirm\(t\("draft\.discardWarning"\)\)/);
     assert.match(accounts,/reconcileAccountEdits\(previous,drafts,data\.accounts,savedId\)/);
   });
@@ -75,7 +78,7 @@ describe("SMN-28 — brouillons, sauvegardes explicites et sécurité",()=>{
     assert.match(settings,/setSuccess\(t\(data\.changed/);
     const accounts=source("src/app/app/admin/users/users-admin.tsx");
     assert.match(accounts,/if\s*\(!response\.ok\)/);
-    assert.match(accounts,/if\(await refresh\(id\)\)setMessage\(t\("accounts\.updated"\)\)/);
-    assert.match(accounts,/if\(await refresh\(\)\)setMessage\(t\("accounts\.created"\)\)/);
+    assert.match(accounts,/if\(await refresh\(id\)\)\{setMessage\(t\("accounts\.updated"\)\);setEditor\(null\);\}/);
+    assert.match(accounts,/if\(await refresh\(\)\)\{setMessage\(t\("accounts\.created"\)\);setEditor\(null\);\}/);
   });
 });
