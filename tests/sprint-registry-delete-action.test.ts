@@ -24,7 +24,7 @@ test("permanent deletion reuses authorized revision-checked endpoint and user co
  assert.match(action,/window\.confirm\(tr\("confirm"/);
  assert.match(action,/method:"DELETE"/);
  assert.match(action,/JSON\.stringify\(\{teamId,revision\}\)/);
- assert.match(action,/iconOnly\?<BootstrapIcon name="trash3"\/>/);
+ assert.match(action,/iconOnly\?<BootstrapIcon name="trash-fill"\/>/);
  assert.match(action,/aria-label=\{tr\("button"\)\+" : "\+title\}/);
  assert.match(action,/setError\(tr\(key\)/);
  assert.match(api,/authorizeApi\(req,"write",\{type:"settings"/);
