@@ -6,6 +6,7 @@ import CalendarMeetingModal from "./calendar-meeting-modal";
 import MemberAbsenceEditor from "../admin/members/member-absence-editor";
 import {absenceNamesByDate,type CalendarAbsentMember} from "@/lib/calendar-absence-names";
 import BootstrapIcon from "../bootstrap-icon";
+import HelpHeaderAction from "../help/help-header-action";
 type Calendar={team:{name:string};central:{items:CalendarEntry[]};collective:{date:string;declaredAbsentMemberCount:number}[];
  admin?:{members:CalendarAbsentMember[]}};
 type Meeting=CalendarMeeting;
