@@ -32,6 +32,7 @@ export function privateNavigation(mode:PrivateMode|null,role:PrivateRole,canMana
    {id:"cycles",label:mode==="scrum"?"navigation.entries.sprint":
     mode==="kanban"?"navigation.entries.kanbanPeriods":"navigation.entries.cyclesUnknown",
     href:mode==="scrum"?"/app/admin/sprints":mode==="kanban"&&canManageIndicators?"/app/admin/kanban-periods":null,icon:"calendar-check"},
+   {id:"tickets",label:"tickets.navigation",href:"/app/tickets",icon:"ticket-perforated-fill"},
    {id:"centralCalendar",label:"navigation.entries.calendar",
     href:"/app/team-calendar",icon:"calendar3"},
    ...(canManageIndicators?[{id:"indicators",label:"indicators.navTitle" as TranslationKey,href:"/app/admin/indicators",icon:"sliders" as NavigationIcon}]:[]),
@@ -39,7 +40,6 @@ export function privateNavigation(mode:PrivateMode|null,role:PrivateRole,canMana
     href:"/app/admin/registries",icon:"stack"},
    {id:"links",label:"navigation.entries.links",href:role==="admin"?"/app/admin/links":null,icon:"link-45deg"},
    {id:"reporting",label:"navigation.entries.reporting",href:"/app/reports",icon:"bar-chart-line"},
-   {id:"tickets",label:"tickets.navigation",href:"/app/tickets",icon:"ticket-perforated-fill"},
   ]}
  ];
  if(role==="admin")groups.push({
