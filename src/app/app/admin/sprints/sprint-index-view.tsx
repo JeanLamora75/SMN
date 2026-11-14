@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import HelpHeaderAction from "../../help/help-header-action";
 import {useDeferredValue,useEffect,useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {SprintIndexItem,SprintIndexSort} from "@/server/sprints/index";
@@ -100,7 +101,9 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
      <h1>{t("sprintsIndex.title")}</h1>
      <p>{data?.teamName??t("sprintsIndex.teamUnknown")} · Scrum</p>
     </div>
-    {canManage&&<div className="smn-sprints-hero-actions">
+    <div className="smn-sprints-hero-actions">
+     <HelpHeaderAction screenTitle={t("sprintsIndex.title")}/>
+     {canManage&&<>
      <Link className="btn smn-sprints-secondary-action" href="/app/admin/sprints/historical">
       {t("sprintsIndex.historical")}
      </Link>
