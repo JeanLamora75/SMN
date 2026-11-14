@@ -19,7 +19,7 @@ export default function PrivateNavigation({mode,role,canManageIndicators,onNavig
   return <aside className="smn-sidebar" aria-label={t("navigation.ariaLabel")}>
     <nav className="smn-private-navigation" aria-label={t("navigation.ariaLabel")}>
       {groups.map(group=><section key={group.id}
-       className={"smn-nav-group"+(group.id==="admin"?" smn-nav-group--footer":"")}
+       className={"smn-nav-group"+(group.id==="help"?" smn-nav-group--footer":"")}
        aria-label={t(group.label)}>
         <h2 className="visually-hidden">{t(group.label)}</h2>
         <ul className="smn-private-nav-list">
