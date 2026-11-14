@@ -198,7 +198,9 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
      <h1>{t("teamCalendar.title")}</h1>
      <p className="smn-cal-hero-subtitle">{t("calendarOptionB.heroSubtitle")}</p>
     </div>
-    <nav className="smn-cal-nav" aria-label={t("calendarOptionB.selectSprint")}>
+    <div className="d-flex align-items-center gap-2 flex-wrap">
+     <HelpHeaderAction screenTitle={t("teamCalendar.title")} className="btn btn-outline-light d-inline-flex align-items-center gap-2"/>
+     <nav className="smn-cal-nav" aria-label={t("calendarOptionB.selectSprint")}>
      {sprints.length>0&&<select className="form-select form-select-sm smn-cal-select"
       aria-label={t("calendarOptionB.selectSprint")} value={period?.sprintId??""}
       onChange={e=>{const selected=sprints.find(s=>s.id===e.target.value);if(selected)selectPeriod(sprintPeriod(selected));}}>
@@ -210,7 +212,8 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
      <button type="button" className="btn smn-cal-nav-today" onClick={resetPeriod}>{t("calendarOptionB.today")}</button>
      <button type="button" className="btn smn-cal-nav-arrow" aria-label={t("calendarOptionB.next")}
       disabled={!period} onClick={()=>change(1)}><BootstrapIcon name="arrow-right"/></button>
-    </nav>
+     </nav>
+    </div>
    </div>
    <div className="smn-cal-hero-bottom">
     <div className="smn-cal-context">
