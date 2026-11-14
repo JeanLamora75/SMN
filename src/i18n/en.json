@@ -5252,6 +5252,6 @@
     "jiraSettingsReadOnly": "Only an administrator can change this address.",
     "jiraTicketOpen": "Open {id} in Jira",
     "importExpectedColumnsTitle": "Required CSV column headers",
-    "importExpectedColumnsHelp": "Use these preferred headers. They can appear in any order; extra columns are allowed. Legacy headers are still accepted for compatibility."
+    "importExpectedColumnsHelp": "Only these six header names are accepted. They may appear in any order, and additional columns are allowed."
   }
 }
