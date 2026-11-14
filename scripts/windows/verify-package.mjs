@@ -8,6 +8,7 @@ import os from "node:os";
 import net from "node:net";
 import path from "node:path";
 import {auditWindowsDistribution} from "./distribution-package-policy.mjs";
+import {verifyOfflineHelp} from "./verify-offline-help.mjs";
 if (process.platform !== "win32" || process.env.GITHUB_ACTIONS !== "true") {
   throw new Error("Smoke autonome réservé au runner Windows");
 }
@@ -80,6 +81,9 @@ if(existsSync(manifestPath)) {
  const manifest=JSON.parse(await readFile(manifestPath,"utf8"));
  console.log("Routes du proxy standalone : "+JSON.stringify(Object.keys(manifest.middleware??{})));
 } else console.log("ATTENTION : manifeste proxy absent du paquet standalone");
+// Files must survive packaging in the same directory used by the standalone server.
+const helpProof=await verifyOfflineHelp(path.join(root,"app","content","help"));
+console.log("PASS: aide locale FR/EN embarquée : "+JSON.stringify(helpProof));
 const layout=await auditWindowsDistribution(root);
 console.log("PASS: distribution minimaliste : "+layout.fileCount+" fichiers");
 // A fresh offline distribution must carry the verified binary archive under a short name.
