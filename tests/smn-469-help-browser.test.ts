@@ -105,7 +105,9 @@ test("SMN-469 — real Chromium: FR/EN contextual help, read-only network, focus
    assert.equal(aria.modal,"true");
    assert.ok(aria.label);
    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute("data-initial-focus")),"true");
-   await page.keyboard.press("Shift+Tab");
+   await page.keyboard.down("Shift");
+   await page.keyboard.press("Tab");
+   await page.keyboard.up("Shift");
    assert.equal(await page.evaluate(()=>document.activeElement?.closest("dialog")!==null),true,"Focus remains in dialog");
    await page.keyboard.press("Tab");
    assert.equal(await page.evaluate(()=>document.activeElement?.closest("dialog")!==null),true,"Tab remains in dialog");
