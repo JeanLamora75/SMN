@@ -599,10 +599,10 @@
       "cyclesUnknown": "Cycles (mode indisponible)",
       "audit": "Journal des opérations",
       "backups": "Sauvegardes",
-      "members": "Équipe",
+      "members": "Équipes",
       "countries": "Pays",
       "calendar": "Calendrier",
-      "sprint": "Sprint",
+      "sprint": "Sprints",
       "register": "Registre",
       "links": "Liens"
     }
@@ -4424,7 +4424,7 @@
     "confirmPublish": "Confirmer la publication de la simulation ?",
     "publish": "Publier",
     "preview": "Simuler",
-    "navTitle": "Indicateur",
+    "navTitle": "Indicateurs",
     "sharedChart": {
       "style": "Style graphique",
       "loading": "Génération du graphique…",
