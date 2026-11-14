@@ -15,6 +15,7 @@ export type TicketSummary=Readonly<{
  byType:TicketGroupCount[];
  byStatus:TicketGroupCount[];
  byPrefix:TicketGroupCount[];
+ byEstimation:TicketGroupCount[];
 }>;
 export type TicketSummaryScopes=Readonly<{
  all:TicketSummary;
@@ -72,6 +73,21 @@ function countBy(rows:readonly TicketBrowseRow[],field:"issueType"|"status"|"pre
   .map(([value,group])=>({value,count:group.length,storyPoints:summarizePoints(group)}));
 }
 
+function estimationBreakdown(rows:readonly TicketBrowseRow[]):TicketGroupCount[]{
+ const estimated:TicketBrowseRow[]=[];
+ const notEstimated:TicketBrowseRow[]=[];
+ for(const row of rows){
+  (parseDecimal(row.storyPoints)===null?notEstimated:estimated).push(row);
+ }
+ return [
+  {value:"estimated",count:estimated.length,storyPoints:summarizePoints(estimated)},
+  {value:"notEstimated",count:notEstimated.length,storyPoints:{
+   sum:"0",numericCount:0,missingCount:notEstimated.filter(row=>!row.storyPoints.trim()).length,
+   invalidCount:notEstimated.filter(row=>!!row.storyPoints.trim()).length,
+  }},
+ ];
+}
+
 /** Pure and reusable by Consultation and future Word/PPT reports. */
 export function summarizeTicketRows(rows:readonly TicketBrowseRow[]):TicketSummary{
  let completedCount=0;
@@ -82,5 +98,6 @@ export function summarizeTicketRows(rows:readonly TicketBrowseRow[]):TicketSumma
   byType:countBy(rows,"issueType"),
   byStatus:countBy(rows,"status"),
   byPrefix:countBy(rows,"prefix"),
+  byEstimation:estimationBreakdown(rows),
  };
 }
