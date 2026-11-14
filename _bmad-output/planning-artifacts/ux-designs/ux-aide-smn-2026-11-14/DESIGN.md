@@ -158,7 +158,8 @@ CONTENU PLEINE LARGEUR
 
 ## Points laissés à Winston / Amelia
 
-- Stockage et portée de la progression (compte, installation, équipe), stratégie pour l'écran d'installation avant authentification, réinitialisation volontaire et synchronisation multi-PC : **non arbitrés**. Le UX demande seulement un suivi persistant, explicite, fiable et non trompeur.
-- Structure Markdown canonique, export Word/PDF, gestion des versions, moteur de recherche et mapping route/article : contrat d'architecture à définir.
+- **Décision validée le 14/11/2026 :** progression strictement **LOCAL** dans `localStorage` du navigateur, sans PostgreSQL et sans synchronisation inter-PC. Signaler dans l'interface que les coches restent liées au navigateur et ne sont pas reprises par les sauvegardes SMN. La gestion de `localStorage` indisponible reste à concevoir.
+- **Décision validée le 14/11/2026 :** contenus d'aide longs dans des fichiers documentaires séparés **par langue**, chargés à la demande ; les catalogues i18n généraux restent réservés aux libellés courts. Cible de 6 à 10 langues, contenu livré dans l'installation pour une consultation sans Internet externe. Voir [ARCHITECTURE-AIDE.md](ARCHITECTURE-AIDE.md).
+- Structure et principes de contenu, index de recherche par locale, chargement différé et séparation de l'i18n : principes établis dans [ARCHITECTURE-AIDE.md](ARCHITECTURE-AIDE.md). Détails de construction et export Word/PDF à définir lors des lots correspondants.
 - Taille finale de la modale, couleurs de thème et contrôle WCAG AA : à mesurer lors de la recette.
 
