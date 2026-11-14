@@ -20,6 +20,7 @@ on:
       - "scripts/build-help-index.mjs"
       - "scripts/windows/verify-offline-help.mjs"
       - "scripts/windows/package-portable.mjs"
+      - "tests/help-au01-kanban-access.test.ts"
       - "tests/smn-45*-help-*.ts"
       - "tests/smn-46*-help-*.ts"
       - "tests/smn-468-offline-help.test.mjs"
@@ -67,6 +68,7 @@ jobs:
       - name: Contrats HELP-01 à HELP-30 — sécurité, langues, droits, contenu et localStorage
         run: |
           pnpm exec tsx --test \
+            tests/help-au01-kanban-access.test.ts \
             tests/smn-459-help-catalog.test.ts \
             tests/smn-460-help-content.test.ts \
             tests/smn-461-help-center.test.ts \
