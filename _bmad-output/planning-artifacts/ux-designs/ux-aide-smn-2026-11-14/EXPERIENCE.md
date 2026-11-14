@@ -75,7 +75,7 @@ Les exemples ne constituent pas un catalogue validé du produit ; Camille devra 
 - Début du parcours : toutes les étapes initialement « À faire » sauf statut explicitement importé ou choisi ; progression exprimée `X / Y étapes déclarées terminées`, sans jugement sur la qualité réelle de la configuration.
 - Retour arrière : l'utilisateur peut reprendre une étape terminée et ajuster le suivi ; confirmation seulement si une remise à zéro globale détruit une progression enregistrée.
 - Les étapes non applicables ou sans permission sont identifiées comme telles et non simulées « Terminées ». Définir distinctement le dénominateur des étapes applicables, et l'expliciter.
-- Le suivi reste identifiable après rechargement et reprise de session (**persistence UX exigée**), avec le périmètre technique à décider par Winston.
+- **Décision validée — option LOCAL :** la progression est conservée exclusivement dans `localStorage` pour le même profil navigateur et la même origine ; elle n'est ni synchronisée avec PostgreSQL, ni transférée automatiquement entre ordinateurs, ni incluse dans les sauvegardes de SMN. Le parcours explique cette limite sans ambiguïté. Un stockage navigateur indisponible interdit l'affichage d'un faux succès de sauvegarde.
 - L'étape peut ouvrir son guide sans changer de statut. Les changements d'état doivent être confirmés par le stockage choisi ; erreur de sauvegarde = statut inchangé et message clair.
 - Une étape parent peut regrouper plusieurs sous-étapes ; l'ordre et les prérequis ne doivent pas masquer les liens utiles.
 
@@ -148,12 +148,13 @@ Les exemples ne constituent pas un catalogue validé du produit ; Camille devra 
 - Desktop : Centre d'aide pleine largeur, cartes 2 colonnes si utile ; modale centrée au-dessus de la page.
 - Tablette : réorganisation des cartes, modale dimensionnée selon la largeur réelle.
 - Mobile : une colonne ; modale quasi plein écran avec header/fermeture toujours visibles, corps vertical scrollable ; contrôle du clavier logiciel.
-- Installation locale : **pas de dépendance obligatoire à Internet** pour lire l'aide embarquée ; l'export Word/PDF peut être traité ultérieurement.
+- Installation locale : **pas de dépendance obligatoire à Internet externe** pour lire l'aide embarquée, une fois le serveur SMN local démarré. Index et documents des langues distribuées sont fournis dans le ZIP Windows. L'export Word/PDF peut être traité ultérieurement.
 
 ## Périmètre et décisions ouvertes (non silencieusement arbitrées)
 
 - **Validés par l'utilisateur** : menu au-dessus de Paramètres ; modale Cockpit Agile ; checklist avec progression.
 - **Proposés par Sally** : route `/app/help`, quatre familles, mots-clés de recherche, états manuels, page partageable, modèle article ; Winston/John vérifieront le détail métier.
-- **À arbitrer techniquement** : persistance et périmètre du progrès, moment où l'aide est disponible durant l'installation, partage entre installations, gestion des articles obsolètes, stockage et export Word/PDF, permissions précises des articles, correspondance route/article.
+- **Décisions validées le 14/11/2026 :** zéro écriture en base provoquée par l'Aide ; suivi LOCAL via `localStorage` ; articles documentaires séparés par locale et identifiant stable ; chargement différé des articles et index de la seule langue active ; cible de 6 à 10 langues ; consultation sans Internet externe depuis une distribution SMN autonome. Les textes longs ne doivent pas être ajoutés à `src/i18n/fr.json` ou `en.json`. Contrats : [ARCHITECTURE-AIDE.md](ARCHITECTURE-AIDE.md).
+- **À arbitrer techniquement** : aide avant la première connexion, remise à zéro, versionnement et sécurité du rendu Markdown, export Word/PDF, permissions précises des articles, correspondance route/article et stratégie de repli de langue.
 - **Non demandé / non inclus** : assistant IA conversationnel en ligne, exécution automatique des réglages via la checklist, marquage de réussite métier sans preuve, changement des droits existants.
 
