@@ -5178,6 +5178,7 @@
     "metricsByType": "By ticket type",
     "metricsByStatus": "By status",
     "metricsByPrefix": "By Jira prefix",
+    "metricsGroupStoryPoints": "Story Points",
     "metricsNoGroups": "No tickets in this scope.",
     "compareTitle": "Compare two snapshots",
     "compareChoose": "Select snapshots",
