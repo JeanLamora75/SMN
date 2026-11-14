@@ -71,7 +71,9 @@ async function secureDirectory(directory:string):Promise<void>{
   }
  }
  const actual=await realpath(target);
- if(actual!==target)throw new TicketStorageError("unsafe-path");
+ // Compare canonical paths using platform-aware casing, especially on Windows.
+ // A symlink/junction resolving elsewhere still fails closed.
+ if(path.relative(actual,target)!=="")throw new TicketStorageError("unsafe-path");
 }
 function folder(scope:TicketScope,root:string):string{
  return path.join(root,scope.teamId,scope.mode,scope.cycleId);
