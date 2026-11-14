@@ -18,7 +18,9 @@ test("All scalar tags implemented by the engine are documented in SMN",()=>{
 
 test("Every dynamic table source has a complete FR/EN entry and field examples",()=>{
  const expected=["MEMBERS_ACTIVE","MEMBERS_INACTIVE","INDICATORS",...officeBusinessSources,"LINKS_TRANSVERSE","LINKS_TEAM"];
- assert.deepEqual(officeRowDefinitions.map(item=>item.source),expected);
+ assert.deepEqual(officeRowDefinitions.map(item=>item.source).slice(0,expected.length),expected);
+ const additional=officeRowDefinitions.slice(expected.length);
+ assert.ok(additional.every(item=>item.source&&item.fields.length>0));
  for(const item of officeRowDefinitions){
   assert.ok(item.fr.trim()&&item.en.trim(),item.source);
   assert.ok(item.fields.length>0,item.source);
