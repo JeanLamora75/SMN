@@ -4,6 +4,7 @@ import "./globals.css";
 import "./dashboard.css";
 import "./appearance.css";
 import "./modal-cockpit.css";
+import "./app/admin/settings/settings-filter-panel.css";
 import "./app/dashboard-slot-cockpit.css";
 import type {Metadata} from "next";
 import type {ReactNode} from "react";
