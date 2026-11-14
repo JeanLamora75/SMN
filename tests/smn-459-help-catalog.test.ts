@@ -34,7 +34,8 @@ describe("SMN help canonical catalog",()=>{
   assert.equal(helpArticleById("backup",user,"scrum"),null);
   assert.equal(helpArticleForContext("/app/admin/settings",user,"scrum"),null);
   assert.equal(helpArticleById("sprints",user,"kanban"),null);
-  assert.equal(helpArticleById("kanban-periods",user,"kanban"),null);
+  assert.equal(helpArticleById("kanban-periods",user,"kanban")?.route,"/app/admin/kanban-periods");
+  assert.equal(helpArticleForContext("/app/admin/kanban-periods",user,"kanban")?.id,"kanban-periods");
   assert.equal(helpArticleById("sprints",admin,"kanban"),null);
   assert.equal(helpArticleById("kanban-periods",admin,"kanban")?.route,"/app/admin/kanban-periods");
   assert.equal(helpArticleForContext("/app/tickets",user,"scrum")?.id,"tickets");
