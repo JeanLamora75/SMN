@@ -1,7 +1,6 @@
 "use client";
 import type {ReactNode} from "react";
 import {useTranslation} from "@/i18n/client";
-import "./settings-filter-panel.css";
 
 /** Shared Cockpit Agile filter toolbar, separate from the data/results panel. */
 export default function SettingsFilterPanel({children,className="",title,actions}:{
