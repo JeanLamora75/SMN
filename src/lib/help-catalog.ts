@@ -27,6 +27,8 @@ const records=[
  {id:"calendar",section:"modules",route:"/app/team-calendar",contexts:["/app/team-calendar"],modes:null,resource:"collective"},
  {id:"registries",section:"modules",route:"/app/admin/registries",contexts:["/app/admin/registries"],modes:null,resource:"collective"},
  {id:"reports",section:"modules",route:"/app/reports",contexts:["/app/reports"],modes:null,resource:"collective"},
+ {id:"indicators",section:"modules",route:"/app/admin/indicators",contexts:["/app/admin/indicators"],modes:null,resource:"collective"},
+ {id:"faq",section:"troubleshooting",route:"/app/help",contexts:["/app/help"],modes:null,resource:"collective"},
  {id:"jira-settings",section:"configuration",route:"/app/admin/settings/jira",contexts:["/app/admin/settings/jira"],modes:null,resource:"settings"},
  {id:"backup",section:"troubleshooting",route:"/app/admin/settings/maintenance",contexts:["/app/admin/settings/maintenance"],modes:null,resource:"backups"}
 ] as const satisfies readonly HelpArticle[];
