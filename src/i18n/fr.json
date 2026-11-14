@@ -5275,6 +5275,8 @@
     "searchUpcoming": "La recherche dans les articles sera disponible prochainement.",
     "fallback": "Cet article n’est pas encore traduit dans votre langue ; la version française est affichée.",
     "firstSetup": "Première configuration",
-    "firstSetupComing": "Le parcours guidé et sa checklist arriveront prochainement."
+    "firstSetupComing": "Le parcours guidé et sa checklist arriveront prochainement.",
+    "overview": "Présentation de SMN",
+    "tickets": "Tickets"
   }
 }
