@@ -5277,6 +5277,14 @@
     "firstSetup": "Initial setup",
     "firstSetupComing": "The guided setup checklist is coming soon.",
     "overview": "About SMN",
-    "tickets": "Tickets"
+    "tickets": "Tickets",
+    "searchLabel": "Search the documentation",
+    "searchPlaceholder": "E.g. tickets, team, setup…",
+    "searchButton": "Search",
+    "clearSearch": "Clear search",
+    "noResults": "No articles match your search.",
+    "resultsCount": "Articles found",
+    "indexError": "Search is temporarily unavailable.",
+    "retrySearch": "Try again"
   }
 }
