@@ -22,6 +22,7 @@ on:
       - "scripts/windows/package-portable.mjs"
       - "tests/help-au01-kanban-access.test.ts"
       - "tests/help-au02-context-entry.test.ts"
+      - "tests/help-au03-role-safe-links.test.ts"
       - "src/app/app/admin/members/team-overview.tsx"
       - "src/app/app/team-calendar/team-calendar-view.tsx"
       - "src/app/app/admin/kanban-periods/period-form.tsx"
@@ -74,6 +75,7 @@ jobs:
           pnpm exec tsx --test \
             tests/help-au01-kanban-access.test.ts \
             tests/help-au02-context-entry.test.ts \
+            tests/help-au03-role-safe-links.test.ts \
             tests/smn-459-help-catalog.test.ts \
             tests/smn-460-help-content.test.ts \
             tests/smn-461-help-center.test.ts \
