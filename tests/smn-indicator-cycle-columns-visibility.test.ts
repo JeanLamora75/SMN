@@ -10,7 +10,7 @@ const reporting=read("src/server/indicators/reporting.ts");
 const preferences=read("src/app/app/admin/indicators/preference-order-table.tsx");
 
 test("Le tableau des cycles fournit un accès aux préférences de colonnes",()=>{
- assert.match(catalog,/Gérer les colonnes/);
+ assert.match(catalog,/t\("indicators\.manageColumns"\)/);
  assert.match(catalog,/#preferences/);
  assert.match(cycles,/smn-indicator-cycle-scroll/);
  assert.match(cycles,/aria-label="Tableau des indicateurs par cycle, défilement horizontal"/);
