@@ -9,14 +9,14 @@ const admin={role:"admin" as const,is_active:true,must_change_password:false};
 const user={role:"user" as const,is_active:true,must_change_password:false};
 const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 describe("SMN-434 — Paramètres V2 et internationalisation exhaustive",()=>{
- it("fournit exactement six groupes et 19 entrées sans doublon",()=>{
+ it("fournit exactement six groupes et 20 entrées sans doublon",()=>{
   const groups=settingsCatalog("scrum",admin);
   assert.deepEqual(groups.map(group=>group.id),[
    "application","organization","practices","calendar","reports","administration"
   ]);
   const entries=groups.flatMap(group=>group.entries);
-  assert.equal(entries.length,19);
-  assert.equal(new Set(entries.map(entry=>entry.id)).size,19);
+  assert.equal(entries.length,20);
+  assert.equal(new Set(entries.map(entry=>entry.id)).size,20);
   for(const id of ["companies","closures","indicators","chartStyles"])
    assert.equal(entries.filter(e=>e.id===id).length,1);
  });
@@ -51,7 +51,7 @@ describe("SMN-434 — Paramètres V2 et internationalisation exhaustive",()=>{
    assert.deepEqual(search(locale==="fr"?"miSes a jouR":"updates"),["maintenance"]);
    assert.deepEqual(search(locale==="fr"?"styles graphiques":"chart styles"),["chartStyles"]);
    assert.deepEqual(search("nonexistent-settings-term"),[]);
-   assert.equal(search(" ").length,19);
+   assert.equal(search(" ").length,20);
   }
   assert.equal(normalizeSettingsQuery("  ÉTÉ   AgIlE  "),"ete agile");
  });
@@ -93,7 +93,7 @@ describe("SMN-434 — Paramètres V2 et internationalisation exhaustive",()=>{
    assert.equal(typeof en.navigation[key],"string");
   }
   assert.deepEqual(Object.keys(fr.keywords).sort(),Object.keys(en.keywords).sort());
-  assert.equal(Object.keys(fr.keywords).length,19);
+  assert.equal(Object.keys(fr.keywords).length,20);
   for(const k of Object.keys(fr.keywords)){
    assert(fr.keywords[k].trim().length>0);
    assert(en.keywords[k].trim().length>0);
