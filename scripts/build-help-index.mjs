@@ -3,7 +3,6 @@ import {fileURLToPath} from "node:url";
 import path from "node:path";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../content/help");
-const outDir=path.join(root,".index");
 const LOCALE=/^[a-z]{2,3}(?:-[a-z]{2})?$/;
 const ARTICLE=/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*\.md$/;
 export function normalizeSearch(value){
