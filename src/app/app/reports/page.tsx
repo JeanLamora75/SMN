@@ -6,6 +6,7 @@ import {listOfficeTemplates,officeTemplatesDirectory} from "@/server/reports/off
 import {officeReportsDirectory} from "@/server/reports/office-storage";
 import NewReportForm from "./new-report-form";
 import BootstrapIcon from "../bootstrap-icon";
+import HelpHeaderAction from "../help/help-header-action";
 import {formatReportCenterDate} from "@/lib/report-center-date";
 import {notFound,redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
@@ -75,7 +76,10 @@ export default async function ReportsCenter({searchParams}:Params){
     <div className="smn-report-hero-identity">
      <h1>{t("heading")}</h1><p>{t("heroIntro")}</p>
     </div>
+    <div className="d-flex align-items-center gap-2 flex-wrap">
+    <HelpHeaderAction screenTitle={t("heading")}/>
     {account.role==="admin"&&!scoped&&<NewReportForm cycles={sprintOptions} templates={data.templates} preferredCycle={sprint}/>}
+    </div>
    </div>
    <nav className="smn-report-tabs" aria-label={t("heading")}>
     {tabs.map(k=><Link key={k} href={href(k)} className={"smn-report-tab"+(tab===k?" is-active":"")} aria-current={tab===k?"page":undefined}>
