@@ -74,3 +74,10 @@ test("SMN-447 — changement de l'équipe et sélection obsolète remis à zéro
  assert.match(source,/setActiveTab\("files"\)/);
  assert.match(source,/if\(ctrl.signal.aborted\)return/);
 });
+
+test("Le bouton Select conserve sa surbrillance selon la photographie active",()=>{
+ assert.match(source,/item\.snapshotId===selectedId\?"btn-primary is-selected":"btn-outline-primary"/);
+ assert.match(source,/aria-pressed=\{item\.snapshotId===selectedId\}/);
+ assert.match(source,/onClick=\{\(\)=>setSelectedId\(item\.snapshotId\)\}/);
+ assert.match(source,/onClick=\{\(\)=>\{setSelectedId\(item\.snapshotId\);setActiveTab\("browse"\);\}\}/);
+});
