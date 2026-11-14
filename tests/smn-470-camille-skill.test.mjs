@@ -102,6 +102,12 @@ test("AC4 — seuls les IDs, routes et contenus localisés autorisés sont admis
  await assert.rejects(validateCamilleDraft({root,articleId:"overview",
   locale:"fr",markdown:"# Aide\n\n## Étapes\n<script>alert('x')</script>\n",evidence}),
   /camille-nonlocal-or-active-link/);
+ await assert.rejects(validateCamilleDraft({root,articleId:"overview",
+  locale:"fr",markdown:"# Aide\\n\\n## Étapes\\nContacter personne@example.com.\\n",evidence}),
+  /camille-private-content/);
+ await assert.rejects(validateCamilleDraft({root,articleId:"overview",
+  locale:"fr",markdown:"# Aide\\n\\n## Étapes\\nBearer abcdefghijklmnop123456.\\n",evidence}),
+  /camille-private-content/);
  const policy=await read(base+"/references/editorial-policy.md");
  assert.match(policy,/aucune donnée personnelle|donnée privée|donnée personnelle/i);
  assert.match(policy,/src\/i18n\/\*\.json/);
