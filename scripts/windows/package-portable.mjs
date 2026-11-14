@@ -7,6 +7,7 @@ import {createRequire} from "node:module";
 import { createPrivateKey, createPublicKey } from "node:crypto";
 import { acquirePgArchive, PG_ARCHIVE } from "./postgres-archive.mjs";
 import {auditWindowsDistribution} from "./distribution-package-policy.mjs";
+import {verifyOfflineHelp} from "./verify-offline-help.mjs";
 
 if (process.platform !== "win32" || process.env.GITHUB_ACTIONS !== "true") {
   throw new Error("Le packaging Windows est réservé au runner GitHub Actions");
@@ -73,6 +74,11 @@ await writeFile(serverEntry, serverSource.replace("process.chdir(__dirname)",
 await mkdir(path.join(appDir, ".next", "static"), { recursive: true });
 await cp(".next/static", path.join(appDir, ".next", "static"), { recursive: true, force: true });
 if (existsSync("public")) await cp("public", path.join(appDir, "public"), { recursive: true, force: true });
+// Help is bundled as immutable application content, never as private installation data.
+const helpSource=path.join("content","help");
+await verifyOfflineHelp(helpSource);
+await cp(helpSource,path.join(appDir,"content","help"),{recursive:true,force:true,dereference:true});
+await verifyOfflineHelp(path.join(appDir,"content","help"));
 // Runtime schema snapshots are resolved relative to process.cwd() by the installer.
 // Explicitly include them: Next standalone tracing does not guarantee dynamic SQL paths.
 for(const file of [
