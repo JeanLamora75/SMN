@@ -1,0 +1,31 @@
+type;id;resume;priority;status;sp
+Story;SMN-46;SMN MVP — Story 3.5 — Personnaliser le calendrier hebdomadaire individuel;Medium;To do;2
+Story;SMN-47;SMN MVP — Story 3.6 — Localiser un membre par pays et fuseau horaire;Medium;To do;2
+Story;SMN-48;SMN MVP — Story 3.7 — Administrer le catalogue des sept pays initiaux;Medium;To do;3
+Story;SMN-49;SMN MVP — Story 3.8 — Précharger les calendriers nationaux disponibles à l'installation;Medium;To do;5
+Story;SMN-50;SMN MVP — Story 3.9 — Importer des jours fériés nationaux à partir d'un CSV;Medium;To do;1
+Story;SMN-51;SMN MVP — Story 3.10 — Importer et sélectionner des jours fériés nationaux depuis un fichier ICS;Medium;To do;1
+Story;SMN-52;SMN MVP — Story 3.11 — Administrer les catégories et couleurs des absences;Medium;In progress;2
+Story;SMN-53;SMN MVP — Story 3.12 — Enregistrer et modifier une absence individuelle centralisée;Medium;To do;4
+Story;SMN-54;SMN MVP — Story 3.13 — Traiter les particularités régionales comme absences individuelles;Medium;To do;3
+Story;SMN-55;SMN MVP — Story 3.14 — Consulter le calendrier d'équipe et les absences selon les droits;Medium;To do;6
+Story;SMN-56;SMN MVP — Story 3.15 — Administrer les jours de fermeture de l'entreprise;Medium;To do;4
+Story;SMN-57;SMN MVP — Story 3.16 — Calculer une capacité de développement fiable en jours-homme;Medium;To do;2
+Story;SMN-58;SMN MVP — Story 3.17 — Arbitrer une capacité manuelle prioritaire face à la référence calculée;Medium;To do;1
+Story;SMN-59;SMN MVP — Story 3.18 — Figer la capacité initiale à l'ouverture effective d'une période;Medium;To do;2
+Story;SMN-60;SMN MVP — Story 3.19 — Calculer la capacité réellement constatée selon le statut de période;Medium;To do;3
+Story;SMN-61;SMN MVP — Story 3.20 — Qualifier la fiabilité des capacités historiques sans créer de faux zéros;Medium;To do;1
+Story;SMN-62;SMN MVP — Story 3.21 — Prévisualiser les effets d'une replanification sur les références de capacité;Medium;In progress;1
+Story;SMN-63;SMN MVP — Story 3.22 — Préremplir les formulaires membres et calendriers sans écraser les choix;Medium;To do;2
+Story;SMN-64;SMN MVP — Story 3.23 — Afficher cycles, événements et absences dans un calendrier central partagé;Medium;To do;2
+Story;SMN-65;SMN MVP — Story 4.1 — Configurer la cadence et les horaires d'une équipe Scrum;Medium;To do;3
+Story;SMN-66;SMN MVP — Story 4.2 — Générer un Sprint unitaire à la demande;Medium;To do;4
+Story;SMN-67;SMN MVP — Story 4.3 — Prévisualiser et corriger un lot de Sprints;Medium;To do;5
+Story;SMN-68;SMN MVP — Story 4.4 — Confirmer un lot valide avec écriture atomique et audit;Medium;In progress;1
+Story;SMN-69;SMN MVP — Story 4.5 — Renommer un Sprint sans toucher à ses données historiques;Medium;In progress;2
+Story;SMN-70;SMN MVP — Story 4.6 — Supprimer après confirmation des Sprints jamais démarrés;Medium;To do;2
+Story;SMN-71;SMN MVP — Story 4.7 — Suivre les transitions automatiques d'état du Sprint;Medium;To do;1
+Story;SMN-72;SMN MVP — Story 4.8 — Générer les cérémonies Scrum standards avec chaque Sprint;Medium;To do;3
+Story;SMN-73;SMN MVP — Story 4.9 — Respecter la pause déjeuner et les cérémonies à segments;Medium;To do;0,5
+Story;SMN-74;SMN MVP — Story 4.10 — Signaler sans bloquer les conflits de réunions;Medium;To do;0,5
+Story;SMN-75;SMN MVP — Story 4.11 — Personnaliser une occurrence ou une série de cérémonies;Medium;To do;0,5

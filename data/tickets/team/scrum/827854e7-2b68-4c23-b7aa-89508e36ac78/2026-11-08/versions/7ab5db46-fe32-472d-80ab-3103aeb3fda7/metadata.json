@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "snapshotId": "7ab5db46-fe32-472d-80ab-3103aeb3fda7",
+  "teamId": "team",
+  "cycleId": "827854e7-2b68-4c23-b7aa-89508e36ac78",
+  "mode": "scrum",
+  "businessDate": "2026-11-08",
+  "importedAt": "2026-11-14T09:10:04.303Z",
+  "originalFilename": "Sprint-1-finish.csv",
+  "importedBy": "cf2ea03f-c9a9-4d3e-b786-ee6c594d2dc2",
+  "rowCount": 30,
+  "csvBytes": 3685,
+  "sha256": "3e6b3fb28bd8b6cf3e618baf8da93077d8b39b55236ae5ddc463d422d00427e8"
+}

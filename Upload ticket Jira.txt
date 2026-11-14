@@ -1,0 +1,2 @@
+Upload ticket Jira
+Clé - Résumé - Type de ticket - Priorité - Etat - Story Points
