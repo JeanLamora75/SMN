@@ -24,10 +24,17 @@ test("SMN-450 — total décimal exact, zéro différent de manquant et invalide
  assert.equal(s.storyPoints.numericCount,4);
  assert.equal(s.storyPoints.missingCount,1);
  assert.equal(s.storyPoints.invalidCount,1);
- assert.deepEqual(s.byType,[{value:"Bug",count:2},{value:"Story",count:2},{value:"Task",count:2}]);
- assert.deepEqual(s.byPrefix,[{value:"ALPHA",count:4},{value:"BETA",count:2}]);
- assert.deepEqual(s.byStatus.find(x=>x.value==="Done"),{value:"Done",count:2});
- assert.deepEqual(s.byStatus.find(x=>x.value==="Terminé"),{value:"Terminé",count:1});
+ assert.deepEqual(s.byType.map(({value,count})=>({value,count})),[{value:"Bug",count:2},{value:"Story",count:2},{value:"Task",count:2}]);
+ assert.equal(s.byType.find(x=>x.value==="Bug")?.storyPoints.sum,"1.25");
+ assert.equal(s.byType.find(x=>x.value==="Story")?.storyPoints.sum,"2");
+ assert.equal(s.byType.find(x=>x.value==="Task")?.storyPoints.sum,"0.75");
+ assert.deepEqual(s.byPrefix.map(({value,count})=>({value,count})),[{value:"ALPHA",count:4},{value:"BETA",count:2}]);
+ assert.equal(s.byPrefix.find(x=>x.value==="ALPHA")?.storyPoints.sum,"2");
+ assert.equal(s.byPrefix.find(x=>x.value==="BETA")?.storyPoints.sum,"2");
+ assert.equal(s.byStatus.find(x=>x.value==="Done")?.count,2);
+ assert.equal(s.byStatus.find(x=>x.value==="Done")?.storyPoints.sum,"0.75");
+ assert.equal(s.byStatus.find(x=>x.value==="Terminé")?.count,1);
+ assert.equal(s.byStatus.find(x=>x.value==="Terminé")?.storyPoints.sum,"1.25");
 });
 
 test("SMN-450 — périmètres entier et filtré indépendants, sans dépendance à la pagination",()=>{
@@ -35,10 +42,14 @@ test("SMN-450 — périmètres entier et filtré indépendants, sans dépendance
  assert.equal(all.summary.all.ticketCount,6);
  assert.equal(all.summary.filtered.ticketCount,2);
  assert.equal(all.summary.filtered.storyPoints.sum,"1.25");
+ assert.equal(all.summary.filtered.byType[0].storyPoints.sum,"1.25");
+ assert.equal(all.summary.filtered.byPrefix[0].storyPoints.sum,"1.25");
  assert.equal(all.summary.filtered.completedCount,2);
  assert.equal(all.summary.filtered.storyPoints.numericCount,2);
  const narrowed=browseTicketCsv(sample,{status:"Doing"});
  assert.equal(narrowed.summary.filtered.storyPoints.sum,null);
+ assert.equal(narrowed.summary.filtered.byStatus[0].storyPoints.sum,null);
+ assert.equal(narrowed.summary.filtered.byStatus[0].storyPoints.missingCount,1);
  assert.equal(narrowed.summary.filtered.storyPoints.missingCount,1);
  assert.equal(narrowed.summary.all.storyPoints.sum,"4");
  const noMatch=browseTicketCsv(sample,{search:"introuvable"});
@@ -59,6 +70,7 @@ test("SMN-450 — ne pas convertir les SP absents ou non numériques en zéro",(
  const zero=browseTicketCsv(header+"\nA-1,Story,Zéro,Basse,Done,0").summary.all;
  assert.equal(zero.storyPoints.sum,"0");
  assert.equal(zero.storyPoints.numericCount,1);
+ assert.equal(zero.byType[0].storyPoints.sum,"0");
 });
 
 test("SMN-450 — précision exacte pour très grands décimaux",()=>{
@@ -81,6 +93,8 @@ test("SMN-450 — tri des regroupements et libellés libres sans catalogue contr
  assert.equal(summary.byType[0].value,"Personnalisé");
  assert.equal(summary.byType[1].value,"");
  assert.equal(summary.storyPoints.sum,"5");
+ assert.equal(summary.byType[0].storyPoints.sum,"5");
+ assert.equal(summary.byType[1].storyPoints.sum,null);
 });
 
 test("SMN-450 — service de consultation expose les deux périmètres avant pagination",()=>{
@@ -99,11 +113,13 @@ test("SMN-450 — écrans Cockpit Agile et i18n FR/EN des métriques",()=>{
  const page=readFileSync("src/app/app/tickets/tickets-consultation.tsx","utf8");
  assert.match(ui,/smn-tickets-panel smn-tickets-metrics/);
  assert.match(ui,/summary\.filtered/);
+ assert.match(ui,/group\.storyPoints\.sum/);
+ assert.match(ui,/tickets\.metricsGroupStoryPoints/);
  assert.match(ui,/summary\.all/);
  assert.match(page,/<TicketsMetrics summary=\{data\.summary\}/);
  for(const lang of ["fr","en"] as const)
   for(const key of ["metricsTitle","metricsFiltered","metricsAll","metricsByStatus",
-   "metricsMissing","metricsInvalid","metricsNoSum","metricsByPrefix"]){
+   "metricsMissing","metricsInvalid","metricsNoSum","metricsByPrefix","metricsGroupStoryPoints"]){
    const value=translate(lang,("tickets."+key) as Parameters<typeof translate>[1]);
    assert.ok(value.trim());
    assert.doesNotMatch(value,/translation unavailable|traduction indisponible/i);
