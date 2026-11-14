@@ -5275,6 +5275,8 @@
     "searchUpcoming": "Search across articles is coming soon.",
     "fallback": "This article has not yet been translated into your language; the French version is shown.",
     "firstSetup": "Initial setup",
-    "firstSetupComing": "The guided setup checklist is coming soon."
+    "firstSetupComing": "The guided setup checklist is coming soon.",
+    "overview": "About SMN",
+    "tickets": "Tickets"
   }
 }
