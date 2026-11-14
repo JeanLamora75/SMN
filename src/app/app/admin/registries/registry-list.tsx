@@ -11,6 +11,7 @@ import RegistryCard from "./registry-card";
 import RegistryCreateModal from "./registry-create-modal";
 import RegistryEditModal from "./registry-edit-modal";
 import BootstrapIcon from "../../bootstrap-icon";
+import HelpHeaderAction from "../../help/help-header-action";
 import {registryDetailHref} from "@/lib/registry-navigation";
 import {parseRegistryDisplayView,registryDisplayPreferenceKey,type RegistryDisplayView} from "@/lib/registry-display-view";
 import {parseRegistryIndexState,registryIndexUrl,registryScrollKey,type RegistryIndexState} from "@/lib/registry-navigation";
@@ -227,6 +228,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
     {!canManage&&<span className="smn-registry-readonly">{translate("readonly")}</span>}
    </div>
    <div className="d-flex flex-wrap align-items-center gap-2 ms-auto">
+    <HelpHeaderAction screenTitle={translate("heading")}/>
     <div className="btn-group smn-registry-view-switch" role="group" aria-label={translate("viewGroup")}>
      <button type="button" className={"btn btn-outline-secondary"+(view==="list"?" active":"")}
       aria-pressed={view==="list"} onClick={()=>chooseView("list")}>
