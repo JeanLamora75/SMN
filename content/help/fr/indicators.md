@@ -13,7 +13,7 @@ Vous devez être connecté et disposer d'au moins une équipe autorisée. Les mo
 
 ## Administration
 
-- Un administrateur peut consulter les [paramètres des indicateurs](/app/admin/settings/indicators), leurs définitions et permissions.
+- Un administrateur peut consulter les paramètres des indicateurs depuis Paramètres, notamment leurs définitions et permissions.
 - Avant de changer une formule, vérifiez les dépendances et les effets sur les tableaux de bord et rapports.
 - Si une action n'apparaît pas, vérifiez le rôle et l'équipe sélectionnée ; ne tentez pas de contourner les autorisations.
 
