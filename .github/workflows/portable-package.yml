@@ -147,6 +147,30 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Bilan de livraison invalide' }
           & node scripts/windows/verify-delivery.mjs $destination ($destination + '.evidence.json') ($destination + '.sha256')
           if ($LASTEXITCODE -ne 0) { throw 'Contrôle intégrité du ZIP final invalide' }
+      - name: Vérifier les articles et index Aide directement dans le ZIP final
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Add-Type -AssemblyName System.IO.Compression
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $archive = "_package/SMN-Setup-Windows-x64-v33-$env:GITHUB_RUN_ID.zip"
+          $zip = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path $archive).Path)
+          try {
+            $paths = @($zip.Entries | ForEach-Object { $_.FullName.Replace('\\','/') })
+            $ids = @('backup','calendar','faq','general-settings','indicators','jira-settings',
+              'kanban-periods','members','overview','registries','reports','sprints','teams','tickets')
+            foreach ($locale in @('fr','en')) {
+              foreach ($id in $ids) {
+                $suffix = "/app/content/help/$locale/$id.md"
+                $hits = @($paths | Where-Object { ("/" + $_).EndsWith($suffix) })
+                if ($hits.Count -ne 1) { throw "Article Aide absent ou dupliqué dans ZIP : $locale/$id" }
+              }
+              $suffix = "/app/content/help/.index/$locale.json"
+              $hits = @($paths | Where-Object { ("/" + $_).EndsWith($suffix) })
+              if ($hits.Count -ne 1) { throw "Index Aide absent ou dupliqué dans ZIP : $locale" }
+            }
+            Write-Host "PASS : 28 articles FR/EN et 2 index Aide présents dans le ZIP final"
+          } finally { $zip.Dispose() }
       - name: Analyser le ZIP final avec Microsoft Defender
         shell: pwsh
         run: ./scripts/windows/scan-distribution.ps1 -Stage zip -Target "_package/SMN-Setup-Windows-x64-v33-$env:GITHUB_RUN_ID.zip"
