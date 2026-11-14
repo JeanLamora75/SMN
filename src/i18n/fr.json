@@ -5250,6 +5250,8 @@
     "jiraSettingsPreview": "Exemple de lien",
     "jiraSettingsNoUrl": "Aucun lien Jira configuré.",
     "jiraSettingsReadOnly": "Seul un administrateur peut modifier cette adresse.",
-    "jiraTicketOpen": "Ouvrir {id} dans Jira"
+    "jiraTicketOpen": "Ouvrir {id} dans Jira",
+    "importExpectedColumnsTitle": "Colonnes obligatoires du fichier CSV",
+    "importExpectedColumnsHelp": "Utilisez exactement ces noms d’en-têtes. Leur ordre est libre et des colonnes supplémentaires sont autorisées."
   }
 }
