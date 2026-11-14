@@ -89,3 +89,15 @@ Ces décisions **remplacent** les mentions antérieures « colonnes à décider 
 3. **Suppression interdite pour un sprint clôturé** : aucune action Supprimer dans la liste pour ce sprint ; refus impératif de l'API même en cas d'appel direct. Le motif doit être compréhensible. Cette règle s'applique au CSV et au JSON, et concerne le statut réel du sprint côté serveur, non un statut transmis par le navigateur.
 
 Les dispositions antérieures contradictoires sur les contraintes de colonnes et l'ouverture des droits de suppression sont remplacées par cet avenant.
+
+## Avenant validé — 14/11/2026 : noms canoniques CSV et aide repliable
+
+À la demande du métier, les noms **canoniques** des six colonnes obligatoires deviennent, dans un ordre quelconque :
+
+`id`, `type`, `resume`, `priority`, `status`, `sp`.
+
+Ils remplacent pour les **nouveaux exports recommandés** les noms `Id jira`, `Type de ticket`, `Titre du ticket`, `Priorité`, `Statut`, `Story points`. Le validateur `src/lib/ticket-csv-contract.ts` reste la référence du contrat et continue à reconnaître les anciens noms comme **alias historiques** afin que les photographies déjà conservées, leurs comparaisons, sauvegardes et rapports ne deviennent pas illisibles. Mélanger les deux noms d'un même champ dans un même CSV entraîne un refus pour doublon ; aucun champ supplémentaire n'est obligatoire. La position des six colonnes reste libre.
+
+La modale d'import présente la liste `TICKET_CSV_COLUMNS` dans un élément natif `<details>` fermé par défaut, ouvrable au clic ou au clavier, internationalisé (titres/aide FR/EN). Les noms techniques canoniques restent identiques dans toutes les langues.
+
+Cet avenant **prévaut** sur les anciens noms et toute mention d'un ordre de colonnes imposé dans les avenants précédents. Il ne modifie ni les six propriétés métier des lignes normalisées en mémoire, ni les indicateurs v33.
