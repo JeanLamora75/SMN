@@ -5,6 +5,7 @@ import {renderToStaticMarkup} from "react-dom/server";
 import {LocaleProvider} from "../src/i18n/client";
 import TicketsImportDialog from "../src/app/app/tickets/tickets-import-dialog";
 import {validateTicketCsv,TICKET_CSV_COLUMNS} from "../src/lib/ticket-csv-contract";
+import {decodeTicketCsvBytes} from "../src/lib/ticket-csv-encoding";
 import type {TicketScope} from "../src/server/tickets/snapshot-storage";
 import {translate} from "../src/i18n/catalog";
 
@@ -105,7 +106,6 @@ test("La modale affiche les six en-têtes CSV exacts du contrat, en FR et EN",()
 });
 
 test("Les fichiers CSV UTF-8 et Windows-1252 conservent les accents",()=>{
- const {decodeTicketCsvBytes}=require("../src/lib/ticket-csv-encoding") as typeof import("../src/lib/ticket-csv-encoding");
  const csv=columns+"\nSMN-46,Story,Capacité de développement et jours fériés,Medium,Terminé,2\n";
  const utf8=decodeTicketCsvBytes(new TextEncoder().encode(csv));
  assert.equal(utf8.encoding,"utf-8");
