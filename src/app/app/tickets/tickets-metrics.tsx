@@ -66,6 +66,7 @@ export default function TicketsMetrics({summary,hasFilters}:Props){
    {breakdown(current.byType,t("tickets.metricsByType"),"smn-tickets-metrics-type")}
    {breakdown(current.byStatus,t("tickets.metricsByStatus"),"smn-tickets-metrics-status")}
    {breakdown(current.byPrefix,t("tickets.metricsByPrefix"),"smn-tickets-metrics-prefix")}
+   {breakdown(current.byEstimation.map(group=>({...group,value:t(group.value==="estimated"?"tickets.metricsEstimated":"tickets.metricsNotEstimated")})),t("tickets.metricsByStoryPoints"),"smn-tickets-metrics-estimation")}
   </div>
  </section>;
 }
