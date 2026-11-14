@@ -29,7 +29,8 @@ export default function CadenceForm(){
      <select id="cadence-weeks" className="form-select" disabled={busy} value={draft.durationWeeks} onChange={e=>change("durationWeeks",Number(e.target.value))}>{[1,2,3,4].map(x=><option key={x} value={x}>{x}</option>)}</select>
     </div>
     <div className="col-12 col-md-6">
-      </div>
+     <IanaTimeZoneSelect id="cadence-zone" label={t("scrumCadence.timeZone")} disabled={busy} value={draft.timeZone} onChange={value=>change("timeZone",value)}/>
+    </div>
    </div>
    <div className="row g-3">
     <div className="col-md-6"><label htmlFor="cadence-start-day" className="form-label">{t("scrumCadence.startDay")}</label>
@@ -39,7 +40,6 @@ export default function CadenceForm(){
     <select id="cadence-end-day" className="form-select" disabled={busy} value={draft.endDay} onChange={e=>change("endDay",Number(e.target.value))}>{days.map(x=><option key={x} value={x}>{t(`scrumCadence.days.${x}` as "scrumCadence.days.1")}</option>)}</select></div>
     <div className="col-md-6"><label htmlFor="cadence-end-time" className="form-label">{t("scrumCadence.endTime")}</label><input id="cadence-end-time" className="form-control" type="time" required disabled={busy} value={draft.endTime} onChange={e=>change("endTime",e.target.value)}/></div>
    </div>
-   <IanaTimeZoneSelect id="cadence-zone" label={t("scrumCadence.timeZone")} disabled={busy} value={draft.timeZone} onChange={value=>change("timeZone",value)}/>
    <p className="small text-secondary">{t("scrumCadence.futureOnly")}</p>
    <button type="submit" className="btn btn-primary" disabled={!dirty||busy}>{t("scrumCadence.save")}</button>
    <p className="text-secondary small">{t("scrumCadence.revision",{revision:current?.revision??1})}</p>
