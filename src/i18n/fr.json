@@ -5178,6 +5178,7 @@
     "metricsByType": "Par type de ticket",
     "metricsByStatus": "Par statut",
     "metricsByPrefix": "Par préfixe Jira",
+    "metricsGroupStoryPoints": "Story Points",
     "metricsNoGroups": "Aucun ticket dans ce périmètre.",
     "compareTitle": "Comparer deux photographies",
     "compareChoose": "Choix des photographies",
