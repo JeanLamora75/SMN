@@ -15,7 +15,7 @@ import {expandWordTablesXml} from "../scripts/smn-400-word-tables.mjs";
 import {expandPowerPointTablesXml} from "../scripts/smn-401-powerpoint-tables.mjs";
 
 const scope:TicketScope={teamId:"team-one",mode:"scrum",cycleId:"sprint-one"};
-const header="Id jira,Type de ticket,Titre du ticket,Priorité,Statut,Story points";
+const header="id,type,resume,priority,status,sp";
 const csv1=[header,"ABC-1,Story,À faire,High,In Progress,2","ABC-2,Bug,Erreur,Low,Done,3"].join("\n");
 const csv2=[header,"ABC-1,Story,À faire,High,Terminé,5","ABC-3,Task,Nouveau,Low,À faire,1"].join("\n");
 const opts={authorize:async()=>{}};
