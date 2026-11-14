@@ -5,6 +5,7 @@ import BootstrapIcon from "../bootstrap-icon";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {TicketScope} from "@/server/tickets/snapshot-storage";
 import {TICKET_CSV_COLUMNS} from "@/lib/ticket-csv-contract";
+import {decodeTicketCsvBytes} from "@/lib/ticket-csv-encoding";
 
 type Snapshot={snapshotId:string;businessDate:string;originalFilename:string};
 type CsvDiagnostic={line:number;column:string;code:string;message:string;severity:"error"|"warning"};
@@ -125,7 +126,7 @@ export default function TicketsImportDialog({scope,cycleName,onClose,onSaved}:Im
   const controller=new AbortController();abort.current=controller;
   let content:string;
   try{
-   content=await file.text();
+   content=decodeTicketCsvBytes(new Uint8Array(await file.arrayBuffer())).text;
    if(controller.signal.aborted)return;
    const response=await fetch("/api/admin/tickets/validate",{
     method:"POST",headers:{"Content-Type":"application/json"},
