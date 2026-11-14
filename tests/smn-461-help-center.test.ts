@@ -71,6 +71,7 @@ describe("Help Center: navigation, accessibility and permissions",()=>{
   assert.match(source,/loadHelpContent\(selected\.id,locale,account,mode\)/);
   assert.match(css,/max-width:none/);
   assert.doesNotMatch(source,/fetch\s*\(|\.query\s*\(|POST|PATCH|DELETE|useServerAction/);
-  assert.doesNotMatch(source,/<input|<form/);
+  assert.match(source,/<form method="get" action="\/app\/help" role="search"/);
+  assert.match(source,/name="q" type="search"/);
  });
 });
