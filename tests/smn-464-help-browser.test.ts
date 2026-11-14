@@ -12,7 +12,7 @@ const require=createRequire(import.meta.url);
 const esbuild=require(createRequire(require.resolve("tsx/package.json")).resolve("esbuild"));
 
 async function browserFixture(){
- const entry=String.raw\`
+ const entry=String.raw`
  import React,{useState} from "react";
  import {createRoot} from "react-dom/client";
  import {LocaleProvider} from "@/i18n/client";
@@ -33,7 +33,7 @@ async function browserFixture(){
   </main></LocaleProvider>;
  }
  createRoot(document.getElementById("root")!).render(<Fixture/>);
- \`;
+ `;
  const result=await esbuild.build({
   stdin:{contents:entry,resolveDir:root,sourcefile:"help-headers-browser-fixture.tsx",loader:"tsx"},
   bundle:true,platform:"browser",format:"iife",write:false,jsx:"automatic",
