@@ -1,6 +1,4 @@
 import Link from "next/link";
-import path from "node:path";
-import {readdir} from "node:fs/promises";
 import {redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
@@ -8,6 +6,7 @@ import {withSessionReadDb} from "@/server/auth/database";
 import {readAccountDashboard} from "@/server/dashboard/read";
 import {helpCatalog,type HelpSection,type HelpMode} from "@/lib/help-catalog";
 import {loadHelpContent} from "@/server/help-content";
+import {availableHelpArticleIds} from "@/server/help-available";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import BootstrapIcon from "../bootstrap-icon";
@@ -23,13 +22,6 @@ const sections:readonly {id:HelpSection;key:"gettingStarted"|"configuration"|"mo
  {id:"troubleshooting",key:"troubleshooting",icon:"search"}
 ];
 
-async function availableArticleIds(locale:string):Promise<ReadonlySet<string>>{
- const dir=path.join(process.cwd(),"content","help");
- const list=async(lang:string)=>readdir(path.join(dir,lang)).catch(()=>[] as string[]);
- const [localized,french]=await Promise.all([list(locale),locale==="fr"?Promise.resolve([] as string[]):list("fr")]);
- return new Set([...localized,...french].filter(file=>/^[a-z][a-z0-9-]*\.md$/.test(file)).map(file=>file.slice(0,-3)));
-}
-
 export default async function HelpPage({searchParams}:{searchParams:Promise<{article?:string|string[]}>}){
  const account=await currentAccount();
  if(!account)redirect("/login");
@@ -44,7 +36,7 @@ export default async function HelpPage({searchParams}:{searchParams:Promise<{art
  const rawMode=context?.context?.mode;
  const mode:HelpMode|null=rawMode==="scrum"||rawMode==="kanban"?rawMode:null;
  const permitted=helpCatalog(account,mode);
- const available=await availableArticleIds(locale);
+ const available=await availableHelpArticleIds(locale);
  const visible=permitted.filter(item=>available.has(item.id));
  const requested=(await searchParams).article;
  const articleId=typeof requested==="string"?requested:null;
