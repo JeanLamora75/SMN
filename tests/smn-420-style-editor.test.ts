@@ -72,7 +72,8 @@ test("draft save carries revision and blocks invalid configurations",()=>{
  assert.match(s,/action:"update"/);
  assert.match(s,/setPreviewStatus\("stale"\)/);
  assert.match(s,/body:JSON.stringify\(\{type,config:draft,locale\}\)/);
- assert.match(s,/window\.confirm\(tr\("discardConfirm"\)\)/);
+ assert.match(s,/window\.confirm\(t\("chartStyles\.editor\.discardConfirm"\)\)/);
+ assert.match(s,/if\(!discard\(\)\)e\.preventDefault\(\)/);
  assert.match(s,/beforeunload/);
  assert.match(s,/source==="custom"/);
 });
