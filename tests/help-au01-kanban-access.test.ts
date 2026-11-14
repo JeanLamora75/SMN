@@ -35,7 +35,7 @@ describe("AU-01 — access to Kanban help mirrors the read-only business module"
    assert.equal(helpArticleForContext(context,actor,"kanban"),null);
   }
  });
- it("preserves admin-only access to configuration guides and write operations",()=>{
+ it("preserves admin-only access to configuration guides and write operations",async()=>{
   const settings={type:"settings",exists:true,inScope:true};
   assert.equal(canAccess(user,"read",settings),false);
   assert.equal(canAccess(user,"write",settings),false);
