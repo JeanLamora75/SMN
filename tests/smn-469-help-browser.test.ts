@@ -40,7 +40,7 @@ async function browserBundle(){
    build.onResolve({filter:/^react$/,namespace:"fixture"},()=>
     ({path:require.resolve("react")}));
    // The production component imports CSS; browser fixture styles are served separately.
-   build.onResolve({filter:/\\.css$/},()=>({path:"help-css",namespace:"fixture-style"}));
+   build.onResolve({filter:/\.css$/},()=>({path:"help-css",namespace:"fixture-style"}));
    build.onLoad({filter:/.*/,namespace:"fixture-style"},()=>
     ({contents:"",loader:"js"}));
    build.onLoad({filter:/.*/,namespace:"fixture"},()=>({
@@ -84,6 +84,7 @@ test("SMN-469 — real Chromium: FR/EN contextual help, read-only network, focus
    args:["--no-sandbox","--disable-dev-shm-usage","--no-first-run"]});
   for(const locale of ["fr","en"]){
    const page=await browser.newPage();
+   await page.evaluateOnNewDocument("globalThis.__name = (fn) => fn;");
    const errors:string[]=[];
    page.on("pageerror",error=>errors.push(error.message));
    await page.setViewport({width:locale==="fr"?1280:375,height:800,deviceScaleFactor:2});
