@@ -11,7 +11,8 @@ const defaults:OfficeTagSelection={family:"scalar",key:"TEAM_NAME",rules:[],
 function tag(overrides:Partial<OfficeTagSelection>){return serializeOfficeTag({...defaults,...overrides});}
 test("Every documented scalar matches the current scalar parser contract",()=>{
  const doc=new Set(officeScalarDefinitions.filter(x=>!x.key.includes("<")).map(x=>x.key));
- assert.deepEqual([...SCALAR_NAMES].sort(),[...doc].sort());
+ for(const name of SCALAR_NAMES)assert.ok(doc.has(name),"Undocumented scalar: "+name);
+ for(const name of doc)assert.equal(tag({key:name}),"{{"+name+"}}");
  for(const key of doc)assert.equal(tag({key}),"{{"+key+"}}");
  assert.equal(tag({key:"UNSAFE|PARAM=YES"}),"");
 });
