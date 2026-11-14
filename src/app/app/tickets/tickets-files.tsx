@@ -2,6 +2,7 @@
 
 import {useEffect,useRef,useState} from "react";
 import BootstrapIcon from "../bootstrap-icon";
+import HelpHeaderAction from "../help/help-header-action";
 import TicketsImportDialog from "./tickets-import-dialog";
 import TicketsConsultation from "./tickets-consultation";
 import TicketsComparison from "./tickets-comparison";
@@ -107,6 +108,7 @@ export default function TicketsFiles(){
      <p>{t("tickets.subtitle")}</p>
     </div>
     <div className="smn-tickets-hero-actions">
+     <HelpHeaderAction screenTitle={t("tickets.title")} className="btn btn-light d-inline-flex align-items-center gap-2"/>
      {canEditIndicators&&teamId&&cycleId&&(mode==="scrum"||mode==="kanban")?
       <UniversalIndicatorInput key={teamId+"|"+mode+"|"+cycleId}
        teamId={teamId} cycleType={mode} cycleId={cycleId}
