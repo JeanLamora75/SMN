@@ -40,7 +40,7 @@ export function privateNavigation(mode:PrivateMode|null,role:PrivateRole,canMana
     href:"/app/admin/registries",icon:"stack"},
    {id:"links",label:"navigation.entries.links",href:role==="admin"?"/app/admin/links":null,icon:"link-45deg"},
    {id:"reporting",label:"navigation.entries.reporting",href:"/app/reports",icon:"bar-chart-line"},
-  ]}
+  ]},
   {id:"help",label:"navigation.entries.help",entries:[
    {id:"help",label:"navigation.entries.help",href:"/app/help",icon:"question-circle"}
   ]}
