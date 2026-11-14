@@ -36,6 +36,13 @@ async function browserBundle(){
    build.onResolve({filter:/^@\//},(args:any)=>
     build.resolve(join(root,"src",args.path.slice(2)),{resolveDir:root,kind:args.kind}));
    build.onResolve({filter:/^next\/link$/},()=>({path:"link",namespace:"fixture"}));
+   // Resolve React from the repository, not from the virtual fixture namespace.
+   build.onResolve({filter:/^react$/,namespace:"fixture"},()=>
+    ({path:require.resolve("react")}));
+   // The production component imports CSS; browser fixture styles are served separately.
+   build.onResolve({filter:/\\.css$/},()=>({path:"help-css",namespace:"fixture-style"}));
+   build.onLoad({filter:/.*/,namespace:"fixture-style"},()=>
+    ({contents:"",loader:"js"}));
    build.onLoad({filter:/.*/,namespace:"fixture"},()=>({
     contents:'import React from "react";export default function Link({href,children,...props}){return React.createElement("a",{href,...props},children)}',
     loader:"jsx"
