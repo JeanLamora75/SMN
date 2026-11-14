@@ -32,8 +32,8 @@ test("Le troisième onglet et la page conservent strictement l'accès administra
  const tabs=read("src/app/app/admin/settings/indicators/settings-tabs.tsx");
  const page=read("src/app/app/admin/settings/indicators/page.tsx");
  const guide=read("src/app/app/admin/settings/indicators/recommended-guide.tsx");
- assert.match(tabs,/Indicateurs recommandés/);
- assert.match(tabs,/Guide des expressions/);
+ assert.match(tabs,/indicatorSettingsUi\.recommended/);
+ assert.match(tabs,/indicatorSettingsUi\.expressions/);
  assert.match(tabs,/indicator-settings-catalogue/);
  assert.match(page,/account\.role!=="admin"/);
  assert.match(page,/indicatorTeams/);
