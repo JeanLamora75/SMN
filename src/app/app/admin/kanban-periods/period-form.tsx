@@ -37,7 +37,10 @@ export default function KanbanPeriodForm({canManage}:{canManage:boolean}){
   }catch{setError(t("kanbanPeriod.saveError"));}finally{setBusy(false);}
  }
  return <section className="smn-panel p-4">
-  <h1 className="h3">{t("kanbanPeriod.title")}</h1>
+  <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+   <h1 className="h3 mb-0">{t("kanbanPeriod.title")}</h1>
+   <HelpHeaderAction screenTitle={t("kanbanPeriod.title")}/>
+  </div>
   <p className="text-secondary">{t("kanbanPeriod.intro")}</p>
   {cadence&&<form onSubmit={generate} className="d-grid gap-3">
    <div><label className="form-label" htmlFor="kanban-period-quantity">{t("kanbanPeriod.quantity")}</label>
