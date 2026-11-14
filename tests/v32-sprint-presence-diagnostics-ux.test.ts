@@ -8,7 +8,9 @@ const engine=read("src/server/capacity/engine.ts");
 test("présence calculée pour les membres affectés, développement par rôle Agile",()=>{
  assert.match(engine,/availableHalfDays\*hoursPerJh\/2/);
  assert.match(engine,/developerPercent\/100/);
- assert.match(panel,/part de rôle Agile Développeur/);
+ assert.match(panel,/sprintDetail\.presenceRoleMethod/);
+ const fr=JSON.parse(read("src/i18n/fr.json"));
+ assert.match(fr.sprintDetail.presenceRoleMethod,/Développeur|développeur|rôle Agile/);
 });
 test("diagnostic : distinguer données non calculables, lien contextualisé",()=>{
  assert.match(panel,/sans version en vigueur pendant le Sprint/);
