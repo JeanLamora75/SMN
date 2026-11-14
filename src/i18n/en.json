@@ -5250,6 +5250,8 @@
     "jiraSettingsPreview": "Example link",
     "jiraSettingsNoUrl": "No Jira link configured.",
     "jiraSettingsReadOnly": "Only an administrator can change this address.",
-    "jiraTicketOpen": "Open {id} in Jira"
+    "jiraTicketOpen": "Open {id} in Jira",
+    "importExpectedColumnsTitle": "Required CSV column headers",
+    "importExpectedColumnsHelp": "Use these exact header names (in French). They can appear in any order, and additional columns are allowed."
   }
 }
