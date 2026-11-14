@@ -8,7 +8,7 @@ import TicketsConsultation from "../src/app/app/tickets/tickets-consultation";
 import type {TicketsCycleContext} from "../src/app/app/tickets-cycle-context";
 import {translate} from "../src/i18n/catalog";
 
-const header="Id jira,Type de ticket,Titre du ticket,Priorité,Statut,Story points";
+const header="id,type,resume,priority,status,sp";
 const csv=[header,
  "PRO-20,Bug,Recherche cassée,Haute,Done,3",
  "PRO-2,Story,Connexion utilisateur,Basse,Terminé,8",
@@ -63,7 +63,7 @@ test("pagination bornée, page trop haute ramenée à la dernière",()=>{
 });
 
 test("CSV non conforme refusé avant consultation",()=>{
- assert.throws(()=>browseTicketCsv("Id jira,Statut\nAB-1,Done"),/tickets-invalid-csv/);
+ assert.throws(()=>browseTicketCsv("id,status\nAB-1,Done"),/tickets-invalid-csv/);
 });
 
 test("Cockpit Agile et états vides traduits sans inventer de lien Jira",()=>{
