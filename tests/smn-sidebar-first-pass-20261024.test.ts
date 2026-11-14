@@ -6,13 +6,13 @@ import {settingsCatalog} from "../src/lib/settings-catalog";
 import {translate} from "../src/i18n/catalog";
 const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 describe("Refonte UX du panneau latéral — premier lot",()=>{
- it("conserve Tableau de Bord et Équipe puis insère Sprint avant Calendrier",()=>{
+ it("conserve Tableau de Bord et Équipe puis insère Sprints et Tickets avant Calendrier",()=>{
   for(const role of ["admin","user"] as const){
    const menu=privateNavigation("scrum",role).flatMap(g=>g.entries);
-   assert.deepEqual(menu.slice(0,4).map(e=>e.id),
-    ["dashboard","members","cycles","centralCalendar"]);
+   assert.deepEqual(menu.slice(0,5).map(e=>e.id),
+    ["dashboard","members","cycles","tickets","centralCalendar"]);
    assert.deepEqual(menu.slice(0,4).map(e=>e.href),
-    ["/app",role==="admin"?"/app/admin/members":null,"/app/admin/sprints","/app/team-calendar"]);
+    ["/app",role==="admin"?"/app/admin/members":null,"/app/admin/sprints","/app/tickets","/app/team-calendar"]);
   }
  });
  it("retire Sécurité du compte et Événements Agile sans supprimer leurs routes",()=>{
@@ -31,7 +31,8 @@ describe("Refonte UX du panneau latéral — premier lot",()=>{
   assert.equal(entries[0].icon,"house-fill");
   assert.equal(entries[1].icon,"people-fill");
   assert.equal(entries[2].icon,"calendar-check");
-  assert.equal(entries[3].icon,"calendar3");
+  assert.equal(entries[3].icon,"ticket-perforated-fill");
+  assert.equal(entries[4].icon,"calendar3");
   assert.ok(entries.every(e=>!/[♙♧◫▤◷◇◈⚙▦]/.test(e.icon)));
   const jsx=read("src/app/app/private-navigation.tsx");
   assert.match(jsx,/<BootstrapIcon name=\{entry.icon\}/);
@@ -48,7 +49,7 @@ describe("Refonte UX du panneau latéral — premier lot",()=>{
   }
   assert.deepEqual(privateNavigation("scrum","admin")[0].entries
    .map(e=>translate("fr",e.label)),
-    ["Tableau de Bord","Équipe","Sprint","Calendrier","Registre","Liens","Rapports"]);
+    ["Tableau de Bord","Équipes","Sprints","Tickets","Calendrier","Registre","Liens","Rapports"]);
   const css=read("src/app/dashboard.css");
   assert.match(css,/smn-nav-label[^{]*\{[^}]*white-space:nowrap/);
   assert.match(css,/smn-nav-label[^{]*\{[^}]*text-overflow:ellipsis/);
