@@ -11,8 +11,8 @@ const authorized=(type:"accounts"|"settings"|"members",role:"admin"|"user")=>
 
 describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
  it("affiche le groupe métier incluant Tickets et un groupe Paramètres pour admin",()=>{
-  assert.deepEqual(privateNavigation("scrum","admin").map(group=>group.id),["pilotage","admin"]);
-  assert.deepEqual(privateNavigation("scrum","user").map(group=>group.id),["pilotage"]);
+  assert.deepEqual(privateNavigation("scrum","admin").map(group=>group.id),["pilotage","help","admin"]);
+  assert.deepEqual(privateNavigation("scrum","user").map(group=>group.id),["pilotage","help"]);
   for(const role of ["admin","user"] as const){
    const main=privateNavigation("scrum",role)[0].entries;
    assert.deepEqual(main.map(e=>e.id),[
@@ -20,6 +20,8 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
    ]);
    assert.equal(privateNavigation("scrum",role).flatMap(g=>g.entries)
     .filter(e=>e.id==="settings").length,role==="admin"?1:0);
+   assert.equal(privateNavigation("scrum",role).flatMap(g=>g.entries)
+    .find(e=>e.id==="help")?.href,"/app/help");
   }
  });
  it("préserve les destinations actives et préserve les destinations Liens et Rapports existantes",()=>{
@@ -70,7 +72,9 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
    ["/app/tickets","tickets"],
    ["/app/tickets/history","tickets"],
    ["/app/admin/settings","settings"],
-   ["/app/admin/settings/general","settings"]
+   ["/app/admin/settings/general","settings"],
+   ["/app/help","help"],
+   ["/app/help/article","help"]
   ];
   for(const [path,id] of pairs)
    assert.deepEqual(entries.filter(e=>activePrivateEntry(path,e)).map(e=>e.id),[id]);
@@ -96,6 +100,9 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
   assert.deepEqual(privateNavigation("scrum","admin",true)[0].entries.map(e=>translate("fr",e.label)),
    ["Tableau de Bord","Équipes","Sprints","Tickets","Calendrier","Indicateurs","Registre","Liens","Rapports"]);
   assert.equal(translate("fr","navigation.entries.settings"),"Paramètres");
+  assert.equal(translate("fr","navigation.entries.help"),"Aide");
+  assert.equal(translate("en","navigation.entries.help"),"Help");
+  assert.deepEqual(privateNavigation("scrum","admin").slice(-2).map(group=>group.entries[0].id),["help","settings"]);
  });
  it("conserve le contrôle d'accès serveur indépendamment de l'affichage des menus",()=>{
   for(const type of ["accounts","settings","members"] as const){
