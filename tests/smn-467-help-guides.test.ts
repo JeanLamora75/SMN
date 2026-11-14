@@ -63,7 +63,7 @@ describe("SMN-467 — module guides and troubleshooting",()=>{
     for(const match of md.matchAll(/\]\((\/app(?:\/[a-z0-9-]+)*)\)/g)){
      const suffix=match[1].replace(/^\/app\/?/,"");
      const file=path.join("src/app/app",suffix,"page.tsx");
-     await assert.doesNotRejects(readFile(file,"utf8"),locale+"/"+entry.id+": "+match[1]);
+     await assert.doesNotReject(readFile(file,"utf8"),locale+"/"+entry.id+": "+match[1]);
     }
    }
   }
