@@ -49,7 +49,7 @@ async function browserFixture(){
    build.onResolve({filter:/^react$/,namespace:"fixture"},()=>
     ({path:require.resolve("react")}));
    // The production component imports CSS; browser fixture styles are served separately.
-   build.onResolve({filter:/\\.css$/},()=>({path:"help-css",namespace:"fixture-style"}));
+   build.onResolve({filter:/\.css$/},()=>({path:"help-css",namespace:"fixture-style"}));
    build.onLoad({filter:/.*/,namespace:"fixture-style"},()=>
     ({contents:"",loader:"js"}));
    build.onLoad({filter:/.*/,namespace:"fixture"},(args:any)=>({
@@ -101,6 +101,7 @@ test("SMN-464 — Chromium FR: aide Paramètres et Tickets sans perte de filtre/
    ["/app/tickets","tickets"]
   ]){
    const page=await browser.newPage();
+   await page.evaluateOnNewDocument("globalThis.__name = (fn) => fn;");
    const errors:string[]=[];
    page.on("pageerror",error=>errors.push(error.message));
    await page.goto("http://127.0.0.1:"+address.port+route);
