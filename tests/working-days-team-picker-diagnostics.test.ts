@@ -13,7 +13,9 @@ test("team picker is always visible, even when only one Scrum team exists",()=>{
  assert.match(form,/<div className="mb-3"><label className="form-label" htmlFor="slot-team">/);
  assert.doesNotMatch(form,/teams\.length>1&&<div className="mb-3"/);
  assert.match(form,/teams\.map\(team=><option key=\{team\.id\} value=\{team\.id\}>/);
- assert.match(form,/if\(teams\.length===1\)\{setTeamId\(teams\[0\]\.id\)/);
+ assert.match(form,/const soleTeamId=teams\.length===1\?teams\[0\]\.id:null/);
+ assert.match(form,/lastAutoLoadedTeam\.current===soleTeamId/);
+ assert.match(form,/setTeamId\(soleTeamId\);void load\(soleTeamId\)/);
  assert.match(form,/load\(id\)/);
 });
 test("explicit selected team bypasses potentially stale account preference",()=>{
