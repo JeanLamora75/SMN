@@ -14,9 +14,18 @@ export default function TicketsMetrics({summary,hasFilters}:Props){
  const breakdown=(items:readonly TicketGroupCount[],title:string,id:string)=><section
   className="smn-tickets-metric-breakdown" aria-labelledby={id}>
   <h4 id={id}>{title}</h4>
-  {items.length?<ul>{items.map(group=><li key={group.value}>
-   <span>{label(group.value)}</span><strong>{group.count}</strong>
-  </li>)}</ul>:<p>{t("tickets.metricsNoGroups")}</p>}
+  {items.length?<div className="smn-tickets-metric-breakdown-table">
+   <div className="smn-tickets-metric-breakdown-header">
+    <span className="visually-hidden">{title}</span>
+    <span>{t("tickets.metricsTickets")}</span>
+    <span>{t("tickets.metricsGroupStoryPoints")}</span>
+   </div>
+   <ul>{items.map(group=><li key={group.value}>
+    <span>{label(group.value)}</span>
+    <strong>{group.count}</strong>
+    <strong>{group.storyPoints.sum??t("tickets.metricsUnavailable")}</strong>
+   </li>)}</ul>
+  </div>:<p>{t("tickets.metricsNoGroups")}</p>}
  </section>;
  return <section className="smn-tickets-panel smn-tickets-metrics"
   aria-labelledby="smn-tickets-metrics-heading">
