@@ -35,7 +35,7 @@ test("création Sprint : seules les occurrences des modèles actifs sont enregis
  } as unknown as Client;
  const count=await saveGeneratedCeremonies(db,{id:"sprint-1",
   startAt:"2026-11-02T08:00:00.000Z",endAt:"2026-11-13T17:00:00.000Z",
-  timeZone:"Europe/Paris"},2);
+  timeZone:"Europe/Paris"},2,{reconstructed:true});
  assert.equal(count,12); // 10 Daily (lundi-vendredi) + Review + Retro ; Planning désactivé.
  assert.equal(inserts.length,12);
  assert.ok(inserts.every(x=>x.sql.includes("smn_scrum_template_occurrence")));
