@@ -1,10 +1,11 @@
 # Contenu d'aide SMN
 
-Chaque article utilise un identifiant canonique défini dans `src/lib/help-catalog.ts`.
-Les dossiers `fr/`, `en/` puis les langues futures contiennent des fichiers `<articleId>.md`.
-Les contenus ne sont **pas** ajoutés à `src/i18n/*.json` et ne comportent ni données utilisateur ni script.
+Chaque article utilise un identifiant stable défini dans `src/lib/help-catalog.ts`. Les guides sont stockés dans `content/help/<locale>/<articleId>.md` ; les nouvelles langues peuvent être ajoutées sans dupliquer les composants d'interface.
 
-Les quatre fichiers initiaux `overview` et `tickets` sont des introductions minimales de validation technique, et **pas** les guides fonctionnels complets. Leur enrichissement relève de SMN-466/467.
+Le parcours de première configuration (SMN-466) est disponible en français et en anglais : `overview`, `general-settings`, `teams`, `calendar`, `members`, `sprints`, `kanban-periods`, `reports` et `backup`. Le guide `tickets` reste une introduction en attendant la documentation fonctionnelle détaillée.
 
-Le chargeur serveur `src/server/help-content.ts` ne lit que l'article autorisé, dans la langue demandée avec repli FR explicite ; aucune écriture en base ni dépendance réseau n'est autorisée.
-La construction et le ZIP Windows devront explicitement emporter ce répertoire (SMN-468).
+Les étapes de la checklist correspondent aux identifiants canoniques de `src/lib/help-setup.ts` : `general`, `team`, `calendar`, `members`, `cadence`, `tickets`, `reports`, `backup`. `cadence` renvoie vers `sprints` ou `kanban-periods` selon le mode Agile. La progression reste dans `localStorage` ; les articles n'effectuent aucun appel d'écriture.
+
+Ne jamais intégrer les guides longs dans `src/i18n/fr.json` ou `en.json`. Le chargeur `src/server/help-content.ts` impose les autorisations et charge un article à la fois, avec repli français signalé. Les liens dans les guides pointent vers des routes internes vérifiées.
+
+Le script `node scripts/build-help-index.mjs` génère les index de recherche locaux ; `node scripts/build-help-index.mjs --check` vérifie leur cohérence. La livraison des contenus et index dans la distribution Windows sera qualifiée avec SMN-468.
