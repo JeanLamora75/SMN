@@ -132,7 +132,7 @@ test("SMN-457 — Chromium : import invalide, conflit de date, modale de remplac
    await page.click(detailsSelector+" summary");
    assert.equal(await page.$eval(detailsSelector,node=>(node as HTMLDetailsElement).open),true);
    const expectedHeaders=["id","type","resume","priority","status","sp"];
-   assert.deepEqual(await page.$eval(detailsSelector+" li code",nodes=>
+   assert.deepEqual(await page.$$eval(detailsSelector+" li code",nodes=>
     nodes.map(node=>node.textContent)),expectedHeaders);
    await page.keyboard.press("Tab");
    await page.click(detailsSelector+" summary");
