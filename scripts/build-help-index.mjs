@@ -52,8 +52,7 @@ export async function buildHelpIndexes({check=false,base=root}={}){
  return generated;
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- try{
-  const generated=await buildHelpIndexes({check:process.argv.includes("--check")});
+ void buildHelpIndexes({check:process.argv.includes("--check")}).then(generated=>{
   process.stdout.write("Help indexes "+(process.argv.includes("--check")?"verified":"generated")+": "+JSON.stringify(generated)+"\n");
- }catch(error){process.stderr.write(String(error)+"\n");process.exitCode=1;}
+ }).catch(error=>{process.stderr.write(String(error)+"\n");process.exitCode=1;});
 }
