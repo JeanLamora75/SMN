@@ -4,7 +4,7 @@ export type PrivateMode = "scrum" | "kanban";
 export type PrivateRole = "admin" | "user";
 export type NavigationIcon =
  "house-fill"|"people-fill"|"calendar3"|"calendar-check"|"sticky-fill"|
- "exclamation-octagon-fill"|"bar-chart-line"|"sliders"|"stack"|"ticket-perforated-fill"|"link-45deg";
+ "exclamation-octagon-fill"|"bar-chart-line"|"sliders"|"stack"|"ticket-perforated-fill"|"link-45deg"|"question-circle";
 export type NavigationEntry = Readonly<{
  id:string;
  label:TranslationKey;
@@ -41,6 +41,9 @@ export function privateNavigation(mode:PrivateMode|null,role:PrivateRole,canMana
    {id:"links",label:"navigation.entries.links",href:role==="admin"?"/app/admin/links":null,icon:"link-45deg"},
    {id:"reporting",label:"navigation.entries.reporting",href:"/app/reports",icon:"bar-chart-line"},
   ]}
+  {id:"help",label:"navigation.entries.help",entries:[
+   {id:"help",label:"navigation.entries.help",href:"/app/help",icon:"question-circle"}
+  ]}
  ];
  if(role==="admin")groups.push({
   id:"admin",label:"navigation.groups.admin",entries:[
@@ -61,6 +64,7 @@ export function activePrivateEntry(pathname:string,entry:NavigationEntry):boolea
   (entry.id==="members"&&pathname.startsWith("/app/admin/members/"))||
   (entry.id==="centralCalendar"&&pathname.startsWith("/app/team-calendar/"))||
   (entry.id==="settings"&&pathname.startsWith("/app/admin/settings/"))||
+  (entry.id==="help"&&pathname.startsWith("/app/help/"))||
   (entry.id==="risks"&&pathname.startsWith("/app/admin/registries/"))||
   (entry.id==="cycles"&&entry.href==="/app/admin/kanban-periods"&&pathname.startsWith("/app/admin/kanban-periods/"))||
   (entry.id==="cycles"&&entry.href==="/app/admin/sprints"&&
