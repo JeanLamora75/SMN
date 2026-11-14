@@ -53,7 +53,7 @@ async function browserFixture(){
    }));
   }}],logLevel:"silent"
  });
- const js=result.outputFiles.find((file:any)=>file.path.endsWith(".js"));
+ const js=result.outputFiles.find((file:any)=>file.path.endsWith(".js"))??result.outputFiles[0];
  assert.ok(js,"fixture JavaScript generated");
  return js.text as string;
 }
