@@ -110,7 +110,8 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
      <Link className="btn smn-sprints-primary-action" href={generateHref}>
       <span aria-hidden="true">＋</span>{t("sprintsIndex.generate")}
      </Link>
-    </div>}
+     </>}
+    </div>
    </div>
    <div className="smn-sprints-state-tabs" role="group" aria-label={t("sprintsIndex.statusFilter")}>
     {tabs.map(tab=><button key={tab.status} type="button"
