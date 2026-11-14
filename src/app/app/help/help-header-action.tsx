@@ -13,6 +13,8 @@ const articles:Readonly<Record<string,string>>={
  "/app/admin/sprints":"sprints",
  "/app/tickets":"tickets",
  "/app/reports":"reports",
+ "/app/admin/indicators":"indicators",
+ "/app/admin/registries":"registries",
 };
 
 export default function HelpHeaderAction({screenTitle,className}:{
