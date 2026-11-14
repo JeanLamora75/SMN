@@ -1,4 +1,5 @@
 import path from "node:path";
+import {helpResourcesRoot} from "./help-path";
 import {readdir} from "node:fs/promises";
 
 /**
@@ -7,7 +8,7 @@ import {readdir} from "node:fs/promises";
  */
 export async function availableHelpArticleIds(
  locale:string,
- root:string=path.join(process.cwd(),"content","help")
+ root:string=helpResourcesRoot()
 ):Promise<ReadonlySet<string>>{
  if(!/^[a-z]{2,3}(?:-[a-z]{2})?$/.test(locale))return new Set();
  const list=async(lang:string):Promise<string[]>=>readdir(path.join(root,lang)).catch(()=>[]);
