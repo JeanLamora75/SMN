@@ -151,3 +151,14 @@
 @media(max-width:1080px){.smn-tickets-compare-counts{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:690px){.smn-tickets-compare-selectors,.smn-tickets-compare-filter-grid{grid-template-columns:1fr}
  .smn-tickets-compare-filter-grid>div .btn{width:100%}}
+
+/* Required CSV headers: source of truth is TICKET_CSV_COLUMNS. */
+.smn-tickets-import-columns{border:1px solid var(--smn-border);border-radius:10px;
+ padding:12px 14px;background:var(--smn-muted-soft);color:var(--smn-foreground)}
+.smn-tickets-import-columns h3{font-size:.86rem;font-weight:750;color:var(--smn-heading);margin:0 0 10px}
+.smn-tickets-import-columns ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:8px 16px;margin:0;padding-inline-start:21px;font-size:.84rem}
+.smn-tickets-import-columns li{padding-inline-start:2px;overflow-wrap:anywhere}
+.smn-tickets-import-columns code{font-family:inherit;color:var(--smn-foreground);font-size:inherit}
+.smn-tickets-import-columns p{margin:12px 0 0;color:var(--smn-muted);font-size:.79rem}
+@media(max-width:480px){.smn-tickets-import-columns ol{grid-template-columns:minmax(0,1fr)}}
