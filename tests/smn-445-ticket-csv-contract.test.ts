@@ -5,7 +5,6 @@ import {
 } from "../src/lib/ticket-csv-contract";
 
 const header = TICKET_CSV_COLUMNS.join(",");
-const legacyHeader = "Id jira,Type de ticket,Titre du ticket,Priorité,Statut,Story points";
 const row = "ABC-12,Bug,Correction du filtre,Important,Done,3";
 
 test("accepts the six business columns without a fixed vocabulary", () => {
@@ -17,7 +16,7 @@ test("accepts the six business columns without a fixed vocabulary", () => {
 });
 
 test("accepts a different column order and extra optional columns", () => {
-  const csv = "Statut;Titre du ticket;Id jira;Story points;Priorité;Type de ticket;Note externe\nTerminé;Exemple;XYZ-9;2,5;Urgente;Story;ok";
+  const csv = "status;resume;id;sp;priority;type;Note externe\nTerminé;Exemple;XYZ-9;2,5;Urgente;Story;ok";
   const result = validateTicketCsv(csv);
   assert.equal(result.valid, true, JSON.stringify(result.errors));
   assert.equal(result.delimiter, ";");
@@ -40,7 +39,7 @@ test("handles UTF-8 BOM, blank lines and CRLF", () => {
 });
 
 test("rejects structurally invalid CSV and missing columns", () => {
-  const result = validateTicketCsv("Id jira,Statut\nABC-1,Done");
+  const result = validateTicketCsv("id,status\nABC-1,Done");
   assert.equal(result.valid, false);
   assert.ok(result.errors.some(error => error.code === "missing-column"));
   assert.deepEqual(result.rows, []);
@@ -91,17 +90,17 @@ test("canonical CSV names are id, type, resume, priority, status, sp",()=>{
  assert.equal(parsed.rows[0].storyPoints,"5");
 });
 
-test("legacy CSV headers stay readable without changing stored snapshots",()=>{
- const parsed=validateTicketCsv(legacyHeader+"\\nABC-7,Bug,Ancien fichier,Haute,Terminé,2");
- assert.equal(parsed.valid,true,JSON.stringify(parsed.errors));
- assert.equal(parsed.rows[0].jiraId,"ABC-7");
- assert.equal(parsed.rows[0].issueType,"Bug");
- assert.equal(parsed.rows[0].title,"Ancien fichier");
+test("rejects all historical column names instead of silently accepting them",()=>{
+ const historical="Id jira,Type de ticket,Titre du ticket,Priorité,Statut,Story points";
+ const parsed=validateTicketCsv(historical+"\\nABC-7,Bug,Ancien fichier,Haute,Terminé,2");
+ assert.equal(parsed.valid,false);
+ assert.equal(parsed.errors.filter(error=>error.code==="missing-column").length,6);
+ assert.deepEqual(parsed.rows,[]);
 });
 
-test("mixing new and legacy names for the same field is rejected as duplicate",()=>{
+test("the former id header cannot replace the required id field",()=>{
  const parsed=validateTicketCsv(
-  "id,Id jira,type,resume,priority,status,sp\\nABC-8,ABC-8,Bug,Titre,Haute,Done,2");
+  "Id jira,type,resume,priority,status,sp\\nABC-8,Bug,Titre,Haute,Done,2");
  assert.equal(parsed.valid,false);
- assert.ok(parsed.errors.some(error=>error.code==="duplicate-column"&&error.column==="id"));
+ assert.ok(parsed.errors.some(error=>error.code==="missing-column"&&error.column==="id"));
 });
