@@ -7,6 +7,10 @@ on:
       - "src/app/app/help/**"
       - "src/server/help-*.ts"
       - "src/lib/help-*.ts"
+      - "src/lib/private-navigation.ts"
+      - "src/i18n/*.json"
+      - "src/app/app/bootstrap-icon.tsx"
+      - "scripts/report-chrome.mjs"
       - "src/app/api/help/**"
       - "scripts/build-help-index.mjs"
       - "scripts/windows/verify-offline-help.mjs"
@@ -68,12 +72,16 @@ jobs:
             tests/smn-466-help-first-setup.test.ts \
             tests/smn-467-help-guides.test.ts \
             tests/smn-469-help-contract.test.ts
-      - name: Chromium réel — interactions Aide et stockage local FR/EN
+      - name: Chromium réel — 3 passages indépendants contre les instabilités
         run: |
-          pnpm exec tsx --test \
-            tests/smn-464-help-browser.test.ts \
-            tests/smn-465-help-checklist-browser.test.ts \
-            tests/smn-469-help-browser.test.ts
+          for iteration in 1 2 3; do
+            echo "::group::Aide Chromium — répétition $iteration/3"
+            pnpm exec tsx --test \
+              tests/smn-464-help-browser.test.ts \
+              tests/smn-465-help-checklist-browser.test.ts \
+              tests/smn-469-help-browser.test.ts
+            echo "::endgroup::"
+          done
       - name: Archiver les captures de la modale en Chromium (fixture)
         if: always()
         continue-on-error: true
