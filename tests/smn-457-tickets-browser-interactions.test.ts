@@ -14,7 +14,7 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),"..");
 const require=createRequire(import.meta.url);
 const esbuild=require(createRequire(require.resolve("tsx/package.json")).resolve("esbuild"));
 type Saved={teamId:string;cycleId:string;mode:string;businessDate:string;filename:string;csv:string;expectedSnapshotId?:string};
-const csv=["Id jira,Type de ticket,Titre du ticket,Priorité,Statut,Story points",
+const csv=["id,type,resume,priority,status,sp",
  "QA-1,Story,Premier ticket,Haute,Terminé,3"].join("\n");
 
 async function bundle(){
@@ -126,6 +126,17 @@ test("SMN-457 — Chromium : import invalide, conflit de date, modale de remplac
    assert.equal(await page.$eval("dialog",element=>getComputedStyle(element).position),"fixed");
    const initialFocus=await page.evaluate(()=>document.activeElement?.closest("dialog")!==null);
    assert.equal(initialFocus,true,"Focus initial contenu dans la modale native");
+   const detailsSelector="details.smn-tickets-import-columns";
+   assert.equal(await page.$eval(detailsSelector,node=>(node as HTMLDetailsElement).open),false,
+    "Les colonnes CSV sont repliées par défaut");
+   await page.click(detailsSelector+" summary");
+   assert.equal(await page.$eval(detailsSelector,node=>(node as HTMLDetailsElement).open),true);
+   const expectedHeaders=["id","type","resume","priority","status","sp"];
+   assert.deepEqual(await page.$eval(detailsSelector+" li code",nodes=>
+    nodes.map(node=>node.textContent)),expectedHeaders);
+   await page.keyboard.press("Tab");
+   await page.click(detailsSelector+" summary");
+   assert.equal(await page.$eval(detailsSelector,node=>(node as HTMLDetailsElement).open),false);
    const fileInput=await page.$("#smn-tickets-import-file") as ElementHandle<HTMLInputElement>|null;
    assert.ok(fileInput);
    await fileInput.uploadFile(bad);
