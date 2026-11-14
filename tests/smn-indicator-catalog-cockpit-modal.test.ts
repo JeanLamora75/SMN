@@ -9,7 +9,8 @@ const css=read("src/app/app/admin/indicators/indicator-definition-modal.module.c
 test("Création et modification partagent une modale Cockpit Agile, pas un formulaire en bas de page",()=>{
  assert.match(catalog,/createPortal\(<div className=\{ui\.overlay\}/);
  assert.match(catalog,/role="dialog" aria-modal="true"/);
- assert.match(catalog,/Cockpit Agile · Administration des indicateurs/);
+ assert.match(catalog,/t\("indicators\.definitionEyebrow"\)/);
+ assert.match(catalog,/t\("indicators\.definitionSubtitle"\)/);
  assert.match(catalog,/window\.addEventListener\("smn:indicator-create",onCreate\)/);
  assert.equal((catalog.match(/onClick=\{\(\)=>editor\(d\)\}/g)??[]).length,2);
  assert.doesNotMatch(catalog,/<section className="smn-panel rounded-4 p-4 mt-4" aria-label=\{t\("indicators\.editor"\)\}/);
