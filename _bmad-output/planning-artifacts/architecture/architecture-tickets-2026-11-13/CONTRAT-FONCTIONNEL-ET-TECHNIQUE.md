@@ -101,3 +101,11 @@ Ils remplacent pour les **nouveaux exports recommandés** les noms `Id jira`, `T
 La modale d'import présente la liste `TICKET_CSV_COLUMNS` dans un élément natif `<details>` fermé par défaut, ouvrable au clic ou au clavier, internationalisé (titres/aide FR/EN). Les noms techniques canoniques restent identiques dans toutes les langues.
 
 Cet avenant **prévaut** sur les anciens noms et toute mention d'un ordre de colonnes imposé dans les avenants précédents. Il ne modifie ni les six propriétés métier des lignes normalisées en mémoire, ni les indicateurs v33.
+
+## Décision définitive — 14/11/2026 : aucun alias d'en-tête CSV
+
+L'utilisateur confirme qu'**aucune photographie CSV n'a été importée sur SMN** au stade des premiers essais. La rétrocompatibilité proposée n'a donc aucune utilité et est explicitement abandonnée.
+
+**Seuls les six noms de colonnes suivants sont reconnus par le validateur :** `id`, `type`, `resume`, `priority`, `status`, `sp`. Leur ordre est libre ; les colonnes supplémentaires restent permises. Les anciens intitulés `Id jira`, `Type de ticket`, `Titre du ticket`, `Priorité`, `Statut`, `Story points` **ne sont plus reconnus comme en-têtes obligatoires** et provoquent une erreur de colonne manquante. La modale d'aide est repliée par défaut.
+
+Cette décision annule explicitement la mention d'« alias historiques » de l'avenant précédent. Aucun mécanisme de migration des CSV n'est nécessaire.
