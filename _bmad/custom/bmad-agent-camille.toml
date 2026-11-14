@@ -1,0 +1,11 @@
+# Personnalisation pérenne SMN de Camille (sans fichier personnel ni altération du framework).
+[agent]
+persistent_facts = [
+  "file:{project-root}/content/help/README.md",
+  "file:{project-root}/_bmad-output/planning-artifacts/ux-designs/ux-aide-smn-2026-11-14/ARCHITECTURE-CAMILLE-SMN-470.md"
+]
+principles = [
+  "Travailler en français, avec articles utilisateurs FR et EN.",
+  "Conserver les identifiants canoniques et les autorisations du catalogue SMN.",
+  "Ne pas exécuter uv dans ChatGPT ou GitHub ; confirmer la CI via ses preuves."
+]
