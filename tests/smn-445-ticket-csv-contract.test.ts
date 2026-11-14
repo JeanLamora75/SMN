@@ -83,7 +83,7 @@ test("CSV validation never touches the indicator persistence layer", () => {
 
 test("canonical CSV names are id, type, resume, priority, status, sp",()=>{
  assert.deepEqual([...TICKET_CSV_COLUMNS],["id","type","resume","priority","status","sp"]);
- const parsed=validateTicketCsv("id,type,resume,priority,status,sp\\nT-7,Task,Enoncé,P1,Done,5");
+ const parsed=validateTicketCsv("id,type,resume,priority,status,sp\nT-7,Task,Enoncé,P1,Done,5");
  assert.equal(parsed.valid,true,JSON.stringify(parsed.errors));
  assert.equal(parsed.rows[0].jiraId,"T-7");
  assert.equal(parsed.rows[0].title,"Enoncé");
@@ -92,7 +92,7 @@ test("canonical CSV names are id, type, resume, priority, status, sp",()=>{
 
 test("rejects all historical column names instead of silently accepting them",()=>{
  const historical="Id jira,Type de ticket,Titre du ticket,Priorité,Statut,Story points";
- const parsed=validateTicketCsv(historical+"\\nABC-7,Bug,Ancien fichier,Haute,Terminé,2");
+ const parsed=validateTicketCsv(historical+"\nABC-7,Bug,Ancien fichier,Haute,Terminé,2");
  assert.equal(parsed.valid,false);
  assert.equal(parsed.errors.filter(error=>error.code==="missing-column").length,6);
  assert.deepEqual(parsed.rows,[]);
@@ -100,7 +100,7 @@ test("rejects all historical column names instead of silently accepting them",()
 
 test("the former id header cannot replace the required id field",()=>{
  const parsed=validateTicketCsv(
-  "Id jira,type,resume,priority,status,sp\\nABC-8,Bug,Titre,Haute,Done,2");
+  "Id jira,type,resume,priority,status,sp\nABC-8,Bug,Titre,Haute,Done,2");
  assert.equal(parsed.valid,false);
  assert.ok(parsed.errors.some(error=>error.code==="missing-column"&&error.column==="id"));
 });
