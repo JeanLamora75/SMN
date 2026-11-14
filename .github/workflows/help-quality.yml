@@ -68,6 +68,15 @@ jobs:
             tests/smn-464-help-browser.test.ts \
             tests/smn-465-help-checklist-browser.test.ts \
             tests/smn-469-help-browser.test.ts
+      - name: Archiver les captures de la modale en Chromium (fixture)
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: smn-469-help-browser-fixture
+          path: audit-output/help-qa/*.png
+          if-no-files-found: warn
+          retention-days: 14
       - name: TypeScript et i18n
         run: |
           pnpm typecheck
