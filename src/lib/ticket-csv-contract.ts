@@ -1,6 +1,6 @@
 export const TICKET_CSV_SCHEMA_VERSION = 1;
 export const TICKET_CSV_COLUMNS = [
-  "Id jira", "Type de ticket", "Titre du ticket", "Priorité", "Statut", "Story points",
+  "id", "type", "resume", "priority", "status", "sp",
 ] as const;
 
 export type TicketCsvColumn = typeof TICKET_CSV_COLUMNS[number];
@@ -39,12 +39,12 @@ const normalize = (value: string): string =>
   value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase().replace(/\s+/g, " ");
 
 const columnAliases: Readonly<Record<TicketCsvColumn, readonly string[]>> = {
-  "Id jira": ["Id jira"],
-  "Type de ticket": ["Type de ticket"],
-  "Titre du ticket": ["Titre du ticket"],
-  "Priorité": ["Priorité"],
-  "Statut": ["Statut"],
-  "Story points": ["Story points"],
+  "id": ["id", "Id jira"],
+  "type": ["type", "Type de ticket"],
+  "resume": ["resume", "Titre du ticket"],
+  "priority": ["priority", "Priorité"],
+  "status": ["status", "Statut"],
+  "sp": ["sp", "Story points"],
 };
 
 export function isCompletedTicketStatus(status: string): boolean {
@@ -227,9 +227,9 @@ export function validateTicketCsv(raw: string): TicketCsvValidation {
     }
     if (positions.size !== TICKET_CSV_COLUMNS.length) continue;
     const get = (key: TicketCsvColumn) => row.values[positions.get(key)!];
-    const jiraId = get("Id jira").trim();
+    const jiraId = get("id").trim();
     if (!jiraId) {
-      errors.push({ line: row.line, column: "Id jira", code: "missing-jira-id",
+      errors.push({ line: row.line, column: "id", code: "missing-jira-id",
         message: "Identifiant Jira manquant.", severity: "error" });
       continue;
     }
@@ -239,9 +239,9 @@ export function validateTicketCsv(raw: string): TicketCsvValidation {
       continue;
     }
     usedIds.add(jiraId.toUpperCase());
-    const storyPoints = get("Story points");
+    const storyPoints = get("sp");
     if (storyPoints.trim() && !/^[+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)$/.test(storyPoints.trim())) {
-      warnings.push({ line: row.line, column: "Story points", code: "unreadable-story-points",
+      warnings.push({ line: row.line, column: "sp", code: "unreadable-story-points",
         message: "Story points non numériques : valeur conservée, calcul numérique indisponible.",
         severity: "warning" });
     }
@@ -251,10 +251,10 @@ export function validateTicketCsv(raw: string): TicketCsvValidation {
     }
     rows.push({
       line: row.line, jiraId,
-      issueType: get("Type de ticket"),
-      title: get("Titre du ticket"),
-      priority: get("Priorité"),
-      status: get("Statut"),
+      issueType: get("type"),
+      title: get("resume"),
+      priority: get("priority"),
+      status: get("status"),
       storyPoints,
       extra,
     });
