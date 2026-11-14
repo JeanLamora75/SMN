@@ -29,7 +29,7 @@ test("Administrateur : régénération explicite des résultats existants sous t
  assert.match(catalog,/if\(command\.action==="recalculate"\)/);
  assert.match(catalog,/guard\(actor\.role==="admin","forbidden"\)/);
  assert.match(catalog,/recalculateIndicatorResultsWithinTransaction\(db,\{teamId:command\.teamId\}\)/);
- assert.match(ui,/Recalculer les indicateurs/);
+ assert.match(ui,/t\("indicators\.recalculate"\)/);
  assert.match(ui,/smn:indicators-saved/);
 });
 test("Le moteur historique ne lit que les cycles de l'équipe et n'inclut pas le futur",()=>{
