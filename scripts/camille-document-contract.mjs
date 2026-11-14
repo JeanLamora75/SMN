@@ -19,6 +19,10 @@ export async function validateCamilleDraft({
  if(/<script\b|javascript:|data:text\/html|(?<!\w)https?:\/\//i.test(markdown)||
     /\]\((?:[^/)]|\/\/)/.test(markdown))
   throw Error("camille-nonlocal-or-active-link");
+ // No personal email addresses or credential-shaped examples in published guides.
+ if(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(markdown)||
+    /\b(?:Bearer\s+[A-Za-z0-9._~-]{12,}|gh[pousr]_[A-Za-z0-9_]{15,}|sk-[A-Za-z0-9_-]{16,})\b/i.test(markdown))
+  throw Error("camille-private-content");
  const paths=[...markdown.matchAll(/\]\((\/app(?:\/[a-z0-9-]+)*)\)/g)].map(m=>m[1]);
  for(const route of paths){
   const relative=route==="/app"?"":route.slice("/app/".length);
