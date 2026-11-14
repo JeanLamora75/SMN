@@ -1,12 +1,14 @@
 /** Bootstrap Icons (MIT) — SVG officiels, intégrés sans CDN ni police externe.
  * Source: https://github.com/twbs/icons/tree/main/icons */
-type Name="house-fill"|"bullseye"|"calendar3"|"arrow-right"|"arrow-left"|"people-fill"|"stack"|"ticket-perforated-fill"|"calendar-event"|"exclamation-octagon-fill"|"exclamation-triangle-fill"|"sticky-fill"|"bell-fill"|"pencil-square"|"calendar-check"|"bar-chart-line"|"chat-dots"|"sliders"|"floppy"|"list-ul"|"grid-3x3-gap"|"link-45deg"|"plus-lg"|"funnel"|"search"|"hourglass-split"|"tag"|"trash-fill";
+type Name="house-fill"|"bullseye"|"calendar3"|"arrow-right"|"arrow-left"|"people-fill"|"stack"|"ticket-perforated-fill"|"calendar-event"|"exclamation-octagon-fill"|"exclamation-triangle-fill"|"sticky-fill"|"bell-fill"|"pencil-square"|"calendar-check"|"bar-chart-line"|"chat-dots"|"sliders"|"floppy"|"list-ul"|"grid-3x3-gap"|"link-45deg"|"plus-lg"|"funnel"|"search"|"hourglass-split"|"tag"|"trash-fill"|"question-circle";
 
 export default function BootstrapIcon({name,className=""}:Readonly<{
  name:Name;className?:string;
 }>){
  const icon=(()=>{
   switch(name){
+   case "question-circle":return <><path d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14m0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16"/><path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.249.09-.656.54-1.134 1.41-1.134.746 0 1.27.406 1.27 1.103 0 .489-.293.83-.761 1.17-.547.397-1.155.837-1.155 1.735v.22c0 .138.112.25.25.25h.8a.25.25 0 0 0 .25-.25v-.146c0-.49.23-.685.734-1.052.547-.395 1.3-.945 1.3-1.937C10.685 4.537 9.672 3.5 8.054 3.5c-1.6 0-2.664.957-2.799 2.286M8 12.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></>;
+
    case "trash-fill":return <path d="M2.5 1a.5.5 0 0 0 0 1H3v1h10V2h.5a.5.5 0 0 0 0-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm1.1 3 1 10.3A2 2 0 0 0 6.6 16h2.8a2 2 0 0 0 2-1.7L12.4 4zM1.5 3a.5.5 0 0 0 0 1h13a.5.5 0 0 0 0-1z"/>;
    case "plus-lg":return <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>;
    case "funnel":return <path d="M1.5 1a.5.5 0 0 0-.4.8L6 8.333V14.5a.5.5 0 0 0 .724.447l2-1A.5.5 0 0 0 9 13.5V8.333L13.9 1.8a.5.5 0 0 0-.4-.8z"/>;
