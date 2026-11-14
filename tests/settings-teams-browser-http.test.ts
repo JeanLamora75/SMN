@@ -84,7 +84,7 @@ test("Paramètres Équipes : sélection, édition, refus de conflit et sauvegard
   await page.waitForFunction(()=>document.querySelectorAll(".list-group-item button").length===1);
   await page.click(".list-group-item button");
   assert.equal(await page.$eval("#smn-team-settings-name",el=>(el as HTMLInputElement).value),"Équipe Alpha");
-  assert.equal(await page.$eval("form button[type=submit]",el=>(el as HTMLButtonElement).disabled),true);
+  assert.equal(await page.$eval("button[type=submit][form="smn-teams-settings-form"]",el=>(el as HTMLButtonElement).disabled),true);
   await page.$eval("#smn-team-settings-name",el=>{
    const input=el as HTMLInputElement;
    const setter=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,"value")!.set!;
@@ -92,16 +92,16 @@ test("Paramètres Équipes : sélection, édition, refus de conflit et sauvegard
    input.dispatchEvent(new Event("input",{bubbles:true}));
   });
   await page.waitForFunction(()=>document.querySelector("form")?.getAttribute("data-smn-unsaved-changes")==="true");
-  assert.equal(await page.$eval("form button[type=submit]",el=>(el as HTMLButtonElement).disabled),false);
+  assert.equal(await page.$eval("button[type=submit][form="smn-teams-settings-form"]",el=>(el as HTMLButtonElement).disabled),false);
   state.failNext=true;
-  await page.click("form button[type=submit]");
+  await page.click("button[type=submit][form="smn-teams-settings-form"]");
   await page.waitForSelector("[role=alert]");
   assert.equal(state.items[0].name,"Équipe Alpha","Conflit : aucune écriture persistée");
   assert.equal(state.writes[0].method,"PATCH");
   assert.equal(state.writes[0].body.revision,3);
   assert.equal(state.writes[0].body.name,"Équipe Alpha revue");
   assert.equal(await page.$eval("form",el=>el.getAttribute("data-smn-unsaved-changes")),"true");
-  await page.click("form button[type=submit]");
+  await page.click("button[type=submit][form="smn-teams-settings-form"]");
   await page.waitForFunction(()=>document.querySelector("form")?.getAttribute("data-smn-unsaved-changes")==="false");
   assert.equal(state.items[0].name,"Équipe Alpha revue");
   assert.equal(state.items[0].revision,4);
