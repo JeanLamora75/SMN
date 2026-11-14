@@ -5,7 +5,7 @@ import {browseTicketCsv} from "../src/lib/ticket-csv-browse";
 import {summarizeTicketRows} from "../src/lib/ticket-csv-summary";
 import {translate} from "../src/i18n/catalog";
 
-const header="Id jira,Type de ticket,Titre du ticket,Priorité,Statut,Story points";
+const header="id,type,resume,priority,status,sp";
 const sample=[
  header,
  "ALPHA-1,Bug,Erreur d'affichage,Haute,Done,0",
