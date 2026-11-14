@@ -26,7 +26,7 @@ Review team and cycle context, manually entered values, formulas and source data
 
 ## Why can't a backup be restored?
 
-Archive inventory and restoration checks are available under [Maintenance](/app/admin/settings/maintenance) according to your permissions. An existing archive does not automatically authorize restoration; mandatory safeguards must pass.
+If your account has the necessary permissions, you can review archive inventory and restoration checks under Settings > Maintenance. An existing archive does not automatically authorize restoration; mandatory safeguards must pass.
 
 ## Why did my help checkmarks disappear on another computer?
 
