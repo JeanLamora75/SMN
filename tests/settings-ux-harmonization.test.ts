@@ -60,15 +60,15 @@ test("links settings separate inventory and categories without changing transfer
 
 test("ceremony template editor protects drafts and resets after successful save",()=>{
  const source=read("src/app/app/admin/sprints/template-form.tsx");
- assert.match(source,/useUnsavedChanges\(dirty\|\|busy/);
+ assert.match(source,/useUnsavedChanges\(editorOpen&&\(dirty\|\|busy\)/);
  assert.match(source,/dirty&&!window\.confirm\(t\("draft\.discardWarning"\)\)/);
  assert.match(source,/setId\(""\);setForm\(empty\);setActive\(true\);setRevision\(1\)/);
- assert.match(source,/disabled=\{busy\|\|!dirty\}/);
+ assert.match(source,/disabled=\{busy\|\|!dirty\|\|!form\.name\.trim\(\)\}/);
 });
 test("accounts catalogue appears before the creation form without changing authorization",()=>{
  const source=read("src/app/app/admin/users/users-admin.tsx");
  const existing='t("accounts.existing")';
- const create='t("accounts.createTitle")';
+ const create='"accounts.createTitle"';
  assert.notEqual(source.indexOf(existing),-1,"Existing-account heading must exist");
  assert.notEqual(source.indexOf(create),-1,"Create-account heading must exist");
  assert.ok(source.indexOf(existing)<source.indexOf(create),"Existing accounts must precede creation");
