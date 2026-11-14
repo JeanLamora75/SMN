@@ -1,8 +1,6 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {describe,it} from "node:test";
-import {renderToStaticMarkup} from "react-dom/server";
-import {createElement} from "react";
 import {loadHelpContent} from "../src/server/help-content";
 import {helpArticleForContext} from "../src/lib/help-catalog";
 
