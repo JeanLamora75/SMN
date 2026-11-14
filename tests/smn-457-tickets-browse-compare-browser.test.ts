@@ -13,7 +13,7 @@ import {compareTicketSnapshots,type TicketSnapshotRef} from "../src/lib/ticket-c
 const root=resolve(dirname(fileURLToPath(import.meta.url)),"..");
 const require=createRequire(import.meta.url);
 const esbuild=require(createRequire(require.resolve("tsx/package.json")).resolve("esbuild"));
-const csvHeader="Id jira,Type de ticket,Titre du ticket,Priorité,Statut,Story points";
+const csvHeader="id,type,resume,priority,status,sp";
 const before=[csvHeader,
  "PRO-1,Story,Fonction,Haute,In Progress,2",
  "PRO-2,Bug,Erreur,Haute,Done,3",
