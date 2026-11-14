@@ -143,7 +143,7 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
         <button type="button" className="btn btn-outline-secondary" onClick={()=>{setQuery("");setStatusFilter("all");setRoleFilter("all");}} disabled={!query&&statusFilter==="all"&&roleFilter==="all"}>{t("settingsCollections.reset")}</button>
       </div>
     </SettingsFilterPanel>
-    <section className="smn-panel p-4">
+    <section className="smn-panel p-4" aria-describedby={message&&!editor?"accounts-feedback":undefined}>
       <h2 className="h5">{t("accounts.existing")}</h2>
       {status==="ready"&&<p role="status" aria-live="polite" className="small text-secondary">{t("settingsCollections.results",{count:displayed.length,total:accounts.length})}</p>}
       {status==="ready"&&displayed.length===0&&<p role="status" className="small text-secondary">{t("settingsCollections.noMatches")}</p>}
