@@ -49,7 +49,7 @@ describe("SMN-229 — paramètres partagés séparés des sprints",()=>{
  });
  it("la page Jours ouvrés réutilise les créneaux, fuseau et pause sans éditer la semaine",()=>{
   const file=read("src/app/app/admin/settings/working-days/page.tsx");
-  assert.match(file,/<WorkSlotsForm\/>/);
+  assert.match(file,/<WorkSlotsForm teams=\{scrumTeams\}\/>/);
   assert.match(file,/<LunchForm\/>/);
   assert.match(file,/settingsSprint\.workingDaysScope/);
   assert.doesNotMatch(file,/<WeekdayForm|<WorkWeekForm|<CalendarEditor/);
