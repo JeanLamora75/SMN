@@ -63,7 +63,7 @@ describe("SMN-463 — reusable Cockpit contextual help",()=>{
   assert.equal(helpArticleForContext("/app/admin/settings",admin,"scrum")?.id,"general-settings");
   assert.equal((await loadHelpContent("tickets","en",user,"scrum")).status,"ready");
   assert.equal((await loadHelpContent("general-settings","en",user,"scrum")).status,"forbidden");
-  assert.equal((await loadHelpContent("general-settings","en",admin,"scrum")).status,"unavailable");
+  assert.equal((await loadHelpContent("general-settings","en",admin,"scrum")).status,"ready");
  });
  it("provides compact FR/EN dialog messages without long help text in i18n",()=>{
   for(const lang of ["fr","en"]){
