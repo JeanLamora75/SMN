@@ -5,6 +5,7 @@ import {
 } from "../src/lib/ticket-csv-contract";
 
 const header = TICKET_CSV_COLUMNS.join(",");
+const legacyHeader = "Id jira,Type de ticket,Titre du ticket,Priorité,Statut,Story points";
 const row = "ABC-12,Bug,Correction du filtre,Important,Done,3";
 
 test("accepts the six business columns without a fixed vocabulary", () => {
@@ -79,4 +80,28 @@ test("CSV validation never touches the indicator persistence layer", () => {
   const result = validateTicketCsv(`${header}\n${row}`);
   assert.equal(result.valid, true);
   assert.equal(result.rows[0].storyPoints, "3");
+});
+
+test("canonical CSV names are id, type, resume, priority, status, sp",()=>{
+ assert.deepEqual([...TICKET_CSV_COLUMNS],["id","type","resume","priority","status","sp"]);
+ const parsed=validateTicketCsv("id,type,resume,priority,status,sp\\nT-7,Task,Enoncé,P1,Done,5");
+ assert.equal(parsed.valid,true,JSON.stringify(parsed.errors));
+ assert.equal(parsed.rows[0].jiraId,"T-7");
+ assert.equal(parsed.rows[0].title,"Enoncé");
+ assert.equal(parsed.rows[0].storyPoints,"5");
+});
+
+test("legacy CSV headers stay readable without changing stored snapshots",()=>{
+ const parsed=validateTicketCsv(legacyHeader+"\\nABC-7,Bug,Ancien fichier,Haute,Terminé,2");
+ assert.equal(parsed.valid,true,JSON.stringify(parsed.errors));
+ assert.equal(parsed.rows[0].jiraId,"ABC-7");
+ assert.equal(parsed.rows[0].issueType,"Bug");
+ assert.equal(parsed.rows[0].title,"Ancien fichier");
+});
+
+test("mixing new and legacy names for the same field is rejected as duplicate",()=>{
+ const parsed=validateTicketCsv(
+  "id,Id jira,type,resume,priority,status,sp\\nABC-8,ABC-8,Bug,Titre,Haute,Done,2");
+ assert.equal(parsed.valid,false);
+ assert.ok(parsed.errors.some(error=>error.code==="duplicate-column"&&error.column==="id"));
 });
