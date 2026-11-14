@@ -51,7 +51,7 @@ describe("SMN-466 — first-setup documentation FR/EN",()=>{
     for(const match of source.matchAll(/\]\((\/app(?:\/[a-z0-9-]+)+)\)/g)){
      const route=match[1].replace(/^\/app\//,"");
      const file=path.join("src/app/app",route,"page.tsx");
-     await assert.doesNotRejects(readFile(file,"utf8"),`${lang}/${id} dead link: ${match[1]}`);
+     await assert.doesNotReject(readFile(file,"utf8"),`${lang}/${id} dead link: ${match[1]}`);
     }
    }
   }
