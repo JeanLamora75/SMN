@@ -112,11 +112,11 @@ test("Répartition estimé/non estimé : zéro est estimé et invalides restent 
  assert.equal(filtered.summary.filtered.byEstimation[1].count,1);
  assert.equal(filtered.summary.filtered.byEstimation[1].storyPoints.sum,"0");
  assert.equal(filtered.summary.all.byEstimation[0].count,4);
- const missing=browseTicketCsv(header+"\\nA-1,Story,Non estimé,Low,To do,ND").summary.all;
+ const missing=browseTicketCsv(header+"\nA-1,Story,Non estimé,Low,To do,ND").summary.all;
  assert.equal(missing.byEstimation[0].count,0);
  assert.equal(missing.byEstimation[1].count,1);
  assert.equal(missing.byEstimation[1].storyPoints.sum,"0");
- const zero=browseTicketCsv(header+"\\nA-1,Story,Zéro,Low,To do,0").summary.all;
+ const zero=browseTicketCsv(header+"\nA-1,Story,Zéro,Low,To do,0").summary.all;
  assert.equal(zero.byEstimation[0].count,1);
  assert.equal(zero.byEstimation[0].storyPoints.sum,"0");
  assert.equal(zero.byEstimation[1].count,0);
