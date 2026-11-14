@@ -7,6 +7,7 @@ import {useEffect,useRef,useState,type FormEvent} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import TeamContextEditor from "./team-context-editor";
 import BootstrapIcon from "../../bootstrap-icon";
+import HelpHeaderAction from "../../help/help-header-action";
 import {availableFunctions,filterTeamMembers,initialTeamFilters,splitTeamMembersByAssignment,type TeamFilters} from "./team-cockpit-filter";
 
 type Member={id:string;companyId?:string|null;companyName?:string|null;companyColor?:string|null;displayName:string;countryIso2:string|null;city:string|null;professionalFunction?:string|null;isProvisional:boolean;memberNumber:number;archived:boolean;isAssigned:boolean;startOn:string|null;endOn:string|null;workedDays?:number;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
