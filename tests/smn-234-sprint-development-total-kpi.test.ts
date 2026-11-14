@@ -40,7 +40,7 @@ describe("Fiche Sprint : total de développement depuis les membres déjà calcu
    assert.equal(totalSprintDevelopmentJh(closed.members),3.5);
   }
  });
- it("rend exactement trois tuiles, masque le total non autorisé et traduit FR/EN",()=>{
+ it("rend les cinq tuiles de capacité, masque le total non autorisé et traduit FR/EN",()=>{
   const read=(file:string)=>readFileSync(new URL("../"+file,import.meta.url),"utf8");
   const component=read("src/app/app/admin/sprints/[sprintId]/sprint-capacity-panel.tsx");
   const fr=JSON.parse(read("src/i18n/fr.json")) as {sprintDetail:Record<string,string>};
@@ -48,7 +48,10 @@ describe("Fiche Sprint : total de développement depuis les membres déjà calcu
   assert.match(component,/if\(!canViewNames\)return/);
   assert.match(component,/totalSprintDevelopmentJh\(data\.members\)/);
   assert.match(component,/t\("sprintDetail\.presenceDevelopmentTotal"\)/);
-  assert.equal((component.match(/className="col-12 col-md-6 col-xl-4"/g)??[]).length,3);
+  assert.match(component,/row-cols-1 row-cols-md-2 row-cols-xl-5/);
+  assert.equal((component.match(/className="col"/g)??[]).length,5);
+  for(const key of ["presenceTotal","presenceDevelopmentTotal","presenceProductOwnerTotal","presenceScrumMasterTotal","presenceMembers"])
+   assert.ok(component.includes("sprintDetail."+key),key);
   assert.equal(fr.sprintDetail.presenceDevelopmentTotal,"Capacité totale de développement estimée");
   assert.equal(en.sprintDetail.presenceDevelopmentTotal,"Estimated total development capacity");
  });
