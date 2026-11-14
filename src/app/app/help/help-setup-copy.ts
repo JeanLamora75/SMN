@@ -20,6 +20,7 @@ export const helpSetupCopy:Record<"fr"|"en",LocaleCopy>={
   steps:{
    general:{title:"Paramètres généraux",purpose:"Vérifier les préférences de SMN.",prerequisite:"Disposer des droits d'administration."},
    team:{title:"Créer une équipe",purpose:"Définir la première équipe et son mode Agile.",prerequisite:"Avoir configuré les paramètres généraux."},
+   calendar:{title:"Préparer le calendrier",purpose:"Vérifier les jours et les absences de l’équipe.",prerequisite:"Avoir créé une équipe et défini les paramètres calendaires."},
    members:{title:"Configurer les membres",purpose:"Renseigner les personnes et leurs affectations.",prerequisite:"Avoir créé une équipe."},
    cadence:{title:"Configurer les cycles",purpose:"Préparer les sprints ou les périodes Kanban.",prerequisite:"Disposer d'une équipe et de son calendrier."},
    tickets:{title:"Préparer les tickets",purpose:"Découvrir la consultation et l'import des tickets.",prerequisite:"Avoir sélectionné une équipe et un cycle."},
@@ -38,6 +39,7 @@ export const helpSetupCopy:Record<"fr"|"en",LocaleCopy>={
   steps:{
    general:{title:"General settings",purpose:"Review SMN preferences.",prerequisite:"Administrator access."},
    team:{title:"Create a team",purpose:"Set up your first team and Agile mode.",prerequisite:"General settings have been configured."},
+   calendar:{title:"Prepare the calendar",purpose:"Review working days and team absences.",prerequisite:"A team exists and calendar settings are available."},
    members:{title:"Configure members",purpose:"Set up members and assignments.",prerequisite:"A team has been created."},
    cadence:{title:"Configure cycles",purpose:"Prepare Scrum sprints or Kanban periods.",prerequisite:"A team and its calendar are available."},
    tickets:{title:"Prepare tickets",purpose:"Explore ticket imports and consultation.",prerequisite:"A team and cycle have been selected."},
