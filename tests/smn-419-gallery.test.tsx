@@ -68,12 +68,12 @@ test("gallery requests actual PNG from the shared Office renderer with style con
 });
 test("settings navigation, protected route and admin-only mutation API remain wired",()=>{
  const page=readFileSync("src/app/app/admin/settings/reports/charts/page.tsx","utf8");
- const nav=readFileSync("src/app/app/admin/settings/settings-catalog-view.tsx","utf8");
+ const nav=readFileSync("src/lib/settings-catalog.ts","utf8");
  const gallery=readFileSync("src/app/app/admin/settings/reports/charts/style-gallery.tsx","utf8");
  const api=readFileSync("src/app/api/admin/reports/chart-styles/route.ts","utf8");
  assert.match(page,/currentAccount\(/);
  assert.match(page,/canAccess\(actor,"read"/);
- assert.match(nav,/href="\/app\/admin\/settings\/reports\/charts"/);
+ assert.match(nav,/id:"chartStyles"[^\n]*href:"\/app\/admin\/settings\/reports\/charts"/);
  assert.match(gallery,/setPendingDefault\(/);
  assert.match(gallery,/action:"set-default"/);
  assert.match(gallery,/window\.confirm/);
