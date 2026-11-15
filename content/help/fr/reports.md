@@ -1,5 +1,7 @@
 # Rapports : consulter, créer et générer des documents
 
+Un bon rapport aide à comprendre ce qui s'est passé et à décider de la suite. Découvrez comment exploiter vos données SMN.
+
 ## Accès et périmètre
 
 Ouvrez [Rapports](/app/reports) après connexion et sélectionnez l'équipe autorisée lorsque l'interface le propose. Les informations affichées dépendent du contexte d'équipe, du cycle et des droits de votre compte. La création de nouveaux rapports depuis l'en-tête est réservée à l'administrateur dans les conditions prévues par l'écran.
