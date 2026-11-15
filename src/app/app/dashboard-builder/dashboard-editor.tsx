@@ -15,6 +15,7 @@ import type {DashboardLayout,DashboardSlot} from "@/server/dashboard-builder/lay
 import {updateDashboardSlot,type SlotOptions} from "@/lib/dashboard-builder/slot-options";
 import type {DashboardCycle} from "@/server/dashboard-builder/cycles";
 import DashboardConsultation from "./dashboard-consultation";
+import HelpHeaderAction from "../help/help-header-action";
 import {DashboardTemplateGallery} from "./template-gallery";
 import {DashboardSlotWizard} from "./slot-wizard";
 import {useDashboardModalFocus} from "./modal-focus";
@@ -191,6 +192,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,te
   {success&&<div className="alert alert-success py-2" role="status">{success}</div>}
   {error&&!editing&&<div className="alert alert-danger" role="alert">{error}<button type="button" className="btn btn-sm btn-outline-secondary ms-2" onClick={()=>setError(null)}>Fermer</button></div>}
   {editing&&<div className="d-flex align-items-center gap-2 mb-3">
+   <HelpHeaderAction screenTitle={locale==="fr"?"Tableau de bord":"Dashboard"}/>
    <span className="badge text-bg-secondary">Personnalisation</span>
    <DashboardActionsMenu items={[{label:"Réinitialiser",action:()=>setResetOpen(true),disabled:saving},{label:"Copier vers une autre équipe",action:()=>setCopyOpen(true),disabled:saving}]}/>
    <button className="btn btn-outline-secondary" type="button" onClick={requestExit} disabled={saving}>Quitter</button>
@@ -218,7 +220,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,te
   </details>}
   {!editing&&<DashboardConsultation layout={published} teamId={teamId} teamName={teamName} navigation={navigation}
    mode={mode} locale={locale} personalizing={editing} canManage={canEdit}
-   headerActions={canEdit?<DashboardActionsMenu header items={[{label:"Personnaliser",action:enter},{label:"Copier vers une autre équipe",action:()=>setCopyOpen(true)}]}/>:null}/>}
+   headerActions={<div className="d-flex align-items-center gap-2 flex-wrap"><HelpHeaderAction screenTitle={locale==="fr"?"Tableau de bord":"Dashboard"}/>{canEdit?<DashboardActionsMenu header items={[{label:"Personnaliser",action:enter},{label:"Copier vers une autre équipe",action:()=>setCopyOpen(true)}]}/>:null}</div>}/>}
   {editing&&<p className="small text-body-secondary mb-3">Modifiez les titres, les blocs et les emplacements ci-dessous. Enregistrez pour retrouver le résultat sur votre tableau de bord.</p>}
   {editing&&draft&&<section className="mb-5 pb-5" aria-label="Composition des lignes">
    {draft.rows.map((row,index)=><div className="smn-panel p-3 mb-3" key={row.id} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();dropOnRow(row.id,index);}}>
