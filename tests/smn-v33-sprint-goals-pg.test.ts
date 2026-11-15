@@ -6,7 +6,7 @@ import {installExpress} from "../src/server/installation/install";
 import {readSprintGoals,writeSprintGoal} from "../src/server/sprints/goals";
 
 test("PG18 — native v33 sprint goals persist in their team with immutable audit",
- {skip:process.env.GITHUB_ACTIONS!=="true"||process.env.CI!=="true",timeout:240000},
+ {skip:process.env.GITHUB_ACTIONS!=="true"||process.env.CI!=="true"||!process.env.SMN_TEST_DATABASE_URL,timeout:240000},
  async()=>{
   const raw=process.env.SMN_TEST_DATABASE_URL;
   if(!raw)throw Error("Dedicated PG18 maintenance URL required");
