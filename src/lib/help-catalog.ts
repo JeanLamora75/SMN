@@ -24,6 +24,7 @@ const records=[
  {id:"teams",section:"configuration",route:"/app/admin/settings/teams",contexts:["/app/admin/settings/teams"],modes:null,resource:"settings"},
  {id:"members",section:"modules",route:"/app/admin/members",contexts:["/app/admin/members"],modes:null,resource:"settings"},
  {id:"sprints",section:"modules",route:"/app/admin/sprints",contexts:["/app/admin/sprints"],modes:["scrum"],resource:"collective"},
+ {id:"sprint-page",section:"modules",route:"/app/admin/sprints",contexts:[],modes:["scrum"],resource:"collective"},
  {id:"kanban-periods",section:"modules",route:"/app/admin/kanban-periods",contexts:["/app/admin/kanban-periods"],modes:["kanban"],resource:"collective"},
  {id:"tickets",section:"modules",route:"/app/tickets",contexts:["/app/tickets"],modes:null,resource:"collective"},
  {id:"calendar",section:"modules",route:"/app/team-calendar",contexts:["/app/team-calendar"],modes:null,resource:"collective"},
@@ -64,7 +65,7 @@ export function validateHelpCatalog(entries:readonly HelpArticle[],existingRoute
    throw Error("help-duplicate-or-invalid-id");
   ids.add(entry.id);
   if(!sections.has(entry.section)||!resources.has(entry.resource)||
-     !existingRoutes.has(entry.route)||(entry.contexts.length===0&&entry.id!=="overview"&&entry.id!=="backup"&&entry.id!=="capacity-settings"&&entry.id!=="closures-settings"))
+     !existingRoutes.has(entry.route)||(entry.contexts.length===0&&entry.id!=="overview"&&entry.id!=="backup"&&entry.id!=="capacity-settings"&&entry.id!=="closures-settings"&&entry.id!=="sprint-page"))
    throw Error("help-invalid-metadata-or-route");
   if(entry.modes!==null&&(entry.modes.length===0||
      entry.modes.some(mode=>mode!=="scrum"&&mode!=="kanban")||
