@@ -53,7 +53,7 @@ describe("SMN — navigation latérale, second lot (six menus et Paramètres)",(
  });
  it("le composant installe une zone de bas de menu accessible",()=>{
   const component=read("src/app/app/private-navigation.tsx");
-  assert.match(component,/group\.id==="admin"\?" smn-nav-group--footer"/);
+  assert.match(component,/group\.id==="help"\?" smn-nav-group--footer"/);
   assert.match(component,/className="visually-hidden">\{t\(group\.label\)\}/);
   assert.match(component,/aria-current=\{activePrivateEntry\(pathname,entry\)\?"page"/);
  });
