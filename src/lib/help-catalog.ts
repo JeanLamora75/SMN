@@ -14,6 +14,7 @@ export type HelpArticle=Readonly<{
  contexts:readonly string[];
  modes:readonly HelpMode[]|null;
  resource:HelpResource;
+ adminOnly?:boolean;
 }>;
 
 const records=[
@@ -27,12 +28,27 @@ const records=[
  {id:"tickets",section:"modules",route:"/app/tickets",contexts:["/app/tickets"],modes:null,resource:"collective"},
  {id:"calendar",section:"modules",route:"/app/team-calendar",contexts:["/app/team-calendar"],modes:null,resource:"collective"},
  {id:"registries",section:"modules",route:"/app/admin/registries",contexts:["/app/admin/registries"],modes:null,resource:"collective"},
- {id:"links",section:"modules",route:"/app/admin/links",contexts:["/app/admin/links","/app/admin/settings/links"],modes:null,resource:"settings"},
+ {id:"links",section:"modules",route:"/app/admin/links",contexts:["/app/admin/links"],modes:null,resource:"settings"},
  {id:"reports",section:"modules",route:"/app/reports",contexts:["/app/reports"],modes:null,resource:"collective"},
  {id:"indicators",section:"modules",route:"/app/admin/indicators",contexts:["/app/admin/indicators"],modes:null,resource:"collective"},
  {id:"faq",section:"troubleshooting",route:"/app/help",contexts:["/app/help"],modes:null,resource:"collective"},
  {id:"jira-settings",section:"configuration",route:"/app/admin/settings/jira",contexts:["/app/admin/settings/jira"],modes:null,resource:"settings"},
- {id:"backup",section:"troubleshooting",route:"/app/admin/settings/maintenance",contexts:["/app/admin/settings/maintenance"],modes:null,resource:"backups"}
+ {id:"backup",section:"troubleshooting",route:"/app/admin/settings/maintenance",contexts:[],modes:null,resource:"backups"}
+ {id:"companies",section:"configuration",route:"/app/admin/companies",contexts:["/app/admin/companies"],modes:null,resource:"settings",adminOnly:true},
+ {id:"cadence-settings",section:"configuration",route:"/app/admin/scrum-cadence",contexts:["/app/admin/scrum-cadence","/app/admin/kanban-cadence"],modes:null,resource:"settings"},
+ {id:"ceremonies-settings",section:"configuration",route:"/app/admin/settings/ceremonies",contexts:["/app/admin/settings/ceremonies"],modes:["scrum"],resource:"settings"},
+ {id:"capacity-settings",section:"configuration",route:"/app/admin/settings",contexts:[],modes:null,resource:"settings"},
+ {id:"indicator-settings",section:"configuration",route:"/app/admin/settings/indicators",contexts:["/app/admin/settings/indicators"],modes:null,resource:"settings",adminOnly:true},
+ {id:"registry-settings",section:"configuration",route:"/app/admin/settings/registries",contexts:["/app/admin/settings/registries"],modes:null,resource:"settings"},
+ {id:"link-settings",section:"configuration",route:"/app/admin/settings/links",contexts:["/app/admin/settings/links"],modes:null,resource:"settings",adminOnly:true},
+ {id:"working-days-settings",section:"configuration",route:"/app/admin/settings/working-days",contexts:["/app/admin/settings/working-days"],modes:["scrum"],resource:"settings"},
+ {id:"holidays-settings",section:"configuration",route:"/app/admin/settings/holidays-closures",contexts:["/app/admin/settings/holidays-closures"],modes:null,resource:"settings"},
+ {id:"closures-settings",section:"configuration",route:"/app/admin/settings/holidays-closures",contexts:[],modes:null,resource:"settings",adminOnly:true},
+ {id:"absence-settings",section:"configuration",route:"/app/admin/absence-categories",contexts:["/app/admin/absence-categories"],modes:null,resource:"settings"},
+ {id:"chart-styles-settings",section:"configuration",route:"/app/admin/settings/reports/charts",contexts:["/app/admin/settings/reports/charts"],modes:null,resource:"settings",adminOnly:true},
+ {id:"users-settings",section:"configuration",route:"/app/admin/users",contexts:["/app/admin/users"],modes:null,resource:"accounts"},
+ {id:"security-settings",section:"configuration",route:"/app/security",contexts:["/app/security"],modes:null,resource:"settings"},
+ {id:"maintenance-settings",section:"configuration",route:"/app/admin/settings/maintenance",contexts:["/app/admin/settings/maintenance"],modes:null,resource:"backups",adminOnly:true},
 ] as const satisfies readonly HelpArticle[];
 
 export type HelpArticleId=(typeof records)[number]["id"];
@@ -48,7 +64,7 @@ export function validateHelpCatalog(entries:readonly HelpArticle[],existingRoute
    throw Error("help-duplicate-or-invalid-id");
   ids.add(entry.id);
   if(!sections.has(entry.section)||!resources.has(entry.resource)||
-     !existingRoutes.has(entry.route)||(entry.contexts.length===0&&entry.id!=="overview"))
+     !existingRoutes.has(entry.route)||(entry.contexts.length===0&&entry.id!=="overview"&&entry.id!=="backup"&&entry.id!=="capacity-settings"&&entry.id!=="closures-settings"))
    throw Error("help-invalid-metadata-or-route");
   if(entry.modes!==null&&(entry.modes.length===0||
      entry.modes.some(mode=>mode!=="scrum"&&mode!=="kanban")||
@@ -65,7 +81,8 @@ export function validateHelpCatalog(entries:readonly HelpArticle[],existingRoute
 const articles:readonly HelpArticle[]=records;
 
 function authorized(entry:HelpArticle,actor:AccessActor|null|undefined,mode:HelpMode|null):boolean{
- return (entry.modes===null||mode!==null&&entry.modes.includes(mode))&&
+ return (!entry.adminOnly||actor?.role==="admin")&&
+  (entry.modes===null||mode!==null&&entry.modes.includes(mode))&&
   canAccess(actor,"read",{type:entry.resource,exists:true,inScope:true});
 }
 
