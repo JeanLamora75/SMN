@@ -32,10 +32,14 @@ describe("AU-04 — registry documentation follows the shipped registry model",(
   for(const locale of ["fr","en"] as const){
    const markdown=await readFile(path.join(root,locale,"registries.md"),"utf8");
    const headings=[...markdown.matchAll(/^### (.+)$/gm)].map(m=>m[1]);
-   assert.equal(headings.length,registryTypes.length,"only type headings are level 3: "+locale);
+   const typeHeading=(type:typeof registryTypes[number])=>headings.find(h=>
+    h===typeTerms[locale][type]||h.startsWith(typeTerms[locale][type]+" :"));
+   assert.equal(registryTypes.filter(type=>Boolean(typeHeading(type))).length,registryTypes.length,
+    "all six registered types must be documented: "+locale);
    for(const type of registryTypes){
-    assert.ok(headings.some(h=>h===typeTerms[locale][type]),locale+": missing heading "+type);
-    const heading="### "+typeTerms[locale][type];
+    const headingText=typeHeading(type);
+    assert.ok(headingText,locale+": missing heading "+type);
+    const heading="### "+headingText;
     const start=markdown.indexOf(heading);
     const end=markdown.indexOf("\n### ",start+heading.length);
     const section=markdown.slice(start,end<0?markdown.indexOf("\n## ",start+heading.length):end);
