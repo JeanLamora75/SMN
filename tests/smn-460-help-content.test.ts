@@ -19,7 +19,7 @@ describe("Localized help loading",()=>{
   if(r.status!=="ready")return;
   assert.equal(r.contentLocale,"en");
   assert.equal(r.isFallback,false);
-  assert.match(r.markdown,/First-time configuration/);
+  assert.match(r.markdown,/Getting started with SMN/);
   assert.equal(helpContentNotice(r),null);
   assert.doesNotMatch(r.markdown,/Bien démarrer/);
  });
