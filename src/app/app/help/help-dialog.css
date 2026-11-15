@@ -27,3 +27,37 @@ dialog.smn-help-dialog::backdrop{background:rgba(0,0,0,.57)}
  }
  .smn-help-dialog .smn-cockpit-modal-footer>.btn{flex:1 1 auto}
 }
+
+/* Sally: one accessible, opaque Help action across every Cockpit and Settings hero. */
+button.smn-help-header-button,
+.smn-page button.smn-help-header-button,
+.smn-settings-detail-hero-action button.smn-help-header-button,
+.smn-sprint-detail-hero button.smn-help-header-button{
+ display:inline-flex!important;
+ align-items:center;
+ justify-content:center;
+ gap:.5rem;
+ min-height:38px;
+ padding:7px 13px;
+ border:1px solid #fff!important;
+ border-radius:9px;
+ background-color:#fff!important;
+ background-image:none!important;
+ color:#10294d!important;
+ font-size:.875rem;
+ font-weight:700;
+ opacity:1!important;
+ text-shadow:none!important;
+ box-shadow:0 2px 6px rgba(10,28,50,.13);
+}
+button.smn-help-header-button:hover,
+.smn-page button.smn-help-header-button:hover,
+.smn-settings-detail-hero-action button.smn-help-header-button:hover{
+ background-color:#e8f1fd!important;
+ border-color:#e8f1fd!important;
+ color:#10294d!important;
+}
+button.smn-help-header-button:focus-visible{
+ outline:3px solid #fbbf24!important;
+ outline-offset:3px;
+}
