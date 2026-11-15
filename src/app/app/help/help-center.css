@@ -55,3 +55,39 @@
  .smn-help-prose ol>li{padding-left:2.9rem}
  .smn-help-center .smn-help-article{padding:1.2rem!important}
 }
+
+
+/* Sally — instructional guide layout: make long procedures scannable. */
+.smn-help-prose>h1{max-width:30ch}
+.smn-help-prose>h1+p{
+ padding:1.1rem 1.25rem;
+ border-radius:12px;
+ background:#edf4fc;
+ border:1px solid #d5e5f7;
+ color:#253c59;
+ font-size:1.06rem;
+}
+.smn-help-prose>h2{
+ border-top:0;
+ border-left:4px solid var(--smn-brand,#1b508d);
+ background:var(--bs-tertiary-bg,#f5f8fc);
+ padding:.9rem 1rem;
+ border-radius:0 10px 10px 0;
+ margin-top:2.35rem;
+ margin-bottom:1.15rem;
+}
+.smn-help-prose>h3{margin-top:1.6rem;padding-bottom:.35rem;border-bottom:1px solid var(--smn-border,#dce3ed)}
+.smn-help-prose>blockquote{
+ border-left:4px solid #2b6aa2;
+ background:#edf4fc;
+ color:#173b60;
+ font-size:.95rem;
+ line-height:1.7;
+}
+.smn-help-prose>blockquote strong{color:#173b60}
+.smn-help-prose>ul>li{padding-top:.42rem;padding-bottom:.42rem}
+.smn-help-prose>ul>li+li{border-top:1px solid var(--smn-border,#dce3ed)}
+@media(max-width:575.98px){
+ .smn-help-prose>h1+p{padding:.9rem 1rem}
+ .smn-help-prose>h2{padding:.75rem .85rem}
+}
