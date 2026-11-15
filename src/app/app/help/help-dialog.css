@@ -61,3 +61,15 @@ button.smn-help-header-button:focus-visible{
  outline:3px solid #fbbf24!important;
  outline-offset:3px;
 }
+
+/* Contextual help uses the same editorial reading language as the full guide. */
+dialog.smn-help-dialog.smn-cockpit-modal{width:min(860px,calc(100vw - 24px));max-width:860px}
+.smn-help-dialog .smn-cockpit-modal-body{padding:clamp(1.25rem,2.8vw,2.3rem)}
+.smn-help-dialog .smn-help-prose{margin-inline:auto}
+.smn-help-dialog .smn-help-prose>h1{font-size:clamp(1.4rem,2vw,1.8rem)}
+.smn-help-dialog .smn-help-prose h2{font-size:1.17rem}
+.smn-help-dialog .smn-help-prose li{line-height:1.6}
+@media(max-width:575.98px){
+ dialog.smn-help-dialog.smn-cockpit-modal{width:calc(100vw - 12px)}
+ .smn-help-dialog .smn-cockpit-modal-body{padding:1.1rem}
+}
