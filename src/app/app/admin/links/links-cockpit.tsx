@@ -2,6 +2,7 @@
 import {useEffect,useMemo,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../../bootstrap-icon";
+import HelpHeaderAction from "../../help/help-header-action";
 import {filterLinks,type LinkEntry} from "@/lib/links-display";
 import LinkEditor from "./link-editor";
 import LinkDialog from "./link-dialog";
@@ -76,9 +77,12 @@ export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:s
      <h1><BootstrapIcon name="link-45deg"/> {t("links.title")}</h1>
      <p><BootstrapIcon name="people-fill"/> {t("links.team")} : {teamName}</p>
     </div>
+    <div className="d-flex align-items-center gap-2 flex-wrap">
+    <HelpHeaderAction screenTitle={t("links.title")}/>
     <button type="button" className="btn smn-links-create" onClick={()=>setEditing({open:true,item:null})}>
      <BootstrapIcon name="plus-lg"/> {t("links.add")}
     </button>
+    </div>
    </div>
    <div className="smn-links-view-switch" role="group" aria-label={t("links.view")}>
     <button type="button" aria-pressed={view==="cards"} onClick={()=>selectView("cards")}>
