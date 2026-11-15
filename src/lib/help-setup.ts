@@ -1,7 +1,7 @@
 export const HELP_SETUP_STORAGE_KEY="smn.help.setup.v1" as const;
 export type HelpSetupStatus="todo"|"in_progress"|"done";
 export const helpSetupStepIds=[
- "general","team","calendar","members","cadence","tickets","reports","backup"
+ "general","team","members","calendar","cadence","tickets","reports","backup"
 ] as const;
 export type HelpSetupStepId=typeof helpSetupStepIds[number];
 export type HelpSetupProgress=Partial<Record<HelpSetupStepId,HelpSetupStatus>>;
@@ -42,8 +42,8 @@ export function helpSetupSteps(articles:readonly {id:string;route:string}[],mode
  const candidates:readonly {id:HelpSetupStepId;articleId:string}[]=[
   {id:"general",articleId:"general-settings"},
   {id:"team",articleId:"teams"},
-  {id:"calendar",articleId:"calendar"},
   {id:"members",articleId:"members"},
+  {id:"calendar",articleId:"calendar"},
   {id:"cadence",articleId:mode==="scrum"?"sprints":"kanban-periods"},
   {id:"tickets",articleId:"tickets"},
   {id:"reports",articleId:"reports"},
