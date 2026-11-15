@@ -1,5 +1,7 @@
 # Membres : consulter les profils et gérer les affectations
 
+Une équipe se construit avec des personnes, pas seulement des fiches. Commencez par contrôler les profils existants avant d'ajouter qui que ce soit.
+
 ## Prérequis et droits
 
 Une équipe doit exister. Ouvrez [Équipe / Membres](/app/admin/members) avec un compte autorisé. Le guide détaillé de configuration est destiné aux administrateurs ; les actions de création, de modification et de gestion des affectations ne sont proposées que si votre compte possède les droits nécessaires.
@@ -43,6 +45,6 @@ Le bouton peut être absent si votre rôle ne permet pas la création ou si le c
 - **Création ou modification inaccessible** : vérifiez votre rôle et les autorisations du contexte ; ne tentez pas de contourner un contrôle.
 - **Dates ou capacité incohérentes** : comparez les affectations et les jours ouvrés du calendrier avant de conclure à une erreur de calcul.
 
-## Contrôle final
+## Votre point de contrôle
 
 L'aide ne crée ni membre ni affectation. Marquez l'étape **members** terminée manuellement dans le Centre d'aide uniquement après avoir contrôlé les profils et leurs périodes d'affectation.
