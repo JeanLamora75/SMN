@@ -2,7 +2,7 @@
 
 Vous venez de vous connecter à SMN. Avant de suivre vos sprints ou vos périodes Kanban, il faut préparer quelques informations. Ce parcours vous explique **quoi faire**, **pourquoi le faire**, **ce que SMN en fera** et **comment vérifier le résultat**.
 
-Suivez les étapes dans l'ordre pour une première équipe. Vous pouvez revenir sur chacune d'elles. Les actions réservées à l'administrateur doivent être réalisées par un compte autorisé ; si vous êtes simple utilisateur, consultez les étapes qui vous sont accessibles et demandez à l'administrateur de préparer les autres.
+**Commencez par regarder les équipes et membres déjà présents.** Une installation existante ou restaurée peut contenir des données à personnaliser ; une installation native v33 sur base vierge ne crée pas d'équipe ni de membres automatiquement. Le parcours s'adapte à ces deux situations. Vous pouvez revenir sur chaque étape. Les actions réservées à l'administrateur doivent être réalisées par un compte autorisé ; si vous êtes simple utilisateur, consultez les étapes qui vous sont accessibles et demandez à l'administrateur de préparer les autres.
 
 Le Centre d'aide présente aussi une **checklist de première configuration** : utilisez ses boutons **Lire le guide** pour approfondir chaque sujet et **Ouvrir l'écran** pour effectuer l'action. Le statut **Terminé** est déclaré par vous, jamais détecté automatiquement par SMN.
 
@@ -22,37 +22,38 @@ Le Centre d'aide présente aussi une **checklist de première configuration** : 
 
 **À vérifier avant de continuer :** la langue, le thème et le pays choisis sont bien affichés après enregistrement.
 
-## Étape 2 — Créer et décrire votre équipe
+## Étape 2 — Vérifier et personnaliser votre équipe
 
-**Pourquoi ?** SMN organise les cycles, les membres et leurs informations autour d'un contexte d'équipe. Sans équipe, une grande partie des écrans ne peut pas présenter de données utiles.
-
-**À faire (administrateur) :**
-
-- Ouvrez **Paramètres > Équipes**, puis l'action de création dans l'en-tête.
-- Donnez un **nom identifiable** à votre équipe.
-- Choisissez le **mode Agile Scrum ou Kanban** proposé par le formulaire. Ce choix détermine si l'équipe utilisera des sprints ou des périodes Kanban. Vérifiez-le soigneusement : le changement de mode peut être restreint pour une équipe existante.
-- Renseignez le **produit**, puis, si ces informations sont disponibles, sa **vision** et son **objectif**. Une description claire permettra de retrouver le contexte du travail sans l'expliquer à nouveau.
-- Enregistrez et retrouvez l'équipe dans la liste. Sélectionnez-la ensuite lorsque SMN vous propose un choix d'équipe.
-
-**Ce que SMN en fait :** le contexte d'équipe sert à rattacher et filtrer les informations métier. Le mode Agile détermine les écrans de cycles adaptés, et les informations de produit peuvent être exploitées dans les écrans et rapports qui les utilisent.
-
-**À vérifier :** l'équipe apparaît dans la liste, avec le bon mode et les informations de produit attendues.
-
-## Étape 3 — Ajouter les personnes et vérifier leurs affectations
-
-**Pourquoi ?** Les listes de membres et leurs affectations permettent de savoir **qui fait partie de l'équipe, dans quel rôle et sur quelle période**. Cela évite de raisonner sur une composition d'équipe erronée.
+**Pourquoi ?** SMN rattache les cycles, les membres et les données métier à une équipe. Il faut d'abord **examiner ce qui existe**, puis adapter l'équipe à votre contexte réel : recréer une équipe déjà présente produirait un doublon.
 
 **À faire (administrateur) :**
 
-- Ouvrez **Équipe / Membres** et vérifiez que vous consultez la bonne équipe.
-- Utilisez **Ajouter un membre** pour créer chaque personne nécessaire. Indiquez au minimum son nom ; choisissez son entreprise si le champ est proposé.
-- Ouvrez ensuite chaque fiche pour vérifier la **fonction**, la **localisation** (ville et pays, si renseignés), les **rôles** et les **affectations**.
-- Contrôlez les dates de début et de fin des affectations. Ne confondez pas un membre inactif avec un membre définitivement supprimé.
-- Revenez à la liste ; utilisez les vues **Cartes** ou **Liste** et les filtres pour retrouver les personnes actives et inactives.
+- Ouvrez **Paramètres > Équipes** et examinez la liste. Utilisez les filtres si nécessaire pour afficher les équipes actives ou archivées.
+- **Si une équipe est déjà présente**, sélectionnez-la pour ouvrir son formulaire d'édition. Modifiez son **nom**, son **produit**, sa **vision** et son **objectif** pour qu'ils correspondent à votre activité.
+- Vérifiez son mode **Scrum ou Kanban**, qui détermine les cycles utilisables. Pour une équipe existante, SMN peut interdire de changer ce mode ; respectez cette restriction.
+- **Seulement si aucune équipe utilisable n'existe**, utilisez **Créer une équipe** dans l'en-tête, puis complétez ces mêmes informations et sélectionnez le mode Agile approprié.
+- Enregistrez et vérifiez l'équipe dans la liste. Sélectionnez-la dans les autres écrans lorsqu'un choix d'équipe est demandé.
 
-**Ce que SMN en fait :** les fiches et périodes d'affectation constituent la composition de l'équipe visible dans ses écrans. Elles aident à contextualiser les calendriers, les jours travaillés et les indicateurs de capacité lorsque ceux-ci sont disponibles.
+**Ce que SMN en fait :** il utilise l'équipe comme contexte de rattachement des membres, des cycles et des données. Le mode Agile conditionne les fonctionnalités Scrum ou Kanban ; les informations du produit sont utilisées dans les vues et rapports qui les prennent en charge.
 
-**À vérifier :** vous retrouvez les membres attendus et leurs périodes d'affectation sont correctes.
+**À vérifier :** vous disposez de la **bonne équipe**, personnalisée et sans doublon, avec le mode Agile et les informations produit attendus.
+
+## Étape 3 — Vérifier les membres existants et compléter les affectations
+
+**Pourquoi ?** Les membres, leurs rôles et leurs dates d'affectation déterminent la composition de l'équipe à une période donnée. Un profil déjà présent doit être vérifié et personnalisé plutôt que recréé.
+
+**À faire (administrateur) :**
+
+- Ouvrez **Équipe / Membres** dans le contexte de l'équipe choisie. Examinez **d'abord les membres déjà présents**, actifs et inactifs, dans les vues **Cartes** ou **Liste**.
+- Si votre installation contient des personnes ou des profils d'exemple, ouvrez leurs fiches et adaptez les informations aux membres réels de l'équipe. **Ne supposez pas que le nombre de membres est toujours identique d'une installation à l'autre.**
+- Vérifiez le nom, la **fonction**, la **localisation** (ville et pays), les **rôles** et les **affectations** de chaque membre.
+- Contrôlez les dates de début et de fin d'affectation. Un membre inactif ou une ancienne affectation ne doit pas être confondu avec un profil supprimé.
+- Utilisez **Ajouter un membre** **uniquement si une personne manque** ; renseignez son nom, puis complétez sa fiche et ses affectations.
+- Revenez à la liste et vérifiez les sections actives/inactives ainsi que les filtres.
+
+**Ce que SMN en fait :** les profils et périodes d'affectation alimentent les informations d'équipe, les calendriers et la lecture des capacités lorsque ces fonctionnalités sont disponibles.
+
+**À vérifier :** les profils existants ont été contrôlés ou personnalisés, les éventuels membres manquants ajoutés sans doublon et les périodes d'affectation vérifiées.
 
 ## Étape 4 — Vérifier les jours travaillés, le calendrier et les absences
 
