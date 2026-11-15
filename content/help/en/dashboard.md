@@ -1,30 +1,36 @@
-# Dashboard: understand your team's activity
+# Dashboard: keep your team on course
 
-## What is the dashboard for?
+Your dashboard is the place to start your day. In a quick glance, you can find the current cycle, see progress and spot anything worth discussing with the team.
 
-The [Dashboard](/app) brings together information about the selected team and cycle. It helps you review work context, goals, indicators and items that need attention. It **does not invent values**: results depend on cycles and data actually available.
+## Start with the right context
 
-## Review the dashboard
+1. Open the [Dashboard](/app) from the main navigation.
+2. Check the team and product in the header. Switch context if you work with multiple teams.
+3. Check the selected cycle and dates. In Scrum, this is a sprint; in Kanban, a period.
+4. Explore goals, indicators and tracking blocks. Start with the information that might require a decision.
 
-1. Open **Dashboard** from the navigation.
-2. Confirm the **team name**, **product** and **cycle** in the header.
-3. Review the cycle dates and status. In Scrum the cycle is a sprint; in Kanban, periods follow team configuration.
-4. Read available goals and indicators. Missing values must not be treated as zero.
-5. Review tracking blocks and attention items where available. Some information may be missing before a cycle or its sources have been configured.
-6. Use detail links to inspect the underlying information before drawing conclusions.
+> A useful habit: before discussing a number in a Daily or review, always confirm which team and cycle it belongs to.
 
-## Customize your dashboard
+## Make sense of your indicators
 
-If **Open my Dashboard Builder** or a personalization action is available, use it to review the layout. Editing permissions depend on your account and team.
+A number on its own never tells the whole story. Look for changes and compare them with what the team is experiencing: available capacity, tickets, impediments or recent decisions.
 
-In **Dashboard Builder**, rows contain blocks and slots. When authorized, you can customize their sources, titles and presentation, then save. Check the result in the dashboard.
+- **Something looks surprising?** Open its details or review the indicator definition.
+- **A value is missing?** Check the cycle and source data; an empty value is not zero.
+- **A block is not useful?** Consider whether its configuration should change.
 
-## If data is missing
+## Make the dashboard your own
 
-- Check the selected team and cycle.
-- Review cycle availability, member assignments, tickets and indicator sources.
-- Do not manually replace a missing indicator with an assumed value without reviewing its definition.
+When your permissions allow it, open **Dashboard Builder** using the available customization action. Blocks are arranged in rows: select information, adjust titles and presentation, then save.
 
-## Final check
+Return to the dashboard and check that the blocks tell a clear story: **where are we, what is slowing us down, and what should we do next?**
 
-You can identify your team, cycle, available indicators and missing data. Reading this guide does not change the dashboard.
+## If something does not appear
+
+1. Check the selected team and cycle.
+2. Confirm the required source data exists: tickets, assignments or indicators.
+3. Read the indicator definition before assuming something is broken.
+
+## You are done when…
+
+You can find the cycle, interpret the main blocks and explain where the displayed figures come from.
