@@ -1,10 +1,12 @@
 # Préparer le calendrier d'équipe
 
-## Prérequis
+Un calendrier fiable aide à préparer les sprints et à comprendre les disponibilités. Commencez par vérifier les informations de l'équipe avant de les utiliser pour décider.
+
+## Avant de commencer
 
 Une équipe doit exister. Les actions de modification exigent des droits adaptés.
 
-## Étapes
+## Suivez le parcours
 
 - Ouvrez le [Calendrier d'équipe](/app/team-calendar) et sélectionnez le contexte de votre équipe.
 - Vérifiez les jours affichés, les périodes du cycle, les absences et les informations disponibles.
@@ -12,6 +14,6 @@ Une équipe doit exister. Les actions de modification exigent des droits adapté
 - Dans une installation comprenant une équipe Scrum, un administrateur peut contrôler les paramètres des jours travaillés depuis Paramètres. Cet écran n'est pas destiné à une installation Kanban seule.
 - Contrôlez les résultats après toute modification métier avant de marquer manuellement **calendar** terminé.
 
-## Attention
+## Un point à garder en tête
 
 Les absences, jours fériés et disponibilités peuvent varier selon les membres. La consultation du calendrier ne valide pas automatiquement la capacité d'équipe.
