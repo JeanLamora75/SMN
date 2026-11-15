@@ -13,6 +13,25 @@ Vous préparez votre prochain sprint ou plusieurs sprints à venir ? SMN vous ai
 
 **Pourquoi commencer ici ?** Générer une nouvelle série sans examiner l'existant peut conduire à des périodes qui se chevauchent ou à des sprints inutiles. Si vous retrouvez le sprint recherché, ouvrez-le plutôt que d'en créer un autre.
 
+## Avant de générer : vérifiez la cadence de votre équipe
+
+**D'où viennent les dates ?** L'assistant utilise la configuration **Paramètres → Cadence de l'équipe → Sprint**. Il ne vous demande donc pas de ressaisir la durée, les jours et les horaires de chaque sprint. La génération reprend les paramètres de l'équipe Scrum sélectionnée : **durée en semaines, jour et heure de début, jour et heure de fin et fuseau horaire**.
+
+### Et si vous n'avez jamais configuré la cadence ?
+
+SMN peut créer automatiquement la configuration manquante avec les **valeurs par défaut** suivantes :
+
+- **Durée :** 2 semaines.
+- **Début :** lundi à 09 h 00.
+- **Fin :** vendredi à 18 h 00, lors de la deuxième semaine.
+- **Fuseau horaire :** Europe/Paris.
+
+> **Bon réflexe avant une génération en série :** ouvrez les Paramètres de cadence de l'équipe et vérifiez ces valeurs. Les valeurs par défaut permettent de commencer, mais elles ne sont pas nécessairement celles de votre organisation.
+
+**Exemple concret :** avec cette cadence par défaut, une date de départ choisie un mercredi sera alignée sur le **lundi suivant**. Le premier sprint se terminera le vendredi de la deuxième semaine, à 18 h. Si vous demandez trois sprints, SMN calcule les périodes suivantes à partir de cette même cadence.
+
+Si la cadence a déjà été personnalisée, **ce sont vos valeurs enregistrées qui sont utilisées**, pas ces valeurs par défaut. L'aperçu vous permet de contrôler les résultats avant toute création. En cas de problème technique empêchant de lire ou de préparer les paramètres, l'aperçu signale une erreur et vous ne devez pas confirmer la génération.
+
 ## 2. Ouvrez l'assistant de génération
 
 Si vous disposez des droits d'administration, cliquez sur **Générer** dans l'en-tête de la liste. L'assistant vous accompagne en trois étapes : **Configurer**, **Prévisualiser**, puis **Confirmer**.
