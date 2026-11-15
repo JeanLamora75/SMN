@@ -13,6 +13,25 @@ Preparing your next sprint or a whole series? SMN helps you build a consistent s
 
 **Why start here?** Creating another series without checking the current schedule can lead to overlaps or unnecessary sprints. If the sprint already exists, open it instead of generating a duplicate.
 
+## Before generating: check your team's sprint cadence
+
+**Where do the dates come from?** The wizard uses **Settings → Team cadence → Sprint**. You do not need to re-enter each sprint's duration, weekdays or times. SMN reads the selected Scrum team's **duration in weeks, start day and time, end day and time, and time zone**.
+
+### What if you have never configured the cadence?
+
+SMN can automatically create the missing cadence configuration using these **default values**:
+
+- **Duration:** 2 weeks.
+- **Start:** Monday at 09:00.
+- **End:** Friday at 18:00, in the second week.
+- **Time zone:** Europe/Paris.
+
+> **Before generating a series:** open the team's cadence settings and check these values. Defaults make it possible to get started, but may not reflect your team's actual working rhythm.
+
+**Practical example:** with the default cadence, a Wednesday start date is aligned to the **following Monday**. The first sprint then ends on the Friday of the second week at 18:00. When generating three sprints, SMN calculates subsequent periods from the same cadence.
+
+If you have already customized the cadence, **your saved values take precedence** over these defaults. Always inspect the preview before creating anything. If a technical problem prevents the settings from being read or prepared, the preview reports an error and generation should not be confirmed.
+
 ## 2. Open the generation wizard
 
 With administrator permissions, select **Generate** from the list header. The wizard has three stages: **Configure**, **Preview** and **Confirm**.
