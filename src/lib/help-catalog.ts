@@ -17,7 +17,8 @@ export type HelpArticle=Readonly<{
 }>;
 
 const records=[
- {id:"overview",section:"getting-started",route:"/app",contexts:["/app"],modes:null,resource:"collective"},
+ {id:"overview",section:"getting-started",route:"/app",contexts:[],modes:null,resource:"collective"},
+ {id:"dashboard",section:"modules",route:"/app",contexts:["/app","/app/dashboard-builder"],modes:null,resource:"collective"},
  {id:"general-settings",section:"configuration",route:"/app/admin/settings/general",contexts:["/app/admin/settings/general","/app/admin/settings"],modes:null,resource:"settings"},
  {id:"teams",section:"configuration",route:"/app/admin/settings/teams",contexts:["/app/admin/settings/teams"],modes:null,resource:"settings"},
  {id:"members",section:"modules",route:"/app/admin/members",contexts:["/app/admin/members"],modes:null,resource:"settings"},
@@ -26,6 +27,7 @@ const records=[
  {id:"tickets",section:"modules",route:"/app/tickets",contexts:["/app/tickets"],modes:null,resource:"collective"},
  {id:"calendar",section:"modules",route:"/app/team-calendar",contexts:["/app/team-calendar"],modes:null,resource:"collective"},
  {id:"registries",section:"modules",route:"/app/admin/registries",contexts:["/app/admin/registries"],modes:null,resource:"collective"},
+ {id:"links",section:"modules",route:"/app/admin/links",contexts:["/app/admin/links","/app/admin/settings/links"],modes:null,resource:"settings"},
  {id:"reports",section:"modules",route:"/app/reports",contexts:["/app/reports"],modes:null,resource:"collective"},
  {id:"indicators",section:"modules",route:"/app/admin/indicators",contexts:["/app/admin/indicators"],modes:null,resource:"collective"},
  {id:"faq",section:"troubleshooting",route:"/app/help",contexts:["/app/help"],modes:null,resource:"collective"},
@@ -46,7 +48,7 @@ export function validateHelpCatalog(entries:readonly HelpArticle[],existingRoute
    throw Error("help-duplicate-or-invalid-id");
   ids.add(entry.id);
   if(!sections.has(entry.section)||!resources.has(entry.resource)||
-     !existingRoutes.has(entry.route)||entry.contexts.length===0)
+     !existingRoutes.has(entry.route)||(entry.contexts.length===0&&entry.id!=="overview"))
    throw Error("help-invalid-metadata-or-route");
   if(entry.modes!==null&&(entry.modes.length===0||
      entry.modes.some(mode=>mode!=="scrum"&&mode!=="kanban")||
