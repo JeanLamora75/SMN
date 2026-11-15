@@ -1,10 +1,12 @@
 # Verify SMN backups
 
-## Prerequisites
+A useful backup is one you can find and verify. Here's how to check your archives without accidentally restoring data.
+
+## Before you begin
 
 Access to backup features requires the appropriate account permissions.
 
-## Steps
+## Follow the steps
 
 - Open [Settings > Maintenance](/app/admin/settings/maintenance).
 - Open the backup tab when it is available to your account.
