@@ -1,5 +1,7 @@
 # Getting started with SMN: set up your first team step by step
 
+This walkthrough guides you from initial settings to your first useful tracking view. Take it at your own pace: the goal is a working SMN, not merely checked boxes.
+
 You have just signed in to SMN. Before using sprints or Kanban periods for meaningful tracking, you need to prepare some information. This walkthrough explains **what to configure**, **why it matters**, **how SMN uses it**, and **how to check the outcome**.
 
 **Start by checking teams and members already present.** An existing or restored installation may contain data to customize; a fresh native v33 installation on an empty database does not automatically create teams or members. This guide supports both situations. You can revisit any step. Administrator-only actions must be performed by an authorized account. As a standard user, follow the steps available to you and ask your administrator to prepare the others.
