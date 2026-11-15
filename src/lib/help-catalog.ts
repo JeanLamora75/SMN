@@ -33,7 +33,7 @@ const records=[
  {id:"indicators",section:"modules",route:"/app/admin/indicators",contexts:["/app/admin/indicators"],modes:null,resource:"collective"},
  {id:"faq",section:"troubleshooting",route:"/app/help",contexts:["/app/help"],modes:null,resource:"collective"},
  {id:"jira-settings",section:"configuration",route:"/app/admin/settings/jira",contexts:["/app/admin/settings/jira"],modes:null,resource:"settings"},
- {id:"backup",section:"troubleshooting",route:"/app/admin/settings/maintenance",contexts:[],modes:null,resource:"backups"}
+ {id:"backup",section:"troubleshooting",route:"/app/admin/settings/maintenance",contexts:[],modes:null,resource:"backups"},
  {id:"companies",section:"configuration",route:"/app/admin/companies",contexts:["/app/admin/companies"],modes:null,resource:"settings",adminOnly:true},
  {id:"cadence-settings",section:"configuration",route:"/app/admin/scrum-cadence",contexts:["/app/admin/scrum-cadence","/app/admin/kanban-cadence"],modes:null,resource:"settings"},
  {id:"ceremonies-settings",section:"configuration",route:"/app/admin/settings/ceremonies",contexts:["/app/admin/settings/ceremonies"],modes:["scrum"],resource:"settings"},
