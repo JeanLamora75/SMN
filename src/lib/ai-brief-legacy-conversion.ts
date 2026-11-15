@@ -23,6 +23,10 @@ const SAFE_SCALARS: Readonly<Record<string, readonly string[]>> = {
   "cycle.name": ["{{SPRINT_NAME}}"],
   "cycle.dates": ["{{SPRINT_START}}", "{{SPRINT_END}}"],
   "cycle.status": ["{{SPRINT_STATUS}}"],
+  objectives: ["{{ROW:GOALS}}"],
+  risks: ["{{ROW:RISKS}}"],
+  dependencies: ["{{ROW:DEPENDENCIES}}"],
+  decisions: ["{{ROW:DECISIONS}}"],
 };
 
 const normalize = (value: string) => value.replace(/\r\n?/g, "\n").trim();
@@ -38,6 +42,7 @@ export function prepareLegacyBriefPrompt(model: LegacyBriefModel): PromptConvers
     ...(scalars.length ? ["", "## Données de contexte", ...scalars] : []),
     ...(questions.length ? ["", "## Questions à l'IA", ...questions.map(q => "- " + q)] : []),
     ...(instructions.length ? ["", "## Consignes", ...instructions.map(i => "- " + i)] : []),
+    ...(model.depth > 1 ? ["", "## Historique souhaité", `Analyser jusqu’à ${model.depth} cycles clôturés lorsque ces données sont explicitement disponibles.`] : []),
   ];
   // Do not convert old business field keys to unverified Office tags.
   // Every remaining key requires an explicit mapping before database cutover.
