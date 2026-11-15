@@ -1,10 +1,12 @@
 # Prepare the team calendar
 
-## Prerequisites
+A reliable calendar helps plan cycles and understand availability. Start by checking the team's information before making decisions.
+
+## Before you begin
 
 A team must exist. Editing requires the appropriate privileges.
 
-## Steps
+## Follow the steps
 
 - Open the [Team calendar](/app/team-calendar) and select your team context.
 - Review displayed days, cycle periods, absences and available calendar data.
