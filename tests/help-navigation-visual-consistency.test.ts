@@ -29,7 +29,7 @@ describe("UX — contextual Help on every primary navigation screen",()=>{
   assert.equal(helpArticleForContext("/app/admin/indicators",admin,"kanban")?.id,"indicators");
   assert.equal(helpArticleForContext("/app/admin/links",admin,"scrum")?.id,"links");
   assert.equal(helpArticleForContext("/app/admin/links",user,"scrum"),null);
-  assert.equal(helpArticleForContext("/app/admin/settings/links",admin,"scrum")?.id,"links");
+  assert.equal(helpArticleForContext("/app/admin/settings/links",admin,"scrum")?.id,"link-settings");
  });
  it("places Help in the actual dashboard, dashboard builder and links headers",async()=>{
   const [main,cycle,builder,editor,linksPage,links,indicators,map]=await Promise.all([
@@ -46,7 +46,7 @@ describe("UX — contextual Help on every primary navigation screen",()=>{
   assert.match(linksPage,/<LinksCockpit/);
   assert.match(links,/<header className="smn-links-hero">[\s\S]*?<HelpHeaderAction/);
   assert.match(indicators,/<header className="smn-sprint-detail-hero[\s\S]*?<HelpHeaderAction/);
-  for(const [route,id] of [["/app","dashboard"],["/app/dashboard-builder","dashboard"],["/app/admin/links","links"],["/app/admin/settings/links","links"],["/app/admin/indicators","indicators"]]){
+  for(const [route,id] of [["/app","dashboard"],["/app/dashboard-builder","dashboard"],["/app/admin/links","links"],["/app/admin/settings/links","link-settings"],["/app/admin/indicators","indicators"]]){
    assert.ok(map.includes(JSON.stringify(route)+":"+JSON.stringify(id)),route);
   }
  });
@@ -82,6 +82,6 @@ describe("UX — contextual Help on every primary navigation screen",()=>{
    }
   }
   const ids=new Set(helpCatalog(admin,"scrum").concat(helpCatalog(admin,"kanban")).map(a=>a.id));
-  assert.equal(ids.size,16);
+  assert.equal(ids.size,32);
  });
 });
