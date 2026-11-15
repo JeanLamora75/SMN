@@ -16,14 +16,7 @@ function equals(a:PromptModelDraft,b:PromptModelDraft):boolean{
 }
 export default function TemplateEditor({original}:{original:ManagedBriefTemplate[]}){
  const t=useTranslation();
- const tr=(key:keyof typeof labels)=>t(("briefPromptEditor."+key) as Parameters<typeof t>[0]);
- // Typed keys keep the form accessible even when additional UI locales are installed.
- const labels={heading:true,eyebrow:true,intro:true,back:true,list:true,new:true,native:true,custom:true,active:true,inactive:true,
-  select:true,none:true,editor:true,modelName:true,description:true,prompt:true,placeholder:true,promptHint:true,descriptionHint:true,
-  save:true,saving:true,create:true,duplicate:true,disable:true,enable:true,protected:true,legacy:true,chars:true,copy:true,copied:true,
-  copyFailed:true,preview:true,pending:true,leave:true,discard:true,confirmDisable:true,saved:true,updated:true,activated:true,
-  deactivated:true,invalid:true,conflict:true,schema:true,error:true,noData:true,reload:true,descriptionPanel:true,privacy:true,
-  status:true,selectModel:true,newCopy:true,sourceOnly:true,missingPrompt:true} as const;
+ const tr=(key:string)=>t(("briefPromptEditor."+key) as Parameters<typeof t>[0]);
  const [templates,setTemplates]=useState(original);
  const [selected,setSelected]=useState("new");
  const [draft,setDraft]=useState<PromptModelDraft>(empty);
