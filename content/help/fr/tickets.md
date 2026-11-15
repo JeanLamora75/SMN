@@ -1,5 +1,7 @@
 # Tickets : consulter et importer un CSV
 
+Vos tickets sont plus utiles lorsqu'ils sont importés au bon format et dans le bon contexte. Suivez ce parcours pour les contrôler.
+
 ## Accéder au module
 
 - Ouvrez [Tickets](/app/tickets) après avoir sélectionné une équipe et un cycle dans SMN.
