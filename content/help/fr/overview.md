@@ -1,5 +1,7 @@
 # Bien démarrer avec SMN : votre première équipe pas à pas
 
+Ce parcours vous accompagne de la première configuration au suivi de votre équipe. Avancez à votre rythme et vérifiez chaque résultat.
+
 Vous venez de vous connecter à SMN. Avant de suivre vos sprints ou vos périodes Kanban, il faut préparer quelques informations. Ce parcours vous explique **quoi faire**, **pourquoi le faire**, **ce que SMN en fera** et **comment vérifier le résultat**.
 
 **Commencez par regarder les équipes et membres déjà présents.** Une installation existante ou restaurée peut contenir des données à personnaliser ; une installation native v33 sur base vierge ne crée pas d'équipe ni de membres automatiquement. Le parcours s'adapte à ces deux situations. Vous pouvez revenir sur chaque étape. Les actions réservées à l'administrateur doivent être réalisées par un compte autorisé ; si vous êtes simple utilisateur, consultez les étapes qui vous sont accessibles et demandez à l'administrateur de préparer les autres.
