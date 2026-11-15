@@ -1,6 +1,7 @@
 import {assertAiBriefSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import {prepareLegacyBriefPrompt} from "@/lib/ai-brief-legacy-conversion";
+import {validatePromptModelDraft} from "@/lib/ai-brief-prompt-model";
 import type {Client} from "pg";
 import {initialBriefTemplates,allowedBriefFields,type BriefMode} from "@/lib/ai-brief-templates";
 
@@ -30,8 +31,10 @@ export async function manageBriefTemplate(db:Client,actorId:string,raw:unknown){
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false as const,error:"invalid-input"};
  const v=raw as Record<string,unknown>;
  if(!["create","update","deactivate","activate"].includes(String(v.action)))return {ok:false as const,error:"invalid-input"};
- if(v.action==="create"&&!validateBriefTemplate(v.template))return {ok:false as const,error:"invalid-input"};
- if(v.action==="update"&&!validateBriefTemplate(v.template))return {ok:false as const,error:"invalid-input"};
+ const textDraft=validatePromptModelDraft(v.template);
+ const oldDraft=validateBriefTemplate(v.template);
+ if((v.action==="create"||v.action==="update")&&!textDraft&&!oldDraft)
+  return {ok:false as const,error:"invalid-input"};
  if(v.action!=="create"&&(typeof v.id!=="string"||!/^[a-f0-9-]{36}$/i.test(v.id)))return {ok:false as const,error:"protected"};
  await db.query("BEGIN");
  try{
@@ -40,11 +43,21 @@ export async function manageBriefTemplate(db:Client,actorId:string,raw:unknown){
   await ensureSchema(db);
   const promptColumn=await db.query<{present:boolean}>(`SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_ai_brief_template' AND column_name='prompt_text') AS present`);
   const hasPrompt=promptColumn.rows[0]?.present===true;
+  if(textDraft&&!hasPrompt){await db.query("ROLLBACK");return {ok:false as const,error:"schema-upgrade-required"};}
   const migratedText=(model:ManagedBriefTemplate)=>{
    const converted=prepareLegacyBriefPrompt(model);
    return converted.unresolvedFields.length===0?converted.promptText:null;
   };
   if(v.action==="create"){
+   if(textDraft){
+    const id=randomUUID();
+    // Legacy fields remain non-null until the reader and archive pipeline cut over.
+    await db.query(`INSERT INTO public.smn_ai_brief_template
+     (id,title,description,prompt_text,sections,questions,instructions,data,depth,created_by)
+     VALUES($1,$2,$3,$4,'["Prompt libre"]'::jsonb,'[]'::jsonb,'[]'::jsonb,'[]'::jsonb,1,$5)`,
+     [id,textDraft.title.trim(),textDraft.description,textDraft.promptText,actorId]);
+    await db.query("COMMIT");return {ok:true as const,id};
+   }
    const t=v.template as ManagedBriefTemplate,id=randomUUID();
    const values=[id,t.title.trim(),t.description,JSON.stringify(t.sections),JSON.stringify(t.questions),JSON.stringify(t.instructions),JSON.stringify(t.data),t.depth,actorId];
    if(hasPrompt)await db.query(`INSERT INTO public.smn_ai_brief_template(id,title,description,sections,questions,instructions,data,depth,created_by,prompt_text)
@@ -58,6 +71,13 @@ export async function manageBriefTemplate(db:Client,actorId:string,raw:unknown){
   if(!old.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
   if(old.rows[0].revision!==v.revision){await db.query("ROLLBACK");return {ok:false as const,error:"conflict"};}
   if(v.action==="update"){
+   if(textDraft){
+    await db.query(`UPDATE public.smn_ai_brief_template SET title=$2,description=$3,prompt_text=$4,
+     revision=revision+1,updated_at=now() WHERE id=$1`,
+     [v.id,textDraft.title.trim(),textDraft.description,textDraft.promptText]);
+    await db.query("COMMIT");
+    return {ok:true as const,id:v.id,revision:Number(v.revision)+1};
+   }
    const t=v.template as ManagedBriefTemplate;
    const values=[v.id,t.title.trim(),t.description,JSON.stringify(t.sections),JSON.stringify(t.questions),JSON.stringify(t.instructions),JSON.stringify(t.data),t.depth];
    if(hasPrompt)await db.query(`UPDATE public.smn_ai_brief_template SET title=$2,description=$3,sections=$4::jsonb,questions=$5::jsonb,
