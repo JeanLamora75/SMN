@@ -1,5 +1,7 @@
 # Members: view profiles and manage assignments
 
+A team is made of people, not just records. Start with existing profiles, then review assignments so SMN reflects how the team actually works.
+
 ## Prerequisites and permissions
 
 A team must exist. Open [Team / Members](/app/admin/members) with an authorized account. This detailed configuration guide is intended for administrators; adding, editing and managing assignments require the appropriate permissions.
@@ -43,6 +45,6 @@ The action may be unavailable because your role does not allow creation or the c
 - **Cannot add or edit**: verify the account role and context permissions; do not bypass access checks.
 - **Dates or capacity look incorrect**: compare assignments and calendar working days before assuming a calculation error.
 
-## Final check
+## Check the result
 
 Help does not create members or assignments. Manually mark **members** done in the Help center only after checking profiles and assignment dates.
