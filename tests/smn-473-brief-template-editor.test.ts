@@ -93,6 +93,7 @@ test("template page exposes a single text notepad, unsaved warning and no techni
  assert.match(page,/SettingsPageShell/);
  assert.match(page,/canAccess\(account,"write"/);
  assert.match(api,/authorizeApi\(req,"write",scope\)/);
+ assert.match(api,/readJsonObject\(req,900000\)/);
 });
 
 test("labels cover the same strings in French and English",()=>{
