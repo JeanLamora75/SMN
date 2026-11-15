@@ -1,5 +1,7 @@
 # Links: find and manage team resources
 
+Keep your team's useful resources close at hand: boards, documents, tools and shared spaces. Links help you find them without hunting through bookmarks.
+
 ## Access links
 
 Open **Links** from the navigation when your administrator account is authorized. The screen groups team-specific links and accessible cross-team links.
@@ -31,6 +33,6 @@ Link categories and related settings are maintained separately in **Settings > L
 
 SMN keeps relevant resources easy to find. **Cross-team or team scope** establishes their context, while **categories** support filtering. SMN does not automatically analyze an external website just because its address has been saved.
 
-## Final check
+## Check the result
 
 You can find the right link, open its destination and, when authorized, change its classification. Reading this guide does not modify a link.
