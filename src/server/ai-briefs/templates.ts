@@ -4,7 +4,7 @@ import {prepareLegacyBriefPrompt} from "@/lib/ai-brief-legacy-conversion";
 import type {Client} from "pg";
 import {initialBriefTemplates,allowedBriefFields,type BriefMode} from "@/lib/ai-brief-templates";
 
-export type ManagedBriefTemplate={id:string;title:string;description:string;promptText:string|null;sections:string[];questions:string[];instructions:string[];data:string[];depth:number;revision:number;active:boolean;builtin:boolean};
+export type ManagedBriefTemplate={id:string;title:string;description:string;promptText?:string|null;sections:string[];questions:string[];instructions:string[];data:string[];depth:number;revision:number;active:boolean;builtin:boolean};
 const builtins:ManagedBriefTemplate[]=initialBriefTemplates.map(t=>({...t,sections:[...t.sections],questions:[...t.questions],instructions:[...t.instructions],data:[...t.data],depth:2,revision:0,active:true,builtin:true}));
 const validStrings=(v:unknown,max=30):v is string[]=>Array.isArray(v)&&v.length<=max&&v.every(x=>typeof x==="string"&&x.trim().length>0&&x.length<=500);
 export function validateBriefTemplate(value:unknown):value is Omit<ManagedBriefTemplate,"id"|"revision"|"active"|"builtin">{
@@ -38,11 +38,19 @@ export async function manageBriefTemplate(db:Client,actorId:string,raw:unknown){
   const installation=await db.query(`SELECT id FROM public.smn_installation WHERE id='singleton' AND state='initialized'`);
   if(installation.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
   await ensureSchema(db);
+  const promptColumn=await db.query<{present:boolean}>(`SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_ai_brief_template' AND column_name='prompt_text') AS present`);
+  const hasPrompt=promptColumn.rows[0]?.present===true;
+  const migratedText=(model:ManagedBriefTemplate)=>{
+   const converted=prepareLegacyBriefPrompt(model);
+   return converted.unresolvedFields.length===0?converted.promptText:null;
+  };
   if(v.action==="create"){
    const t=v.template as ManagedBriefTemplate,id=randomUUID();
-   await db.query(`INSERT INTO public.smn_ai_brief_template(id,title,description,sections,questions,instructions,data,depth,created_by)
-   VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6::jsonb,$7::jsonb,$8,$9)`,
-   [id,t.title.trim(),t.description,t.sections,t.questions,t.instructions,t.data,t.depth,actorId].map((x,i)=>i>=3&&i<=6?JSON.stringify(x):x));
+   const values=[id,t.title.trim(),t.description,JSON.stringify(t.sections),JSON.stringify(t.questions),JSON.stringify(t.instructions),JSON.stringify(t.data),t.depth,actorId];
+   if(hasPrompt)await db.query(`INSERT INTO public.smn_ai_brief_template(id,title,description,sections,questions,instructions,data,depth,created_by,prompt_text)
+   VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6::jsonb,$7::jsonb,$8,$9,$10)`,[...values,migratedText(t)]);
+   else await db.query(`INSERT INTO public.smn_ai_brief_template(id,title,description,sections,questions,instructions,data,depth,created_by)
+   VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6::jsonb,$7::jsonb,$8,$9)`,values);
    await db.query("COMMIT");return {ok:true as const,id};
   }
   if(!Number.isInteger(v.revision)||Number(v.revision)<1){await db.query("ROLLBACK");return {ok:false as const,error:"invalid-input"};}
@@ -51,9 +59,12 @@ export async function manageBriefTemplate(db:Client,actorId:string,raw:unknown){
   if(old.rows[0].revision!==v.revision){await db.query("ROLLBACK");return {ok:false as const,error:"conflict"};}
   if(v.action==="update"){
    const t=v.template as ManagedBriefTemplate;
-   await db.query(`UPDATE public.smn_ai_brief_template SET title=$2,description=$3,sections=$4::jsonb,questions=$5::jsonb,
-   instructions=$6::jsonb,data=$7::jsonb,depth=$8,revision=revision+1,updated_at=now() WHERE id=$1`,
-   [v.id,t.title.trim(),t.description,JSON.stringify(t.sections),JSON.stringify(t.questions),JSON.stringify(t.instructions),JSON.stringify(t.data),t.depth]);
+   const values=[v.id,t.title.trim(),t.description,JSON.stringify(t.sections),JSON.stringify(t.questions),JSON.stringify(t.instructions),JSON.stringify(t.data),t.depth];
+   if(hasPrompt)await db.query(`UPDATE public.smn_ai_brief_template SET title=$2,description=$3,sections=$4::jsonb,questions=$5::jsonb,
+   instructions=$6::jsonb,data=$7::jsonb,depth=$8,prompt_text=$9,revision=revision+1,updated_at=now() WHERE id=$1`,
+   [...values,migratedText(t)]);
+   else await db.query(`UPDATE public.smn_ai_brief_template SET title=$2,description=$3,sections=$4::jsonb,questions=$5::jsonb,
+   instructions=$6::jsonb,data=$7::jsonb,depth=$8,revision=revision+1,updated_at=now() WHERE id=$1`,values);
   }else{
    await db.query(`UPDATE public.smn_ai_brief_template SET active=$2,revision=revision+1,updated_at=now() WHERE id=$1`,[v.id,v.action==="activate"]);
   }
