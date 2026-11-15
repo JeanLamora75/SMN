@@ -51,6 +51,7 @@
     "conflict": "This template was edited elsewhere. Reload it before trying again.",
     "schema": "A database migration is required before saving free-text prompts.",
     "error": "Could not save. Please try again.",
+    "refreshFailed": "The save succeeded, but the template list could not be refreshed. Use “Refresh templates” before making another change.",
     "noData": "Select a template or create one.",
     "reload": "Refresh templates",
     "descriptionPanel": "Name, optional description and text: no technical parameters to fill in.",
