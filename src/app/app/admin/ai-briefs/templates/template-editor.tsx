@@ -119,7 +119,7 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
       <th scope="row"><span className="d-block">{model.title}</span><span className="small text-secondary">{tr(model.builtin?"native":"custom")}</span></th>
       <td className="text-secondary small">{model.description||"—"}</td>
       <td><span className={"badge "+(model.active?"text-bg-light":"text-bg-secondary")}>{tr(model.active?"active":"inactive")}</span></td>
-      <td className="text-end"><button type="button" className="btn btn-sm btn-outline-primary" disabled={busy}
+      <td className="text-end"><button type="button" className="btn btn-sm btn-outline-primary" disabled={busy||refreshRequired}
        aria-current={selected===model.id?"true":undefined} onClick={()=>switchTo(model.id)}>{tr("select")}</button></td>
      </tr>)}</tbody>
     </table>
@@ -130,7 +130,7 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
     <div><h2 className="h5 mb-1" id="brief-editor-heading">{tr("editor")}</h2>
      <p className="text-secondary small mb-0">{tr("descriptionPanel")}</p></div>
     <div className="d-flex gap-2 flex-wrap">
-     {current&&<button type="button" className="btn btn-outline-secondary" disabled={busy||legacy}
+     {current&&<button type="button" className="btn btn-outline-secondary" disabled={busy||legacy||refreshRequired}
       onClick={duplicate}>{tr("duplicate")}</button>}
      {!locked&&<button type="submit" className="btn btn-primary" disabled={busy||!dirty||!validatePromptModelDraft(draft)}>
       {busy?tr("saving"):current?tr("save"):tr("create")}</button>}
@@ -174,7 +174,7 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
    <div className="d-flex gap-2 flex-wrap align-items-center">
     {!locked&&<button type="submit" className="btn btn-primary" disabled={busy||!dirty||!validatePromptModelDraft(draft)}>
      {busy?tr("saving"):current?tr("save"):tr("create")}</button>}
-    {current&&!current.builtin&&!legacy&&<button type="button" className="btn btn-outline-secondary" disabled={busy||dirty}
+    {current&&!current.builtin&&!legacy&&<button type="button" className="btn btn-outline-secondary" disabled={busy||dirty||refreshRequired}
      onClick={()=>void mutate(current.active?"deactivate":"activate")}>{tr(current.active?"disable":"enable")}</button>}
     {dirty&&<button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={()=>{
      if(!window.confirm(tr("leave")))return;
