@@ -51,6 +51,7 @@
     "conflict": "Ce modèle a été modifié ailleurs. Rechargez-le avant de réessayer.",
     "schema": "La migration de la base est nécessaire avant l’enregistrement de prompts libres.",
     "error": "Enregistrement impossible. Réessayez.",
+    "refreshFailed": "L’enregistrement a réussi, mais la liste n’a pas pu être actualisée. Utilisez « Actualiser les modèles » avant une autre modification.",
     "noData": "Sélectionnez un modèle ou créez-en un.",
     "reload": "Actualiser les modèles",
     "descriptionPanel": "Nom, description facultative et texte : aucun paramètre technique à renseigner.",
