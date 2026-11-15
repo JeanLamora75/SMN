@@ -1,10 +1,12 @@
 # Prepare Kanban periods
 
-## Prerequisites
+Kanban periods give your tracking a useful time frame. Here's how to prepare them without confusing them with Scrum sprints.
+
+## Before you begin
 
 You need access to a Kanban team. Managing periods requires the appropriate permissions.
 
-## Steps
+## Follow the steps
 
 - Open [Kanban periods](/app/admin/kanban-periods).
 - Review existing periods and the selected team context.
