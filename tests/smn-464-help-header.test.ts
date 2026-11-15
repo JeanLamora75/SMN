@@ -40,7 +40,7 @@ describe("SMN-464 — contextual help header integration",()=>{
   assert.match(button,/type="button"/);
   assert.match(button,/method:"GET"/);
   assert.match(button,/competingModal\(\)/);
-  assert.match(button,/opener\.current\?\.focus\(\)/);
+  assert.match(button,/launchButton\?\.focus\(\)/);
   assert.doesNotMatch(action,/fetch\(|localStorage|sessionStorage/);
  });
 });
