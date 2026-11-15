@@ -91,7 +91,7 @@ describe("AU-04 — registry documentation follows the shipped registry model",(
  it("keeps both localized search indexes synchronized with the guides",async()=>{
   const checked=await buildHelpIndexes({check:true});
   assert.deepEqual(checked.map(x=>x.locale),["en","fr"]);
-  assert.ok(checked.every(x=>x.articles===14));
+  assert.ok(checked.every(x=>x.articles===16));
   for(const locale of ["fr","en"] as const){
    const index=JSON.parse(await readFile(path.join(root,".index",locale+".json"),"utf8"));
    const entry=index.articles.find((x:{id:string})=>x.id==="registries");
