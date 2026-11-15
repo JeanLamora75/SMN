@@ -131,9 +131,6 @@ export default async function HelpPage({searchParams}:{searchParams:Promise<{art
          })
         })).filter(group=>group.articles.length>0);
         return groups.length?<div className="smn-help-settings-groups">
-         <p className="smn-help-settings-intro">{locale==="fr"
-          ?"Retrouvez une aide dédiée à chaque rubrique des Paramètres. Les réglages généraux, la langue et l’apparence sont regroupés dans un seul guide."
-          :"Find a guide for each Settings entry. General preferences, language and appearance are grouped into one guide."}</p>
          {groups.map(group=><div key={group.id} className="smn-help-settings-group">
           <h3 className="smn-help-settings-group-title">{translate(locale,group.label)}</h3>
           <ul className="list-unstyled mb-0">
