@@ -25,7 +25,7 @@ export default async function IndicatorPage({searchParams}:{searchParams:Promise
  if(mode!=="scrum"&&mode!=="kanban")redirect("/app");
  return <main className="smn-page smn-team-page smn-sprint-detail-cockpit smn-indicator-cockpit container-fluid px-3 px-lg-4 py-4">
   <header className="smn-sprint-detail-hero mb-3">
-   <HelpHeaderAction screenTitle={translate(locale,"indicators.navTitle")}/>
+   <div className="float-end ms-3 mb-2"><HelpHeaderAction screenTitle={translate(locale,"indicators.navTitle")}/></div>
    <p className="smn-cycle-eyebrow mb-1">COCKPIT AGILE</p><h1 className="h4 mb-2">{translate(locale,"indicators.navTitle")}</h1><p className="smn-sprint-team-name mb-0">{active?.product?active.product+" · ":""}{teams.find(t=>t.id===team)?.name}</p>
   </header>
   <div className="smn-sprint-detail-content"><IndicatorCatalog key={team} teams={teams} activeTeamId={team} cycleType={mode} locale={locale} isAdmin={actor.role==="admin"} scope="team"/></div>
