@@ -12,6 +12,11 @@ test("SMN-468 — source documentary assets have complete FR/EN coverage and fre
  assert.equal(proof.articleCount,REQUIRED_HELP_ARTICLES.length);
  assert.ok(REQUIRED_HELP_ARTICLES.includes("tickets"));
  assert.ok(REQUIRED_HELP_ARTICLES.includes("faq"));
+ assert.equal(proof.articleCount,32,"La distribution doit transporter tous les guides FR/EN actuellement publiés");
+ for(const required of ["sprint-page","maintenance-settings","capacity-settings","chart-styles-settings"]){
+  assert.ok(REQUIRED_HELP_ARTICLES.includes(required),"Guide récent non inclus : "+required);
+ }
+
 });
 test("SMN-468 — a Windows-like app/content/help payload remains readable without network",async()=>{
  const temp=await mkdtemp(path.join(os.tmpdir(),"smn-help-offline-"));
