@@ -14,9 +14,13 @@ A team must exist. Open [Team / Members](/app/admin/members) with an authorized 
 
 The Cards/List preference is saved locally in the browser; it does not change business assignments.
 
-## Add a member
+## Customize members already present
 
-If the add action is available in the header:
+If the installation already contains members (for example, after restoration or earlier configuration), open each profile first and check identity, function, location, roles and assignment dates. Use authorized edit actions to correct the details. **Do not create a duplicate to replace an existing profile.** The number of profiles present is not guaranteed to be the same on every installation.
+
+## Add only missing members
+
+If the add action is available in the header and the person is not already present:
 
 1. Open **Add member**.
 2. Enter the required name; if the company selector is offered, choose the correct company.
