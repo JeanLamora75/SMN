@@ -37,7 +37,7 @@ test("creating a prompt writes prompt_text and keeps legacy columns valid",async
  const i=sql.findIndex(q=>q.includes("INSERT INTO public.smn_ai_brief_template"));
  assert.ok(i>=0);
  assert.match(sql[i],/prompt_text/);
- assert.match(sql[i],/\['?Prompt libre/); // Transitional non-null legacy placeholder.
+ assert.ok(sql[i].includes('["Prompt libre"]')); // Legacy non-null placeholder remains until cutover.
  assert.equal(params[i][3],valid.promptText);
  assert.ok(sql.includes("COMMIT"));
  assert.ok(!sql.some(q=>/DROP COLUMN|DELETE FROM/.test(q)));
