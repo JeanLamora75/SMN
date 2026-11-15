@@ -5,6 +5,7 @@ import Link from "next/link";
 import {useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../bootstrap-icon";
 import {SafeHelpMarkdown} from "./safe-markdown";
+import "./help-center.css";
 import "./help-dialog.css";
 
 type ArticlePayload=Readonly<{
