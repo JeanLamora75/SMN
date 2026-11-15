@@ -1,5 +1,7 @@
 # Paramètres généraux : langue, apparence et référence calendrier
 
+Prenez quelques minutes pour adapter SMN à votre façon de travailler : langue, apparence et calendrier. Ces réglages rendent les écrans plus agréables et les informations plus cohérentes.
+
 ## Accès et prérequis
 
 Ouvrez [Paramètres généraux](/app/admin/settings/general) avec un compte administrateur autorisé. Les paramètres sont enregistrés depuis ce formulaire métier, pas depuis le Centre d'aide.
@@ -28,6 +30,6 @@ Le mode Agile et le produit sont affichés comme informations fixes dans ce form
 - **Modification en attente** : confirmez ou abandonnez les changements avant de quitter l'écran ; SMN avertit lorsqu'un brouillon n'est pas sauvegardé.
 - **Accès refusé** : un utilisateur sans droits d'administration ne doit pas tenter de modifier les paramètres.
 
-## Contrôle final
+## Votre point de contrôle
 
 Vérifiez que les valeurs attendues sont enregistrées et affichées. La checklist du Centre d'aide ne vérifie pas ces réglages automatiquement : marquez **general** terminé seulement après votre propre contrôle.
