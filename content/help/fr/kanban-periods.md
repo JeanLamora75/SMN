@@ -1,10 +1,12 @@
 # Préparer les périodes Kanban
 
-## Prérequis
+Les périodes Kanban donnent un repère temporel au suivi. Voici comment les préparer sans confondre une période de mesure avec un sprint Scrum.
+
+## Avant de commencer
 
 Vous devez avoir accès à une équipe Kanban. La gestion des périodes nécessite les droits correspondants.
 
-## Étapes
+## Suivez le parcours
 
 - Ouvrez [Périodes Kanban](/app/admin/kanban-periods).
 - Consultez les périodes existantes et le contexte de l'équipe.
