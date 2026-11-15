@@ -1,5 +1,7 @@
 # FAQ and troubleshooting
 
+Missing screen, rejected import or empty indicator? Start here for practical checks that help you understand what's happening.
+
 ## A screen or action is missing
 
 Some operations require administrator permissions, a specific team or a Scrum/Kanban mode. Review your account and active team. Do not bypass access checks with direct URLs. See the [first-time setup guide](/app/help?article=overview) or ask an administrator.
