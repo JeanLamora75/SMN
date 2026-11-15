@@ -74,6 +74,8 @@ The Help center also includes a **first-setup checklist**: use **Read guide** to
 
 **Why?** A cycle provides the time frame for tracking work and analyzing indicators. Its setup depends on the team's Agile mode.
 
+**What to do:** follow only the branch matching your team's Agile mode.
+
 **For a Scrum team:**
 
 - Open **Sprints** and choose the relevant team.
