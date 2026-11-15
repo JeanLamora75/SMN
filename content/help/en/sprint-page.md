@@ -41,7 +41,7 @@ Capacity is not simply headcount multiplied by sprint days. SMN considers releva
 
 The tab can show **total person-day presence**, **development capacity**, role-specific **Product Owner / Scrum Master** capacity, member count and a member table with function, contribution, presence, absences and development capacity.
 
-It also reports when information is missing or ambiguous. Use **Manage members** or [Members](/app/admin/members) to review assignments, work patterns and absences.
+It also reports when information is missing or ambiguous. Use **Manage members** or the Members screen (if your account is authorized) to review assignments, work patterns and absences.
 
 > **Remember:** missing capacity is not zero. A closed sprint may show historical snapshots while an open sprint can show projected values.
 
