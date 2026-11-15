@@ -5,6 +5,10 @@ import {HelpContextButton} from "./help-context-button";
 
 // The route is matched exactly: unrelated screens never inherit another guide.
 const articles:Readonly<Record<string,string>>={
+ "/app":"dashboard",
+ "/app/dashboard-builder":"dashboard",
+ "/app/admin/links":"links",
+ "/app/admin/settings/links":"links",
  "/app/admin/settings":"general-settings",
  "/app/admin/settings/general":"general-settings",
  "/app/admin/settings/teams":"teams",
