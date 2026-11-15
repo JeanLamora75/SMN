@@ -14,9 +14,13 @@ Une équipe doit exister. Ouvrez [Équipe / Membres](/app/admin/members) avec un
 
 Le choix Cartes/Liste est mémorisé localement par le navigateur ; il n'affecte pas les affectations métier.
 
-## Créer un membre
+## Personnaliser les profils déjà présents
 
-Si le bouton d'ajout est disponible dans l'en-tête :
+Si cette installation contient déjà des membres (par exemple à la suite d'une restauration ou d'une préparation antérieure), commencez par ouvrir chaque fiche et vérifier son identité, sa fonction, sa localisation, ses rôles et ses périodes d'affectation. Modifiez les informations avec les commandes autorisées. **Ne créez pas de doublon pour remplacer un profil existant.** Le nombre de profils présents n'est pas garanti d'une installation à l'autre.
+
+## Ajouter uniquement les membres manquants
+
+Si le bouton d'ajout est disponible dans l'en-tête et que la personne n'existe pas encore :
 
 1. Ouvrez le formulaire **Ajouter un membre**.
 2. Renseignez le nom demandé ; si la sélection d'entreprise est proposée, choisissez l'entreprise appropriée.
