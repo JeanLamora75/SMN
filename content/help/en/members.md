@@ -1,18 +1,44 @@
-# Configure members and assignments
+# Members: view profiles and manage assignments
 
-## Prerequisites
+## Prerequisites and permissions
 
-A team must exist. Viewing members requires access permission; changes require management rights.
+A team must exist. Open [Team / Members](/app/admin/members) with an authorized account. This detailed configuration guide is intended for administrators; adding, editing and managing assignments require the appropriate permissions.
 
-## Steps
+## Find team members
 
-- Open [Team / Members](/app/admin/members).
-- Select the appropriate team when several are available.
-- Review active and inactive members.
-- Where permitted, add or edit member profiles and assignments using the available forms.
-- Verify assignment dates and calendars before considering the task completed.
-- Manually mark **members** done in the checklist.
+1. Choose the appropriate team or context if multiple teams are available.
+2. Select **Cards** or **List** in the header.
+3. Use the **search**, **role**, **function** and **status** filters. Apply them with **Filter**, or reset to restore the full list.
+4. Review the **active** and **inactive** member groups separately, then open the required member record.
+5. Check the name, function, location, roles and displayed assignment information. Visible details depend on recorded data.
 
-## Check
+The Cards/List preference is saved locally in the browser; it does not change business assignments.
 
-A saved member may not yet have the correct assignment dates. Help never adds members itself.
+## Add a member
+
+If the add action is available in the header:
+
+1. Open **Add member**.
+2. Enter the required name; if the company selector is offered, choose the correct company.
+3. Confirm creation and verify the member appears in the team.
+4. Open the member profile to complete details and check assignments.
+
+The action may be unavailable because your role does not allow creation or the current team does not satisfy the form's conditions. Adding a member does not prove that they are assigned for the entire sprint.
+
+## Review profiles and assignments
+
+- On a member profile, check the professional **function**, **city** and **country** when provided.
+- Verify assignment **start** and **end** dates and associated roles (Scrum Master, Product Owner and Developer).
+- An ended or inactive assignment is not the same as a deleted profile. Review active and inactive sections when checking history.
+- Compare absences and working days in the member calendar before interpreting sprint capacity.
+- After an authorized change, revisit the profile or list to confirm the saved result.
+
+## Troubleshooting
+
+- **Member missing from the list**: check the team, filters, status and chosen presentation.
+- **Cannot add or edit**: verify the account role and context permissions; do not bypass access checks.
+- **Dates or capacity look incorrect**: compare assignments and calendar working days before assuming a calculation error.
+
+## Final check
+
+Help does not create members or assignments. Manually mark **members** done in the Help center only after checking profiles and assignment dates.
