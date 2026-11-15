@@ -89,6 +89,7 @@ for(const file of [
  "prisma/migrations/20261108_smn416_chart_styles/migration.sql",
  "prisma/migrations/20261109_smn39_privacy_receipt/migration.sql",
  "prisma/migrations/20261109_smn40_member_delete_guard/migration.sql",
+ "prisma/migrations/20261115_smn472_prompt_text/migration.sql",
 ]){
  const destination=path.join(appDir,file);
  await mkdir(path.dirname(destination),{recursive:true});
@@ -147,7 +148,8 @@ const migrationScripts=[
  "smn-40-cutover-release",
  "smn-40-offline-maintenance",
  "smn-gui-offline-restore",
- "smn-gui-offline-recover"
+ "smn-gui-offline-recover",
+ "apply-smn-472-prompt-models"
 ];
 const migrationDir=path.join(appDir,"maintenance","migration");
 await mkdir(migrationDir,{recursive:true});

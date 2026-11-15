@@ -12,7 +12,7 @@ test("Scrum cadence introductory sentence appears only in the page hero",()=>{
 });
 test("duration and IANA timezone share a responsive two-column row",()=>{
  const start=form.indexOf('<div className="row g-3">');
- const end=form.indexOf('</div>\n   <div className="row g-3">',start);
+ const end=form.indexOf('   <div className="row g-3">',start+1);
  assert.ok(start>=0&&end>start);
  const firstRow=form.slice(start,end);
  assert.match(firstRow,/col-12 col-md-6/);

@@ -80,7 +80,7 @@ Editing depends on permissions and sprint state. Closed sprints are restricted. 
 
 **Example:** for a Thursday afternoon absence, select Thursday for both dates and **afternoon** for both half-day fields. This avoids recording a full-day absence.
 
-Member absences matter for team availability and capacity. See [Members](/app/admin/members) for working schedules, assignments and country-based holidays.
+Member absences matter for team availability and capacity. If you lack access to Members, ask an administrator to check working schedules, assignments and country-based holidays.
 
 ## 6. See who is absent
 

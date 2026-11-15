@@ -22,7 +22,7 @@ Les registres jouent trois rôles complémentaires :
 4. Consultez la vue **Liste** ou **Cartes**, puis ouvrez l'élément qui vous intéresse.
 5. Vérifiez sa date, son état et les éléments associés avant de prendre une décision.
 
-Les **décisions**, **actions** et **faits marquants** existent aussi dans SMN, notamment au sein des fiches et de leurs journaux. Il ne faut pas s'attendre à voir six onglets principaux.
+La liste principale des risques, obstacles et dépendances affiche les sujets de suivi les plus fréquents. Les **décisions**, **actions** et **faits marquants** existent aussi dans SMN, notamment au sein des fiches et de leurs journaux. Il ne faut pas s'attendre à voir six onglets principaux.
 
 > **Bon réflexe :** avant une rétrospective ou une revue, filtrez les éléments du cycle puis examinez également les sujets résolus. Un obstacle levé fait partie du bilan autant qu'un obstacle encore ouvert.
 
@@ -54,7 +54,7 @@ Une **action** donne une suite concrète à un risque, un obstacle ou une décis
 
 ### Fait marquant : ce qui mérite d'être retenu
 
-Un **fait marquant** conserve un événement important, même s'il ne demande pas d'action. Il peut enrichir le bilan du sprint ou de la période.
+Un **fait marquant** conserve un événement important, même s'il ne demande pas d'action. Son statut est **Enregistré**. Il peut enrichir le bilan du sprint ou de la période.
 
 ## 4. Créez une fiche utile à toute l'équipe
 
@@ -157,3 +157,5 @@ Les registres sont une source métier pour les bilans et les documents destinés
 Pour chaque sujet important, vous devez pouvoir répondre à quatre questions : **que s'est-il passé ? quel était le niveau de risque ou de blocage ? qu'a décidé l'équipe ? quelles suites et quels éléments liés permettent de comprendre le résultat ?**
 
 Si ces réponses se retrouvent dans SMN, les registres deviennent une véritable mémoire opérationnelle de l'équipe, réutilisable dans vos échanges et vos rapports.
+
+**Suppression définitive :** seuls les comptes disposant des **droits de gestion** peuvent demander la suppression d'une fiche. SMN peut refuser l'opération si des données liées doivent être préservées ; une suppression n'est jamais une simple résolution du sujet.

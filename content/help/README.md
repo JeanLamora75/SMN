@@ -1,6 +1,6 @@
 # Documentation du module Aide SMN
 
-**État documentaire vérifié le 15 novembre 2026.** Le module dispose de **16 articles canoniques**, présents séparément en **français et anglais** : `content/help/fr/<articleId>.md` et `content/help/en/<articleId>.md`. Les identifiants et droits sont définis dans `src/lib/help-catalog.ts`. Les futures langues disposent de leur propre répertoire ; elles ne nécessitent pas de dupliquer les composants React ni de charger des guides longs dans `src/i18n/*.json`.
+**État documentaire vérifié le 15 novembre 2026.** Le module dispose de **32 articles canoniques**, présents séparément en **français et anglais** : `content/help/fr/<articleId>.md` et `content/help/en/<articleId>.md`. Les identifiants et droits sont définis dans `src/lib/help-catalog.ts`. Les futures langues disposent de leur propre répertoire ; elles ne nécessitent pas de dupliquer les composants React ni de charger des guides longs dans `src/i18n/*.json`.
 
 ## Articles et parcours
 
@@ -40,7 +40,7 @@ Le script génère `content/help/.index/fr.json` et `en.json`. Toute modificatio
 
 ## Distribution hors ligne : ce qui est confirmé et ce qui reste à qualifier
 
-Les tests du contrat `scripts/windows/verify-offline-help.mjs` vérifient les 16 articles FR/EN et leurs index dans l'arborescence de distribution. Le packaging inclut les fichiers locaux et vérifie leur intégrité documentaire. Le fonctionnement hors ligne est donc **contrôlé automatiquement pour la présence et la lecture des ressources**, mais **pas encore qualifié par une recette Windows réelle sur un deuxième ordinateur sans accès Internet**.
+Les tests du contrat `scripts/windows/verify-offline-help.mjs` vérifient les 32 articles FR/EN et leurs index dans l'arborescence de distribution. Le packaging inclut les fichiers locaux et vérifie leur intégrité documentaire. Le fonctionnement hors ligne est donc **contrôlé automatiquement pour la présence et la lecture des ressources**, mais **pas encore qualifié par une recette Windows réelle sur un deuxième ordinateur sans accès Internet**.
 
 D'autres preuves restent nécessaires avant de parler de recette complète : navigation authentifiée sous plusieurs rôles et modes Scrum/Kanban avec PostgreSQL réel, contrôle de l'absence d'écriture SQL pendant la consultation, rendu accessible avec zoom de 200 %, et disponibilité de toutes les pages après installation de la distribution.
 

@@ -5,8 +5,6 @@ import Link from "next/link";
 import {useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../bootstrap-icon";
 import {SafeHelpMarkdown} from "./safe-markdown";
-import "./help-center.css";
-import "./help-dialog.css";
 
 type ArticlePayload=Readonly<{
  articleId:string;contentLocale:string;isFallback:boolean;markdown:string;
@@ -48,7 +46,7 @@ export function HelpContextButton({articleId,screenTitle,className=""}:{
   if(!open)return;
   const node=dialog.current;
   if(!node)return;
-  try{node.showModal();}catch{setOpen(false);return;}
+  try{node.showModal();}catch{queueMicrotask(()=>setOpen(false));return;}
   const first=node.querySelector<HTMLElement>('[data-initial-focus="true"]');
   (first??node).focus();
   const keydown=(event:KeyboardEvent)=>{
@@ -65,10 +63,11 @@ export function HelpContextButton({articleId,screenTitle,className=""}:{
    }
   };
   document.addEventListener("keydown",keydown,true);
+  const launchButton=opener.current;
   return ()=>{
    document.removeEventListener("keydown",keydown,true);
    if(node.open)node.close();
-   opener.current?.focus();
+   launchButton?.focus();
   };
  },[open]);
 
