@@ -22,12 +22,13 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
  const [draft,setDraft]=useState<PromptModelDraft>(empty);
  const [baseline,setBaseline]=useState<PromptModelDraft>(empty);
  const [busy,setBusy]=useState(false);
+ const [refreshRequired,setRefreshRequired]=useState(false);
  const [feedback,setFeedback]=useState<Feedback|null>(null);
  const [preview,setPreview]=useState(false);
  const [copied,setCopied]=useState(false);
  const current=templates.find(x=>x.id===selected);
  const legacy=!!current&&!current.builtin&&!current.promptText;
- const locked=!!current?.builtin||legacy;
+ const locked=!!current?.builtin||legacy||refreshRequired;
  const dirty=!equals(draft,baseline);
  useUnsavedChanges(dirty||busy,tr("leave"));
  function switchTo(id:string,force=false,collection=templates){
@@ -51,6 +52,7 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
   const json=await response.json() as {templates?:ManagedBriefTemplate[]};
   if(!Array.isArray(json.templates))throw Error("reload");
   setTemplates(json.templates);
+  setRefreshRequired(false);
   switchTo(pick,true,json.templates);
  }
  async function mutate(action:"create"|"update"|"activate"|"deactivate"){
@@ -82,6 +84,7 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
      setSelected(result.id??selected);
      setBaseline({...draft});
     }
+    setRefreshRequired(true);
     setFeedback({type:"success",message:success+" "+tr("refreshFailed")});
     return;
    }
@@ -105,7 +108,7 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
     <div className="d-flex gap-2">
      <button type="button" className="btn btn-outline-secondary btn-sm" disabled={busy}
       onClick={()=>{if(dirty&&!window.confirm(tr("leave")))return;void reload().catch(()=>setFeedback({type:"error",message:tr("error")}));}}>{tr("reload")}</button>
-     <button type="button" className="btn btn-primary btn-sm" disabled={busy}
+     <button type="button" className="btn btn-primary btn-sm" disabled={busy||refreshRequired}
       onClick={()=>switchTo("new")}>{tr("new")}</button>
     </div>
    </div>
@@ -135,6 +138,7 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
    </div>
    {current?.builtin&&<p role="status" className="alert alert-info mb-0">{tr("protected")}</p>}
    {legacy&&<p role="alert" className="alert alert-warning mb-0">{tr("legacy")}</p>}
+   {refreshRequired&&<p role="status" className="alert alert-warning mb-0">{tr("refreshFailed")}</p>}
    {dirty&&<p role="status" className="alert alert-warning mb-0">{tr("pending")}</p>}
    <div className="row g-3">
     <div className="col-12 col-lg-6"><label className="form-label" htmlFor="brief-template-name">{tr("modelName")}</label>
