@@ -3,7 +3,7 @@
 **Agent :** Camille — rédaction et maintenance documentaire BMAD  
 **Date de consultation des sources :** 2026-11-15  
 **Périmètre :** première configuration depuis la FAQ ; README de maintenance ; index FR/EN ; tests.  
-**État :** changements sur `main` ; consulter la conclusion terminale de la [CI AU-06/AU-07](https://github.com/JeanLamora75/SMN/actions/runs/43691262099).
+**État :** changements sur `main`, [CI AU-06/AU-07](https://github.com/JeanLamora75/SMN/actions/runs/43691262099) **réussie** : contrôle des index, contrats incluant AU-06/AU-07, Chromium ×3, TypeScript, i18n et build.
 
 ## AU-06 — Constat et correction
 
@@ -47,7 +47,7 @@ Le test est obligatoire dans le workflow de qualité Aide. Aucune donnée réell
 
 ## Preuves et limites
 
-- **CI AU-06/AU-07 :** [GitHub Actions run 43691262099](https://github.com/JeanLamora75/SMN/actions/runs/43691262099) — lire son état terminal avant de conclure.
+- **CI AU-06/AU-07 :** [GitHub Actions run 43691262099](https://github.com/JeanLamora75/SMN/actions/runs/43691262099), conclusion terminale **success**. Tous les contrôles bloquants ont réussi.
 - La vérification d'un lien rendu par le composant en tests Node n'atteste pas une navigation utilisateur réelle sur Windows.
 - La simulation offline d'une arborescence de fichiers ne prouve pas que toute la distribution Windows démarre sans Internet.
 - Les statuts Jira restent inchangés.
