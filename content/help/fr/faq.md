@@ -2,7 +2,7 @@
 
 ## Je ne vois pas un écran ou un bouton
 
-Certaines fonctions sont réservées à l'administrateur, à une équipe donnée ou à un mode Scrum/Kanban. Vérifiez votre compte et l'équipe active. N'utilisez pas d'URL pour contourner les contrôles. Consultez le [guide de première configuration](/app/help) ou contactez un administrateur.
+Certaines fonctions sont réservées à l'administrateur, à une équipe donnée ou à un mode Scrum/Kanban. Vérifiez votre compte et l'équipe active. N'utilisez pas d'URL pour contourner les contrôles. Consultez le [guide de première configuration](/app/help?article=overview) ou contactez un administrateur.
 
 ## Pourquoi l'import de tickets refuse-t-il mon CSV ?
 
