@@ -8,6 +8,7 @@ import BootstrapIcon from "./bootstrap-icon";
 import {sprintDetailPath} from "@/lib/sprint-detail-path";
 import {KpiMetricPair,KpiDeadline} from "./kpi-cards";
 import DashboardIndicatorBlocks from "./dashboard-indicator-blocks";
+import HelpHeaderAction from "./help/help-header-action";
 
 type Props=Readonly<{
   context:DashboardContext;
@@ -74,6 +75,7 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection,
         </div>
       </div>
       <div className="smn-cycle-header-actions">
+        <HelpHeaderAction screenTitle={t("navigation.entries.dashboard")}/>
         {cycle?
           <Link className="btn btn-sm smn-cycle-detail-link"
             href={sprintDetailPath(cycle.id)}>
