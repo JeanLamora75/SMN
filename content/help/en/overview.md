@@ -2,7 +2,7 @@
 
 You have just signed in to SMN. Before using sprints or Kanban periods for meaningful tracking, you need to prepare some information. This walkthrough explains **what to configure**, **why it matters**, **how SMN uses it**, and **how to check the outcome**.
 
-Follow the steps in order for your first team and return to any step when needed. Administrator-only actions must be performed by an authorized account. As a standard user, follow the steps available to you and ask your administrator to prepare the others.
+**Start by checking teams and members already present.** An existing or restored installation may contain data to customize; a fresh native v33 installation on an empty database does not automatically create teams or members. This guide supports both situations. You can revisit any step. Administrator-only actions must be performed by an authorized account. As a standard user, follow the steps available to you and ask your administrator to prepare the others.
 
 The Help center also includes a **first-setup checklist**: use **Read guide** to go deeper into each topic and **Open screen** to perform the task. You manually mark a step **Done**; SMN never interprets reading the article as proof of completion.
 
@@ -22,37 +22,38 @@ The Help center also includes a **first-setup checklist**: use **Read guide** to
 
 **Check before continuing:** your language, theme and selected country appear correctly after saving.
 
-## Step 2 — Create and describe your team
+## Step 2 — Review and customize your team
 
-**Why?** SMN organizes members, cycles and much of its business information around a team. Without a team, many views cannot display useful information.
-
-**What to do (administrator):**
-
-- Open **Settings > Teams** and select the creation action in the header.
-- Give the team a recognizable **name**.
-- Choose the **Scrum or Kanban Agile mode** offered by the form. This determines whether the team uses sprints or Kanban periods. Review the choice carefully: changing the mode may be restricted for existing teams.
-- Enter the **product** and, when relevant, its **vision** and **goal**.
-- Save and confirm that the team appears in the list. Select the team when other SMN screens offer a team picker.
-
-**How SMN uses it:** the team is the context for linking and filtering business information. The Agile mode controls which cycle views apply; product details can be used by the relevant screens and reports.
-
-**Check:** the team appears with the expected mode and product information.
-
-## Step 3 — Add members and check assignments
-
-**Why?** Membership and assignment dates establish **who belongs to the team, in which role and when**. Incorrect assignments make later interpretation misleading.
+**Why?** SMN links cycles, members and business data to a team. **Check what is already there first**, then tailor it to your real situation: creating another team when one already exists would duplicate it.
 
 **What to do (administrator):**
 
-- Open **Team / Members**, and confirm the selected team.
-- Use **Add member** for each person. Enter the requested name and select a company if offered.
-- Open each record to check **function**, **city and country** when available, **roles** and **assignments**.
-- Check assignment start and end dates. An inactive member is not the same as a deleted member.
-- Return to **Cards** or **List** view and use filters to review both active and inactive members.
+- Open **Settings > Teams** and inspect the list. Use filters if necessary to find active or archived teams.
+- **If a team already exists**, select it to open the edit dialog. Update its **name**, **product**, **vision** and **goal** to reflect your real team.
+- Check its **Scrum or Kanban** mode, which determines available cycles. SMN may prevent a mode change for an existing team; respect that restriction.
+- **Only if no usable team exists**, choose **Create team** from the header, then enter the same information and select the appropriate Agile mode.
+- Save and confirm the team appears correctly in the list. Select it elsewhere when SMN asks for team context.
 
-**How SMN uses it:** profiles and assignment periods define the team composition shown across the application and help contextualize calendar, working-day and capacity information where provided.
+**How SMN uses it:** SMN uses the team to associate members, cycles and business information. Agile mode controls Scrum or Kanban functionality, while product details appear in the views and reports that support them.
 
-**Check:** the expected people are listed with accurate assignment periods.
+**Check:** you have the **right team**, customized without duplicates, with the expected Agile mode and product details.
+
+## Step 3 — Review existing members and complete assignments
+
+**Why?** Members, roles and assignment dates determine who belongs to the team at a given time. Review and customize existing profiles instead of recreating them.
+
+**What to do (administrator):**
+
+- Open **Team / Members** for the selected team. **Check existing members first**, including active and inactive groups, in **Cards** or **List** view.
+- If your installation contains example people or profiles, open their records and adapt them to your real team. **Do not assume that every installation contains the same number of members.**
+- Check each member's name, **function**, **city and country**, **roles** and **assignments**.
+- Check assignment start and end dates. An inactive member or former assignment is not the same as a deleted profile.
+- Choose **Add member** **only if someone is missing**, then complete the new profile and assignments.
+- Return to the list and review active/inactive groups and filters.
+
+**How SMN uses it:** profiles and assignment periods support team information, calendars and capacity interpretation where those features are available.
+
+**Check:** existing profiles have been reviewed or customized, missing members added without duplicates, and assignment periods checked.
 
 ## Step 4 — Review working days, calendar and absences
 
