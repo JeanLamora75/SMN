@@ -1,0 +1,10 @@
+.smn-brief-template-workspace{width:100%;min-width:0}
+.smn-brief-template-workspace .smn-panel{width:100%;min-width:0;background:var(--smn-surface,#fff);border:1px solid var(--smn-border,#d9e0e9)}
+.smn-brief-template-workspace .table-responsive{max-width:100%;overflow-x:auto}
+.smn-brief-template-workspace table th,.smn-brief-template-workspace table td{vertical-align:middle}
+.smn-brief-template-workspace table td:nth-child(2){max-width:360px;overflow-wrap:anywhere}
+.smn-brief-template-workspace .smn-brief-selected>th,.smn-brief-template-workspace .smn-brief-selected>td{background:var(--smn-muted-soft,#f3f7fb)}
+.smn-brief-prompt-editor{width:100%;min-height:360px;max-height:70vh;resize:vertical;line-height:1.65;padding:1rem;font:400 1rem/1.65 ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;tab-size:2}
+.smn-brief-source-preview{border:1px solid var(--smn-border,#d9e0e9);border-radius:10px;padding:1rem;background:var(--smn-muted-soft,#f3f7fb);max-height:360px;overflow:auto}
+.smn-brief-source-preview pre{white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;font:400 .94rem/1.65 ui-monospace,SFMono-Regular,Consolas,monospace}
+@media(max-width:767.98px){.smn-brief-template-workspace .smn-panel{padding:1rem!important}.smn-brief-prompt-editor{min-height:320px;font-size:1rem}.smn-brief-template-workspace table td:nth-child(2){max-width:180px}}
