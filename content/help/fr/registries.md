@@ -1,5 +1,7 @@
 # Registres : risques, obstacles, dépendances, décisions, actions et faits marquants
 
+Un risque identifié tôt et une décision retrouvée au bon moment peuvent changer la dynamique d'une équipe. Voici comment tirer parti des registres.
+
 ## Accéder aux registres
 
 Ouvrez [Registres](/app/admin/registries) après avoir sélectionné une équipe à laquelle votre compte a accès. Les données affichées dépendent de l'équipe et, lorsqu'il est proposé, du cycle sélectionné.
