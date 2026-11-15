@@ -74,6 +74,8 @@ Le Centre d'aide présente aussi une **checklist de première configuration** : 
 
 **Pourquoi ?** Le cycle est le cadre temporel dans lequel vous pourrez consulter les informations de travail et rapprocher les indicateurs. La procédure dépend du mode de l'équipe.
 
+**À faire :** suivez uniquement la branche correspondant au mode de votre équipe.
+
 **Pour une équipe Scrum :**
 
 - Ouvrez **Sprints**, puis sélectionnez l'équipe concernée.
