@@ -1,5 +1,7 @@
 # FAQ et dépannage
 
+Un écran absent, un import refusé, un indicateur vide ? Retrouvez ici les vérifications les plus utiles pour comprendre ce qui se passe et avancer sereinement.
+
 ## Je ne vois pas un écran ou un bouton
 
 Certaines fonctions sont réservées à l'administrateur, à une équipe donnée ou à un mode Scrum/Kanban. Vérifiez votre compte et l'équipe active. N'utilisez pas d'URL pour contourner les contrôles. Consultez le [guide de première configuration](/app/help?article=overview) ou contactez un administrateur.
