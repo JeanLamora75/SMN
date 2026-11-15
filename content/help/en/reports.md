@@ -1,5 +1,7 @@
 # Reports: view, create and generate documents
 
+A good report tells the story of what happened and helps decide what comes next. Learn to turn SMN data into useful documents without losing sight of the sources.
+
 ## Access and scope
 
 Open [Reports](/app/reports) after signing in and select an authorized team when the screen provides that option. Results depend on the team, sprint or cycle and your account permissions. Creating a new report from the header is restricted to administrators when the screen allows it.
