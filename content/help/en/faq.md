@@ -2,7 +2,7 @@
 
 ## A screen or action is missing
 
-Some operations require administrator permissions, a specific team or a Scrum/Kanban mode. Review your account and active team. Do not bypass access checks with direct URLs. See the first setup guide in the [Help center](/app/help) or ask an administrator.
+Some operations require administrator permissions, a specific team or a Scrum/Kanban mode. Review your account and active team. Do not bypass access checks with direct URLs. See the [first-time setup guide](/app/help?article=overview) or ask an administrator.
 
 ## Why does ticket CSV import fail?
 
