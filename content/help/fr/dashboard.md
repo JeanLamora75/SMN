@@ -1,30 +1,36 @@
-# Tableau de bord : comprendre le pilotage de l'équipe
+# Tableau de bord : gardez le cap sur votre équipe
 
-## À quoi sert le tableau de bord ?
+Le tableau de bord est votre point de repère au quotidien. En quelques instants, vous pouvez retrouver le sprint en cours, voir ce qui avance et repérer ce qui mérite une discussion avec l'équipe.
 
-Le [Tableau de bord](/app) rassemble les informations de l'équipe et du cycle sélectionnés. Il aide à suivre le contexte de travail, les objectifs, les indicateurs et les éléments qui demandent une attention particulière. Il **n'invente pas de valeurs** : les résultats dépendent des cycles et des données réellement disponibles.
+## Commencez par le bon contexte
 
-## Consulter les informations
+1. Ouvrez le [Tableau de bord](/app) depuis le menu principal.
+2. Regardez l'équipe et le produit affichés dans l'en-tête. Changez de contexte si vous suivez plusieurs équipes.
+3. Vérifiez le cycle sélectionné et ses dates. En Scrum, il s'agit d'un sprint ; en Kanban, d'une période.
+4. Parcourez les blocs d'objectifs, d'indicateurs et de suivi. Concentrez-vous d'abord sur les informations qui appellent une décision.
 
-1. Ouvrez **Tableau de bord** depuis la navigation.
-2. Vérifiez le **nom de l'équipe**, le **produit** et le **cycle** présentés dans l'en-tête.
-3. Consultez la période et le statut du cycle. En Scrum, le cycle est un sprint ; en Kanban, les périodes dépendent des réglages de l'équipe.
-4. Examinez les objectifs et les indicateurs disponibles. Une valeur absente ne doit pas être considérée comme égale à zéro.
-5. Parcourez les blocs de suivi et les éléments d'attention quand ils sont présents. Les données peuvent être indisponibles si le cycle n'a pas été préparé ou renseigné.
-6. Utilisez les liens de détail pour examiner la source d'une information avant de tirer une conclusion.
+> Le bon réflexe : avant de commenter un chiffre en Daily ou en revue, vérifiez toujours l'équipe et le cycle auxquels il se rapporte.
 
-## Personnaliser votre tableau de bord
+## Faites parler les indicateurs
 
-Si le bouton **Ouvrir mon Dashboard Builder** ou une commande de personnalisation est proposé, ouvrez-le pour consulter la disposition des blocs. Les droits de modification dépendent de votre compte et de l'équipe.
+Une valeur isolée n'explique pas toute une situation. Repérez les évolutions et rapprochez-les de ce que l'équipe vit réellement : capacité disponible, tickets, obstacles ou décisions récentes.
 
-Dans le **Dashboard Builder**, les blocs et emplacements sont organisés en lignes. Si vous avez les droits nécessaires, vous pouvez personnaliser leurs sources, leurs titres et leur présentation, puis enregistrer. Vérifiez le résultat dans le tableau de bord après la modification.
+- **Une valeur vous surprend ?** Ouvrez son détail ou consultez la définition de l'indicateur.
+- **Une valeur manque ?** Vérifiez la période et les données sources ; une case vide n'est pas un zéro.
+- **Un bloc n'est pas utile ?** Voyez si sa configuration peut mieux répondre à vos besoins.
 
-## Que faire si les données manquent ?
+## Composez un tableau de bord qui vous ressemble
 
-- Vérifiez le contexte d'équipe et le cycle choisi.
-- Contrôlez l'existence des périodes, les affectations et les données de tickets ou d'indicateurs concernées.
-- Ne remplacez pas manuellement un indicateur vide par une valeur supposée sans vérifier sa définition.
+Lorsque vous disposez des droits nécessaires, ouvrez le **Dashboard Builder** depuis l'action de personnalisation proposée. Les blocs sont disposés en lignes : choisissez les informations, adaptez les titres et la présentation, puis enregistrez.
 
-## Vérification
+Revenez ensuite au tableau de bord. Prenez un instant pour vérifier que les blocs racontent une histoire claire : **où en sommes-nous, qu'est-ce qui nous ralentit et où agir ?**
 
-Vous avez identifié l'équipe, le cycle, les indicateurs disponibles et les éventuelles données manquantes. L'ouverture de cette aide ne change aucun paramètre du tableau de bord.
+## Si quelque chose ne s'affiche pas
+
+1. Vérifiez l'équipe et le cycle en cours.
+2. Contrôlez que les données nécessaires existent : tickets, affectations ou indicateurs.
+3. Consultez la définition de l'indicateur avant de conclure à une anomalie.
+
+## Vous avez terminé lorsque…
+
+Vous retrouvez facilement le cycle, savez interpréter les principaux blocs et pouvez expliquer à votre équipe d'où viennent les chiffres présentés.
