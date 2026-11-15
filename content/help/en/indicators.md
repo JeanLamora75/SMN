@@ -1,6 +1,8 @@
 # Dynamic indicators
 
-## Prerequisites
+Indicators help you understand trends, not just numbers. This guide shows how to read them in context and check their sources.
+
+## Before you begin
 
 You must be signed in and have access to at least one team. Editing the catalog and permissions depends on your account role.
 
