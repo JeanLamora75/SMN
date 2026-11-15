@@ -157,8 +157,7 @@ jobs:
           $zip = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path $archive).Path)
           try {
             $paths = @($zip.Entries | ForEach-Object { $_.FullName.Replace('\\','/') })
-            $ids = @('backup','calendar','faq','general-settings','indicators','jira-settings',
-              'kanban-periods','members','overview','registries','reports','sprints','teams','tickets')
+            $ids = @('absence-settings','backup','cadence-settings','calendar','capacity-settings','ceremonies-settings','chart-styles-settings','closures-settings','companies','dashboard','faq','general-settings','holidays-settings','indicator-settings','indicators','jira-settings','kanban-periods','link-settings','links','maintenance-settings','members','overview','registries','registry-settings','reports','security-settings','sprint-page','sprints','teams','tickets','users-settings','working-days-settings')
             foreach ($locale in @('fr','en')) {
               foreach ($id in $ids) {
                 $suffix = "/app/content/help/$locale/$id.md"
@@ -169,7 +168,7 @@ jobs:
               $hits = @($paths | Where-Object { ("/" + $_).EndsWith($suffix) })
               if ($hits.Count -ne 1) { throw "Index Aide absent ou dupliqué dans ZIP : $locale" }
             }
-            Write-Host "PASS : 28 articles FR/EN et 2 index Aide présents dans le ZIP final"
+            Write-Host "PASS : 64 articles FR/EN et 2 index Aide présents dans le ZIP final"
           } finally { $zip.Dispose() }
       - name: Analyser le ZIP final avec Microsoft Defender
         shell: pwsh
