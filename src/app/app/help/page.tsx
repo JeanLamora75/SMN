@@ -102,7 +102,8 @@ export default async function HelpPage({searchParams}:{searchParams:Promise<{art
      </div>}
     </section>
     <div className="smn-help-grid mb-4">
-     {sections.map(section=>{
+     {([["getting-started","modules"],["troubleshooting","configuration"]] as const).map((column,index)=><div className="smn-help-column" key={index}>
+      {column.map(id=>sections.find(section=>section.id===id)!).map(section=>{
       const items=visible.filter(item=>item.section===section.id);
       return <section key={section.id} className="smn-panel rounded-4 p-4 smn-help-family">
        <h2 className="h5 d-flex gap-2 align-items-center mb-3">
@@ -154,7 +155,8 @@ export default async function HelpPage({searchParams}:{searchParams:Promise<{art
         </li>)}
        </ul>:<p className="text-secondary mb-0">{t("empty")}</p>}
       </section>;
-     })}
+      })}
+     </div>)}
     </div>
     <HelpSetupChecklist steps={setupSteps}/>
    </>
