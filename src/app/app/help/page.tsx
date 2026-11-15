@@ -5,6 +5,7 @@ import {canAccess} from "@/server/access-policy";
 import {withSessionReadDb} from "@/server/auth/database";
 import {readAccountDashboard} from "@/server/dashboard/read";
 import {helpCatalog,type HelpSection,type HelpMode} from "@/lib/help-catalog";
+import {settingsCatalog} from "@/lib/settings-catalog";
 import {helpSetupSteps} from "@/lib/help-setup";
 import HelpSetupChecklist from "./help-setup-checklist";
 import {loadHelpContent} from "@/server/help-content";
@@ -107,7 +108,45 @@ export default async function HelpPage({searchParams}:{searchParams:Promise<{art
        <h2 className="h5 d-flex gap-2 align-items-center mb-3">
         <BootstrapIcon name={section.icon}/>{t(section.key)}
        </h2>
-       {items.length?<ul className="list-unstyled mb-0">
+       {section.id==="configuration"?(()=>{
+        const map:Readonly<Record<string,string>>={
+         preferences:"general-settings",languages:"general-settings",appearance:"general-settings",
+         teams:"teams",companies:"companies",cadence:"cadence-settings",
+         ceremonies:"ceremonies-settings",capacity:"capacity-settings",
+         indicators:"indicator-settings",registries:"registry-settings",links:"link-settings",
+         jira:"jira-settings",workingDays:"working-days-settings",
+         holidays:"holidays-settings",closures:"closures-settings",absences:"absence-settings",
+         chartStyles:"chart-styles-settings",users:"users-settings",
+         security:"security-settings",maintenance:"maintenance-settings"
+        };
+        const allowed=new Set(items.map(item=>item.id));
+        const seen=new Set<string>();
+        const groups=settingsCatalog(mode,account).map(group=>({
+         ...group,articles:group.entries.flatMap(entry=>{
+          const id=map[entry.id];
+          if(!id||!allowed.has(id)||seen.has(id))return [];
+          seen.add(id);
+          return [{id,status:entry.status}];
+         })
+        })).filter(group=>group.articles.length>0);
+        return groups.length?<div className="smn-help-settings-groups">
+         <p className="smn-help-settings-intro">{locale==="fr"
+          ?"Retrouvez une aide dédiée à chaque rubrique des Paramètres. Les réglages généraux, la langue et l’apparence sont regroupés dans un seul guide."
+          :"Find a guide for each Settings entry. General preferences, language and appearance are grouped into one guide."}</p>
+         {groups.map(group=><div key={group.id} className="smn-help-settings-group">
+          <h3 className="smn-help-settings-group-title">{translate(locale,group.label)}</h3>
+          <ul className="list-unstyled mb-0">
+           {group.articles.map(article=><li key={article.id} className="mb-2">
+            <Link href={`/app/help?article=${encodeURIComponent(article.id)}`} className="smn-help-article-link">
+             <span>{titleFor(article.id)}{article.status==="planned"||article.status==="not-applicable"?
+              <small className="smn-help-settings-status">{translate(locale,article.status==="planned"?"settingsCatalog.status.planned":"settingsCatalog.status.not-applicable")}</small>:null}</span>
+             <BootstrapIcon name="arrow-right"/>
+            </Link>
+           </li>)}
+          </ul>
+         </div>)}
+        </div>:<p className="text-secondary mb-0">{t("empty")}</p>;
+       })():items.length?<ul className="list-unstyled mb-0">
         {items.map(item=><li key={item.id} className="mb-2">
          <Link href={`/app/help?article=${encodeURIComponent(item.id)}`} className="smn-help-article-link">
           {titleFor(item.id)}<BootstrapIcon name="arrow-right"/>
