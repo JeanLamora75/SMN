@@ -3,7 +3,7 @@
 **Agent responsable :** Camille — documentation utilisateur BMAD  
 **Date de consultation :** 2026-11-15  
 **Périmètre :** six guides Markdown FR/EN, deux index de recherche, suite de tests et CI dédiée  
-**État CI :** consulter le run [43690576483](https://github.com/JeanLamora75/SMN/actions/runs/43690576483), sa conclusion terminale fait seule foi.
+**État CI :** [run final 43690693920](https://github.com/JeanLamora75/SMN/actions/runs/43690693920) — **success** ; index, contrats (dont AU-05), Chromium trois fois, TypeScript, i18n et build validés. Le [premier run 43690576483](https://github.com/JeanLamora75/SMN/actions/runs/43690576483) a échoué sur une assertion de test qui utilisait `template` au lieu de la clé réelle `model` ; assertion corrigée, sans changement des guides.
 
 ## Diagnostic
 
@@ -29,7 +29,7 @@ Les index `content/help/.index/fr.json` et `en.json` ont été mis à jour avec 
 
 Nouveau test bloquant `tests/help-au05-functional-guides.test.ts` : comparaison des guides aux vrais composants, à leurs options et aux droits, lecture FR/EN et vérification d'index à jour. Inclus dans `.github/workflows/help-quality.yml` avec les tests antérieurs AU-01 à AU-04, Chromium, i18n, typecheck et build.
 
-**Preuve CI :** [GitHub Actions run 43690576483](https://github.com/JeanLamora75/SMN/actions/runs/43690576483). Ne pas déclarer vert si la conclusion est encore inconnue.
+**Preuve CI :** [GitHub Actions run 43690693920](https://github.com/JeanLamora75/SMN/actions/runs/43690693920), conclusion **success**, exécution complète. Tests de fixtures Chromium, pas un parcours authentifié sur Windows.
 
 ## Hypothèses exclues et limites
 
