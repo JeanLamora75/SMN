@@ -74,8 +74,18 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
      result.error==="invalid-input"?tr("invalid"):tr("error");
     setFeedback({type:"error",message});return;
    }
-   await reload(result.id??"new");
-   setFeedback({type:"success",message:tr(action==="create"?"saved":action==="update"?"updated":action==="activate"?"activated":"deactivated")});
+   const success=tr(action==="create"?"saved":action==="update"?"updated":action==="activate"?"activated":"deactivated");
+   try{await reload(result.id??"new");}
+   catch{
+    // A successful write must not be treated as a failed save if the refresh fails.
+    if(action==="create"||action==="update"){
+     setSelected(result.id??selected);
+     setBaseline({...draft});
+    }
+    setFeedback({type:"success",message:success+" "+tr("refreshFailed")});
+    return;
+   }
+   setFeedback({type:"success",message:success});
   }catch{setFeedback({type:"error",message:tr("error")});}
   finally{setBusy(false);}
  }
