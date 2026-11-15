@@ -94,6 +94,10 @@ test("template page exposes a single text notepad, unsaved warning and no techni
  assert.match(page,/canAccess\(account,"write"/);
  assert.match(api,/authorizeApi\(req,"write",scope\)/);
  assert.match(api,/readJsonObject\(req,900000\)/);
+ const preparation=source("src/app/app/admin/ai-briefs/prepare/page.tsx");
+ assert.match(preparation,/newFormatOnly/);
+ assert.match(preparation,/item\.sections\[0\]==="Prompt libre"/);
+ assert.match(preparation,/t\.active&&!newFormatOnly\(t\)/);
 });
 
 test("labels cover the same strings in French and English",()=>{
