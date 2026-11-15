@@ -95,7 +95,7 @@ export function HelpContextButton({articleId,screenTitle,className=""}:{
  },[open,articleId]);
 
  return <>
-  <button ref={opener} type="button" className={className||"btn btn-outline-secondary d-inline-flex align-items-center gap-2"}
+  <button ref={opener} type="button" className={(className||"btn d-inline-flex align-items-center gap-2")+" smn-help-header-button"}
    onClick={launch}>
    <BootstrapIcon name="question-circle"/>{t("navigation.entries.help")}
   </button>
