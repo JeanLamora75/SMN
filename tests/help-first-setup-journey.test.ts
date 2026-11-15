@@ -73,6 +73,32 @@ describe("Camille + Sally — eight-step first-time configuration journey",()=>{
   assert.deepEqual(parseHelpSetupProgress('{"version":1,"steps":{"team":"done","calendar":"in_progress"}}'),
    {team:"done",calendar:"in_progress"});
  });
+ it("checks existing teams and members before proposing conditional creation",async()=>{
+  const install=await readFile("src/server/installation/install.ts","utf8");
+  assert.match(install,/INSERT INTO public\.smn_account/);
+  assert.doesNotMatch(install,/INSERT INTO public\.smn_team\s*\(/);
+  assert.doesNotMatch(install,/INSERT INTO public\.smn_member\s*\(/);
+  const teamEditor=await readFile("src/app/app/admin/settings/teams/teams-settings.tsx","utf8");
+  assert.match(teamEditor,/const valuesFrom=\(team:Team\)/);
+  assert.match(teamEditor,/teamSettings\.editTeam/);
+  assert.match(teamEditor,/teamSettings\.newTeam/);
+  for(const locale of ["fr","en"] as const){
+   const guide=await files(locale);
+   const teamGuide=await readFile(path.join(root,locale,"teams.md"),"utf8");
+   const membersGuide=await readFile(path.join(root,locale,"members.md"),"utf8");
+   const step2=guide.slice(guide.indexOf(locale==="fr"?"## Étape 2":"## Step 2"),guide.indexOf(locale==="fr"?"## Étape 3":"## Step 3"));
+   const step3=guide.slice(guide.indexOf(locale==="fr"?"## Étape 3":"## Step 3"),guide.indexOf(locale==="fr"?"## Étape 4":"## Step 4"));
+   assert.match(step2,locale==="fr"?/équipe est déjà présente/:/team already exists/);
+   assert.match(step2,locale==="fr"?/aucune équipe utilisable/:/no usable team/);
+   assert.match(step3,locale==="fr"?/membres déjà présents/:/existing members first/);
+   assert.match(step3,locale==="fr"?/uniquement si une personne manque/:/only if someone is missing/);
+   assert.match(teamGuide,locale==="fr"?/personnaliser/:/customize/);
+   assert.match(membersGuide,locale==="fr"?/doublon/:/duplicate/);
+  }
+  const copy=await readFile("src/app/app/help/help-setup-copy.ts","utf8");
+  assert.match(copy,/Vérifier et personnaliser l’équipe/);
+  assert.match(copy,/Review and customize the team/);
+ });
  it("keeps both language-specific indexes synchronized",async()=>{
   assert.deepEqual((await buildHelpIndexes({check:true})).map(x=>x.locale),["en","fr"]);
  });
