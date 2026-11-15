@@ -8,14 +8,14 @@ import {manageBriefTemplate} from "../src/server/ai-briefs/templates";
 const source=(path:string)=>readFileSync(path,"utf8");
 const valid={title:"Bilan",description:"",promptText:"Analyse {{SPRINT_NAME}}.\nRisques :\n{{ROW:RISKS}}"};
 
-function database(revision=2){
+function database(revision=2,hasPrompt=true){
  const sql:string[]=[];
  const params:unknown[][]=[];
  const db={query:async (q:string,p:unknown[]=[])=>{
   sql.push(q);params.push(p);
   if(q.includes("FROM public.smn_installation"))return{rows:[{id:"singleton"}]};
   if(q.includes("FROM pg_class"))return{rows:[{name:"smn_ai_brief_template"}]};
-  if(q.includes("information_schema.columns"))return{rows:[{present:true}]};
+  if(q.includes("information_schema.columns"))return{rows:[{present:hasPrompt}]};
   if(q.includes("SELECT revision FROM"))return{rows:[{revision}]};
   return{rows:[]};
  }} as unknown as Client;
@@ -63,6 +63,14 @@ test("revision conflict rolls back without changing the saved prompt",async()=>{
  assert.deepEqual(result,{ok:false,error:"conflict"});
  assert.ok(sql.includes("ROLLBACK"));
  assert.ok(!sql.some(q=>q.includes("SET title")));
+});
+
+test("a new free-text model cannot be written on an un-migrated database",async()=>{
+ const {db,sql}=database(2,false);
+ const result=await manageBriefTemplate(db,"author",{action:"create",template:valid});
+ assert.deepEqual(result,{ok:false,error:"schema-upgrade-required"});
+ assert.ok(sql.includes("ROLLBACK"));
+ assert.ok(!sql.some(q=>q.includes("INSERT INTO public.smn_ai_brief_template")));
 });
 
 test("protected native models cannot be mutated by identifier",async()=>{
