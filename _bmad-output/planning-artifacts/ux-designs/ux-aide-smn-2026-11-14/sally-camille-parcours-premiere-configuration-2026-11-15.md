@@ -65,3 +65,22 @@ Le README d'installation dans le ZIP est **hors périmètre**, à traiter plus t
 - Ne pas publier un README d'installation Windows dans le ZIP sans demande ultérieure.
 
 **Validation GitHub :** [CI suite Aide après refonte](https://github.com/JeanLamora75/SMN/actions/runs/43708047287), résultat terminal à vérifier avant attestation.
+
+## Révision du 15 novembre 2026 — partir des données réellement présentes
+
+**Déclencheur :** retour utilisateur sur l'étape 2 qui demandait systématiquement de créer une équipe, alors que certaines installations déjà utilisées peuvent présenter une équipe et trois membres.
+
+**Vérification des sources de l'installation :**
+
+- `src/server/installation/install.ts` (native v33) : le SQL initialise `smn_installation`, le compte `smn_account`, `smn_general_settings` et les migrations. **Aucune insertion de `smn_team` ou `smn_member`** dans ce parcours ; le code ne confirme pas un préchargement systématique de trois membres.
+- `src/server/bootstrap/job.ts` appelle `installExpress` et n'ajoute pas de données de démonstration.
+- `docs/installation-native-v32-reference.md` et `docs/installation-v32-etape2.md` indiquent explicitement qu'aucune équipe n'est créée automatiquement dans la version v32 native.
+- `docs/DISTRIBUTION-WINDOWS.md` prévoit un paquet vierge de tout cluster ou jeu de données personnel préinitialisé.
+- `src/app/app/admin/settings/teams/teams-settings.tsx` : sélection de l'équipe existante, modal d'édition, champs nom, mode Agile, produit, vision et objectif, verrouillage possible du changement de mode. La création est une action **distincte**.
+- `src/app/app/admin/members/team-overview.tsx` : consultation active/inactive, ouverture de fiches et ajout de membre séparé.
+
+**Décision UX de Sally :** le parcours doit fonctionner sans avoir besoin de connaître le nombre d'équipes ou de membres au premier lancement. Il commence par **inspecter les données**, propose la **personnalisation de l'existant** et n'oriente vers **Créer** ou **Ajouter** qu'après vérification de l'absence de données utilisables. Il ne suggère pas de supprimer ou remplacer une équipe déjà configurée.
+
+**Modifications de Camille :** `overview.md`, `teams.md` et `members.md` en FR/EN ; `help-setup-copy.ts` pour les intitulés de checklist ; index FR/EN. Les huit étapes et leur clé de progression restent inchangées. Des tests du parcours vérifient ce contrat et l'absence d'insertion automatique de membres/équipes dans l'installateur natif.
+
+**Limite explicitée :** le contenu exact de **la distribution ZIP déjà installée sur le PC utilisateur** n'a pas été inspecté. Il est donc impossible d'affirmer ou de réfuter depuis GitHub que ce PC possède une équipe et trois profils. Ce nombre ne doit pas être publié comme invariant d'une installation neuve.
