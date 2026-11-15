@@ -22,7 +22,7 @@ describe("AU-05 — verified operational guides for Reports, Members and General
   assert.match(page,/const tabs=\["reports","templates","tags","archives"\]/);
   assert.match(page,/account\.role==="admin"&&!scoped&&<NewReportForm/);
   assert.match(create,/tr\("newReport"\)/);
-  for(const v of ["sprint","template","title","language"])assert.ok(create.includes('tr("'+v+'")'));
+  for(const v of ["sprint","model","title","language"])assert.ok(create.includes('tr("'+v+'")'));
   for(const action of ['action:"save"','action:"download"'])assert.ok(office.includes(action));
   assert.match(office,/officeOverwriteConfirm/);
   assert.match(tags,/\["scalar","indicator","row","chart"\]/);
