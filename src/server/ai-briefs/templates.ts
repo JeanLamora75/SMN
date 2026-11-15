@@ -31,7 +31,7 @@ export async function manageBriefTemplate(db:Client,actorId:string,raw:unknown){
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false as const,error:"invalid-input"};
  const v=raw as Record<string,unknown>;
  if(!["create","update","deactivate","activate"].includes(String(v.action)))return {ok:false as const,error:"invalid-input"};
- const textDraft=validatePromptModelDraft(v.template);
+ const textDraft=validatePromptModelDraft(v.template)?v.template:null;
  const oldDraft=validateBriefTemplate(v.template);
  if((v.action==="create"||v.action==="update")&&!textDraft&&!oldDraft)
   return {ok:false as const,error:"invalid-input"};
