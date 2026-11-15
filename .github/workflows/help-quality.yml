@@ -27,6 +27,7 @@ on:
       - "tests/help-au05-functional-guides.test.ts"
       - "tests/help-au06-au07-maintenance.test.ts"
       - "tests/help-first-setup-journey.test.ts"
+      - "tests/help-navigation-visual-consistency.test.ts"
       - "src/app/app/admin/members/team-overview.tsx"
       - "src/app/app/team-calendar/team-calendar-view.tsx"
       - "src/app/app/admin/kanban-periods/period-form.tsx"
@@ -84,6 +85,7 @@ jobs:
             tests/help-au05-functional-guides.test.ts \
             tests/help-au06-au07-maintenance.test.ts \
             tests/help-first-setup-journey.test.ts \
+            tests/help-navigation-visual-consistency.test.ts \
             tests/smn-459-help-catalog.test.ts \
             tests/smn-460-help-content.test.ts \
             tests/smn-461-help-center.test.ts \
