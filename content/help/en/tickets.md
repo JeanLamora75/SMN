@@ -1,5 +1,7 @@
 # Tickets: view and import CSV snapshots
 
+Tickets become useful when imported in the right context and format. Follow this guide from preparing your CSV through checking the result in SMN.
+
 ## Open the module
 
 - Open [Tickets](/app/tickets) after selecting a team and cycle in SMN.
