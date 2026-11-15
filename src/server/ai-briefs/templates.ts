@@ -1,9 +1,10 @@
 import {assertAiBriefSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
+import {prepareLegacyBriefPrompt} from "@/lib/ai-brief-legacy-conversion";
 import type {Client} from "pg";
 import {initialBriefTemplates,allowedBriefFields,type BriefMode} from "@/lib/ai-brief-templates";
 
-export type ManagedBriefTemplate={id:string;title:string;description:string;sections:string[];questions:string[];instructions:string[];data:string[];depth:number;revision:number;active:boolean;builtin:boolean};
+export type ManagedBriefTemplate={id:string;title:string;description:string;promptText:string|null;sections:string[];questions:string[];instructions:string[];data:string[];depth:number;revision:number;active:boolean;builtin:boolean};
 const builtins:ManagedBriefTemplate[]=initialBriefTemplates.map(t=>({...t,sections:[...t.sections],questions:[...t.questions],instructions:[...t.instructions],data:[...t.data],depth:2,revision:0,active:true,builtin:true}));
 const validStrings=(v:unknown,max=30):v is string[]=>Array.isArray(v)&&v.length<=max&&v.every(x=>typeof x==="string"&&x.trim().length>0&&x.length<=500);
 export function validateBriefTemplate(value:unknown):value is Omit<ManagedBriefTemplate,"id"|"revision"|"active"|"builtin">{
@@ -20,7 +21,9 @@ async function ensureSchema(db:Client){
 export async function listBriefTemplates(db:Client):Promise<ManagedBriefTemplate[]>{
  const exists=await db.query<{found:boolean}>(`SELECT to_regclass('public.smn_ai_brief_template') IS NOT NULL AS found`);
  if(!exists.rows[0]?.found)return builtins;
- const result=await db.query<Omit<ManagedBriefTemplate,"builtin">>(`SELECT id::text,title,description,sections,questions,instructions,data,depth,revision,active FROM public.smn_ai_brief_template ORDER BY title,id`);
+ const column=await db.query<{present:boolean}>(`SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_ai_brief_template' AND column_name='prompt_text') AS present`);
+ const promptSelect=column.rows[0]?.present?'prompt_text AS "promptText"':'NULL::text AS "promptText"';
+ const result=await db.query<Omit<ManagedBriefTemplate,"builtin">>(`SELECT id::text,title,description,${promptSelect},sections,questions,instructions,data,depth,revision,active FROM public.smn_ai_brief_template ORDER BY title,id`);
  return [...builtins,...result.rows.map(x=>({...x,builtin:false}))];
 }
 export async function manageBriefTemplate(db:Client,actorId:string,raw:unknown){
