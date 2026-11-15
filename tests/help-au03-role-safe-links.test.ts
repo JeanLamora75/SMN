@@ -24,7 +24,8 @@ describe("AU-03 — rights-aware links in shared FR/EN guides",()=>{
      assert.equal(result.status,"ready",locale+"/"+mode+"/"+article.id);
      if(result.status!=="ready")continue;
      for(const link of directLinks(result.markdown)){
-      assert.ok(allowedRoutes.has(link),
+      assert.ok(allowedRoutes.has(link.split("?")[0])&&
+       (!link.includes("?")||link==="/app/help?article=overview"&&articles.some(a=>a.id==="overview")),
        locale+"/"+mode+"/"+article.id+" has inaccessible or mismatched link "+link);
      }
     }
@@ -46,7 +47,7 @@ describe("AU-03 — rights-aware links in shared FR/EN guides",()=>{
    assert.ok(directLinks(docs.overview).includes("/app/tickets"));
    assert.ok(directLinks(docs.overview).includes("/app/reports"));
    assert.ok(directLinks(docs.calendar).includes("/app/team-calendar"));
-   assert.ok(directLinks(docs.faq).includes("/app/help"));
+   assert.ok(directLinks(docs.faq).includes("/app/help?article=overview"));
    assert.ok(directLinks(docs.indicators).includes("/app/admin/indicators"));
    if(locale==="fr"){
     assert.match(docs.overview,/administrateur/);
