@@ -1,5 +1,7 @@
 # Registers: risks, impediments, dependencies, decisions, actions and highlights
 
+An early risk or a well-recorded decision can prevent confusion later. Use registries to make important team information visible and actionable.
+
 ## Access registers
 
 Open [Registers](/app/admin/registries) after selecting a team your account can access. The data shown depends on the team and, when offered, the selected cycle.
