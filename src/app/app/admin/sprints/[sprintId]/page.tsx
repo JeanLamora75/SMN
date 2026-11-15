@@ -20,6 +20,7 @@ import BootstrapIcon from "../../../bootstrap-icon";
 import SprintDetailEditor from "./sprint-detail-editor";
 import SprintClosureAction from "./sprint-closure-action";
 import SprintDetailTabs from "./sprint-detail-tabs";
+import {HelpContextButton} from "../../../help/help-context-button";
 import SprintGoalsPanel from "./sprint-goals-panel";
 import UniversalIndicatorInput from "../../indicators/universal-input";
 import {indicatorTeams} from "@/server/indicators/team-access";
@@ -135,7 +136,7 @@ export default async function SprintDetailPage({params,searchParams}:{
       </div>
      </div>
     </div>
-    <div className="d-flex gap-2 align-items-center flex-wrap">{canManage&&<Link className="btn btn-outline-primary btn-sm" href={"/app/admin/ai-briefs/prepare?"+new URLSearchParams({mode:"scrum",id:cycle.id}).toString()}>Générer un brief IA</Link>}{canManage&&<Link className="btn btn-outline-primary btn-sm" href={"/app/admin/sprints/"+encodeURIComponent(cycle.id)+"/report"}>{t("sprintReportPrepare.launch")}</Link>}
+    <div className="d-flex gap-2 align-items-center flex-wrap"><HelpContextButton articleId="sprint-page" screenTitle={locale==="fr"?"Page de sprint":"Sprint page"} className="btn btn-light btn-sm d-inline-flex align-items-center gap-2"/>{canManage&&<Link className="btn btn-outline-primary btn-sm" href={"/app/admin/ai-briefs/prepare?"+new URLSearchParams({mode:"scrum",id:cycle.id}).toString()}>Générer un brief IA</Link>}{canManage&&<Link className="btn btn-outline-primary btn-sm" href={"/app/admin/sprints/"+encodeURIComponent(cycle.id)+"/report"}>{t("sprintReportPrepare.launch")}</Link>}
     <SprintClosureAction sprintId={cycle.id} teamId={teamId} status={status} canManage={canManage}/></div>
    </header>
   </div>
