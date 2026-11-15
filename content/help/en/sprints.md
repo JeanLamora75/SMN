@@ -1,10 +1,12 @@
 # Prepare your first Scrum sprint
 
-## Prerequisites
+A well-prepared sprint gives the team a clear frame for work. Check existing cycles first, then prepare the one you need before tracking progress.
+
+## Before you begin
 
 You need access to a Scrum team. Creation operations require appropriate privileges. This guide does not apply to Kanban.
 
-## Steps
+## Follow the steps
 
 - Open [Sprints](/app/admin/sprints).
 - Select the relevant Scrum team.
