@@ -74,3 +74,9 @@ Exemples recensés : `/app/admin/sprints/[sprintId]`, `/app/admin/registries/[id
 Préparer avec Sally/Camille les guides ciblés pour les sous-pages Paramètres encore sans aide ; faire implémenter les raccordements par Amelia, puis prioriser les écrans de détail utilisés fréquemment (sprint, registre, rapport, fiche membre). Murat devra valider une recette navigateur réelle sous les deux thèmes, en FR/EN et en mobile avant de considérer le rendu pleinement qualifié.
 
 **Limites :** audit statique de GitHub ; pas de capture utilisateur contrôlée ni de session authentifiée exécutée ici. Aucun script `uv` exécuté. Aucun ticket Jira modifié.
+
+## Résultat CI terminal — 2026-11-15
+
+- [GitHub Actions — run 43715059272](https://github.com/JeanLamora75/SMN/actions/runs/43715059272) : **success**, après correction de l’assertion AU-03 restée sur 14 guides. Contrôles des index FR/EN, contrats Aide et permissions, 3 passages Chromium, TypeScript/i18n et build de production réussis.
+- [Run initial rouge 43714964763](https://github.com/JeanLamora75/SMN/actions/runs/43714964763) : échec sur une assertion de comptage de guides obsolète, corrigée sans modification fonctionnelle supplémentaire.
+- La réussite CI confirme le comportement sous fixtures et les contrats, **pas** une revue visuelle authentifiée des 63 pages.
