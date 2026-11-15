@@ -4,7 +4,9 @@ import {createElement,Fragment,type ReactNode} from "react";
  * Raw HTML is ALWAYS plain text. External and non-http(s) links are never created.
  */
 function safeRoute(href:string):boolean{
- return /^\/app(?:\/[a-z0-9][a-z0-9/_-]*)?(?:#[a-z0-9_-]+)?$/i.test(href);
+ // AU-06: the canonical first-setup guide is the sole approved query link.
+ return href==="/app/help?article=overview"||
+  /^\/app(?:\/[a-z0-9][a-z0-9/_-]*)?(?:#[a-z0-9_-]+)?$/i.test(href);
 }
 function inline(text:string):ReactNode[]{
  const nodes:ReactNode[]=[];
