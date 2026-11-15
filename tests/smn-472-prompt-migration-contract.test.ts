@@ -15,3 +15,11 @@ test("database backfill requires explicit backup and refuses unresolved fields",
   assert.match(body,/--check/);
   assert.doesNotMatch(body,/DROP COLUMN|DELETE FROM/);
 });
+
+test("native Windows setup runs the additive prompt migration atomically", () => {
+  const installer=readFileSync("src/server/installation/install.ts","utf8");
+  const packaging=readFileSync("scripts/windows/package-portable.mjs","utf8");
+  assert.match(installer,/20261115_smn472_prompt_text/);
+  assert.match(packaging,/prisma\/migrations\/20261115_smn472_prompt_text\/migration\.sql/);
+  assert.ok(installer.indexOf("20261115_smn472_prompt_text")<installer.indexOf('await client.query("COMMIT");transaction=false'));
+});
