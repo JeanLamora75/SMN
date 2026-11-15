@@ -4,6 +4,7 @@
 .smn-help-hero p{margin:0}
 .smn-help-eyebrow{font-size:.74rem;letter-spacing:.1em;font-weight:700;opacity:.85}
 .smn-help-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem}
+.smn-help-column{display:flex;flex-direction:column;align-items:stretch;gap:1.25rem;min-width:0}
 .smn-help-center .smn-panel{background-color:var(--bs-body-bg,#fff);border:1px solid var(--smn-border,var(--bs-border-color,#dce3ed));min-width:0}
 .smn-help-family{min-height:155px}
 .smn-help-article-link{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.65rem .8rem;border-radius:.5rem;text-decoration:none;border:1px solid var(--smn-border,var(--bs-border-color,#dce3ed));color:var(--bs-body-color)}
