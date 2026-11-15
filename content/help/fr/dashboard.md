@@ -106,7 +106,7 @@ Commencez avec une disposition simple. Une ligne avec un bloc KPI et un bloc de 
 
 ### Étape B — Entrez en personnalisation
 
-1. Ouvrez le [Dashboard Builder](/app/dashboard-builder) dans le bon contexte d'équipe.
+1. Ouvrez le Dashboard Builder (si votre rôle vous autorise cette configuration) dans le bon contexte d'équipe.
 2. Dans le menu **Actions**, choisissez **Personnaliser**, si votre rôle vous le permet.
 3. Repérez la configuration d'en-tête et les lignes existantes.
 4. Modifiez votre **brouillon** sans risque pour la disposition enregistrée : les changements ne sont appliqués qu'après **Enregistrer**.
