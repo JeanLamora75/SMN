@@ -87,6 +87,11 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
   const briefPromptSql=readFileSync(migrationFile(
    "20261115_smn472_prompt_text","migration.sql"),"utf8");
   await client.query(briefPromptSql);
+  const promptColumn=await client.query<{present:boolean}>(`SELECT EXISTS (
+   SELECT 1 FROM information_schema.columns
+   WHERE table_schema='public' AND table_name='smn_ai_brief_template' AND column_name='prompt_text'
+  ) AS present`);
+  if(promptColumn.rows[0]?.present!==true)throw Error("brief-prompt-schema-missing");
   await client.query("COMMIT");transaction=false;
   // L'installation est acceptée uniquement après diagnostic physique v33.
   const after=classifySnapshot(await probePostgres(uri.toString()));
