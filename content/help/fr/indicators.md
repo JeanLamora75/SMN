@@ -1,6 +1,8 @@
 # Indicateurs dynamiques
 
-## Prérequis
+Les indicateurs permettent de suivre une évolution, pas seulement d'afficher un chiffre. Ce guide vous aide à les lire avec le bon contexte et à identifier leurs sources.
+
+## Avant de commencer
 
 Vous devez être connecté et disposer d'au moins une équipe autorisée. Les modifications du catalogue et des permissions dépendent de votre rôle.
 
