@@ -1,10 +1,12 @@
 # Préparer le premier sprint Scrum
 
-## Prérequis
+Un sprint bien préparé offre un cadre clair à l'équipe. Vérifiez les sprints existants avant de préparer le suivant.
+
+## Avant de commencer
 
 Vous devez avoir accès à une équipe Scrum. Les opérations de création exigent les droits appropriés. Ce guide ne s'applique pas au mode Kanban.
 
-## Étapes
+## Suivez le parcours
 
 - Ouvrez [Sprints](/app/admin/sprints).
 - Sélectionnez l'équipe Scrum concernée.
