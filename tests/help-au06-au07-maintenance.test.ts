@@ -57,7 +57,7 @@ describe("AU-06 — FAQ deep link to first-time setup",()=>{
    const index=JSON.parse(await read(path.join(root,".index",locale+".json")));
    const faq=index.articles.find((x:{id:string})=>x.id==="faq");
    assert.ok(faq);
-   assert.equal(index.articles.length,14);
+   assert.equal(index.articles.length,16);
    assert.ok(faq.searchText.includes(locale==="fr"?"configuration":"first time setup"));
   }
  });
@@ -74,7 +74,7 @@ describe("AU-07 — maintainers get current accurate test and offline contracts"
   ]);
   assert.match(readme,/node scripts\/build-help-index\.mjs --check/);
   assert.match(script,/export async function buildHelpIndexes/);
-  assert.match(readme,/14 articles canoniques/);
+  assert.match(readme,/16 articles canoniques/);
   assert.match(readme,/localStorage/);
   assert.match(readme,/sans.*(Internet|réseau)|sans accès Internet/i);
   assert.match(readme,/pas encore qualifié|pas une installation réelle/i);
