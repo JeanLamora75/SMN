@@ -14,7 +14,8 @@ describe("SMN — navigation latérale, second lot (six menus et Paramètres)",(
    const groups=privateNavigation("scrum",role);
    assert.deepEqual(groups[0].entries.map(e=>e.id),ids);
    assert.deepEqual(groups[0].entries.map(e=>translate("fr",e.label)),labels);
-   assert.equal(groups.length,role==="admin"?2:1);
+   assert.equal(groups.length,role==="admin"?3:2);
+   assert.deepEqual(groups[1].entries.map(e=>e.id),["help"]);
    const all=groups.flatMap(g=>g.entries);
    assert.deepEqual(all.slice(0,8).map(e=>e.id),ids);
    assert.ok(!all.some(e=>["reviews","briefs","security","events"].includes(e.id)));
@@ -24,7 +25,7 @@ describe("SMN — navigation latérale, second lot (six menus et Paramètres)",(
   const entries=privateNavigation("scrum","admin").flatMap(g=>g.entries);
   assert.deepEqual(entries.map(e=>e.href),[
    "/app","/app/admin/members","/app/admin/sprints","/app/tickets",
-   "/app/team-calendar","/app/admin/registries","/app/admin/links","/app/reports","/app/admin/settings"
+   "/app/team-calendar","/app/admin/registries","/app/admin/links","/app/reports","/app/help","/app/admin/settings"
   ]);
   assert.equal(entries.filter(e=>e.id==="settings").length,1);
   assert.equal(activePrivateEntry("/app/admin/registries/example",entries[5]),true);
