@@ -1,5 +1,7 @@
 # General settings: language, appearance and calendar reference
 
+Make SMN feel right for your everyday work. Language, appearance and calendar settings help keep the interface comfortable and consistent.
+
 ## Access and prerequisites
 
 Open [General settings](/app/admin/settings/general) using an authorized administrator account. Settings are saved by this business form, not by the Help center.
@@ -28,6 +30,6 @@ Agile mode and product are fixed information in this form; they cannot be edited
 - **Pending edits**: save or discard your changes before leaving; SMN warns about unsaved drafts.
 - **Access denied**: a user without administrative rights must not attempt to change settings.
 
-## Final check
+## Check the result
 
 Confirm the intended values are saved and displayed. The Help center checklist does not validate settings automatically: mark **general** done only after your own review.
