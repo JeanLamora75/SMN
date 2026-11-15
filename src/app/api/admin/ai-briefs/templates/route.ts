@@ -14,7 +14,8 @@ export async function GET(req:NextRequest){
 export async function POST(req:NextRequest){
  const actor=await authorizeApi(req,"write",scope);
  if(!actor)return jsonResult({error:"forbidden"},403);
- const data=await readJsonObject(req);
+ // Free-text prompts can contain long multiline instructions; keep a bounded request body.
+ const data=await readJsonObject(req,900000);
  if(!data)return jsonResult({error:"invalid-input"},400);
  try{
   const result=await withAuthDb(db=>manageBriefTemplate(db,actor.id,data));
