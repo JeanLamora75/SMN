@@ -1,10 +1,12 @@
 # Vérifier les sauvegardes SMN
 
-## Prérequis
+Une bonne sauvegarde, c’est celle que vous savez retrouver et vérifier. Voici comment contrôler vos archives sans risquer de restaurer des données par erreur.
+
+## Avant de commencer
 
 L'accès aux sauvegardes nécessite les autorisations correspondantes.
 
-## Étapes
+## Suivez le parcours
 
 - Ouvrez [Paramètres > Maintenance](/app/admin/settings/maintenance).
 - Accédez à l'onglet des sauvegardes s'il est disponible pour votre compte.
