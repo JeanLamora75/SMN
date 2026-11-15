@@ -2,8 +2,14 @@ import {readdir,readFile,lstat} from "node:fs/promises";
 import path from "node:path";
 
 export const REQUIRED_HELP_ARTICLES=Object.freeze([
- "backup","calendar","dashboard","faq","general-settings","indicators","jira-settings",
- "kanban-periods","links","members","overview","registries","reports","sprints","teams","tickets"
+ "absence-settings", "backup", "cadence-settings", "calendar",
+ "capacity-settings", "ceremonies-settings", "chart-styles-settings", "closures-settings",
+ "companies", "dashboard", "faq", "general-settings",
+ "holidays-settings", "indicator-settings", "indicators", "jira-settings",
+ "kanban-periods", "link-settings", "links", "maintenance-settings",
+ "members", "overview", "registries", "registry-settings",
+ "reports", "security-settings", "sprint-page", "sprints",
+ "teams", "tickets", "users-settings", "working-days-settings"
 ]);
 export const REQUIRED_HELP_LOCALES=Object.freeze(["fr","en"]);
 const ARTICLE=/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
