@@ -21,6 +21,12 @@ test("reports unmapped fields rather than silently dropping them", () => {
     title:"Risques",sections:["Risques"],questions:[],instructions:[],
     data:["risks","dependencies","risks","scrum.storyPoints.completed"],depth:2,
   });
-  assert.deepEqual(result.unresolvedFields,["risks","dependencies","scrum.storyPoints.completed"]);
-  assert.doesNotMatch(result.promptText,/{{ROW:RISKS}}/);
+  assert.deepEqual(result.unresolvedFields,["scrum.storyPoints.completed"]);
+  assert.match(result.promptText,/{{ROW:RISKS}}/);
+  assert.match(result.promptText,/{{ROW:DEPENDENCIES}}/);
+});
+
+test("preserves historical depth as explicit prompt instruction", () => {
+  const result=prepareLegacyBriefPrompt({title:"Historique",sections:["Contexte"],questions:[],instructions:[],data:[],depth:5});
+  assert.match(result.promptText,/jusqu’à 5 cycles clôturés/);
 });
