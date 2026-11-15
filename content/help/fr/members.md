@@ -1,18 +1,44 @@
-# Configurer les membres et leurs affectations
+# Membres : consulter les profils et gérer les affectations
 
-## Prérequis
+## Prérequis et droits
 
-Une équipe doit exister. La consultation des membres nécessite un accès autorisé ; leur modification exige les droits de gestion.
+Une équipe doit exister. Ouvrez [Équipe / Membres](/app/admin/members) avec un compte autorisé. Le guide détaillé de configuration est destiné aux administrateurs ; les actions de création, de modification et de gestion des affectations ne sont proposées que si votre compte possède les droits nécessaires.
 
-## Étapes
+## Repérer les membres de l'équipe
 
-- Ouvrez [Équipe / Membres](/app/admin/members).
-- Sélectionnez la bonne équipe si plusieurs sont accessibles.
-- Consultez les membres actifs et inactifs.
-- Si les actions sont accessibles, créez ou modifiez les profils et affectations depuis les formulaires correspondants.
-- Vérifiez les dates d'affectation et les calendriers avant de considérer la configuration comme réalisée.
-- Marquez manuellement **members** terminé dans la checklist.
+1. Sélectionnez l'équipe ou le contexte approprié lorsque plusieurs équipes sont disponibles.
+2. Choisissez la présentation **Cartes** ou **Liste** dans l'en-tête.
+3. Utilisez les filtres **recherche**, **rôle**, **fonction** et **statut** ; appliquez-les avec **Filtrer** ou utilisez la réinitialisation pour revenir à la liste complète.
+4. Consultez séparément les groupes de membres **actifs** et **inactifs**, puis ouvrez la fiche du membre voulu.
+5. Vérifiez le nom, la fonction, la localisation, les rôles et les informations d'affectation affichées. Les éléments visibles varient selon les données renseignées.
 
-## Contrôle
+Le choix Cartes/Liste est mémorisé localement par le navigateur ; il n'affecte pas les affectations métier.
 
-Un membre enregistré n'est pas nécessairement affecté aux bonnes dates. Le Centre d'aide ne crée aucun membre.
+## Créer un membre
+
+Si le bouton d'ajout est disponible dans l'en-tête :
+
+1. Ouvrez le formulaire **Ajouter un membre**.
+2. Renseignez le nom demandé ; si la sélection d'entreprise est proposée, choisissez l'entreprise appropriée.
+3. Validez avec l'action de création et contrôlez l'apparition du membre dans l'équipe.
+4. Ouvrez ensuite sa fiche pour compléter les informations et vérifier ses affectations.
+
+Le bouton peut être absent si votre rôle ne permet pas la création ou si le contexte d'équipe ne remplit pas les conditions du formulaire. L'ajout d'un membre ne prouve pas qu'il soit affecté sur toute la durée du sprint.
+
+## Vérifier le profil et les affectations
+
+- Depuis la fiche du membre, contrôlez les données du profil, la **fonction**, la **ville** et le **pays** lorsqu'ils sont disponibles.
+- Vérifiez les dates de **début** et de **fin** d'affectation et les rôles associés (Scrum Master, Product Owner, Développeur).
+- Une affectation terminée ou inactive ne doit pas être confondue avec un profil supprimé. Consultez les sections actives et inactives pour retrouver les situations historiques.
+- Contrôlez la cohérence des absences et des jours travaillés dans le calendrier de la personne avant d'interpréter sa capacité sur un sprint.
+- Après une modification autorisée, revenez à la fiche ou à la liste pour vérifier le résultat enregistré.
+
+## En cas de problème
+
+- **Membre absent de la liste** : vérifiez l'équipe, les filtres, le statut et la présentation sélectionnée.
+- **Création ou modification inaccessible** : vérifiez votre rôle et les autorisations du contexte ; ne tentez pas de contourner un contrôle.
+- **Dates ou capacité incohérentes** : comparez les affectations et les jours ouvrés du calendrier avant de conclure à une erreur de calcul.
+
+## Contrôle final
+
+L'aide ne crée ni membre ni affectation. Marquez l'étape **members** terminée manuellement dans le Centre d'aide uniquement après avoir contrôlé les profils et leurs périodes d'affectation.
