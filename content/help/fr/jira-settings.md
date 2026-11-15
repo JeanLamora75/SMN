@@ -1,10 +1,12 @@
 # Paramètres Jira
 
-## Prérequis
+La configuration Jira devient plus simple lorsqu'on avance dans l'ordre. Vérifiez chaque réglage avant de vous appuyer sur les échanges de données.
+
+## Avant de commencer
 
 La configuration Jira est réservée à l'administrateur. La page ne garantit pas à elle seule qu'une connexion externe soit accessible dans votre environnement.
 
-## Procédure
+## Étape par étape
 
 - Ouvrez [Paramètres Jira](/app/admin/settings/jira).
 - Examinez les champs et les valeurs proposés dans le formulaire.
