@@ -77,6 +77,6 @@ describe("AU-03 — rights-aware links in shared FR/EN guides",()=>{
  it("has fresh, locale-matched search indexes",async()=>{
   const result=await buildHelpIndexes({check:true});
   assert.deepEqual(result.map(item=>item.locale),["en","fr"]);
-  assert.ok(result.every(item=>item.articles===14));
+  assert.ok(result.every(item=>item.articles===16));
  });
 });
