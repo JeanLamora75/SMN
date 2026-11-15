@@ -24,6 +24,7 @@ on:
       - "tests/help-au02-context-entry.test.ts"
       - "tests/help-au03-role-safe-links.test.ts"
       - "tests/help-au04-registry-documentation.test.ts"
+      - "tests/help-au05-functional-guides.test.ts"
       - "src/app/app/admin/members/team-overview.tsx"
       - "src/app/app/team-calendar/team-calendar-view.tsx"
       - "src/app/app/admin/kanban-periods/period-form.tsx"
@@ -78,6 +79,7 @@ jobs:
             tests/help-au02-context-entry.test.ts \
             tests/help-au03-role-safe-links.test.ts \
             tests/help-au04-registry-documentation.test.ts \
+            tests/help-au05-functional-guides.test.ts \
             tests/smn-459-help-catalog.test.ts \
             tests/smn-460-help-content.test.ts \
             tests/smn-461-help-center.test.ts \
