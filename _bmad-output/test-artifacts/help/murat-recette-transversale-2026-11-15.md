@@ -6,7 +6,7 @@
 
 ## Verdict de qualification
 
-**Qualification automatisée :** en cours de vérification finale sur [GitHub Actions — run 43692353553](https://github.com/JeanLamora75/SMN/actions/runs/43692353553).  
+**Qualification automatisée : RÉUSSIE** sur [GitHub Actions — run 43692353553](https://github.com/JeanLamora75/SMN/actions/runs/43692353553), conclusion terminale **success** (contrats Aide, Chromium ×3, TypeScript, i18n et build).  
 **Recette transversale complète sur installation réelle : NON ACQUISE.** Aucun test authentifié sous Next.js/PostgreSQL réel ni installation Windows ZIP hors connexion n'a été effectué au cours de cette intervention. Ne pas confondre les fixtures Chromium avec de vrais écrans métier.  
 **Recommandation de sortie :** ne pas déclarer la recette utilisateur définitivement validée avant la levée des points bloquants RTE-01 à RTE-04 ci-dessous.
 
