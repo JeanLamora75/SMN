@@ -14,7 +14,7 @@ describe("SMN-464 — contextual help header integration",()=>{
    ["/app/admin/settings","general-settings","scrum"],
    ["/app/admin/settings/teams","teams","scrum"],
    ["/app/admin/settings/jira","jira-settings","scrum"],
-   ["/app/admin/settings/maintenance","backup","scrum"],
+   ["/app/admin/settings/maintenance","maintenance-settings","scrum"],
    ["/app/admin/sprints","sprints","scrum"],
    ["/app/tickets","tickets","kanban"],
    ["/app/reports","reports","scrum"]
