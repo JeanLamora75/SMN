@@ -1,5 +1,7 @@
 # Liens : retrouver et gérer les ressources de l'équipe
 
+Gardez les ressources utiles à portée de main : documents, tableaux et outils d'équipe. Voici comment organiser vos liens pour les retrouver facilement.
+
 ## Accéder aux liens
 
 Ouvrez **Liens** depuis la navigation lorsque votre compte administrateur y est autorisé. Cet écran rassemble les liens liés à l'équipe et les liens transverses accessibles.
