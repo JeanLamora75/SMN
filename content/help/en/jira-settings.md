@@ -1,10 +1,12 @@
 # Jira settings
 
-## Prerequisites
+A useful Jira integration starts with clear settings. Follow the steps in order and verify the configuration before relying on exchanged data.
+
+## Before you begin
 
 Jira configuration is restricted to administrators. Accessing the page does not guarantee that your environment can reach an external Jira service.
 
-## Steps
+## Follow the steps
 
 - Open [Jira settings](/app/admin/settings/jira).
 - Review the fields and current values presented by the form.
