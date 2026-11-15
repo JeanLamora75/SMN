@@ -65,18 +65,18 @@ async function browserFixture(){
  return js.text as string;
 }
 
-test("SMN-464 — Chromium FR: aide Paramètres et Tickets sans perte de filtre/brouillon",
+test("Murat — Chromium: aide sur Paramètres, Tickets, Membres, Calendrier et Périodes Kanban sans perte de brouillon",
  {timeout:90000},async()=>{
  const detected=await detectChrome();
  assert.equal(detected.ok,true,"Chromium requis : aucun test simulé");
  const script=await browserFixture();
- const requests:string[]=[];
+ const requests:{path:string;method:string}[]=[];
  const server=createServer((request,response)=>{
   const path=new URL(request.url??"/","http://localhost").pathname;
   if(path.startsWith("/api/help/articles/")){
-   requests.push(path);
+   requests.push({path,method:request.method??""});
    const id=path.split("/").at(-1);
-   if(id==="tickets"){
+   if(["tickets","members","calendar","kanban-periods"].includes(id??"")){
     response.writeHead(200,{"Content-Type":"application/json"});
     response.end(JSON.stringify({articleId:id,contentLocale:"fr",isFallback:false,
      markdown:"# Tickets\n\nConsultez les tickets de votre sprint."}));
@@ -98,7 +98,10 @@ test("SMN-464 — Chromium FR: aide Paramètres et Tickets sans perte de filtre/
    args:["--no-sandbox","--disable-dev-shm-usage","--no-first-run"]});
   for(const [route,article] of [
    ["/app/admin/settings","general-settings"],
-   ["/app/tickets","tickets"]
+   ["/app/tickets","tickets"],
+   ["/app/admin/members","members"],
+   ["/app/team-calendar","calendar"],
+   ["/app/admin/kanban-periods","kanban-periods"]
   ]){
    const page=await browser.newPage();
    await page.evaluateOnNewDocument("globalThis.__name = (fn) => fn;");
@@ -109,12 +112,15 @@ test("SMN-464 — Chromium FR: aide Paramètres et Tickets sans perte de filtre/
    await page.waitForSelector("header button");
    await page.select("#filter","all");
    await page.type("#draft","En cours de saisie");
+   const before=requests.length;
    await page.click("header button");
    await page.waitForSelector("dialog[open]");
    await page.waitForFunction(()=>document.querySelector("dialog [role=alert]")||
     document.querySelector("dialog .smn-help-article")||
     document.querySelector("dialog h1"));
-   assert.ok(requests.includes("/api/help/articles/"+article));
+   assert.equal(requests.length,before+1,"One request triggered only on button click");
+   assert.equal(requests.at(-1)?.path,"/api/help/articles/"+article);
+   assert.equal(requests.at(-1)?.method,"GET");
    if(article==="general-settings"){
     assert.match(await page.$eval("dialog",node=>node.textContent??""),/indisponible|disponible|Centre d'aide/i);
    }
@@ -122,9 +128,11 @@ test("SMN-464 — Chromium FR: aide Paramètres et Tickets sans perte de filtre/
    await page.waitForFunction(()=>!document.querySelector("dialog[open]"));
    assert.equal(await page.$eval("#filter",node=>(node as HTMLSelectElement).value),"all");
    assert.equal(await page.$eval("#draft",node=>(node as HTMLInputElement).value),"En cours de saisie");
+   assert.equal(await page.evaluate(()=>document.activeElement?.tagName),"BUTTON","Focus restored to opener");
    assert.deepEqual(errors,[]);
    await page.close();
   }
+  assert.ok(requests.every(r=>r.method==="GET"),"Help must not send writes");
  }finally{
   if(browser)await browser.close();
   await new Promise<void>((done,fail)=>server.close(error=>error?fail(error):done()));
