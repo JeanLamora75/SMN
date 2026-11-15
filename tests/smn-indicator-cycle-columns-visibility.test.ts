@@ -13,7 +13,7 @@ test("Le tableau des cycles fournit un accès aux préférences de colonnes",()=
  assert.match(catalog,/t\("indicators\.manageColumns"\)/);
  assert.match(catalog,/#preferences/);
  assert.match(cycles,/smn-indicator-cycle-scroll/);
- assert.match(cycles,/aria-label="Tableau des indicateurs par cycle, défilement horizontal"/);
+ assert.match(cycles,/aria-label=\{t\("indicators\.reporting\.tableScroll"\)\}/);
  assert.match(cycles,/smn-cycle-name-col/);
  assert.match(cycles,/smn-cycle-status-col/);
  assert.match(cycles,/smn-cycle-period-col/);
