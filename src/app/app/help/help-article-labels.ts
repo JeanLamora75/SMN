@@ -2,7 +2,7 @@
 const labels={
  fr:{
   overview:"Première configuration", "general-settings":"Paramètres généraux",
-  teams:"Équipes",members:"Membres",sprints:"Sprints", dashboard:"Tableau de bord",links:"Liens", "kanban-periods":"Périodes Kanban",
+  teams:"Équipes",members:"Membres",sprints:"Sprints", "sprint-page":"Page de sprint", dashboard:"Tableau de bord",links:"Liens", "kanban-periods":"Périodes Kanban",
   tickets:"Tickets / CSV",calendar:"Calendrier",registries:"Registres",reports:"Rapports",
   "companies":"Entreprises",
   "cadence-settings":"Cadence de l'équipe",
@@ -24,7 +24,7 @@ const labels={
  },
  en:{
   overview:"First-time setup","general-settings":"General settings",
-  teams:"Teams",members:"Members",sprints:"Sprints", dashboard:"Dashboard",links:"Links","kanban-periods":"Kanban periods",
+  teams:"Teams",members:"Members",sprints:"Sprints", "sprint-page":"Sprint page", dashboard:"Dashboard",links:"Links","kanban-periods":"Kanban periods",
   tickets:"Tickets / CSV",calendar:"Calendar",registries:"Registers",reports:"Reports",
   "companies":"Companies",
   "cadence-settings":"Team cadence",
