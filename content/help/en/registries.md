@@ -22,7 +22,7 @@ Registers have three complementary purposes:
 4. Select **List** or **Cards** and open a record.
 5. Check its business date, status and related items.
 
-**Decisions**, **actions** and **highlights** are also supported, notably in record details and journals; they do not necessarily have separate main-list tabs.
+The main list of risks, impediments and dependencies focuses on the team's operational topics. **Decisions**, **actions** and **highlights** are also supported, notably in record details and journals; they do not necessarily have separate main-list tabs.
 
 > **Before a review:** check resolved items as well as open ones. An impediment removed during the sprint belongs in the story of the sprint too.
 
@@ -151,3 +151,5 @@ Not every report model includes register data. Available output depends on **tem
 Can you explain **what happened, how serious the risk or impediment was, what the team decided, and which linked actions or records show the outcome?**
 
 If you can retrieve those answers from SMN, your registers are becoming a useful operational history for both team discussions and stakeholder reporting.
+
+**Permanent deletion:** only accounts with the appropriate **management permission** can request record deletion. SMN may refuse when related data must be preserved; deleting a record is not the same as resolving it.
