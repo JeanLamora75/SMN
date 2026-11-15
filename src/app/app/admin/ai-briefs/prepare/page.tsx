@@ -58,7 +58,13 @@ export default async function PrepareAiBrief({searchParams}:{
   "/app/admin/sprints/"+encodeURIComponent(context.id):
   "/app/admin/kanban-periods/"+encodeURIComponent(context.id)+"/report";
  const templates=await withAuthDb(listBriefTemplates);
- const available=templates.filter(t=>t.active);
+ // The legacy TXT composer does not yet interpret prompt_text. Do not offer
+ // prompt-only drafts as legacy briefs until the text-tag adapter is delivered.
+ const newFormatOnly=(item:typeof templates[number])=>!item.builtin&&!!item.promptText&&
+  item.sections.length===1&&item.sections[0]==="Prompt libre"&&item.depth===1&&
+  item.questions.length===0&&item.instructions.length===0&&item.data.length===0;
+ const pending=templates.filter(t=>t.active&&newFormatOnly(t));
+ const available=templates.filter(t=>t.active&&!newFormatOnly(t));
  const selected=available.find(t=>t.id===template)??available[0];
  const fields=allowedBriefFields(scrum?"scrum":"kanban",selected.data);
  const facts=await withAuthDb(db=>readBriefFacts(db,scrum?"scrum":"kanban",context.id)).catch(()=>({}));
@@ -91,6 +97,7 @@ export default async function PrepareAiBrief({searchParams}:{
     <h2 id="brief-templates" className="h5">Modèles de briefs</h2>
     <Link className="btn btn-outline-secondary btn-sm mb-3" href="/app/admin/ai-briefs/templates">Administrer les modèles</Link>
     <p className="text-secondary small">Choisissez un modèle pour consulter sa configuration. Les paramètres sont réutilisables et cette consultation n’enregistre rien.</p>
+    {pending.length>0&&<p className="alert alert-info" role="status">Les nouveaux modèles en texte libre sont enregistrés, mais leur génération attend le moteur de résolution des tags. Ils ne sont pas proposés ici pour éviter de produire un brief incomplet.</p>}
     <div className="d-flex flex-wrap gap-2 mb-3">
      {available.map(item=><Link key={item.id}
       className={item.id===selected.id?"btn btn-primary btn-sm":"btn btn-outline-primary btn-sm"}
