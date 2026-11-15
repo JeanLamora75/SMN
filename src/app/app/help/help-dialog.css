@@ -73,3 +73,39 @@ dialog.smn-help-dialog.smn-cockpit-modal{width:min(860px,calc(100vw - 24px));max
  dialog.smn-help-dialog.smn-cockpit-modal{width:calc(100vw - 12px)}
  .smn-help-dialog .smn-cockpit-modal-body{padding:1.1rem}
 }
+
+/* Help dialog contrast: the surrounding cockpit may use white hero text.
+   Force a readable heading in the white contextual modal, independently of theme. */
+dialog.smn-help-dialog .smn-cockpit-modal-header{
+ background-color:#fff;
+ color:#142b4c;
+ border-bottom:1px solid #dce3ed;
+}
+dialog.smn-help-dialog .smn-cockpit-modal-header :is(h1,h2,h3,.bi,svg){
+ color:#142b4c!important;
+ opacity:1;
+}
+dialog.smn-help-dialog .smn-cockpit-modal-header .btn-close{
+ opacity:.85;
+ filter:none;
+}
+dialog.smn-help-dialog .smn-cockpit-modal-body{
+ background-color:#fff;
+ color:#243247;
+}
+dialog.smn-help-dialog .smn-help-prose{
+ color:#243247;
+}
+dialog.smn-help-dialog .smn-help-prose :is(h1,h2,h3,strong){
+ color:#142b4c!important;
+}
+dialog.smn-help-dialog .smn-help-prose :is(ol>li,blockquote,code){
+ color:#243247;
+ background-color:#f5f8fc;
+}
+dialog.smn-help-dialog .smn-help-prose a{color:#16518f}
+dialog.smn-help-dialog .smn-cockpit-modal-footer{
+ background-color:#fff;
+ color:#243247;
+ border-top:1px solid #dce3ed;
+}
