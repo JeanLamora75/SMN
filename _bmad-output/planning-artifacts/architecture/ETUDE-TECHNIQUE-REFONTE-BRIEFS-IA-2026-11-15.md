@@ -125,3 +125,44 @@ Sally remettra des décisions UX, parcours, états, règles responsive et critè
 - [Référentiel UX SMN](https://github.com/JeanLamora75/SMN/blob/main/docs/UX-REFERENTIEL-BMAD.md)
 
 **Traçabilité :** étude rédigée à partir des validations exprimées dans la conversation du 15/11/2026 et de la lecture statique des fichiers ci-dessus. Aucun script `uv` exécuté ; aucun développement ni migration exécutés.
+
+---
+
+## 8. Complément Winston — Connexions multi-IA gratuites (décisions PO du 16/11/2026)
+
+**Statut :** cadrage technique approuvé sur les principes, conception détaillée et audit de l'implémentation restant à mener. **Aucune nouvelle User Story avant finalisation de la spécification technique et UX.**
+
+### 8.1 Décisions impératives
+
+- L'utilisateur peut enregistrer **plusieurs connexions IA**, y compris plusieurs clés pour un même fournisseur, et choisir la connexion **au moment d'envoyer** le prompt depuis le brief IA.
+- **Modèles IA uniquement gratuits** : pas de sélection, fallback automatique ni appel à un modèle potentiellement facturable. Une offre d'essai limitée par des crédits de paiement n'équivaut pas à un modèle gratuit autorisé. Toute incertitude sur la gratuité entraîne le blocage de l'envoi, avec explication.
+- **Conservation des réponses exclusivement manuelle** : afficher la réponse en session, permettre copie / enregistrement explicite, et ne jamais écrire le contenu de la réponse automatiquement dans les archives, le journal ou une table d'historique. Clarifier la durée de vie temporaire en mémoire et les métadonnées de diagnostic non sensibles.
+- Les modèles de briefs restent des **prompts texte libre avec tags SMN** ; la connexion IA est indépendante et ne doit pas restaurer la complexité du système historique de templates.
+- Les fournisseurs candidats à qualifier sont Gemini, Groq et OpenRouter ; aucun quota ou modèle précis ne doit être considéré garanti dans le temps. Se fonder sur les catalogues documentés et sur un contrôle effectif au moment de l'usage.
+
+### 8.2 Architecture de référence à détailler
+
+1. Catalogue de fournisseurs (adaptateurs de transport et formats de réponse), registre des connexions (libellé, fournisseur, modèle gratuit autorisé, état), et coffre de secrets séparé des données fonctionnelles.
+2. API serveur locale pour créer, tester, désactiver, changer et supprimer une connexion ; ne jamais renvoyer la clé en clair à l'interface. Prévoir droits d'accès et cloisonnement par utilisateur si pertinent ; documenter la politique d'administration et de partage.
+3. Pipeline d'exécution : prompt libre → résolution des tags dans le contexte sprint/équipe → aperçu intégral avec contrôle des données sensibles → validation explicite de transmission du contenu exact → choix de la connexion → validation du caractère gratuit du modèle → appel API côté serveur → réponse affichée sans persistance.
+4. Gestion des erreurs : clé invalide, quota gratuit épuisé, service indisponible, délai dépassé, modèle retiré/devenu payant, réponse trop longue, prompt invalide ; aucun fallback silencieux vers un modèle payant.
+5. Sécurisation : chiffrement authentifié des secrets au repos, séparation et rotation de la clé de chiffrement, exclusion des journaux, suppression vérifiable, protection des erreurs et traces, limites de taille et de durée, contrôle serveur des autorisations. Aucun secret dans les prompts, bundles client, exports non chiffrés ou fichiers de configuration distribués.
+6. Portabilité Windows/ZIP : arbitrer la politique des clés lors d'un export/import entre ordinateurs (ressaisie par défaut ou export de secrets **distinct, optionnel et chiffré avec mot de passe**). Le transfert standard ne doit pas dévoiler les secrets, ni exiger PowerShell. Préserver les autres données et la restauration.
+7. Respecter FR/EN extensible à 6–10 langues, fonctionnement hors ligne pour l'édition des prompts (mais appel distant impossible hors ligne), et architecture sans installation serveur supplémentaire.
+
+### 8.3 Contrat de persistance et conservation
+
+- Une connexion peut être persistée (métadonnées et secret protégé) ; **ne pas assimiler** ce stockage autorisé à l'enregistrement des **réponses**.
+- Par défaut, aucun enregistrement automatique de réponses IA, de contenus de requête distants ni d'historique de conversation. Une action explicite « Enregistrer cette réponse » doit respecter les autorisations, le rattachement au brief et les règles d'archives existantes.
+- La modification du prompt, des tags résolus, du sprint ou de la connexion invalide le consentement antérieur à la transmission ; relecture et confirmation requises.
+- Déterminer la politique des réponses lors d'une navigation/recharge et informer l'utilisateur qu'une réponse non enregistrée peut être perdue.
+- Examiner la compatibilité avec les anciennes réponses IA **déjà enregistrées manuellement** dans SMN : les conserver, sans migration destructive.
+
+### 8.4 Critères de validation avant remise à John
+
+- Audit réel des migrations PostgreSQL, chemins API, droits et mécanismes actuels d'archivage/export/import ; aucune suppression préventive de tables ou colonnes.
+- Matrice fournisseur × modèle : documentation officielle, mode gratuit, quotas, conditions d'usage des données, détection des changements et politique de refus.
+- Tests envisagés : plusieurs clés par fournisseur, choix à l'envoi, refus de modèle payant/inconnu, quota épuisé, absence de persistance sans clic, sauvegarde manuelle et contrôle des droits, confidentialité des tags, chiffrement et restauration sur un nouveau PC.
+- Faire valider la spécification UX correspondante par Sally ; **ne pas créer de nouvelles User Stories et ne pas commencer l'implémentation** avant ce jalon.
+
+**Sources fonctionnelles :** décisions explicites du Product Owner du 16 novembre 2026 ; études BMAD du 15 novembre 2026. **Vérifications officielles à rafraîchir avant implémentation :** https://ai.google.dev/gemini-api/docs/pricing ; https://console.groq.com/docs/rate-limits ; https://openrouter.ai/pricing.
