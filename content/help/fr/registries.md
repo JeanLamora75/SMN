@@ -54,7 +54,7 @@ Une **action** donne une suite concrète à un risque, un obstacle ou une décis
 
 ### Fait marquant : ce qui mérite d'être retenu
 
-Un **fait marquant** conserve un événement important, même s'il ne demande pas d'action. Il peut enrichir le bilan du sprint ou de la période.
+Un **fait marquant** conserve un événement important, même s'il ne demande pas d'action. Son statut est **Enregistré** : il matérialise un fait constaté, sans inventer une progression ou une clôture. Il peut enrichir le bilan du sprint ou de la période.
 
 ## 4. Créez une fiche utile à toute l'équipe
 
