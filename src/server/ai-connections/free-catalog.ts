@@ -55,9 +55,9 @@ export function freeCatalogSnapshot(at:Date=new Date()){
     documentationUrl:"https://console.groq.com/docs/rate-limits",
     evidence:"Listed in Free Plan Limits; billing requires Developer upgrade",
     documentationCheckedAt:"2026-11-16",accountTested:false,selectable:false},
-   {providerId:"openrouter" as const,modelId:"meta-llama/llama-3.3-70b-instruct:free",
-    documentationUrl:"https://openrouter.ai/meta-llama/llama-3.3-70b-instruct:free",
-    evidence:"Specific zero-price model; free variants at most 50/day, 20/min without credits",
+   {providerId:"openrouter" as const,modelId:"inclusionai/ling-3.2-flash:free",
+    documentationUrl:"https://openrouter.ai/inclusionai/ling-3.2-flash:free",
+    evidence:"Listed in public /api/v1/models with prompt=0 and completion=0; free variants 50/day, 20/min without credits",
     documentationCheckedAt:"2026-11-16",accountTested:false,selectable:false}
   ],
   caveat:"An application allowlist cannot guarantee that an externally billable account incurs no charges."
