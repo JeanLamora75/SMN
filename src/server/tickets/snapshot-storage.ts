@@ -79,7 +79,18 @@ async function secureDirectory(directory:string):Promise<void>{
   const portable=value.startsWith("\\\\?\\")?value.slice(4):value;
   return path.win32.normalize(portable).toLowerCase();
  };
- if(canonical(actual)!==canonical(target))throw new TicketStorageError("unsafe-path");
+ if(canonical(actual)!==canonical(target)){
+  // On Windows, realpath can expand 8.3 aliases or profile/volume aliases
+  // despite no link being present. Verify each final component again rather
+  // than rejecting legitimate user-owned directories based on string spelling.
+  if(process.platform!=="win32")throw new TicketStorageError("unsafe-path");
+  let candidate=path.parse(target).root;
+  for(const segment of target.slice(candidate.length).split(path.sep).filter(Boolean)){
+   candidate=path.join(candidate,segment);
+   const stat=await lstat(candidate);
+   if(!stat.isDirectory()||stat.isSymbolicLink())throw new TicketStorageError("unsafe-path");
+  }
+ }
 }
 function folder(scope:TicketScope,root:string):string{
  return path.join(root,scope.teamId,scope.mode,scope.cycleId);
