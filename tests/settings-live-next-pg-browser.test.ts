@@ -124,7 +124,10 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   assert.equal(unauthorized.status,403);
   const ceremonyPage=await page.goto(origin+"/app/admin/settings/ceremonies",{waitUntil:"domcontentloaded"});
   assert.equal(ceremonyPage?.status(),200,"Ceremony settings page must open after native v33 install");
-  await page.waitForSelector("#template-name",{timeout:20000});
+  // The ceremony form is now a Cockpit Agile modal, opened by the real header button.
+  await page.waitForSelector("#smn-ceremony-template-create",{timeout:20000});
+  await page.click("#smn-ceremony-template-create");
+  await page.waitForSelector("dialog.smn-ceremony-template-dialog[open] #template-name",{timeout:15000});
   const templatesBefore=await page.evaluate(async()=>{
    const response=await fetch("/api/admin/sprints/templates");
    return {status:response.status,data:await response.json()};
@@ -135,8 +138,7 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   await page.select("#template-frequency","weekly");
   await page.waitForSelector("#template-day");
   await page.select("#template-day","3");
-  await page.click("#template-name");
-  await page.click("form button[type=submit]");
+  await page.click('button[form="smn-ceremony-template-editor"]');
   await page.waitForSelector(".alert-success",{timeout:15000});
   const persisted=await db(target.toString(),async client=>(await client.query(
    "SELECT name,frequency,weekday,revision FROM public.smn_scrum_ceremony_template WHERE team_id='e2eteam'")).rows);
@@ -183,22 +185,24 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
 
   // Parcours de modification depuis le véritable formulaire de cérémonie, et non l'API seule.
   await page.reload({waitUntil:"domcontentloaded"});
-  await page.waitForFunction(expected=>Array.from((document.querySelector("#template-existing") as HTMLSelectElement)?.options??[])
-   .some(option=>option.value===expected),{},templateId);
-  await page.select("#template-existing",templateId);
+  await page.waitForFunction(()=>Array.from(document.querySelectorAll(".smn-ceremony-templates-table tbody tr"))
+   .some(row=>row.textContent?.includes("Daily navigateur modifié")));
+  await page.click(".smn-ceremony-templates-table tbody tr button.btn-outline-primary");
+  await page.waitForSelector("dialog.smn-ceremony-template-dialog[open] #template-active");
   assert.equal(await page.$eval("#template-active",el=>(el as HTMLInputElement).checked),true);
   await page.click("#template-active");
-  await page.click("form button[type=submit]");
+  await page.click('button[form="smn-ceremony-template-editor"]');
   await page.waitForSelector(".alert-success",{timeout:15000});
   const disabledViaUi=await db(target.toString(),async client=>(await client.query(
    "SELECT active,revision FROM public.smn_scrum_ceremony_template WHERE id=$1",[templateId])).rows[0]);
   assert.equal(disabledViaUi.active,false);
   assert.equal(disabledViaUi.revision,4);
-  await page.waitForFunction(expected=>Array.from((document.querySelector("#template-existing") as HTMLSelectElement)?.options??[])
-   .some(option=>option.value===expected),{},templateId);
-  await page.select("#template-existing",templateId);
+  await page.waitForFunction(()=>Array.from(document.querySelectorAll(".smn-ceremony-templates-table tbody tr"))
+   .some(row=>row.textContent?.includes("Daily navigateur modifié")));
+  await page.click(".smn-ceremony-templates-table tbody tr button.btn-outline-primary");
+  await page.waitForSelector("dialog.smn-ceremony-template-dialog[open] #template-active");
   await page.click("#template-active");
-  await page.click("form button[type=submit]");
+  await page.click('button[form="smn-ceremony-template-editor"]');
   await page.waitForSelector(".alert-success",{timeout:15000});
   const enabledViaUi=await db(target.toString(),async client=>(await client.query(
    "SELECT active,revision FROM public.smn_scrum_ceremony_template WHERE id=$1",[templateId])).rows[0]);
