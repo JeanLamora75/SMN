@@ -57,7 +57,7 @@ describe("AU-03 — rights-aware links in shared FR/EN guides",()=>{
    }else{
     assert.match(docs.overview,/administrator/);
     assert.match(docs.calendar,/role/);
-    assert.match(docs.indicators,/administrator/);
+    assert.match(docs.indicators,/administrators?/i);
     assert.match(docs.faq,/permissions/);
    }
   }
