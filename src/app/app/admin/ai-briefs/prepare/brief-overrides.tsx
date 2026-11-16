@@ -46,7 +46,9 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
   "",resolved.text,observationsText,historyText,
   "Transmission à une IA : manuelle uniquement."
  ].filter(x=>x!==null).join("\n").replace(/\n{3,}/g,"\n\n").trimEnd()+"\n";
- const approved=resolved.safe&&canApproveBrief({preview,currentTxt,reviewedText,privacyReviewed,revisionChecked,conflict});
+ const txtBytes=new TextEncoder().encode(currentTxt).length;
+ const sizeAllowed=txtBytes>0&&txtBytes<=200000;
+ const approved=resolved.safe&&sizeAllowed&&canApproveBrief({preview,currentTxt,reviewedText,privacyReviewed,revisionChecked,conflict});
  function invalidate(){setPreview(null);setPrivacyReviewed(false);setReviewedText(null);setRevisionChecked(false);setFinalizedId(null);}
  async function latest(){
   const result=await fetch("/api/admin/ai-briefs/templates",{cache:"no-store"});
@@ -142,6 +144,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
    <div className={"col-12 col-lg-6 "+(activeView==="edit"?"d-none d-lg-block":"")}>
     <label htmlFor="brief-txt-preview" className="form-label fw-semibold">Aperçu TXT intégral</label>
     <textarea id="brief-txt-preview" className="form-control font-monospace" rows={20} readOnly value={preview??""} placeholder="Générez un aperçu pour le relire."/>
+    {!sizeAllowed&&<p className="alert alert-warning mt-3" role="alert">Le TXT dépasse la limite d’archivage de 200 000 octets. Réduisez le contenu avant de confirmer.</p>}
     {resolved.diagnostics.length>0&&<div className="alert alert-warning mt-3" role="alert">
      <strong>Tags à corriger avant toute copie ou archivage</strong>
      <ul className="mb-0">{resolved.diagnostics.map((x,i)=><li key={i}><code>{x.tag}</code> : {x.reason}</li>)}</ul>
@@ -149,7 +152,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
     {preview!==null&&<div className="border rounded p-3 mt-3">
      <label className="form-check-label" htmlFor="brief-privacy-reviewed">
       <input id="brief-privacy-reviewed" className="form-check-input me-2" type="checkbox"
-       disabled={saving||conflict||!revisionChecked||!resolved.safe||preview!==currentTxt}
+       disabled={saving||conflict||!revisionChecked||!resolved.safe||!sizeAllowed||preview!==currentTxt}
        checked={approved} onChange={e=>{setPrivacyReviewed(e.target.checked);setReviewedText(e.target.checked?preview:null);}}/>
       J'ai relu intégralement cette version exacte et vérifié la confidentialité des informations avant tout partage.
      </label>
