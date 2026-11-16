@@ -82,7 +82,7 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
   const memberDeleteGuardSql=readFileSync(migrationFile(
    "20261109_smn40_member_delete_guard","migration.sql"),"utf8");
   await client.query(memberDeleteGuardSql);
-  // SMN-472: fresh installs must expose the free-prompt contract before first use.
+  // A fresh install must expose the free-prompt contract before first use.
   // The additive DDL executes inside the same atomic transaction as the baseline.
   const promptSql=readFileSync(migrationFile(
    "20261116_smn472_prompt_text","migration.sql"),"utf8");
