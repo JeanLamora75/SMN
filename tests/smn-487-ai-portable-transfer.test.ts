@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {mkdtemp,mkdir,writeFile,rm} from "node:fs/promises";
+import {mkdtemp,mkdir,writeFile,rm,symlink} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {readFileSync} from "node:fs";
@@ -24,10 +24,11 @@ function fakeDb(opts:{secretColumn?:boolean;legacy?:boolean;changeCounts?:boolea
   last_test_at:"2026-11-16"}];
  const archiveCount=3,responseCount=2;
  let committed=false,rolledBack=false,updates=0;
+ let snapshot:Connection[]|null=null;
  const db={query:async(sql:string,params:unknown[]=[])=>{
-  if(sql==="BEGIN")return {rows:[],rowCount:0};
-  if(sql==="COMMIT"){committed=true;return {rows:[],rowCount:0};}
-  if(sql==="ROLLBACK"){rolledBack=true;return {rows:[],rowCount:0};}
+  if(sql==="BEGIN"){snapshot=rows.map(r=>({...r}));return {rows:[],rowCount:0};}
+  if(sql==="COMMIT"){committed=true;snapshot=null;return {rows:[],rowCount:0};}
+  if(sql==="ROLLBACK"){rolledBack=true;if(snapshot)rows.splice(0,rows.length,...snapshot);snapshot=null;return {rows:[],rowCount:0};}
   if(sql.startsWith("SELECT to_regclass($1)")){
    const name=String(params[0]);
    return {rows:[{exists:opts.legacy?name!=="public.smn_ai_connection":
@@ -80,9 +81,12 @@ test("SMN-487 unknown credential columns are rejected before dumping or restorin
  assert.equal(summary().committed,false);assert.equal(summary().rolledBack,true);
 });
 test("SMN-487 imported archives must be count-identical or transaction is rolled back",async()=>{
- const {db,summary}=fakeDb({changeCounts:true});
+ const {db,rows,summary}=fakeDb({changeCounts:true});
  await assert.rejects(quarantineRestoredAiConnections(db),/migration-ai-transfer-count-changed/);
  assert.equal(summary().committed,false);assert.equal(summary().rolledBack,true);
+ assert.equal(rows[0].enabled,true,"Failed quarantine must restore original enabled state");
+ assert.equal(rows[0].credential_state,"configured");
+ assert.equal(rows[0].revision,8);
 });
 test("SMN-487 older installations without connection table keep a safe empty inventory",async()=>{
  const {db}=fakeDb({legacy:true});
@@ -177,4 +181,19 @@ test("SMN-487 offline postcheck validates authenticated post-quarantine digest",
  assert.match(postcheck,/migration-postcheck-ai-secrets-not-reentered/);
  assert.match(postcheck,/databaseDigest:authenticatedSourceDigest/);
  assert.match(postcheck,/comparePortableCurrentState\(proof,key/);
+});
+
+test("SMN-487 vault guard rejects a symlink without reading or removing target",async()=>{
+ const root=await mkdtemp(join(tmpdir(),"smn487-link-test-"));
+ const foreign=await mkdtemp(join(tmpdir(),"smn487-foreign-"));
+ try{
+  await mkdir(join(root,"data"),{recursive:true});
+  await writeFile(join(foreign,"secret.txt"),"synthetic-placeholder");
+  await symlink(foreign,join(root,"data","ai-secrets"),process.platform==="win32"?"junction":"dir");
+  await assert.rejects(assertPortableDestinationVaultEmpty(root),/migration-ai-vault-untrusted/);
+  assert.equal(readFileSync(join(foreign,"secret.txt"),"utf8"),"synthetic-placeholder");
+ }finally{
+  await rm(root,{recursive:true,force:true});
+  await rm(foreign,{recursive:true,force:true});
+ }
 });

@@ -41,3 +41,40 @@ test("SMN-481 dedicated vault stays outside backup components",()=>{
  const zip=read("src/server/backup/portable-transfer-zip.ts");
  assert.doesNotMatch(zip,/ai-secrets|ai-vault/);
 });
+
+test("SMN-481 multiple connections use different authenticated envelopes",()=>{
+ const master=randomBytes(32),first=randomUUID(),second=randomUUID();
+ const plaintext=Buffer.from("synthetic-credential-only","utf8");
+ try{
+  const a=encryptAiKey(master,first,"groq",1,plaintext);
+  const b=encryptAiKey(master,second,"groq",1,plaintext);
+  assert.notEqual(a.nonce,b.nonce);
+  assert.notEqual(a.ciphertext,b.ciphertext);
+  assert.equal(decryptAiKey(master,a,first,"groq",1).toString(),plaintext.toString());
+  assert.equal(decryptAiKey(master,b,second,"groq",1).toString(),plaintext.toString());
+  assert.throws(()=>decryptAiKey(master,a,second,"groq",1),/ai-secret-unavailable/);
+  assert.throws(()=>decryptAiKey(master,b,first,"groq",1),/ai-secret-unavailable/);
+  for(const [name,modified] of [
+   ["nonce",{...a,nonce:"0".repeat(24)}],
+   ["ciphertext",{...a,ciphertext:"0".repeat(a.ciphertext.length)}],
+   ["provider",{...a,providerId:"gemini"}],
+   ["version",{...a,version:2}]
+  ] as const){
+   assert.throws(()=>decryptAiKey(master,modified,first,"groq",1),undefined,name);
+  }
+  assert.doesNotMatch(JSON.stringify(a),/synthetic-credential-only/);
+  assert.doesNotMatch(JSON.stringify(b),/synthetic-credential-only/);
+ }finally{master.fill(0);plaintext.fill(0);}
+});
+
+test("SMN-481 invalid plaintext or master lengths fail without producing an envelope",()=>{
+ const id=randomUUID(),key=randomBytes(32);
+ try{
+  for(const candidate of [Buffer.from("short"),Buffer.alloc(8193,65)]){
+   assert.throws(()=>encryptAiKey(key,id,"groq",1,candidate),/ai-secret-invalid/);
+  }
+  assert.throws(()=>encryptAiKey(Buffer.alloc(31),id,"groq",1,Buffer.from("synthetic-key")),/ai-secret-invalid/);
+  assert.throws(()=>encryptAiKey(key,id,"unknown",1,Buffer.from("synthetic-key")),/ai-secret-invalid/);
+  assert.throws(()=>encryptAiKey(key,id,"groq",0,Buffer.from("synthetic-key")),/ai-secret-invalid/);
+ }finally{key.fill(0);}
+});

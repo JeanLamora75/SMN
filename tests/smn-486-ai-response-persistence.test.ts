@@ -59,6 +59,39 @@ test("SMN-486 first explicit save commits; replay returns same id without duplic
  assert.deepEqual(forged,{ok:false,error:"idempotency-conflict"});
  assert.equal(inserts,1);assert.ok(rollbacks>=1);
 });
+test("SMN-486 replays do not leak an answer across users or archive identifiers",async()=>{
+ const key=randomUUID();
+ const payload={text:"Strictly synthetic response",provider:"groq",model:"synthetic",idempotencyKey:key};
+ const original=await saveManualAiResponse(fakeDb,archiveId,teamId,userId,payload);
+ assert.deepEqual(original,{ok:true,id:key,alreadySaved:false});
+ for(const [archive,team,actor] of [
+  [archiveId,teamId,"intruder"],
+  [archiveId,"unrelated-team",userId],
+  [randomUUID(),teamId,userId]
+ ]){
+  const attempt=await saveManualAiResponse(fakeDb,archive,team,actor,payload);
+  assert.equal(attempt.ok,false,"A different scope must never retrieve or reuse an existing UUID");
+ }
+ assert.equal(saved.get(key)?.userId,userId);
+ assert.equal(saved.get(key)?.archiveId,archiveId);
+});
+
+test("SMN-486 validates bad user content before invoking the transaction",async()=>{
+ const before={inserts,commits,rollbacks};
+ const cases=[
+  {text:"",provider:"groq"},
+  {text:"a".repeat(250001),provider:"groq"},
+  {text:"ok",idempotencyKey:"not-a-uuid"},
+  {text:"ok",provider:"x".repeat(121)},
+  {text:"ok",model:"x".repeat(121)},
+  {text:"ok",idempotencyKey:12}
+ ];
+ for(const raw of cases){
+  const result=await saveManualAiResponse(fakeDb,archiveId,teamId,userId,raw);
+  assert.deepEqual(result,{ok:false,error:"invalid-input"});
+ }
+ assert.deepEqual({inserts,commits,rollbacks},before);
+});
 test("SMN-486 UI only persists when Save response is deliberately clicked",()=>{
  const ui=read("src/app/app/admin/ai-briefs/prepare/brief-ai-send-panel.tsx");
  const route=read("src/app/api/ai-briefs/archives/[id]/responses/route.ts");

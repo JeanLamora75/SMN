@@ -78,3 +78,63 @@ test("SMN-484 provider test cannot invalidate revision-bound encrypted keys",()=
  assert.doesNotMatch(probe,/revision=revision\+1/);
  assert.match(probe,/tested:true,revision\}/);
 });
+
+test("SMN-484 Gemini, Groq and OpenRouter response schemas are parsed distinctly",async()=>{
+ const key=Buffer.from("not-an-api-key");
+ const fixtures=[
+  {provider:"gemini" as const,body:{candidates:[{content:{parts:[{text:"Part A"},{text:" Part B"}]}}]},expected:"Part A Part B"},
+  {provider:"groq" as const,body:{choices:[{message:{content:"Groq result"}}]},expected:"Groq result"},
+  {provider:"openrouter" as const,body:{choices:[{message:{content:"Router result"}}]},expected:"Router result"}
+ ];
+ for(const item of fixtures){
+  let count=0;
+  const fake=async()=>{
+   count++;
+   return new Response(JSON.stringify(item.body),{
+    status:200,headers:{"content-type":"application/json;charset=utf-8"}});
+  };
+  const response=await sendFreeAiPrompt(item.provider,"synthetic/model","public sample",key,fake as typeof fetch);
+  assert.deepEqual(response,{ok:true,text:item.expected});
+  assert.equal(count,1);
+ }
+ key.fill(0);
+});
+
+test("SMN-484 malformed provider response, wrong MIME and quota never return text",async()=>{
+ const key=Buffer.from("synthetic-secret");
+ const scenarios=[
+  {body:"not json",contentType:"application/json"},
+  {body:JSON.stringify({choices:[]}),contentType:"application/json"},
+  {body:JSON.stringify({choices:[{message:{content:"  "}}]}),contentType:"application/json"},
+  {body:JSON.stringify({choices:[{message:{content:"secret"}}]}),contentType:"text/plain"},
+  {body:JSON.stringify({choices:[{message:{content:"x".repeat(250001)}}]}),contentType:"application/json"}
+ ];
+ for(const fixture of scenarios){
+  let calls=0;
+  const fake=async()=>{
+   calls++;
+   return new Response(fixture.body,{status:200,headers:{"content-type":fixture.contentType}});
+  };
+  const response=await sendFreeAiPrompt("groq","synthetic/model","public sample",key,fake as typeof fetch);
+  assert.equal(response.ok,false);
+  assert.equal(calls,1);
+  assert.doesNotMatch(JSON.stringify(response),/synthetic-secret/);
+ }
+ key.fill(0);
+});
+
+test("SMN-484 consent token binds full destination and cannot be renewed by tampering",()=>{
+ const identity={accountId:randomUUID(),sessionToken:"synthetic-session-only",
+  archiveId:randomUUID(),archiveSha:"f".repeat(64),
+  connectionId:randomUUID(),connectionRevision:5,providerId:"gemini",modelId:"model-test"};
+ const at=1700000000000;
+ const token=createAiPreviewApproval(identity,at).approval;
+ const pieces=token.split(".");
+ assert.equal(pieces.length,2);
+ const altered=pieces[0].slice(0,-1)+(pieces[0].endsWith("A")?"B":"A")+"."+pieces[1];
+ assert.equal(consumeAiPreviewApproval(altered,identity,at+1),false);
+ assert.equal(consumeAiPreviewApproval(token,{...identity,providerId:"groq"},at+1),false);
+ assert.equal(consumeAiPreviewApproval(token,{...identity,archiveId:randomUUID()},at+1),false);
+ assert.equal(consumeAiPreviewApproval(token,identity,at+1),true);
+ assert.equal(consumeAiPreviewApproval(token,identity,at+2),false);
+});
