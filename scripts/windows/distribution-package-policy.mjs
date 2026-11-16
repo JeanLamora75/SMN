@@ -36,6 +36,13 @@ export async function auditWindowsDistribution(root){
  if(!ticketStat||!ticketStat.isDirectory()||ticketStat.isSymbolicLink()||
     (await readdir(privateTickets)).length!==0)
   throw Error("distribution-private-tickets-not-empty");
+ // An installable ZIP is never allowed to carry a previously used AI vault.
+ // Even an empty copied vault is not part of the fresh installation footprint.
+ const aiVault=await lstat(path.join(root,"data","ai-secrets")).catch(e=>{
+  if(e.code==="ENOENT")return null;
+  throw e;
+ });
+ if(aiVault)throw Error("distribution-ai-secrets-forbidden");
  const batch=await lstat(path.join(root,ROOT_FILES[0]));
  if(!batch.isFile()||batch.isSymbolicLink())throw Error("distribution-launcher-unsafe");
  const text=await readFile(path.join(root,ROOT_FILES[0]),"utf8");
@@ -53,6 +60,9 @@ export async function auditWindowsDistribution(root){
    const info=await lstat(absolute);
    if(info.isSymbolicLink())throw Error("distribution-symlink");
    const item=relative?relative+"/"+name:name;
+   if(name===".vault-master-v1"||item.includes("/ai-secrets/")||
+      /(?:^|\/)ai-secrets$/.test(item))
+    throw Error("distribution-ai-secrets-forbidden");
    if(info.isDirectory()){await walk(absolute,item);continue;}
    if(!info.isFile())throw Error("distribution-special-file");
    paths.push(item);

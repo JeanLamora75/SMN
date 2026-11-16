@@ -1,0 +1,92 @@
+name: SMN-488 — Qualification IA gratuite, sécurité et transfert
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "src/server/ai-connections/**"
+      - "src/server/ai-briefs/**"
+      - "src/server/backup/**"
+      - "src/app/api/admin/ai-connections/**"
+      - "src/app/app/admin/ai-briefs/**"
+      - "src/i18n/ai-connections.*.json"
+      - "scripts/windows/**"
+      - "tests/smn-48*.test.ts"
+      - "tests/smn-47*.test.ts"
+      - "prisma/migrations/20261116_smn48*/**"
+      - ".github/workflows/smn-488-ai-qualification.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: smn-488-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+
+jobs:
+  security-and-regressions:
+    name: "Contrats IA et régressions — ${{ matrix.os }}"
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - name: Installer depuis le verrouillage exact
+        run: pnpm install --frozen-lockfile
+      - name: Scénarios IA 480–488, confidentialité et restauration
+        run: pnpm test:smn-488
+      - name: Régression éditeur et migrations de briefs 472–478
+        run: pnpm test:smn-472-476 && pnpm test:smn-477 && pnpm test:smn-478
+      - name: Régression ZIP SMN-442 et distribution
+        run: pnpm exec tsx --test tests/smn-441-portable-zip.test.ts tests/smn-442-gui-offline-restoration.test.ts tests/smn-442-migration-ui-contract.test.ts tests/smn-442-gui-crash-recovery.test.ts
+      - name: Types TypeScript
+        run: pnpm typecheck
+      - name: Parité FR/EN
+        run: pnpm i18n:check
+  isolated-postgres:
+    name: PostgreSQL 18 — installation vierge et migration existante
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: smn_ci
+          POSTGRES_PASSWORD: smn_ci_ephemeral_test
+          POSTGRES_DB: smn
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U smn_ci -d smn"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Base vierge et migration héritée, sans accès à une installation réelle
+        run: pnpm exec tsx --test --test-concurrency=1 tests/smn-478-native-fresh-install-pg.test.ts tests/smn-478-brief-migrations-pg.test.ts
+      - name: Rejouer les contrôles SMN-487 sur le même commit
+        run: pnpm exec tsx --test tests/smn-487-ai-portable-transfer.test.ts tests/smn-488-ai-qualification.test.ts
