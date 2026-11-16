@@ -1,6 +1,6 @@
 import {officeRowDefinitions,officeScalarDefinitions} from "@/app/app/reports/office-tags";
 import type {BriefFact} from "@/server/ai-briefs/facts";
-import type {BriefMode} from "@/lib/ai-brief-templates";
+import {allowedBriefFields,type BriefMode} from "@/lib/ai-brief-templates";
 
 export type BriefTagDiagnostic={tag:string;reason:string};
 export type ResolveBriefInput={
@@ -19,7 +19,7 @@ export function resolveBriefPrompt(input:ResolveBriefInput):ResolvedBrief{
  const values:Readonly<Record<string,string|null>>={
   TEAM_NAME:c.team,SPRINT_NAME:c.name,SPRINT_START:c.startAt,
   SPRINT_END:c.endAt,SPRINT_STATUS:c.status,PRODUCT_NAME:c.product,
-  TODAY:input.preparedAt.slice(0,10),
+  TODAY:new Intl.DateTimeFormat("en-CA",{timeZone:c.timeZone,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(input.preparedAt)),
   // Free text and identities must never be transferred without deliberate manual redaction.
   SPRINT_GOAL:null,PRODUCT_GOAL:null,PRODUCT_VISION:null
  };
@@ -33,9 +33,14 @@ export function resolveBriefPrompt(input:ResolveBriefInput):ResolvedBrief{
   if(tag.startsWith("ROW:")){
    const source=tag.slice(4).split("|")[0];
    if(!allowedRows.has(source))return fail(tag,"Collection inconnue");
+   if(tag!==`ROW:${source}`)return fail(tag,"Options de collection non prises en charge en rendu TXT");
    // Only collective report facts are eligible for a text-only projection.
    if(source!=="INDICATORS")return fail(tag,"Collection non autorisée sans revue des données métier");
-   const list=Object.values(fact).filter(x=>x.unit!==null&&x.value!==null);
+   const keys=allowedBriefFields(input.mode,[
+    "scrum.storyPoints.committed","scrum.storyPoints.completed","scrum.capacity.planned",
+    "kanban.started","kanban.wip","kanban.throughput","kanban.cycleTime","kanban.leadTime","kanban.capacity.planned"
+   ]);
+   const list=keys.map(key=>fact[key]).filter((x):x is BriefFact=>Boolean(x&&x.unit!==null&&x.value!==null));
    if(list.length===0)return fail(tag,"Aucune donnée collective disponible");
    return list.slice(0,30).map(x=>"- "+safe(x.label)+": "+safe(x.value)+(x.unit?" "+safe(x.unit):"")+
     " [source: "+safe(x.source)+"; qualité: "+safe(x.quality)+
