@@ -70,7 +70,6 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
    setBase(current);setDraft(editable(current));setPreview(null);setPrivacyReviewed(false);setReviewedText(null);setConflict(false);setMessage("Configuration enregistrée du modèle rechargée. Aucun brouillon sauvegardé.");
   }catch{setMessage("Rechargement impossible.");}
  }
- /* La préparation ne modifie jamais un modèle enregistré : ajustements locaux uniquement. */
 
  return <section className="border rounded-3 p-3 mt-3" aria-label="Ajustements ponctuels du brief">
   <h3 className="h5">Adapter ce brief uniquement</h3>
@@ -117,8 +116,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
     <div className="col-12 col-lg-6"><label htmlFor="human-instructions" className="form-label">Consignes supplémentaires à l’IA (une par ligne)</label>
      <textarea id="human-instructions" className="form-control" rows={4} maxLength={6000} value={humanInstructions} onChange={e=>{setHumanInstructions(e.target.value);setPreview(null);setPrivacyReviewed(false);}}/></div>
    </div>
-   <div className="form-check mt-3"><input type="checkbox" className="form-check-input" id="brief-privacy-reviewed" disabled={preview===null||preview!==currentTxt||conflict} checked={approved} onChange={e=>{setPrivacyReviewed(e.target.checked);setReviewedText(e.target.checked?preview:null);}}/>
-    <label htmlFor="brief-privacy-reviewed" className="form-check-label">J’ai examiné le TXT intégral affiché et vérifié les noms, données privées et secrets éventuellement présents dans les textes libres. Je confirme cette version exacte uniquement.</label></div>
+
   </div>
   </div>
   <div className="d-flex flex-wrap gap-2 mt-3">
@@ -141,6 +139,8 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
   }}>Copier le TXT validé</button>}
   {preview!==null&&!approved&&<p className="alert alert-warning mt-3" role="alert">Confidentialité non vérifiée : le TXT peut contenir des noms, informations privées ou secrets issus des textes libres. Relisez le texte intégral et confirmez cette version exacte avant tout partage.</p>}
   {preview!==null&&<div className="mt-3"><label htmlFor="brief-txt-preview" className="form-label fw-semibold">Aperçu TXT plat (non archivé)</label><textarea id="brief-txt-preview" className="form-control font-monospace" rows={20} readOnly value={preview}/><p className="small mt-2">{approved?"Version affichée vérifiée pour confidentialité (non archivée).":"Version non validée : aucun export ni finalisation possible."}</p></div>}
+  {preview!==null&&<div className="border rounded p-3 mt-3" aria-label="Revue de confidentialité"><div className="form-check mt-3"><input type="checkbox" className="form-check-input" id="brief-privacy-reviewed" disabled={preview===null||preview!==currentTxt||conflict} checked={approved} onChange={e=>{setPrivacyReviewed(e.target.checked);setReviewedText(e.target.checked?preview:null);}}/>
+    <label htmlFor="brief-privacy-reviewed" className="form-check-label">J’ai examiné le TXT intégral affiché et vérifié les noms, données privées et secrets éventuellement présents dans les textes libres. Je confirme cette version exacte uniquement.</label></div></div>}
   {changed&&!conflict&&<p className="text-secondary small mt-2">Configuration ponctuelle modifiée : aucune écriture métier. La composition et l&apos;archivage du TXT seront ajoutés dans les prochaines stories.</p>}
   {message&&<p role="status" className="mt-2 mb-0">{message}</p>}
  </section>;
