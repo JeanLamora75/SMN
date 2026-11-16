@@ -7,6 +7,7 @@ export type ResolveBriefInput={
  promptText:string;mode:BriefMode;preparedAt:string;
  context:{id:string;name:string;team:string;product:string|null;status:string;startAt:string;endAt:string;timeZone:string};
  facts:Readonly<Record<string,BriefFact>>;
+ indicators?:readonly {tag:string;value:string|null;unit:string;source:string;available:boolean;reason:string|null}[];
 };
 export type ResolvedBrief={text:string;diagnostics:BriefTagDiagnostic[];safe:boolean};
 const safe=(v:unknown)=>String(v??"Non renseigné").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,"").trim();
@@ -16,6 +17,7 @@ export function resolveBriefPrompt(input:ResolveBriefInput):ResolvedBrief{
  const diagnostics:BriefTagDiagnostic[]=[];
  const {context:c}=input;
  const fact=input.facts;
+ const indicators=new Map((input.indicators??[]).filter(x=>/^[A-Z][A-Z0-9_]*$/.test(x.tag)).map(x=>[x.tag,x]));
  const values:Readonly<Record<string,string|null>>={
   TEAM_NAME:c.team,SPRINT_NAME:c.name,SPRINT_START:c.startAt,
   SPRINT_END:c.endAt,SPRINT_STATUS:c.status,PRODUCT_NAME:c.product,
@@ -29,7 +31,12 @@ export function resolveBriefPrompt(input:ResolveBriefInput):ResolvedBrief{
  const text=input.promptText.replace(/\{\{([^{}]{1,500})\}\}/g,(original:string,raw:string)=>{
   const tag=String(raw).trim();
   if(tag.startsWith("CHART:"))return fail(tag,"Graphiques non pris en charge dans un prompt TXT");
-  if(tag.startsWith("INDICATOR_"))return fail(tag,"Valeur d'indicateur non chargée et non vérifiée pour ce cycle");
+  if(tag.startsWith("INDICATOR_")){
+   const item=indicators.get(tag.slice("INDICATOR_".length));
+   if(!item||!item.available||item.value===null)
+    return fail(tag,"Indicateur indisponible pour ce cycle : "+(item?.reason??"non sélectionné"));
+   return safe(item.value)+(item.unit?" "+safe(item.unit):"")+" [source: "+safe(item.source)+"]";
+  }
   if(tag.startsWith("ROW:")){
    const source=tag.slice(4).split("|")[0];
    if(!allowedRows.has(source))return fail(tag,"Collection inconnue");
@@ -41,10 +48,14 @@ export function resolveBriefPrompt(input:ResolveBriefInput):ResolvedBrief{
     "kanban.started","kanban.wip","kanban.throughput","kanban.cycleTime","kanban.leadTime","kanban.capacity.planned"
    ]);
    const list=keys.map(key=>fact[key]).filter((x):x is BriefFact=>Boolean(x&&x.unit!==null&&x.value!==null));
-   if(list.length===0)return fail(tag,"Aucune donnée collective disponible");
-   return list.slice(0,30).map(x=>"- "+safe(x.label)+": "+safe(x.value)+(x.unit?" "+safe(x.unit):"")+
+   const dynamic=[...indicators.values()].filter(x=>x.available&&x.value!==null);
+   if(list.length===0&&dynamic.length===0)return fail(tag,"Aucune donnée collective disponible");
+   const reportFacts=list.map(x=>"- "+safe(x.label)+": "+safe(x.value)+(x.unit?" "+safe(x.unit):"")+
     " [source: "+safe(x.source)+"; qualité: "+safe(x.quality)+
-    (x.snapshotVersion===null?"":"; version: "+x.snapshotVersion)+"]").join("\n");
+    (x.snapshotVersion===null?"":"; version: "+x.snapshotVersion)+"]");
+   const dynamicFacts=dynamic.map(x=>"- "+safe(x.tag)+": "+safe(x.value)+
+    (x.unit?" "+safe(x.unit):"")+" [source: "+safe(x.source)+"; projection rapports Office]");
+   return [...reportFacts,...dynamicFacts].slice(0,30).join("\n");
   }
   if(!allowedScalars.has(tag))return fail(tag,"Tag inconnu du catalogue Office");
   if(tag==="SPRINT_GOAL"||tag==="PRODUCT_GOAL"||tag==="PRODUCT_VISION")
