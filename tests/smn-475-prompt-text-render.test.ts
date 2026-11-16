@@ -44,6 +44,17 @@ test("empty known table is not the same as a missing data source",()=>{
  assert.deepEqual(missing.diagnostics.map(d=>d.reason),["missing"]);
  assert.equal(missing.text,"{{ROW:DEPENDENCIES}}");
 });
+test("dependency requester, contributor and owner never leak into AI text",()=>{
+ const data=input("{{ROW:DEPENDENCIES}}");
+ data.tables.DEPENDENCIES={rows:[{
+  DEPENDENCY_TITLE:"API externe",DEPENDENCY_STATUS:"ouverte",DEPENDENCY_DATE:"2026-11-01",
+  DEPENDENCY_REQUESTER:"Alice Private",DEPENDENCY_CONTRIBUTOR:"Bob Private",DEPENDENCY_OWNER:"Secret Owner"
+ }],source:"sprint-registers",quality:"provisional"};
+ const result=renderBriefPrompt(data);
+ assert.equal(result.complete,true);
+ assert.match(result.text,/API externe/);
+ assert.doesNotMatch(result.text,/Alice Private|Bob Private|Secret Owner/);
+});
 test("unknown, forbidden, invalid and chart tags fail closed",()=>{
  const source="{{UNREGISTERED}}\n{{ROW:MEMBERS_ACTIVE}}\n{{ROW:RISKS|SORT=RISK_OWNER:ASC}}\n{{CHART:TREND|TYPE=line}}";
  const result=renderBriefPrompt(input(source));
