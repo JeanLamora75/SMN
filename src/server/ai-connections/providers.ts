@@ -57,7 +57,7 @@ export async function sendFreeAiPrompt(provider:ProviderId,model:string,prompt:s
  try{request=buildAiProviderRequest(provider,model,prompt,credential);}
  catch{return {ok:false,error:"invalid-request"};}
  try{
-  const response=await fetcher(request.url,{method:"POST",headers:request.headers,
+  const response=await fetcher(request.url,{method:"POST",headers:Object.fromEntries(Object.entries(request.headers).filter(([,value])=>typeof value==="string")) as Record<string,string>,
    body:request.body,redirect:"manual",cache:"no-store",
    signal:AbortSignal.timeout(25000)});
   if(response.status>=300&&response.status<400)return {ok:false,error:"provider-redirect-rejected"};
