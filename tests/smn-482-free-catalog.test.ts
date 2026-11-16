@@ -45,6 +45,7 @@ test("SMN-482 quota relation is accepted by the physical installation diagnostic
 test("SMN-482 official-source candidates never become authorized without account evidence",()=>{
  const snapshot=freeCatalogSnapshot();
  assert.equal(snapshot.candidates.length,3);
+ assert.equal(snapshot.candidates.find(x=>x.providerId==="openrouter")?.modelId,"inclusionai/ling-3.2-flash:free");
  for(const candidate of snapshot.candidates){
   assert.equal(candidate.accountTested,false);
   assert.equal(candidate.selectable,false);
