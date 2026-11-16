@@ -10,6 +10,7 @@ export async function verifyInstalledBriefSchema(db:Pick<Client,"query">){
  const names=new Map(cols.rows.map(c=>[c.column_name,c.is_nullable]));
  if(names.get("prompt_text")!=="NO")throw Error("smn478-prompt-required-missing");
  for(const x of LEGACY)if(names.has(x))throw Error("smn478-legacy-column-present:"+x);
+ const count=await db.query<{n:string}>(`SELECT count(*)::text n FROM public.smn_ai_brief_template`);
  const missing=await db.query<{n:string}>(`SELECT count(*)::text n FROM
   public.smn_ai_brief_template WHERE prompt_text IS NULL OR length(btrim(prompt_text))=0`);
  if(missing.rows[0]?.n!=="0")throw Error("smn478-empty-prompt-present");
@@ -24,7 +25,7 @@ export async function verifyInstalledBriefSchema(db:Pick<Client,"query">){
  if(initialBriefTemplates.length!==3||
   initialBriefTemplates.some(t=>!t.promptText.trim()))throw Error("smn478-native-prompts-missing");
  return {schemaVersion:33,requiredPrompt:true,legacyColumns:0,
-  nativeTemplates:initialBriefTemplates.length,customModels:Number(missing.rowCount??0)};
+  nativeTemplates:initialBriefTemplates.length,customModels:Number(count.rows[0]?.n??0)};
 }
 async function main(){
  if(process.argv.length!==2||process.env.SMN478_DISPOSABLE_PROOF!=="YES"||process.platform!=="win32")
