@@ -113,7 +113,10 @@
     "restore:audit": "tsx scripts/smn-34-audit-readonly.ts",
     "test:smn-472-476": "tsx --test tests/smn-472-prompt-migration.test.ts tests/smn-474-brief-tag-insertion.test.ts tests/smn-475-brief-tag-resolver.test.ts tests/smn-476-brief-review.test.ts",
     "db:check:smn-472": "tsx scripts/apply-smn-472-prompt-text.ts --check",
-    "db:migrate:smn-472": "tsx scripts/apply-smn-472-prompt-text.ts --apply"
+    "db:migrate:smn-472": "tsx scripts/apply-smn-472-prompt-text.ts --apply",
+    "db:check:smn-477": "tsx scripts/apply-smn-477-brief-cleanup.ts --check",
+    "db:cleanup:smn-477": "tsx scripts/apply-smn-477-brief-cleanup.ts --apply",
+    "test:smn-477": "tsx --test tests/smn-477-brief-cleanup.test.ts tests/smn-472-prompt-migration.test.ts tests/smn-180-brief-template-management.test.ts tests/smn-188-initial-ai-brief-templates.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
