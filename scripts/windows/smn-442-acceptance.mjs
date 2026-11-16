@@ -6,7 +6,7 @@
  */
 import assert from "node:assert/strict";
 import {spawn,spawnSync} from "node:child_process";
-import {randomBytes,createHmac,createCipheriv} from "node:crypto";
+import {randomBytes,randomUUID,createHash,createHmac,createCipheriv} from "node:crypto";
 import {existsSync} from "node:fs";
 import {cp,mkdtemp,mkdir,readFile,readdir,rename,rm,writeFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
@@ -191,6 +191,36 @@ async function seedSyntheticTeamMembers(){
  emit("Synthetic team identities seeded in source before ZIP export");
 }
 
+async function seedAiBriefArchive(){
+ const portable=await ensurePg();
+ const uri=new URL(portable.uri);uri.pathname="/smn";
+ const db=new Client({connectionString:uri.toString(),connectionTimeoutMillis:5000});
+ try{
+  await db.connect();
+  const team=await db.query("SELECT id FROM public.smn_team ORDER BY id LIMIT 1");
+  const actor=await db.query("SELECT id FROM public.smn_account WHERE role='admin' LIMIT 1");
+  assert.ok(team.rows[0]?.id&&actor.rows[0]?.id);
+  const templateId=randomUUID(),archiveId=randomUUID(),cycleId=randomUUID();
+  const promptText="Résume {{SPRINT_NAME}} et {{TEAM_NAME}} sans inventer de données.";
+  const text="BRIEF IA — HISTORIQUE\nModèle conservé : "+templateId+"\nÉquipe : recette\n";
+  const sha256=createHash("sha256").update(text,"utf8").digest("hex");
+  await db.query(`INSERT INTO public.smn_ai_brief_template
+   (id,title,description,prompt_text,revision,created_by)
+   VALUES($1,'SMN-478 modèle exporté','Préservation du prompt libre',$2,5,$3)`,
+   [templateId,promptText,actor.rows[0].id]);
+  await db.query(`INSERT INTO public.smn_ai_brief_archive(
+   id,mode,cycle_id,team_id,template_id,template_revision,author_id,
+   sha256,byte_length,content,reviewed)
+   VALUES($1,'scrum',$2,$3,$4,5,$5,$6,$7,$8,true)`,
+   [archiveId,cycleId,team.rows[0].id,templateId,actor.rows[0].id,
+    sha256,Buffer.byteLength(text,"utf8"),Buffer.from(text,"utf8")]);
+  emit("SMN-478 seeded prompt and immutable archive before ZIP export");
+  return {templateId,archiveId,promptText,text,sha256};
+ }finally{
+  await db.end().catch(()=>{});
+  await portable.client.end().catch(()=>{});
+ }
+}
 async function saveSourceBackup(){
  const user=await login("admin",sourcePass);
  assert.equal(user.status,200,"Source login failed "+JSON.stringify(user.body));
@@ -372,6 +402,7 @@ try{
   await finishOnboarding("admin",sourceSetupPass,sourcePass);
  await installPrivacy();
  await seedSyntheticTeamMembers();
+ const briefProof=await seedAiBriefArchive();
  const {zip}=await saveSourceBackup();
  await stop();
  const {pgInfo,sourceDb}=await switchToDestination();
@@ -399,6 +430,24 @@ try{
   assert.deepEqual(names.rows.map(row=>row.display_name),
    ["Camille Recette","Alex Morgan","Sophie Martin"],
    "SMN-442 must preserve individual team member identities after cross-PC restoration");
+   const models=await restored.query(`
+    SELECT id::text,prompt_text,revision FROM public.smn_ai_brief_template WHERE id=$1`,
+    [briefProof.templateId]);
+   assert.equal(models.rowCount,1,"SMN-478 model missing after ZIP restore");
+   assert.equal(models.rows[0].id,briefProof.templateId);
+   assert.equal(models.rows[0].prompt_text,briefProof.promptText);
+   assert.equal(models.rows[0].revision,5);
+   const records=await restored.query(`
+    SELECT id::text,template_id,template_revision,sha256,content,byte_length
+    FROM public.smn_ai_brief_archive WHERE id=$1`,[briefProof.archiveId]);
+   assert.equal(records.rowCount,1,"SMN-478 archive missing after ZIP restore");
+   assert.equal(records.rows[0].template_id,briefProof.templateId);
+   assert.equal(records.rows[0].template_revision,5);
+   assert.equal(records.rows[0].sha256,briefProof.sha256);
+   assert.equal(records.rows[0].byte_length,Buffer.byteLength(briefProof.text,"utf8"));
+   assert.equal(Buffer.from(records.rows[0].content).toString("utf8"),briefProof.text);
+   emit("SMN-478 verified prompt, model revision and archive SHA-256 after real GUI ZIP transfer");
+
  }finally{await restored.end().catch(()=>{});}
  const back=await maintenance.client.query(
   "SELECT datname FROM pg_database WHERE datname LIKE 'smn_restore_test_back_%'");
