@@ -90,7 +90,7 @@ export default async function PrepareAiBrief({searchParams}:{
    <section aria-labelledby="brief-templates" className="border-top pt-3 mt-3">
     <h2 id="brief-templates" className="h5">Modèles de briefs</h2>
     <Link className="btn btn-outline-secondary btn-sm mb-3" href="/app/admin/ai-briefs/templates">Administrer les modèles</Link>
-    <p className="text-secondary small">Choisissez un modèle pour consulter sa configuration. Les paramètres sont réutilisables et cette consultation n’enregistre rien.</p>
+    <p className="text-secondary small">Choisissez un point de départ puis préparez et relisez votre brief. Aucun modèle n’est enregistré depuis cette page.</p>
     <div className="d-flex flex-wrap gap-2 mb-3">
      {available.map(item=><Link key={item.id}
       className={item.id===selected.id?"btn btn-primary btn-sm":"btn btn-outline-primary btn-sm"}
@@ -98,13 +98,12 @@ export default async function PrepareAiBrief({searchParams}:{
       href={"/app/admin/ai-briefs/prepare?"+new URLSearchParams({mode:mode!,id:context.id,template:item.id}).toString()}>
       {item.title}</Link>)}
     </div>
-    <h3 className="h6">{selected.title}</h3><p>{selected.description}</p><p className="small text-secondary">Profondeur : {selected.depth}/5</p>
-    <div className="row g-3">
-     <div className="col-12 col-lg-6"><h4 className="h6">Rubriques</h4><ol>{selected.sections.map(s=><li key={s}>{s}</li>)}</ol></div>
-     <div className="col-12 col-lg-6"><h4 className="h6">Données collectives proposées</h4><ul>{fields.map(field=><li key={field}><code>{field}</code></li>)}</ul></div>
-     <div className="col-12 col-lg-6"><h4 className="h6">Questions proposées</h4><ul>{selected.questions.map(q=><li key={q}>{q}</li>)}</ul></div>
-     <div className="col-12 col-lg-6"><h4 className="h6">Consignes</h4><ul>{selected.instructions.map(s=><li key={s}>{s}</li>)}</ul></div>
+    <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
+     <h3 className="h6 m-0">{selected.title}</h3>
+     <span className="badge text-bg-light">{selected.builtin?"Modèle natif":"Modèle personnalisé"} · version {selected.revision}</span>
     </div>
+    <p className="text-secondary">{selected.description}</p>
+    <p className="small text-secondary">Un modèle sert de point de départ. Les ajustements réalisés ci-dessous concernent ce brief uniquement. La copie et l’archivage exigent une relecture explicite du texte final.</p>
     <div className="border rounded-3 p-3 mt-3">
      <h3 className="h6">Valeurs collectives disponibles et provenance</h3>
      <p className="small text-secondary">Les cases vides restent non renseignées. Les données individuelles ne sont pas chargées.</p>
@@ -117,7 +116,7 @@ export default async function PrepareAiBrief({searchParams}:{
     <p className="small text-secondary">Les champs individuels sont toujours exclus. Les données absentes resteront absentes ; aucune mesure ni conclusion ne sera inventée.</p>
    </section>
    <HumanAnalysisForm mode={scrum?"scrum":"kanban"} cycleId={context.id}/>
-   <p className="small text-secondary">Ouverture sans sauvegarde : aucun brouillon, TXT ou analyse n’est créé. La sélection des données et la finalisation seront disponibles dans les étapes suivantes de l’Epic 9.</p>
+   <p className="small text-secondary">La consultation seule ne crée aucun document. Seule l’action « Finaliser et archiver » conserve le TXT explicitement validé.</p>
    <Link className="btn btn-outline-secondary" href={back}>Fermer sans enregistrer</Link>
   </section>
  </main>;
