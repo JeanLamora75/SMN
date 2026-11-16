@@ -16,6 +16,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
  const [message,setMessage]=useState("");
  const [conflict,setConflict]=useState(false);
  const [saving,setSaving]=useState(false);
+ const [activeView,setActiveView]=useState<"edit"|"preview">("edit");
  const [finalizedId,setFinalizedId]=useState<string|null>(null);
  const [preview,setPreview]=useState<string|null>(null);
  const [observations,setObservations]=useState("");
@@ -69,25 +70,17 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
    setBase(current);setDraft(editable(current));setPreview(null);setPrivacyReviewed(false);setReviewedText(null);setConflict(false);setMessage("Configuration enregistrée du modèle rechargée. Aucun brouillon sauvegardé.");
   }catch{setMessage("Rechargement impossible.");}
  }
- async function saveModel(){
-  if(base.builtin){setMessage("Les modèles initiaux sont protégés. Dupliquez le modèle dans l'administration.");return;}
-  setSaving(true);
-  try{
-   if(!await checkRevision())return;
-   const res=await fetch("/api/admin/ai-briefs/templates",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({action:"update",id:base.id,revision:base.revision,template:{title:base.title,description:base.description,...draft}})});
-   if(res.status===409){setConflict(true);setMessage("Conflit de révision : rechargez le modèle avant de réessayer.");return;}
-   if(!res.ok)throw Error("Enregistrement refusé");
-   const result=await res.json() as {revision:number};
-   setBase({...base,...draft,revision:result.revision});setPreview(null);setPrivacyReviewed(false);setReviewedText(null);
-   setConflict(false);setMessage("Nouvelle révision du modèle enregistrée explicitement.");
-  }catch{setMessage("Enregistrement impossible.");}
-  finally{setSaving(false);}
- }
+ /* La préparation ne modifie jamais un modèle enregistré : ajustements locaux uniquement. */
+
  return <section className="border rounded-3 p-3 mt-3" aria-label="Ajustements ponctuels du brief">
   <h3 className="h5">Adapter ce brief uniquement</h3>
   <p className="small text-secondary">Modèle : {base.title} · Révision {base.revision}. Les changements ci-dessous restent en mémoire dans cette page, sans enregistrement automatique.</p>
   {conflict&&<div className="alert alert-warning" role="alert">Le modèle a été modifié ou désactivé. Rechargez sa configuration avant de continuer.</div>}
+  <div className="btn-group d-lg-none mb-3" role="group" aria-label="Vue de préparation">
+   <button type="button" className={"btn btn-sm "+(activeView==="edit"?"btn-primary":"btn-outline-primary")} aria-pressed={activeView==="edit"} onClick={()=>setActiveView("edit")}>Rédiger</button>
+   <button type="button" className={"btn btn-sm "+(activeView==="preview"?"btn-primary":"btn-outline-primary")} aria-pressed={activeView==="preview"} onClick={()=>setActiveView("preview")} disabled={preview===null}>Aperçu</button>
+  </div>
+  <div className={activeView==="preview"?"d-none d-lg-block":""}>
   <fieldset disabled={conflict||saving}>
    <div className="row g-3">
     {(["sections","questions","instructions"] as const).map(key=><div className="col-12 col-lg-4" key={key}>
@@ -103,6 +96,8 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
     </div>
    </div>
   </fieldset>
+  </div>
+  <div className={activeView==="preview"?"d-none d-lg-block":""}>
   <div className="border-top mt-3 pt-3"><h4 className="h6">Analyses historiques (inclusion volontaire)</h4>
    <p className="small text-secondary">Aucune analyse IA ou humaine n’est sélectionnée par défaut. Toute inclusion exige une nouvelle revue de confidentialité.</p>
    {historical.length===0?<p className="text-secondary small">Aucune analyse antérieure disponible.</p>:<div className="d-grid gap-2">{historical.map(a=><label key={a.type+":"+a.id} className="border rounded p-2">
@@ -125,11 +120,12 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
    <div className="form-check mt-3"><input type="checkbox" className="form-check-input" id="brief-privacy-reviewed" disabled={preview===null||preview!==currentTxt||conflict} checked={approved} onChange={e=>{setPrivacyReviewed(e.target.checked);setReviewedText(e.target.checked?preview:null);}}/>
     <label htmlFor="brief-privacy-reviewed" className="form-check-label">J’ai examiné le TXT intégral affiché et vérifié les noms, données privées et secrets éventuellement présents dans les textes libres. Je confirme cette version exacte uniquement.</label></div>
   </div>
+  </div>
   <div className="d-flex flex-wrap gap-2 mt-3">
-   <button className="btn btn-primary btn-sm" disabled={conflict||saving} onClick={async()=>{if(!await checkRevision())return;setPreview(currentTxt);setPrivacyReviewed(false);setReviewedText(null);}}>Générer l’aperçu TXT</button>
+   <button className="btn btn-primary btn-sm" disabled={conflict||saving} onClick={async()=>{if(!await checkRevision())return;setPreview(currentTxt);setPrivacyReviewed(false);setReviewedText(null);setActiveView("preview");}}>Générer l’aperçu TXT</button>
    <button className="btn btn-outline-primary btn-sm" onClick={()=>void checkRevision()} disabled={saving}>Actualiser le contenu / vérifier la révision</button>
    <button className="btn btn-outline-secondary btn-sm" onClick={()=>void reload()} disabled={saving}>Recharger le modèle (abandonner les ajustements)</button>
-   {!base.builtin&&<button className="btn btn-primary btn-sm" disabled={!changed||conflict||saving} onClick={()=>void saveModel()}>Enregistrer le modèle</button>}
+   <span className="small text-secondary align-self-center">Les ajustements de cette préparation ne modifient jamais le modèle enregistré.</span>
   </div>
   <aside className="alert alert-info mt-3" aria-label="Transmission manuelle à une IA">
    <strong>Transmission manuelle uniquement.</strong> SMN ne contacte aucun service IA et ne crée aucune analyse automatiquement.
