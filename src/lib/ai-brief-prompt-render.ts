@@ -26,6 +26,10 @@ const messages={
  fr:{unknown:"Tag inconnu",restricted:"Tag interdit dans un brief IA",missing:"Donnée indisponible",unsupported:"Graphique non compatible avec un prompt texte",invalid:"Expression de tag invalide",limit:"Limite de données ou de longueur dépassée",none:"Aucun élément consigné",source:"source",quality:"qualité",snapshot:"version de clôture",provisional:"provisoire",count:"éléments"},
  en:{unknown:"Unknown tag",restricted:"Tag not allowed in an AI brief",missing:"Data unavailable",unsupported:"Chart cannot be rendered in a text prompt",invalid:"Invalid tag expression",limit:"Row or output size limit exceeded",none:"No recorded entries",source:"source",quality:"quality",snapshot:"closure version",provisional:"provisional",count:"items"}
 } as const;
+const qualityLabels={
+ fr:{recorded:"enregistrée",calculated:"calculée",provisional:"provisoire",unavailable:"indisponible"},
+ en:{recorded:"recorded",calculated:"calculated",provisional:"provisional",unavailable:"unavailable"}
+} as const;
 const clean=(s:string)=>s.replace(/\r\n?/g,"\n").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,"").trim();
 const scalars=new Set(officeScalarDefinitions.map(x=>x.key));
 const definitions=new Map(officeRowDefinitions.map(x=>[x.source,x]));
@@ -45,7 +49,7 @@ function tagSort(raw:string|undefined,valid:readonly string[]):{field:string;dir
 function describe(value:PromptValue,language:"fr"|"en"):string{
  const m=messages[language];
  const text=clean(value.value??"");
- const meta=[m.source+": "+clean(value.source),m.quality+": "+value.quality];
+ const meta=[m.source+": "+clean(value.source),m.quality+": "+qualityLabels[language][value.quality]];
  if(value.snapshotVersion!==null&&value.snapshotVersion!==undefined)meta.push(m.snapshot+": "+value.snapshotVersion);
  return text+(value.unit?" "+clean(value.unit):"")+" ["+meta.join(" ; ")+"]";
 }
@@ -92,7 +96,7 @@ export function renderBriefPrompt(input:PromptRenderInput):PromptRenderResult{
    });
    const allowed=definition.fields.filter(field=>AI_BRIEF_SAFE_ROW_FIELDS.has(field));
    const name=input.locale==="fr"?definition.fr:definition.en;
-   const meta=[m.source+": "+clean(table.source),m.quality+": "+table.quality];
+   const meta=[m.source+": "+clean(table.source),m.quality+": "+qualityLabels[input.locale][table.quality]];
    if(table.snapshotVersion!==null&&table.snapshotVersion!==undefined)meta.push(m.snapshot+": "+table.snapshotVersion);
    const heading=name+" ("+sortable.length+" "+m.count+" ; "+meta.join(" ; ")+")";
    if(!sortable.length)return heading+"\n"+m.none;
