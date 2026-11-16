@@ -99,3 +99,55 @@ Composants conformes aux conventions SMN FR/EN ; catalogue avec libellés locali
 Prévoir de petites User Stories indépendantes et testables couvrant : contrat simplifié et migration des modèles, intégration du sélecteur de tags, éditeur UX, résolution TXT, préparation du brief, prévisualisation et confidentialité, nettoyage du schéma et des anciens composants, compatibilité des archives, tests et i18n. **Le nettoyage PostgreSQL est une exigence obligatoire, pas une amélioration facultative.**
 
 L'architecture de Winston et les présents critères sont des entrées de cadrage, non la preuve d'exécution. Aucun code d'application ni schéma de base n'a été modifié pour cette étude.
+
+---
+
+## 11. Complément Sally — Sélection multi-IA et sauvegarde volontaire (décisions PO du 16/11/2026)
+
+**Statut :** orientations UX intégrées au cadrage, à détailler et valider avant transmission à John et rédaction de nouvelles User Stories.
+
+### 11.1 Règles produit incontournables
+
+1. L'utilisateur peut configurer **plusieurs connexions IA** et sélectionner librement celle à utiliser **au moment d'envoyer un brief**, y compris plusieurs connexions pour le même fournisseur.
+2. **Seuls les modèles gratuits sont sélectionnables et exécutables.** Un modèle facturable, inconnu ou dont la gratuité ne peut être confirmée doit être indisponible avec une explication claire ; pas de bascule payante cachée.
+3. Les réponses IA sont **conservées uniquement par une action manuelle explicite** ; ni sauvegarde automatique, ni historique implicite. Une réponse non enregistrée peut disparaître à la fermeture de l'écran ; prévenir l'utilisateur sans lui imposer l'archivage.
+4. Conserver l'éditeur « bloc-notes » et les tags du système de rapports sans réintroduire de formulaires techniques pour les modèles de briefs.
+
+### 11.2 Parcours A — Paramètres > Intelligence artificielle
+
+- Écran pleine largeur, fond de contenu blanc, en-tête et séparation filtres/données conformes au référentiel Cockpit Agile.
+- Tableau de connexions : nom lisible, fournisseur, modèle gratuit sélectionné, statut actif/inactif, dernier résultat de test lorsque disponible, actions éditer/tester/désactiver/supprimer selon droits.
+- Bouton « Ajouter une connexion » dans l'en-tête ; **modale Cockpit Agile** pour nom, fournisseur, clé masquée, modèle gratuit compatible et bouton « Tester la connexion ».
+- Permettre plusieurs clés pour un fournisseur, les distinguer par des libellés personnalisables ; ne jamais réafficher une clé complète. Modification de clé par remplacement explicite.
+- Afficher le lien officiel pour obtenir une clé API et l'information sur les quotas et la politique de confidentialité ; ne pas promettre la permanence de la gratuité.
+- État vide, erreur de validation, fournisseur indisponible, clé invalide et accès lecture seule : messages accessibles, localisés, avec action de correction.
+- Pas de clé obligatoire pour écrire, prévisualiser, copier ou archiver un prompt local.
+
+### 11.3 Parcours B — Envoyer un brief IA depuis un sprint
+
+1. Préparer le prompt dans la grande zone de texte et insérer des tags.
+2. Prévisualiser le **texte intégral résolu** et les données qui seront transmises ; signaler explicitement les informations personnelles/sensibles et les tags invalides.
+3. Sélectionner une connexion active dans une liste « Envoyer à » ; afficher fournisseur, modèle gratuit et éventuelle limitation connue.
+4. Contrôler que le modèle reste autorisé et gratuit, puis demander la confirmation explicite d'envoi du **contenu exact affiché**. Une modification du texte, du contexte ou de la connexion annule cette confirmation.
+5. Afficher progression, annulation lorsque possible, erreurs de quota/authentification/réseau et réponse retournée directement dans SMN.
+6. Fournir **Copier** et **Enregistrer cette réponse**, cette dernière étant la seule action qui autorise la persistance. Après enregistrement, fournir un retour clair et le lien vers l'archive ou le journal selon le modèle de données existant.
+
+### 11.4 États, garde-fous et accessibilité
+
+- Aucune connexion ; plusieurs connexions ; connexion inactive ; clé à remplacer ; service indisponible ; aucun modèle gratuit disponible ; quota gratuit dépassé ; confirmation refusée ; erreur pendant l'appel.
+- Réponse affichée mais **non enregistrée** : marque explicite « Non enregistrée », avertissement de perte à la navigation, sans pop-up répétitive et sans écriture cachée.
+- Réponse déjà enregistrée : état visible et prévention de doublons accidentels.
+- Contrôles clavier, lecteurs d'écran, messages non uniquement colorés ; responsive et traductions FR/EN avec extensibilité 6–10 langues.
+- Éviter de mélanger « Générer le brief » (résolution locale), « Envoyer à l'IA » (transmission externe) et « Enregistrer la réponse » (persistance locale).
+- Respecter le contrôle des permissions de SMN, la confidentialité des tags et le droit de ne jamais envoyer le brief hors du PC.
+
+### 11.5 Recette UX préalable aux User Stories
+
+- L'utilisateur crée deux connexions du même fournisseur, les distingue et choisit l'une à l'envoi.
+- La liste ne propose que des modèles confirmés gratuits ; le changement de statut d'un modèle bloque proprement l'envoi.
+- Aucun texte de réponse n'est conservé sans clic explicite « Enregistrer cette réponse » ; la copie ne déclenche pas la sauvegarde.
+- Les données résolues envoyées correspondent exactement à celles que l'utilisateur a relues et autorisées.
+- Le parcours demeure utilisable pour la simple édition locale du prompt sans clé ni connexion internet.
+- Les archives et réponses historiques restent accessibles sans réécriture.
+
+**Traçabilité :** arbitrages validés par le Product Owner le 16 novembre 2026. Ce document est une spécification UX, pas une implémentation ni une preuve de test.
