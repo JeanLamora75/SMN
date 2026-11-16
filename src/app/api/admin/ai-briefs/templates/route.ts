@@ -15,11 +15,12 @@ export async function POST(req:NextRequest){
  if(!allowMutation(req))return jsonResult({error:"invalid-origin"},403);
  const actor=await authorizeApi(req,"write",scope);
  if(!actor)return jsonResult({error:"forbidden"},403);
- const data=await readJsonObject(req);
+ // The prompt itself may be 100,000 Unicode characters; account for JSON escaping.
+ const data=await readJsonObject(req,500000);
  if(!data)return jsonResult({error:"invalid-input"},400);
  try{
   const result=await withAuthDb(db=>manageBriefTemplate(db,actor.id,data));
-  const status=result.ok?200:result.error==="protected"?403:result.error==="not-found"?404:result.error==="conflict"?409:400;
+  const status=result.ok?200:result.error==="protected"?403:result.error==="not-found"?404:(result.error==="conflict"||result.error==="migration-required")?409:400;
   return jsonResult(result,status);
  }catch{return jsonResult({error:"unavailable"},503);}
 }
