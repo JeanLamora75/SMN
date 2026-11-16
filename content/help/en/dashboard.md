@@ -88,7 +88,7 @@ Choose a few questions to answer: the goal, available capacity, delivery results
 
 ### B. Start editing
 
-1. Open [Dashboard Builder](/app/dashboard-builder) for the correct team.
+1. Open Dashboard Builder for the correct team.
 2. Select **Customize** in the Actions menu, if authorized.
 3. Review the header and existing rows.
 4. Work on the **draft**; changes are not published until you save.
