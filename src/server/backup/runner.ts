@@ -251,8 +251,7 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
     "backup-document-invalid","backup-document-inconsistent",
     "backup-pg-dump-failed","backup-extra-archives-changed",
     "backup-documents-changed","backup-wal-unavailable"]);
-   const safeStage=safeBackupFailureStage(failureStage);
-   throw new Error("backup-failed:"+(allowed.has(code)?code:"unclassified")+":stage-"+safeStage);
+   throw new Error("backup-failed:"+(allowed.has(code)?code:"unclassified"));
   }
   throw new Error("backup-failed");
  }finally{
