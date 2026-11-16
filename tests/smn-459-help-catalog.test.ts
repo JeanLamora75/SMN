@@ -29,7 +29,7 @@ describe("SMN help canonical catalog",()=>{
   assert.deepEqual(helpCatalog(null,"scrum"),[]);
   assert.deepEqual(helpCatalog(inactive,"scrum"),[]);
   assert.deepEqual(helpCatalog(user,"scrum").map(e=>e.id),
-   ["overview","dashboard","sprints","tickets","calendar","registries","reports","indicators","faq"]);
+   ["overview","dashboard","sprints","sprint-page","tickets","calendar","registries","reports","indicators","faq"]);
   assert.equal(helpArticleById("general-settings",user,"scrum"),null);
   assert.equal(helpArticleById("backup",user,"scrum"),null);
   assert.equal(helpArticleForContext("/app/admin/settings",user,"scrum"),null);
