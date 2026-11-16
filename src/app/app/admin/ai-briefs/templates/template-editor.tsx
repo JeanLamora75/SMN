@@ -5,10 +5,14 @@ import OfficeTagConfigurator from "../../../reports/office-tag-configurator";
 import {insertPromptTag} from "@/lib/ai-brief-tag-insertion";
 import {useLocale} from "@/i18n/client";
 import {aiBriefText,type AiBriefKey} from "@/lib/ai-brief-messages";
+import {localizedNativeBrief} from "@/lib/ai-brief-native-locales";
 
 type Draft={title:string;description:string;promptText:string};
 const blank=():Draft=>({title:"",description:"",promptText:""});
-const from=(t:ManagedBriefTemplate):Draft=>({title:t.title,description:t.description,promptText:t.promptText});
+const from=(t:ManagedBriefTemplate,locale:string):Draft=>{
+ const shown=localizedNativeBrief(t,locale);
+ return {title:shown.title,description:shown.description,promptText:shown.promptText};
+};
 export default function TemplateEditor({original}:{original:ManagedBriefTemplate[]}){
  const [templates,setTemplates]=useState(original);
  const [selected,setSelected]=useState("new");
@@ -19,13 +23,13 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
  const t=(key:AiBriefKey)=>aiBriefText(locale,key);
  const textarea=useRef<HTMLTextAreaElement>(null);
  const cursor=useRef({start:0,end:0});
- const baseline=current?from(current):blank();
+ const baseline=current?from(current,locale):blank();
  const dirty=JSON.stringify(draft)!==JSON.stringify(baseline);
  function choose(id:string,force=false){
   if(!force&&dirty&&!window.confirm(t("discard")))return;
   const found=templates.find(t=>t.id===id);
   setSelected(id);
-  setDraft(found?from(found):blank());
+  setDraft(found?from(found,locale):blank());
   setMessage("");
   cursor.current={start:0,end:0};
  }
@@ -59,7 +63,7 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
    setTemplates(json.templates);
    const id=action==="create"?result.id:current?.id;
    const latest=json.templates.find(t=>t.id===id);
-   setSelected(latest?.id??"new");setDraft(latest?from(latest):blank());
+   setSelected(latest?.id??"new");setDraft(latest?from(latest,locale):blank());
    setMessage(t("saved"));
   }catch(e){setMessage(e instanceof Error?e.message:"Enregistrement impossible.");}
   finally{setBusy(false);}
@@ -69,7 +73,7 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
    <label className="form-label flex-grow-1 mb-0" htmlFor="brief-template-choice">{t("template")}
     <select className="form-select mt-1" id="brief-template-choice" value={selected} onChange={e=>choose(e.target.value)}>
      <option value="new">{t("newTemplate")}</option>
-     {templates.map(t=><option key={t.id} value={t.id}>{t.title}{t.builtin?aiBriefText(locale,"nativeSuffix"):""}{t.active?"":aiBriefText(locale,"inactiveSuffix")}</option>)}
+     {templates.map(t=><option key={t.id} value={t.id}>{localizedNativeBrief(t,locale).title}{t.builtin?aiBriefText(locale,"nativeSuffix"):""}{t.active?"":aiBriefText(locale,"inactiveSuffix")}</option>)}
     </select>
    </label>
    <div className="d-flex gap-2">
