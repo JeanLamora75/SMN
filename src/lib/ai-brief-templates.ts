@@ -56,13 +56,4 @@ export function allowedBriefFields(mode:BriefMode,fields:readonly string[]):Coll
  return [...new Set(fields)].filter((field):field is CollectiveBriefField=>
   common.has(field as CollectiveBriefField)||modeFields.has(field as CollectiveBriefField));
 }
-export function projectCollectiveBriefFacts(mode:BriefMode,requested:readonly string[],facts:Record<string,unknown>):Record<string,string|number|boolean>{
- const result:Record<string,string|number|boolean>={};
- for(const key of allowedBriefFields(mode,requested)){
-  const value=facts[key];
-  if(typeof value==="string"&&value.trim()||typeof value==="number"&&Number.isFinite(value)||typeof value==="boolean")
-   result[key]=value as string|number|boolean;
- }
- return result;
-}
 export function initialBriefTemplate(id:string){return initialBriefTemplates.find(t=>t.id===id)??null;}
