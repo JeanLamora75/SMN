@@ -10,6 +10,8 @@ import {insertPromptTag} from "@/lib/ai-brief-tag-insertion";
 import {useLocale} from "@/i18n/client";
 import {aiBriefText,type AiBriefKey} from "@/lib/ai-brief-messages";
 import {localizedNativeBrief} from "@/lib/ai-brief-native-locales";
+import {useTranslation} from "@/i18n/client";
+import BriefAiSendPanel from "./brief-ai-send-panel";
 
 type Historic={id:string;type:"human"|"ai";origin:string;createdAt:string;content:string;cycleId:string};
 type Cycle={id:string;teamId:string;name:string;team:string;product:string|null;status:string;startAt:string;endAt:string;timeZone:string};
@@ -19,6 +21,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
  indicators:readonly {tag:string;value:string|null;unit:string;source:string;available:boolean;reason:string|null}[];
 }){
  const locale=useLocale();
+ const ui=useTranslation();
  const t=(key:AiBriefKey)=>aiBriefText(locale,key);
  const [base,setBase]=useState(template);
  const [prompt,setPrompt]=useState(template.promptText);
@@ -176,6 +179,9 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
    <button type="button" className="btn btn-primary" disabled={saving||!approved||finalizedId!==null} onClick={()=>void finalize()}>{t("finalize")}</button>
   </div>
   <p className="alert alert-info mt-3 mb-2"><strong>{t("manualOnly")}</strong> {t("manualHelp")}</p>
+  {!finalizedId&&<p className="small text-secondary mt-3">{ui("aiSend.finalizeFirst")}</p>}
+  {finalizedId&&preview&&<BriefAiSendPanel key={finalizedId}
+   archiveId={finalizedId} reviewedText={preview} cycleName={context.name} teamName={context.team}/> }
   {finalizedId&&<p role="status" className="alert alert-success">{t("archived")}{finalizedId}</p>}
   {message&&<p role="status" className="small mb-0">{message}</p>}
  </section>;
