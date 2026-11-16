@@ -76,5 +76,5 @@ test("SMN-484 provider test cannot invalidate revision-bound encrypted keys",()=
  assert.match(probe,/testAiConnection/);
  assert.match(probe,/loadAiCredential\(id,row\.provider_id,row\.revision\)/);
  assert.doesNotMatch(probe,/revision=revision\+1/);
- assert.match(probe,/revision:revision\}/);
+ assert.match(probe,/tested:true,revision\}/);
 });
