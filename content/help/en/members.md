@@ -8,7 +8,7 @@ A team member is more than a name on a roster. **Their profile, assignment, work
 
 1. Open [Team / Members](/app/admin/members) and check the selected team.
 2. Choose **Cards** for browsing profiles or **List** to compare people.
-3. Use **name**, **role**, **function** and **status** filters, then select **Filter**.
+3. Use **search** by name and the **role**, **function** and **status** filters, then select **Filter**.
 4. Review **Active** and **Inactive** groups. Someone who has left the team may still belong in its history.
 5. Open a member record to review the details.
 
