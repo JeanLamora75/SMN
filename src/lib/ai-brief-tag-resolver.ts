@@ -60,8 +60,7 @@ export function resolveBriefPrompt(input:ResolveBriefInput):ResolvedBrief{
   if(!allowedScalars.has(tag))return fail(tag,"Tag inconnu du catalogue Office");
   if(tag==="SPRINT_GOAL"||tag==="PRODUCT_GOAL"||tag==="PRODUCT_VISION")
    return fail(tag,"Texte libre potentiellement sensible : insertion automatique interdite");
-  if(input.mode==="kanban"&&tag.startsWith("SPRINT_")&&tag!=="SPRINT_NAME")
-   return fail(tag,"Tag de sprint incompatible avec Kanban");
+  // The cycle context maps the Office SPRINT_* aliases onto a Kanban period as well.
   const v=values[tag];
   if(typeof v!=="string"||!v.trim())return fail(tag,"Aucune valeur disponible ou accès non autorisé");
   return safe(v);
