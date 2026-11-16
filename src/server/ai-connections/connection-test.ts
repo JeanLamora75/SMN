@@ -32,12 +32,12 @@ export async function testAiConnection(db:Client,id:string,revision:number){
   result.error==="authentication-failed"?"failed":"unavailable";
  const changed=await db.query(`UPDATE public.smn_ai_connection
   SET enabled=$3,last_test_status=$4,last_test_at=now(),
-    revision=revision+1,updated_at=now()
+    updated_at=now()
   WHERE id=$1 AND installation_id='singleton' AND revision=$2
     AND provider_id=$5 AND model_id=$6 AND credential_state='configured'
   RETURNING revision`,
  [id,revision,result.ok,status,row.provider_id,row.model_id]);
  if(!changed.rowCount)return {ok:false as const,error:"conflict-or-not-found"};
- return result.ok?{ok:true as const,tested:true,revision:revision+1}:
-  {ok:false as const,error:result.error,tested:true,revision:revision+1};
+ return result.ok?{ok:true as const,tested:true,revision}:
+  {ok:false as const,error:result.error,tested:true,revision};
 }
