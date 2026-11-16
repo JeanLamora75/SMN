@@ -9,11 +9,12 @@ import BriefOverrides from "./brief-overrides";
 import HumanAnalysisForm from "@/app/app/ai-briefs/human-analysis-form";
 import {readBriefFacts,projectBriefSelection} from "@/server/ai-briefs/facts";
 import {readAnalysisJournal} from "@/server/ai-briefs/journal";
+import {readBriefIndicatorValues} from "@/server/ai-briefs/indicators";
 
 export const dynamic="force-dynamic";
 
 type BriefContext={
- id:string; name:string; status:string; team:string; product:string|null;
+ id:string; name:string; status:string; teamId:string; team:string; product:string|null;
  startAt:string; endAt:string; timeZone:string;
 };
 
@@ -30,7 +31,7 @@ export default async function PrepareAiBrief({searchParams}:{
  const scrum=mode==="scrum";
  const context=await withAuthDb(async db=>{
   const sql=scrum?`
-   SELECT s.id,s.name,s.status,t.name AS team,p.name AS product,
+   SELECT s.id,s.name,s.status,t.id AS "teamId",t.name AS team,p.name AS product,
    s.start_at::text AS "startAt",s.end_at::text AS "endAt",
    s.time_zone AS "timeZone"
    FROM public.smn_sprint s
@@ -40,7 +41,7 @@ export default async function PrepareAiBrief({searchParams}:{
    WHERE s.id=$1 AND s.deleted_at IS NULL
    AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'
   `:`
-   SELECT k.id,k.name,k.status,t.name AS team,p.name AS product,
+   SELECT k.id,k.name,k.status,t.id AS "teamId",t.name AS team,p.name AS product,
    k.start_on::text AS "startAt",k.end_on::text AS "endAt",
    k.time_zone AS "timeZone"
    FROM public.smn_kanban_period k
@@ -63,6 +64,7 @@ export default async function PrepareAiBrief({searchParams}:{
  const fields=allowedBriefFields(scrum?"scrum":"kanban",selected.data);
  const facts=await withAuthDb(db=>readBriefFacts(db,scrum?"scrum":"kanban",context.id)).catch(()=>({}));
  const projected=projectBriefSelection(scrum?"scrum":"kanban",fields,facts);
+ const indicators=await withAuthDb(db=>readBriefIndicatorValues(db,context.teamId,scrum?"scrum":"kanban",context.id)).catch(()=>[]);
  const historical=await withAuthDb(async db=>{
   const teams=await db.query<{id:string}>("SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode) IN ('scrum','kanban')");
   return teams.rows.length===1?readAnalysisJournal(db,teams.rows[0].id,{}):[];
@@ -112,7 +114,7 @@ export default async function PrepareAiBrief({searchParams}:{
       <tbody>{projected.map(item=><tr key={item.key}><th scope="row">{item.label}</th><td>{item.value??"Non renseigné"}</td><td>{item.unit??"—"}</td><td>{item.quality}</td><td>{item.source}{item.snapshotVersion!==null?" · V"+item.snapshotVersion:""}</td></tr>)}</tbody>
      </table></div>
     </div>
-    <BriefOverrides key={selected.id+":"+selected.revision} template={selected} mode={scrum?"scrum":"kanban"} context={context} facts={facts} preparedAt={preparedAt} historical={historical}/>
+    <BriefOverrides key={selected.id+":"+selected.revision} template={selected} mode={scrum?"scrum":"kanban"} context={context} facts={facts} preparedAt={preparedAt} historical={historical} indicators={indicators}/>
     <p className="small text-secondary">Les champs individuels sont toujours exclus. Les données absentes resteront absentes ; aucune mesure ni conclusion ne sera inventée.</p>
    </section>
    <HumanAnalysisForm mode={scrum?"scrum":"kanban"} cycleId={context.id}/>
