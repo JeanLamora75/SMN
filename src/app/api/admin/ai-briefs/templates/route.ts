@@ -1,7 +1,7 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
-import {jsonResult,readJsonObject} from "@/server/auth/request";
+import {allowMutation,jsonResult,readJsonObject} from "@/server/auth/request";
 import {listBriefTemplates,manageBriefTemplate} from "@/server/ai-briefs/templates";
 export const dynamic="force-dynamic";
 export const runtime="nodejs";
@@ -12,6 +12,7 @@ export async function GET(req:NextRequest){
  catch{return jsonResult({error:"unavailable"},503);}
 }
 export async function POST(req:NextRequest){
+ if(!allowMutation(req))return jsonResult({error:"invalid-origin"},403);
  const actor=await authorizeApi(req,"write",scope);
  if(!actor)return jsonResult({error:"forbidden"},403);
  const data=await readJsonObject(req);
