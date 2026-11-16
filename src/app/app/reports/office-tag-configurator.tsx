@@ -119,7 +119,6 @@ export default function OfficeTagConfigurator({locale,teamId,onInsert,disabled=f
      <div className="modal-body smn-office-tag-config-body d-grid gap-3">
       <fieldset><legend className="h6">{tr("Family")}</legend><div className="d-flex flex-wrap gap-2">
        {(["scalar","indicator","row","chart"] as Family[]).map(f=><button key={f} type="button"
-        disabled={briefMode&&f==="chart"}
         className={"btn btn-sm "+(family===f?"btn-primary":"btn-outline-secondary")}
         aria-pressed={family===f} onClick={()=>selectFamily(f)}>{tr("Family"+f)}</button>)}
       </div></fieldset>
@@ -166,7 +165,7 @@ export default function OfficeTagConfigurator({locale,teamId,onInsert,disabled=f
        <div className="d-flex flex-wrap gap-2">{currentFields.map(field=><button className="btn btn-outline-secondary btn-sm" type="button" key={field}
         title={tr("CopyColumn")} onClick={()=>void copy("{{"+field+"}}")}>{field}</button>)}</div>
       </div>}
-      {family==="chart"&&<div className="border rounded p-3 d-grid gap-3">
+      {family==="chart"&&!briefMode&&<div className="border rounded p-3 d-grid gap-3">
        <div><label className="form-label">{tr("ChartType")}
         <select className="form-select" value={chartType} onChange={e=>{const next=e.target.value as ChartType;setChartType(next);setKey(next);setChartTags(old=>next==="gauge"?old.slice(0,1):old);if(["pie","donut","gauge"].includes(next))setExplicitLast(false);}}>
          {officeChartDefinitions.map(x=><option key={x.type} value={x.type}>{locale==="fr"?x.fr:x.en}</option>)}
