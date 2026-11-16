@@ -60,7 +60,7 @@ test("SMN-481 multiple connections use different authenticated envelopes",()=>{
    ["provider",{...a,providerId:"gemini"}],
    ["version",{...a,version:2}]
   ] as const){
-   assert.throws(()=>decryptAiKey(master,modified,first,"groq",1),undefined,name);
+   assert.throws(()=>decryptAiKey(master,modified,first,"groq",1),/ai-secret-unavailable/,name);
   }
   assert.doesNotMatch(JSON.stringify(a),/synthetic-credential-only/);
   assert.doesNotMatch(JSON.stringify(b),/synthetic-credential-only/);
