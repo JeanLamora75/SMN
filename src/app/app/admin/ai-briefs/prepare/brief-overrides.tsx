@@ -1,159 +1,170 @@
 "use client";
-import {useState} from "react";
+import {useRef,useState} from "react";
 import type {ManagedBriefTemplate} from "@/server/ai-briefs/templates";
-import {allowedBriefFields,type BriefMode} from "@/lib/ai-brief-templates";
-import {composeBriefTxt} from "@/lib/ai-brief-txt";
-import {canApproveBrief} from "@/lib/ai-brief-review";
+import type {BriefMode} from "@/lib/ai-brief-templates";
 import type {BriefFact} from "@/server/ai-briefs/facts";
-
-type Editable={sections:string[];questions:string[];instructions:string[];data:string[];depth:number};
-const editable=(t:ManagedBriefTemplate):Editable=>({sections:[...t.sections],questions:[...t.questions],instructions:[...t.instructions],data:[...t.data],depth:t.depth});
-const lines=(s:string)=>s.split("\n").map(x=>x.trim()).filter(Boolean);
+import {resolveBriefPrompt} from "@/lib/ai-brief-tag-resolver";
+import {canApproveBrief} from "@/lib/ai-brief-review";
+import OfficeTagConfigurator from "../../../reports/office-tag-configurator";
 
 type Historic={id:string;type:"human"|"ai";origin:string;createdAt:string;content:string;cycleId:string};
-export default function BriefOverrides({template,mode,context,facts,preparedAt,historical}:{template:ManagedBriefTemplate;mode:BriefMode;context:{id:string;name:string;team:string;product:string|null;status:string;startAt:string;endAt:string;timeZone:string};facts:Record<string,BriefFact>;preparedAt:string;historical:Historic[]}){
+type Cycle={id:string;name:string;team:string;product:string|null;status:string;startAt:string;endAt:string;timeZone:string};
+const sanitize=(text:string)=>text.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,"");
+export default function BriefOverrides({template,mode,context,facts,preparedAt,historical}:{
+ template:ManagedBriefTemplate;mode:BriefMode;context:Cycle;facts:Record<string,BriefFact>;preparedAt:string;historical:Historic[];
+}){
  const [base,setBase]=useState(template);
- const [draft,setDraft]=useState<Editable>(()=>editable(template));
- const [message,setMessage]=useState("");
+ const [prompt,setPrompt]=useState(template.promptText);
+ const [observations,setObservations]=useState("");
+ const [selectedHistory,setSelectedHistory]=useState<string[]>([]);
+ const [activeView,setActiveView]=useState<"edit"|"preview">("edit");
+ const [preview,setPreview]=useState<string|null>(null);
+ const [reviewedText,setReviewedText]=useState<string|null>(null);
+ const [privacyReviewed,setPrivacyReviewed]=useState(false);
+ const [revisionChecked,setRevisionChecked]=useState(false);
  const [conflict,setConflict]=useState(false);
  const [saving,setSaving]=useState(false);
- const [activeView,setActiveView]=useState<"edit"|"preview">("edit");
- const [revisionChecked,setRevisionChecked]=useState(false);
  const [finalizedId,setFinalizedId]=useState<string|null>(null);
- const [preview,setPreview]=useState<string|null>(null);
- const [observations,setObservations]=useState("");
- const [humanQuestions,setHumanQuestions]=useState("");
- const [humanInstructions,setHumanInstructions]=useState("");
- const [privacyReviewed,setPrivacyReviewed]=useState(false);
- const [selectedHistory,setSelectedHistory]=useState<string[]>([]);
- const [reviewedText,setReviewedText]=useState<string|null>(null);
- const fields=allowedBriefFields(mode,["cycle.name","cycle.dates","cycle.status","team.name","product.name","objectives","risks","dependencies","decisions","scrum.storyPoints.committed","scrum.storyPoints.completed","scrum.capacity.planned","kanban.started","kanban.wip","kanban.throughput","kanban.cycleTime","kanban.leadTime","kanban.capacity.planned"]);
- const changed=JSON.stringify(draft)!==JSON.stringify(editable(base));
- const currentTxt=composeBriefTxt({context,mode,preparedAt,template:{...base,...draft,questions:[...draft.questions,...lines(humanQuestions)],instructions:[...draft.instructions,...lines(humanInstructions)]},facts,observations:lines(observations),historicalAnalyses:historical.filter(a=>selectedHistory.includes(a.type+":"+a.id))});
- const approved=canApproveBrief({preview,currentTxt,reviewedText,privacyReviewed,conflict,revisionChecked});
+ const [message,setMessage]=useState("");
+ const input=useRef<HTMLTextAreaElement>(null);
+ const cursor=useRef({start:0,end:0});
+ const resolved=resolveBriefPrompt({promptText:prompt,mode,context,facts,preparedAt});
+ const chosen=historical.filter(x=>selectedHistory.includes(x.type+":"+x.id));
+ const historyText=chosen.length?"\nANALYSES HISTORIQUES AJOUTÉES EXPLICITEMENT\n"+chosen.map(x=>
+  "- "+x.type+" | "+x.createdAt+" | "+x.origin+" | cycle "+x.cycleId+"\n"+sanitize(x.content)).join("\n"):"";
+ const observationsText=observations.trim()?"\nOBSERVATIONS DE L'UTILISATEUR\n"+sanitize(observations.trim()):"";
+ const currentTxt=[
+  "BRIEF IA — TEXTE BRUT",
+  "Équipe : "+context.team,"Produit : "+(context.product??"Non renseigné"),
+  "Mode : "+mode,"Cycle : "+context.name,"Identifiant du cycle : "+context.id,
+  "Dates : "+context.startAt+" — "+context.endAt+" ("+context.timeZone+")",
+  "Statut : "+context.status,"Date de préparation : "+preparedAt,
+  "Modèle : "+base.title+" (révision "+base.revision+")",
+  context.status==="closed"?"":"ATTENTION : données provisoires, cycle non clôturé.",
+  "",resolved.text,observationsText,historyText,
+  "Transmission à une IA : manuelle uniquement."
+ ].filter(x=>x!==null).join("\n").replace(/\n{3,}/g,"\n\n").trimEnd()+"\n";
+ const approved=resolved.safe&&canApproveBrief({preview,currentTxt,reviewedText,privacyReviewed,revisionChecked,conflict});
+ function invalidate(){setPreview(null);setPrivacyReviewed(false);setReviewedText(null);setRevisionChecked(false);setFinalizedId(null);}
+ async function latest(){
+  const result=await fetch("/api/admin/ai-briefs/templates",{cache:"no-store"});
+  if(!result.ok)throw Error("Catalogue indisponible");
+  const json=await result.json() as {templates:ManagedBriefTemplate[]};
+  return json.templates.find(x=>x.id===base.id);
+ }
+ async function checkRevision(){
+  try{
+   const last=await latest();
+   if(!last||!last.active||last.revision!==base.revision){
+    setConflict(true);setRevisionChecked(false);setPrivacyReviewed(false);setReviewedText(null);
+    setMessage("Le modèle a changé. Rechargez sa nouvelle version pour reprendre.");
+    return false;
+   }
+   setRevisionChecked(true);
+   return true;
+  }catch{
+   setRevisionChecked(false);setPrivacyReviewed(false);setReviewedText(null);
+   setMessage("Impossible de vérifier la révision du modèle.");
+   return false;
+  }
+ }
+ async function loadLatest(){
+  try{
+   const last=await latest();
+   if(!last||!last.active)throw Error("Modèle indisponible");
+   setBase(last);setPrompt(last.promptText);setObservations("");setSelectedHistory([]);
+   invalidate();setConflict(false);setActiveView("edit");setMessage("Dernière version rechargée.");
+  }catch(e){setMessage(e instanceof Error?e.message:"Rechargement impossible.");}
+ }
+ async function generatePreview(){
+  if(!await checkRevision())return;
+  setPreview(currentTxt);setPrivacyReviewed(false);setReviewedText(null);setActiveView("preview");
+  setMessage(resolved.safe?"Aperçu généré : relisez-le entièrement avant confirmation.":"Aperçu généré avec des tags non résolus : copie et archivage interdits.");
+ }
  async function finalize(){
   if(!approved||preview===null||finalizedId!==null)return;
   setSaving(true);
   try{
-   if(!await checkRevision())return;
-   if(!canApproveBrief({preview,currentTxt,reviewedText,privacyReviewed,conflict,revisionChecked:true})){setMessage("Le contenu a changé : générez et relisez un nouvel aperçu.");return;}
-   const bytes=new TextEncoder().encode(preview);
-   const digest=await crypto.subtle.digest("SHA-256",bytes);
-   const approvedSha256=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");
-   const response=await fetch("/api/admin/ai-briefs/finalize",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mode,cycleId:context.id,templateId:base.id,templateRevision:base.revision,txt:preview,approvedSha256,reviewConfirmed:true})});
-   if(!response.ok)throw Error("Archivage impossible : aucune finalisation confirmée.");
-   const archive=await response.json() as {id:string};
-   if(!archive.id)throw Error("Archivage non confirmé par le serveur.");
-   setFinalizedId(archive.id);setMessage("TXT archivé de manière immuable : "+archive.id);
+   if(!await checkRevision()||!resolved.safe||preview!==currentTxt||reviewedText!==preview||!privacyReviewed)
+    throw Error("La version validée n'est plus à jour. Recommencez la revue.");
+   const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(preview));
+   const approvedSha256=Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,"0")).join("");
+   const res=await fetch("/api/admin/ai-briefs/finalize",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({mode,cycleId:context.id,templateId:base.id,templateRevision:base.revision,txt:preview,approvedSha256,reviewConfirmed:true})});
+   const data=await res.json() as {ok?:boolean;id?:string;error?:string};
+   if(!res.ok||!data.ok||!data.id)throw Error(data.error??"Archivage non confirmé.");
+   setFinalizedId(data.id);setMessage("TXT archivé sans modification : "+data.id);
   }catch(e){setMessage(e instanceof Error?e.message:"Archivage impossible.");}
   finally{setSaving(false);}
  }
-
-
- async function latest(){
-  const res=await fetch("/api/admin/ai-briefs/templates",{cache:"no-store"});
-  if(!res.ok)throw Error("Catalogue indisponible");
-  const body=await res.json() as {templates:ManagedBriefTemplate[]};
-  return body.templates.find(t=>t.id===base.id);
+ function insertTag(tag:string){
+  const {start,end}=cursor.current;
+  setPrompt(old=>old.slice(0,start)+tag+old.slice(end));
+  const n=start+tag.length;cursor.current={start:n,end:n};invalidate();
+  requestAnimationFrame(()=>{input.current?.focus();input.current?.setSelectionRange(n,n);});
  }
- async function checkRevision(){
-  try{
-   const current=await latest();
-   if(!current||current.revision!==base.revision||!current.active){
-    setConflict(true);setRevisionChecked(false);setPrivacyReviewed(false);setReviewedText(null);setMessage("Le modèle a changé depuis l'ouverture. Rechargez sa dernière version avant de poursuivre.");
-    return false;
-   }
-   setRevisionChecked(true);setMessage("Révision du modèle vérifiée. Vos ajustements restent locaux.");
-   return true;
-  }catch{setRevisionChecked(false);setPrivacyReviewed(false);setReviewedText(null);setMessage("Impossible de vérifier la révision du modèle.");return false;}
- }
- async function reload(){
-  try{
-   const current=await latest();
-   if(!current||!current.active){setConflict(true);setMessage("Ce modèle n'est plus disponible.");return;}
-   setBase(current);setDraft(editable(current));setPreview(null);setPrivacyReviewed(false);setReviewedText(null);setRevisionChecked(false);setFinalizedId(null);setActiveView("edit");setConflict(false);setMessage("Configuration enregistrée du modèle rechargée. Aucun brouillon sauvegardé.");
-  }catch{setMessage("Rechargement impossible.");}
- }
-
- return <section className="border rounded-3 p-3 mt-3" aria-label="Ajustements ponctuels du brief">
-  <h3 className="h5">Adapter ce brief uniquement</h3>
-  <p className="small text-secondary">Modèle : {base.title} · Révision {base.revision}. Les changements ci-dessous restent en mémoire dans cette page, sans enregistrement automatique.</p>
-  {conflict&&<div className="alert alert-warning" role="alert">Le modèle a été modifié ou désactivé. Rechargez sa configuration avant de continuer.</div>}
-  <div className="row g-3 align-items-start">
-  <div className="btn-group d-lg-none mb-3" role="group" aria-label="Vue de préparation">
-   <button type="button" className={"btn btn-sm "+(activeView==="edit"?"btn-primary":"btn-outline-primary")} aria-pressed={activeView==="edit"} onClick={()=>setActiveView("edit")}>Rédiger</button>
-   <button type="button" className={"btn btn-sm "+(activeView==="preview"?"btn-primary":"btn-outline-primary")} aria-pressed={activeView==="preview"} onClick={()=>setActiveView("preview")} disabled={preview===null}>Aperçu</button>
+ return <section className="border rounded-3 p-3 mt-3" aria-label="Préparation du prompt IA">
+  <h3 className="h5">Rédiger et prévisualiser le prompt</h3>
+  <p className="small text-secondary">Modèle {base.title} · révision {base.revision}. Les modifications restent propres à ce brief, sans modifier le modèle.</p>
+  {conflict&&<p role="alert" className="alert alert-warning">La version du modèle a changé. Rechargez-le avant de poursuivre.</p>}
+  <div className="btn-group d-lg-none mb-3" role="group" aria-label="Mode de travail">
+   <button type="button" className={"btn btn-sm "+(activeView==="edit"?"btn-primary":"btn-outline-primary")} onClick={()=>setActiveView("edit")} aria-pressed={activeView==="edit"}>Rédiger</button>
+   <button type="button" className={"btn btn-sm "+(activeView==="preview"?"btn-primary":"btn-outline-primary")} onClick={()=>setActiveView("preview")} aria-pressed={activeView==="preview"}>Aperçu</button>
   </div>
-  <div className={"col-12 col-lg-6 "+(activeView==="preview"?"d-none d-lg-block":"")}>
-  <div>
-  <fieldset disabled={conflict||saving}>
-   <div className="row g-3">
-    {(["sections","questions","instructions"] as const).map(key=><div className="col-12 col-lg-4" key={key}>
-     <label className="form-label" htmlFor={"override-"+key}>{({sections:"Rubriques (ordre des lignes)",questions:"Questions",instructions:"Consignes"})[key]}</label>
-     <textarea className="form-control" id={"override-"+key} rows={6} value={draft[key].join("\n")} onChange={e=>{setDraft({...draft,[key]:lines(e.target.value)});setPrivacyReviewed(false);setReviewedText(null);setPreview(null);}}/>
-    </div>)}
-    <div className="col-12 col-lg-4"><label className="form-label" htmlFor="override-depth">Profondeur historique (1–5)</label>
-     <input className="form-control" type="number" min={1} max={5} id="override-depth" value={draft.depth} onChange={e=>{setDraft({...draft,depth:Number(e.target.value)});setPrivacyReviewed(false);setReviewedText(null);setPreview(null);}}/></div>
-    <div className="col-12"><p className="mb-2">Sélection des données collectives ({mode})</p>
-     <div className="row g-2">{fields.map(field=><label className="col-12 col-md-6 col-xl-4 form-check" key={field}>
-      <input type="checkbox" className="form-check-input" checked={draft.data.includes(field)} onChange={e=>{setDraft({...draft,data:e.target.checked?[...draft.data,field]:draft.data.filter(x=>x!==field)});setPrivacyReviewed(false);setReviewedText(null);setPreview(null);}}/> {field}
-     </label>)}</div>
+  <div className="row g-3">
+   <div className={"col-12 col-lg-6 "+(activeView==="preview"?"d-none d-lg-block":"")}>
+    <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+     <label htmlFor="brief-prompt" className="form-label fw-semibold mb-0">Prompt du brief</label>
+     <OfficeTagConfigurator locale="fr" teamId={null} onInsert={insertTag}/>
     </div>
+    <textarea ref={input} id="brief-prompt" rows={20} maxLength={100000} className="form-control font-monospace"
+     value={prompt} disabled={conflict||saving}
+     onSelect={e=>{cursor.current={start:e.currentTarget.selectionStart,end:e.currentTarget.selectionEnd};}}
+     onChange={e=>{setPrompt(e.target.value);cursor.current={start:e.target.selectionStart,end:e.target.selectionEnd};invalidate();}}/>
+    <label htmlFor="brief-observations" className="form-label fw-semibold mt-3">Observations complémentaires</label>
+    <textarea id="brief-observations" className="form-control" rows={3} maxLength={12000} value={observations}
+     disabled={conflict||saving} onChange={e=>{setObservations(e.target.value);invalidate();}}/>
+    <details className="border rounded-3 p-3 mt-3">
+     <summary className="fw-semibold">Analyses historiques (inclusion facultative)</summary>
+     <p className="small text-secondary mt-2">Aucune analyse n'est incluse par défaut. Leur contenu sera visible dans le TXT avant validation.</p>
+     {historical.map(x=><label className="d-block small my-2" key={x.type+":"+x.id}>
+      <input className="form-check-input me-2" type="checkbox" disabled={conflict||saving}
+       checked={selectedHistory.includes(x.type+":"+x.id)}
+       onChange={e=>{const k=x.type+":"+x.id;setSelectedHistory(old=>e.target.checked?[...old,k]:old.filter(v=>v!==k));invalidate();}}/>
+      {x.type==="ai"?"Réponse IA":"Analyse humaine"} · {x.createdAt} · {x.origin} · {x.content.slice(0,100)}
+     </label>)}
+     {historical.length===0&&<p className="small text-secondary">Aucune analyse disponible.</p>}
+    </details>
    </div>
-  </fieldset>
-  </div>
-  <div>
-  <div className="border-top mt-3 pt-3"><h4 className="h6">Analyses historiques (inclusion volontaire)</h4>
-   <p className="small text-secondary">Aucune analyse IA ou humaine n’est sélectionnée par défaut. Toute inclusion exige une nouvelle revue de confidentialité.</p>
-   {historical.length===0?<p className="text-secondary small">Aucune analyse antérieure disponible.</p>:<div className="d-grid gap-2">{historical.map(a=><label key={a.type+":"+a.id} className="border rounded p-2">
-    <input type="checkbox" className="form-check-input me-2" checked={selectedHistory.includes(a.type+":"+a.id)} onChange={e=>{const key=a.type+":"+a.id;setSelectedHistory(old=>e.target.checked?[...old,key]:old.filter(v=>v!==key));setPreview(null);setPrivacyReviewed(false);setReviewedText(null);}}/>
-    <strong>{a.type==="ai"?"Interprétation IA historique":"Avis humain historique"}</strong> · {a.createdAt} · {a.origin} · cycle {a.cycleId}
-    <span className="d-block small text-secondary text-break">{a.content.slice(0,400)}</span>
-   </label>)}</div>}
-  </div>
-  <div className="border-top mt-3 pt-3">
-   <h4 className="h6">Observations humaines et demandes à l’IA</h4>
-   <p className="small text-secondary">Ces commentaires concernent uniquement le brief en cours. Ils ne modifient aucune métrique ni fiche métier.</p>
-   <div className="row g-3">
-    <div className="col-12"><label htmlFor="human-observations" className="form-label">Observations collectives (une par ligne)</label>
-     <textarea id="human-observations" className="form-control" rows={4} maxLength={12000} value={observations} onChange={e=>{setObservations(e.target.value);setPreview(null);setPrivacyReviewed(false);}}/></div>
-    <div className="col-12 col-lg-6"><label htmlFor="human-questions" className="form-label">Questions supplémentaires à l’IA (une par ligne)</label>
-     <textarea id="human-questions" className="form-control" rows={4} maxLength={6000} value={humanQuestions} onChange={e=>{setHumanQuestions(e.target.value);setPreview(null);setPrivacyReviewed(false);}}/></div>
-    <div className="col-12 col-lg-6"><label htmlFor="human-instructions" className="form-label">Consignes supplémentaires à l’IA (une par ligne)</label>
-     <textarea id="human-instructions" className="form-control" rows={4} maxLength={6000} value={humanInstructions} onChange={e=>{setHumanInstructions(e.target.value);setPreview(null);setPrivacyReviewed(false);}}/></div>
+   <div className={"col-12 col-lg-6 "+(activeView==="edit"?"d-none d-lg-block":"")}>
+    <label htmlFor="brief-txt-preview" className="form-label fw-semibold">Aperçu TXT intégral</label>
+    <textarea id="brief-txt-preview" className="form-control font-monospace" rows={20} readOnly value={preview??""} placeholder="Générez un aperçu pour le relire."/>
+    {resolved.diagnostics.length>0&&<div className="alert alert-warning mt-3" role="alert">
+     <strong>Tags à corriger avant toute copie ou archivage</strong>
+     <ul className="mb-0">{resolved.diagnostics.map((x,i)=><li key={i}><code>{x.tag}</code> : {x.reason}</li>)}</ul>
+    </div>}
+    {preview!==null&&<div className="border rounded p-3 mt-3">
+     <label className="form-check-label" htmlFor="brief-privacy-reviewed">
+      <input id="brief-privacy-reviewed" className="form-check-input me-2" type="checkbox"
+       disabled={saving||conflict||!revisionChecked||!resolved.safe||preview!==currentTxt}
+       checked={approved} onChange={e=>{setPrivacyReviewed(e.target.checked);setReviewedText(e.target.checked?preview:null);}}/>
+      J'ai relu intégralement cette version exacte et vérifié la confidentialité des informations avant tout partage.
+     </label>
+    </div>}
    </div>
-
-  </div>
-  </div>
-  <div className={"col-12 col-lg-6 "+(activeView==="edit"?"d-none d-lg-block":"")}>
-  <h4 className="h6">Aperçu et revue de confidentialité</h4>
-  <p className="small text-secondary">Vérifiez l’intégralité du contenu, y compris les données et leur provenance, avant toute copie ou archive.</p>
-  {preview!==null&&!approved&&<p className="alert alert-warning mt-3" role="alert">Confidentialité non vérifiée : le TXT peut contenir des noms, informations privées ou secrets issus des textes libres. Relisez le texte intégral et confirmez cette version exacte avant tout partage.</p>}
-  {preview!==null&&<div className="mt-3"><label htmlFor="brief-txt-preview" className="form-label fw-semibold">Aperçu TXT plat (non archivé)</label><textarea id="brief-txt-preview" className="form-control font-monospace" rows={20} readOnly value={preview}/><p className="small mt-2">{approved?"Version affichée vérifiée pour confidentialité (non archivée).":"Version non validée : aucun export ni finalisation possible."}</p></div>}
-  {preview!==null&&<div className="border rounded p-3 mt-3" aria-label="Revue de confidentialité"><div className="form-check mt-3"><input type="checkbox" className="form-check-input" id="brief-privacy-reviewed" disabled={preview===null||preview!==currentTxt||conflict} checked={approved} onChange={e=>{setPrivacyReviewed(e.target.checked);setReviewedText(e.target.checked?preview:null);}}/>
-    <label htmlFor="brief-privacy-reviewed" className="form-check-label">J’ai examiné le TXT intégral affiché et vérifié les noms, données privées et secrets éventuellement présents dans les textes libres. Je confirme cette version exacte uniquement.</label></div></div>}
-  </div>
-  </div>
   </div>
   <div className="d-flex flex-wrap gap-2 mt-3">
-   <button className="btn btn-primary btn-sm" disabled={conflict||saving} onClick={async()=>{if(!await checkRevision())return;setPreview(currentTxt);setPrivacyReviewed(false);setReviewedText(null);setActiveView("preview");}}>Générer l’aperçu TXT</button>
-   <button className="btn btn-outline-primary btn-sm" onClick={()=>void checkRevision()} disabled={saving}>Actualiser le contenu / vérifier la révision</button>
-   <button className="btn btn-outline-secondary btn-sm" onClick={()=>void reload()} disabled={saving}>Recharger le modèle (abandonner les ajustements)</button>
-   <span className="small text-secondary align-self-center">Les ajustements de cette préparation ne modifient jamais le modèle enregistré.</span>
+   <button type="button" className="btn btn-primary" disabled={saving||conflict||!prompt.trim()} onClick={()=>void generatePreview()}>Générer l'aperçu</button>
+   <button type="button" className="btn btn-outline-secondary" disabled={saving} onClick={()=>void loadLatest()}>Recharger le modèle</button>
+   <button type="button" className="btn btn-outline-primary" disabled={saving||!approved} onClick={async()=>{
+    if(!approved||!await checkRevision()||!preview||preview!==currentTxt)return;
+    try{await navigator.clipboard.writeText(preview);setMessage("TXT copié. Aucun appel IA effectué.");}
+    catch{setMessage("Copie impossible : sélectionnez manuellement le texte de l'aperçu.");}
+   }}>Copier le TXT validé</button>
+   <button type="button" className="btn btn-primary" disabled={saving||!approved||finalizedId!==null} onClick={()=>void finalize()}>Finaliser et archiver</button>
   </div>
-  <aside className="alert alert-info mt-3" aria-label="Transmission manuelle à une IA">
-   <strong>Transmission manuelle uniquement.</strong> SMN ne contacte aucun service IA et ne crée aucune analyse automatiquement.
-   Après validation de la confidentialité, vous choisissez librement si vous souhaitez copier le texte puis le coller vous-même dans un service extérieur.
-   Les politiques de confidentialité, de conservation et de traitement de ce prestataire ne sont pas contrôlées par SMN.
-   Les URL et instructions présentes dans un modèle sont du texte : elles ne déclenchent aucun appel réseau vers une IA.
-  </aside>
-  {approved&&!finalizedId&&<button className="btn btn-primary btn-sm mt-2 ms-2" disabled={saving} type="button" onClick={()=>void finalize()}>Finaliser et archiver le TXT validé</button>}
-  {finalizedId&&<p className="alert alert-success mt-3" role="status">Brief finalisé et archivé sous l’identifiant {finalizedId}. Le texte ne peut pas être modifié.</p>}
-  {approved&&<button type="button" className="btn btn-outline-primary btn-sm mt-2" onClick={async()=>{
-   try{await navigator.clipboard.writeText(preview!);setMessage("TXT copié. Tout transfert à une IA reste une action manuelle hors de SMN.");}
-   catch{setMessage("Copie impossible : sélectionnez le texte dans l’aperçu et copiez-le manuellement.");}
-  }}>Copier le TXT validé</button>}
-  {changed&&!conflict&&<p className="text-secondary small mt-2">Modifications locales : le modèle enregistré reste inchangé.</p>}
-  {message&&<p role="status" className="mt-2 mb-0">{message}</p>}
+  <p className="alert alert-info mt-3 mb-2"><strong>Transmission exclusivement manuelle.</strong> SMN n'appelle aucun fournisseur d'IA. Aucune donnée ou archive n'est créée lors de la simple consultation.</p>
+  {finalizedId&&<p role="status" className="alert alert-success">Archive immuable créée : {finalizedId}</p>}
+  {message&&<p role="status" className="small mb-0">{message}</p>}
  </section>;
 }
