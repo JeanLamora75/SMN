@@ -14,15 +14,15 @@ const failDb={query:async()=>{throw Error("No arbitrary database query expected"
 test("Scrum scalar rendering uses only authorized cycle context and marks active values provisional",async()=>{
  const result=await renderCycleBriefPrompt(failDb,"scrum",ctx,"{{TEAM_NAME}} / {{SPRINT_NAME}} / {{PRODUCT_NAME}}","fr");
  assert.equal(result.complete,true);
- assert.match(result.text,/Équipe A \[source : live ; qualité : provisional\]/);
+ assert.match(result.text,/Équipe A \[source : team-record ; qualité : provisional\]/);
  assert.match(result.text,/Sprint 23/);
  assert.match(result.text,/Produit B/);
 });
-test("Closed Kanban scalar rendering records the frozen source rather than inventing Scrum SP",async()=>{
+test("Closed Kanban scalar rendering correctly labels current cycle records without inventing Scrum SP",async()=>{
  const result=await renderCycleBriefPrompt(failDb,"kanban",{...ctx,status:"closed"},
   "{{SPRINT_STATUS}} / {{TEAM_NAME}}","en");
  assert.equal(result.complete,true);
- assert.match(result.text,/closure ; quality: recorded/);
+ assert.match(result.text,/cycle-record ; quality: recorded/);
  assert.doesNotMatch(result.text,/storyPoints|velocity/i);
 });
 test("Disallowed or unsupported tags remain unresolved without arbitrary database reads",async()=>{
