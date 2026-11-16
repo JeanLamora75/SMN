@@ -3,10 +3,13 @@ import {createHash} from "node:crypto";
 import {createReadStream} from "node:fs";
 import {lstat,writeFile} from "node:fs/promises";
 import path from "node:path";
+import {verifySmn478Qualification} from "./smn-478-qualification-gate.mjs";
 export async function writeDeliveryEvidence(file,kind,commit,run){
  if(!["windows-x64-initial","windows-x64-update"].includes(kind)||
     !/^[a-f0-9]{40}$/.test(commit??"")||!/^[1-9][0-9]*$/.test(run??"")||
     !Number.isSafeInteger(Number(run)))throw Error("smn-delivery-ci-context-invalid");
+ // Refuse delivery metadata when any required Windows/DB/ZIP qualification is missing.
+ await verifySmn478Qualification(process.env.SMN478_QUALIFICATION_RECEIPT,commit);
  const info=await lstat(file);
  if(!info.isFile()||info.isSymbolicLink()||info.size<=0||info.size>1024**3)
   throw Error("smn-delivery-file-invalid");
