@@ -1,4 +1,4 @@
-/** SMN-472: lossless, repeatable conversion of legacy sections into editable plain text. */
+/** Lossless, repeatable conversion of legacy sections into editable plain text. */
 export type LegacyPromptTemplate={
  sections:readonly string[];questions:readonly string[];instructions:readonly string[];
  data:readonly string[];depth:number;
