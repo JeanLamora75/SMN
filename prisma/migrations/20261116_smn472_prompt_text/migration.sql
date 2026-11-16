@@ -1,4 +1,4 @@
--- SMN-472. Additive migration: no archived TXT or template revision is modified.
+-- Additive migration: archived TXT and template revisions remain unchanged.
 -- Backfill is performed by scripts/apply-smn-472-prompt-text.ts, after verified backup.
 DO $$
 BEGIN
