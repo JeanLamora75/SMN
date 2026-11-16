@@ -71,9 +71,15 @@ async function secureDirectory(directory:string):Promise<void>{
   }
  }
  const actual=await realpath(target);
- // Compare canonical paths using platform-aware casing, especially on Windows.
- // A symlink/junction resolving elsewhere still fails closed.
- if(path.relative(actual,target)!=="")throw new TicketStorageError("unsafe-path");
+ // Node/Win32 may return an extended-length \\?\ path for the same directory.
+ // Normalize only the Windows namespace prefix and case; pre-existing symlinks
+ // and junctions are still rejected by lstat for every path component above.
+ const canonical=(value:string)=>{
+  if(process.platform!=="win32")return path.normalize(value);
+  const portable=value.startsWith("\\\\?\\")?value.slice(4):value;
+  return path.win32.normalize(portable).toLowerCase();
+ };
+ if(canonical(actual)!==canonical(target))throw new TicketStorageError("unsafe-path");
 }
 function folder(scope:TicketScope,root:string):string{
  return path.join(root,scope.teamId,scope.mode,scope.cycleId);
