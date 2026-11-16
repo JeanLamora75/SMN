@@ -166,3 +166,70 @@ Sally remettra des décisions UX, parcours, états, règles responsive et critè
 - Faire valider la spécification UX correspondante par Sally ; **ne pas créer de nouvelles User Stories et ne pas commencer l'implémentation** avant ce jalon.
 
 **Sources fonctionnelles :** décisions explicites du Product Owner du 16 novembre 2026 ; études BMAD du 15 novembre 2026. **Vérifications officielles à rafraîchir avant implémentation :** https://ai.google.dev/gemini-api/docs/pricing ; https://console.groq.com/docs/rate-limits ; https://openrouter.ai/pricing.
+
+---
+## Addendum du 16 novembre 2026 — intégration API IA : conception technique détaillée (Winston)
+
+**Statut :** décisions métier actées ; spécification technique prête pour la décomposition Jira, sous réserve des vérifications d'intégration et de la qualification API. **Aucune implémentation réalisée dans cet addendum.**
+**Décisions fermes du Product Owner :** plusieurs clés et connexions par fournisseur ; choix de la connexion lors de chaque envoi ; **modèles uniquement gratuits** ; **une réponse n'est persistée que par action explicite de l'utilisateur**. L'appel distant est facultatif et ne remplace ni l'éditeur, ni le workflow d'archives.
+
+### A. Périmètre, contrats et limites de gratuité
+
+- Fournisseurs candidats initiaux : Gemini, Groq, OpenRouter. Ils ne deviennent **activables** qu'après validation en conditions réelles de l'accès API, de la sélection du modèle gratuit, des conditions d'utilisation et des limites. Toute documentation commerciale évolutive doit être revérifiée avant livraison ; les décisions de conception ne constituent pas une preuve de gratuité permanente.
+- Créer un registre serveur de connecteurs `providerId`, configuration d'API et adaptateur par fournisseur (authentification, requête, réponse, limites, mapping d'erreurs) ; ne jamais laisser l'interface appeler directement les API externes.
+- Contrat connexion : `id`, `owner/installation scope`, `label`, `provider_id`, `encrypted_secret_ref`, `model_id`, `enabled`, `last_test_status`, `last_test_at`, `created_at`, `updated_at`. Plusieurs connexions d'un même fournisseur autorisées ; contrôle d'unicité seulement sur identifiant technique.
+- **Fail closed** : liste d'autorisation explicite `provider+model+freeTierEvidenceVersion` ; interdiction des identifiants non validés, des options qui déclenchent un fallback payant, du basculement automatique vers un autre modèle, du routage opaque non certifié et des modèles hors allowlist. La qualification du routeur `openrouter/free` nécessite une preuve que le routage n'implique aucun modèle payant ; sinon désactiver cette option et privilégier les modèles gratuits explicites.
+- Catalogues et quotas peuvent changer : validation serveur à chaque envoi (configuration locale datée + état fournisseur quand disponible) ; en l'absence d'une preuve suffisamment récente de gratuité ou en cas d'ambiguïté, **bloquer l'envoi** et proposer une actualisation volontaire. Ne jamais assimiler une réponse `200` à la preuve de gratuité. Limites quotidiennes locales préventives et messages distincts `quota`, `rate-limit`, `modèle retiré`, `non vérifiable`.
+- La restriction applicative réduit le risque mais **ne garantit pas une facture nulle chez un fournisseur** dont la clé est facturable : recommander compte sans moyen de paiement/facturation activée et paramétrage des limites fournisseur quand disponibles ; ne promettre aucune garantie comptable externe.
+
+### B. Coffre local et cycle de vie des clés
+
+- Uniquement serveur Node local : ne jamais renvoyer les clés en JSON, HTML, logs, traces, télémétrie, fichiers de brief ou historiques. Ne restituer au navigateur que `hasKey`, état, empreinte courte non réversible si besoin. Champs de saisie masqués, remplacement explicite sans relecture, aucune variable `NEXT_PUBLIC_*`.
+- Proposition de cible : secret chiffré par connexion avec AES-256-GCM, IV aléatoire unique, clef maîtresse aléatoire 256 bits propre à l'installation et conservée dans le dossier privé de SMN **hors PostgreSQL**, hors dépôt, et hors sauvegardes ordinaires ; permissions fichiers/ACL Windows restrictives, protections contre liens symboliques, séparation de rôle et accès administrateur seul pour gérer les connexions. Réutiliser les primitives crypto auditées du projet là où approprié, sans réutiliser aveuglément la clef des archives.
+- La clé maîtresse doit être créée atomiquement, avec rotation/versionnement du format, refus sûr en cas de disparition/corruption, et capacité de remplacement/révocation des clés fournisseur. Ne pas stocker la clé maîtresse dans le même ensemble transportable que les secrets chiffrés.
+- En cas de compromission, informer que la révocation effective se fait chez le fournisseur ; un changement local seul ne révoque pas une clé externe.
+- Respecter l'autorisation SMN au niveau serveur : lecture de la liste selon permissions ; création/test/modification/suppression des connexions réservées à l'administrateur ; droit d'envoyer un brief lié à l'équipe/sprint explicitement contrôlé. Restreindre l'utilisation partagée des clés à l'installation autorisée.
+
+### C. Exécution et minimisation de la donnée
+
+1. Le serveur reçoit l'identifiant du brief/du sprint, de la connexion et du modèle autorisé, et génère le texte résolu avec le moteur de tags validé. Ne jamais croire une version client des données ou du contexte.
+2. Produire un **aperçu exact** de ce qui sortira de SMN, incluant les données insérées par tags, le fournisseur, le modèle, les caractères/tokens estimés et un avertissement de transmission à un tiers.
+3. Confirmer explicitement cet aperçu pour chaque version : empreinte SHA-256 du contenu, du contexte, du fournisseur/modèle et du jeu de données ; invalider dès toute modification. Le backend recontrôle l'empreinte, les droits, le caractère gratuit et l'absence de tags non résolus avant un envoi unique.
+4. POST serveur vers fournisseur avec TLS et endpoint prédéfini en allowlist (pas d'URL paramétrable, redirects non approuvés bloqués, protections SSRF), timeout, limite taille entrée/sortie, validation du retour. Protéger contre les doubles clics et réessais causant plusieurs requêtes ; pas de retry automatique implicite.
+5. Fournir la réponse au navigateur **en mémoire volatile uniquement**. Aucune écriture silencieuse de la réponse, du prompt généré en tant que nouvelle archive, ni du contenu brut des échanges dans PostgreSQL, fichiers, journaux ou instrumentation. Conserver au plus des métriques techniques minimisées sans texte et avec politique de rétention distincte.
+6. Un bouton explicite **« Enregistrer la réponse »** crée une réponse dans l'archive correspondante via une action autorisée, avec le fournisseur et modèle ; réutiliser `src/server/ai-briefs/responses.ts` et ses contrôles après analyse des contraintes d'archives. Sans clic, rien ne persiste ; fermeture, actualisation ou navigation peuvent faire perdre la réponse. Le bouton « Copier » n'enregistre rien.
+7. Jamais d'envoi de prompt automatiquement au chargement d'un écran, ni en arrière-plan, ni après restauration, ni de mode batch en première version.
+
+### D. Sauvegarde, ZIP et restauration inter-PC — décision de sécurité
+
+**Décision cible par défaut : les métadonnées de connexion sont portables, pas les clés API.**
+- Métadonnées sans secret présentes dans PostgreSQL, donc intégrées au dump chiffré normal ; le statut de connexion devient **« Clé à renseigner »** sur le PC restauré. La nouvelle clé est saisie dans l'interface, sans PowerShell ; ne jamais annoncer la connexion utilisable tant que la clé n'a pas été ajoutée et testée.
+- Le coffre local chiffré et sa clé maîtresse sont exclus de la chaîne ZIP ; pas de coffre exportable par défaut. Une éventuelle exportation chiffrée explicitement autorisée constitue une évolution distincte exigeant un nouvel ADR et une procédure de restauration vérifiée.
+- Les archives de briefs et les **réponses volontairement enregistrées** restent dans la sauvegarde PostgreSQL déjà chiffrée ; les réponses temporaires non enregistrées n'y figurent jamais.
+- Le ZIP actuel `src/server/backup/portable-transfer-zip.ts` encapsule un `.tar.gz` chiffré avec une liste d'entrées stricte ; `portable-package.ts` et `portable-import.ts` n'autorisent que des composants définis. **Ne pas ajouter de fichier de secrets à cette allowlist** sans refonte du contrat d'archive et audit de sécurité.
+- Le mécanisme existant `backup/crypto.ts` fournit AES-256-GCM et récupération par phrase/scrypt pour les archives. La phrase de récupération d'une sauvegarde **ne doit pas implicitement donner accès aux clés API** ; distinguer chiffrement des données restaurées et reconnexion fournisseur.
+- Conserver tous les garde-fous de restauration existants : destination vierge, archive vérifiée, compatibilité de schéma, preuves de confidentialité/effacement, rollback, invalidation des sessions. Le succès de l'upload ZIP seul n'est pas le succès d'une restauration active.
+- Tester une installation vierge, une sauvegarde/restauration inter-PC, la réauthentification, les métadonnées restaurées sans secret, les liens vers archives/réponses, l'impossibilité d'appeler un fournisseur sans reconfiguration, et l'absence de secrets dans ZIP/SQL/manifest/logs.
+
+### E. Constat de code (lecture ciblée de GitHub/main le 16/11/2026)
+
+- `src/server/backup/crypto.ts` : primitives AES-256-GCM, enveloppe de récupération par scrypt.
+- `src/server/backup/portable-transfer-zip.ts` : entrées ZIP strictement limitées (archive tar.gz, reçu de migration et ledger).
+- `src/server/backup/portable-package.ts`, `portable-import.ts` : jeu de fichiers transportés strict et contrôle à l'import ; aucun composant de coffre IA.
+- `src/app/api/admin/backups/migration/upload/route.ts` : upload ZIP, réception et vérification séparées de l'autorisation de restauration.
+- `src/server/ai-briefs/responses.ts` : API métier existante d'ajout volontaire de réponses, liée à une archive et une équipe.
+- `src/lib/settings-catalog.ts` : catalogue centralisé de Paramètres avec contrôle d'accès, auquel le futur écran doit être ajouté.
+- `ADR-I0-002-MIGRATIONS-SECRETS.md` : obligation de préserver et séparer les secrets de l'installation.
+- Revue statique ciblée uniquement ; **pas de test d'intégration, preuve fournisseur, ni exercice de restauration exécuté**.
+
+### F. Critères bloquants avant livraison
+
+1. Aucun modèle facturable sélectionnable ni fallback payant, y compris en cas de changement de catalogue/erreur de quota.
+2. Aucune clé retrouvable dans réponse serveur, console navigateur, export ZIP, journaux, et aucun appel API possible par utilisateur non autorisé.
+3. Le texte transmis correspond strictement à l'aperçu approuvé, avec révalidation du contexte et des données.
+4. Une réponse non enregistrée disparaît sans écriture durable ; une réponse enregistrée conserve ses droits d'accès et son lien à l'archive.
+5. Après import ZIP réussi sur PC neuf, métadonnées visibles, clés absentes, fournisseurs inactifs jusqu'à ressaisie/test manuel, aucune exposition de secrets.
+6. FR/EN et architecture extensible 6–10 langues ; tests Windows et Linux ; tests de concurrence/double clic, quota, timeout et panne réseau.
+7. Migrations évolutives avec sauvegarde préalable, modèle initial d'installation à jour et aucun changement régressif du mécanisme de restauration.
+
+**Relais à John :** décomposer seulement après validation de cette conception et qualification réelle des fournisseurs ; distinguer coffre/permissions, catalogue gratuit, passerelle API, UX, persistance sur clic, sauvegarde et tests. Aucune User Story créée ici.
