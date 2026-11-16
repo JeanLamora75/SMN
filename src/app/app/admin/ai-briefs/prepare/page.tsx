@@ -11,6 +11,7 @@ import {readBriefFacts,projectBriefSelection} from "@/server/ai-briefs/facts";
 import {readAnalysisJournal} from "@/server/ai-briefs/journal";
 import {renderCycleBriefPrompt} from "@/server/ai-briefs/prompt-context";
 import PromptTextPreview from "./prompt-text-preview";
+import "../templates/template-editor.css";
 import {requestLocale} from "@/i18n/locale.server";
 
 export const dynamic="force-dynamic";
