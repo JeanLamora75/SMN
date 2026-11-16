@@ -92,7 +92,7 @@ describe("Camille + Sally — eight-step first-time configuration journey",()=>{
    assert.match(step2,locale==="fr"?/aucune équipe utilisable/:/no usable team/);
    assert.match(step3,locale==="fr"?/membres déjà présents/:/existing members first/);
    assert.match(step3,locale==="fr"?/uniquement si une personne manque/:/only if someone is missing/);
-   assert.match(teamGuide,locale==="fr"?/personnalis/i:/customiz/i);
+   assert.match(teamGuide,locale==="fr"?/personnalis/i:/make it yours|adapt/i);
    assert.match(membersGuide,locale==="fr"?/doublon|en double/i:/duplicate/i);
   }
   const copy=await readFile("src/app/app/help/help-setup-copy.ts","utf8");
