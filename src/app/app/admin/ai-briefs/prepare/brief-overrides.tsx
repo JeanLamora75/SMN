@@ -9,10 +9,11 @@ import OfficeTagConfigurator from "../../../reports/office-tag-configurator";
 import {insertPromptTag} from "@/lib/ai-brief-tag-insertion";
 
 type Historic={id:string;type:"human"|"ai";origin:string;createdAt:string;content:string;cycleId:string};
-type Cycle={id:string;name:string;team:string;product:string|null;status:string;startAt:string;endAt:string;timeZone:string};
+type Cycle={id:string;teamId:string;name:string;team:string;product:string|null;status:string;startAt:string;endAt:string;timeZone:string};
 const sanitize=(text:string)=>text.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,"");
-export default function BriefOverrides({template,mode,context,facts,preparedAt,historical}:{
+export default function BriefOverrides({template,mode,context,facts,preparedAt,historical,indicators}:{
  template:ManagedBriefTemplate;mode:BriefMode;context:Cycle;facts:Record<string,BriefFact>;preparedAt:string;historical:Historic[];
+ indicators:readonly {tag:string;value:string|null;unit:string;source:string;available:boolean;reason:string|null}[];
 }){
  const [base,setBase]=useState(template);
  const [prompt,setPrompt]=useState(template.promptText);
@@ -29,7 +30,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
  const [message,setMessage]=useState("");
  const input=useRef<HTMLTextAreaElement>(null);
  const cursor=useRef({start:0,end:0});
- const resolved=resolveBriefPrompt({promptText:prompt,mode,context,facts,preparedAt});
+ const resolved=resolveBriefPrompt({promptText:prompt,mode,context,facts,preparedAt,indicators});
  const chosen=historical.filter(x=>selectedHistory.includes(x.type+":"+x.id));
  const historyText=chosen.length?"\nANALYSES HISTORIQUES AJOUTÉES EXPLICITEMENT\n"+chosen.map(x=>
   "- "+x.type+" | "+x.createdAt+" | "+x.origin+" | cycle "+x.cycleId+"\n"+sanitize(x.content)).join("\n"):"";
@@ -117,7 +118,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
    <div className={"col-12 col-lg-6 "+(activeView==="preview"?"d-none d-lg-block":"")}>
     <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
      <label htmlFor="brief-prompt" className="form-label fw-semibold mb-0">Prompt du brief</label>
-     <OfficeTagConfigurator locale="fr" teamId={null} onInsert={insertTag}/>
+     <OfficeTagConfigurator locale="fr" teamId={context.teamId} onInsert={insertTag}/>
     </div>
     <textarea ref={input} id="brief-prompt" rows={20} maxLength={100000} className="form-control font-monospace"
      value={prompt} disabled={conflict||saving}
