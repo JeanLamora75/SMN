@@ -14,7 +14,7 @@ const failDb={query:async()=>{throw Error("No arbitrary database query expected"
 test("Scrum scalar rendering uses only authorized cycle context and marks active values provisional",async()=>{
  const result=await renderCycleBriefPrompt(failDb,"scrum",ctx,"{{TEAM_NAME}} / {{SPRINT_NAME}} / {{PRODUCT_NAME}}","fr");
  assert.equal(result.complete,true);
- assert.match(result.text,/Équipe A \[source : team-record ; qualité : provisional\]/);
+ assert.match(result.text,/Équipe A \[source : team-record ; qualité : provisoire\]/);
  assert.match(result.text,/Sprint 23/);
  assert.match(result.text,/Produit B/);
 });
