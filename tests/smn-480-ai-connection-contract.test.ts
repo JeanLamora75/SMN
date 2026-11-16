@@ -31,7 +31,7 @@ test("SMN-480 API is restricted to admin and metadata only",()=>{
 
 test("SMN-480 native installation diagnostics explicitly recognize the additive table",()=>{
  const contract=read("src/server/installation/contract.ts");
- assert.match(contract,/public\\.smn_ai_connection:r/);
+ assert.match(contract,/public\.smn_ai_connection:r/);
  const diagnostic=read("src/server/installation/diagnostic.ts");
  assert.match(diagnostic,/INSTALLATION_RELATIONS/);
  const probe=read("src/server/db/probe.ts");

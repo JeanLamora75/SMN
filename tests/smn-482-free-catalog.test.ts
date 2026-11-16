@@ -37,7 +37,7 @@ test("SMN-482 quota relation is accepted by the physical installation diagnostic
  const contract=read("src/server/installation/contract.ts");
  const probe=read("src/server/db/probe.ts");
  const diagnostic=read("src/server/installation/diagnostic.ts");
- assert.match(contract,/public\\.smn_ai_free_request_quota:r/);
+ assert.match(contract,/public\.smn_ai_free_request_quota:r/);
  assert.match(probe,/INSTALLATION_RELATIONS/);
  assert.match(diagnostic,/INSTALLATION_RELATIONS/);
 });

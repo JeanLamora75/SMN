@@ -7,7 +7,7 @@ export type SettingsSection="application"|"organization"|"practices"|"calendar"|
 export type SettingsIcon="sliders"|"people-fill"|"calendar3"|"calendar-check"|
  "calendar-event"|"bar-chart-line"|"stack"|"link-45deg"|"grid-3x3-gap"|
  "list-ul"|"floppy"|"tag"|"hourglass-split"|"bullseye"|"ticket-perforated-fill"|
- "exclamation-triangle-fill"|"pencil-square"|"search";
+ "exclamation-triangle-fill"|"pencil-square"|"search"|"chat-dots";
 export type SettingsEntry=Readonly<{id:string;label:TranslationKey;description:TranslationKey;
  keywords:TranslationKey;icon:SettingsIcon;href:string|null;
  status:SettingsAvailability;section:SettingsSection}>;
@@ -20,7 +20,8 @@ const catalog:ReadonlyArray<{id:SettingsSection;entries:readonly RecordEntry[]}>
  {id:"application",entries:[
   {id:"preferences",icon:"sliders",resources:["settings"],href:"/app/admin/settings/general"},
   {id:"languages",icon:"list-ul",resources:["settings"],href:"/app/admin/settings/general#settings-language"},
-  {id:"appearance",icon:"bullseye",resources:["settings"],href:"/app/admin/settings/general#settings-appearance"}
+  {id:"appearance",icon:"bullseye",resources:["settings"],href:"/app/admin/settings/general#settings-appearance"},
+  {id:"aiConnections",icon:"chat-dots",resources:["settings"],href:"/app/admin/settings/ai",adminOnly:true}
  ]},
  {id:"organization",entries:[
   {id:"teams",icon:"people-fill",resources:["settings"],href:"/app/admin/settings/teams",status:"partial"},
@@ -66,9 +67,12 @@ export function settingsCatalog(mode:"scrum"|"kanban"|null,actor:AccessActor):Se
     const status:SettingsAvailability=!applicable?"not-applicable":
       e.id==="cadence"&&!href?"planned":(e.status??"available");
     return {id:e.id,section:group.id,icon:e.icon,
-     label:("settingsCatalog.items."+e.id+".title") as TranslationKey,
-     description:("settingsCatalog.items."+e.id+".description") as TranslationKey,
-     keywords:("settingsCatalog.keywords."+e.id) as TranslationKey,
+     label:e.id==="aiConnections"?"aiConnections.title" as TranslationKey:
+      ("settingsCatalog.items."+e.id+".title") as TranslationKey,
+     description:e.id==="aiConnections"?"aiConnections.description" as TranslationKey:
+      ("settingsCatalog.items."+e.id+".description") as TranslationKey,
+     keywords:e.id==="aiConnections"?"aiConnections.description" as TranslationKey:
+      ("settingsCatalog.keywords."+e.id) as TranslationKey,
      status,href:applicable?href:null};
    })
  })).filter(group=>group.entries.length>0);

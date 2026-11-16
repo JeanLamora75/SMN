@@ -6,13 +6,13 @@ const admin={role:"admin",is_active:true,must_change_password:false};
 const user={role:"user",is_active:true,must_change_password:false};
 const flatten=(mode:"scrum"|"kanban"|null,actor=admin)=>settingsCatalog(mode,actor).flatMap(g=>g.entries);
 describe("SMN-225 — Catalogue des Paramètres",()=>{
- it("expose les 20 rubriques uniques dans 6 familles",()=>{
+ it("expose les 21 rubriques uniques dans 6 familles",()=>{
   const groups=settingsCatalog("scrum",admin);
   assert.deepEqual(groups.map(x=>x.id),[
    "application","organization","practices","calendar","reports","administration"
   ]);
   assert.deepEqual(groups.map(g=>g.entries.map(e=>e.id)),[
-   ["preferences","languages","appearance"],
+   ["preferences","languages","appearance","aiConnections"],
    ["teams","companies","cadence"],
    ["ceremonies","capacity","indicators","registries","links","jira"],
    ["workingDays","holidays","closures","absences"],
@@ -20,8 +20,8 @@ describe("SMN-225 — Catalogue des Paramètres",()=>{
    ["users","security","maintenance"]
   ]);
   const items=groups.flatMap(g=>g.entries);
-  assert.equal(items.length,20);
-  assert.equal(new Set(items.map(x=>x.id)).size,20);
+  assert.equal(items.length,21);
+  assert.equal(new Set(items.map(x=>x.id)).size,21);
  });
  it("n'invente aucun lien pour les fonctions manquantes ou partiellement accessibles",()=>{
   const entries=flatten("scrum");
