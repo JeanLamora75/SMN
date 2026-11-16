@@ -7,6 +7,15 @@
     "save": "Save"
   },
   "briefPromptEditor": {
+    "confirmTextReview": "I have reviewed the full prompt for personal information, secrets or confidential content, and approve copying this exact version.",
+    "resolvedTitle": "AI prompt with cycle data",
+    "resolvedHint": "Tags are replaced only with authorized data from the selected cycle. Values show their source and quality.",
+    "provisionalCycle": "This cycle is not closed. The displayed values can still change.",
+    "resolverUnavailable": "The data sources could not be loaded. A resolved prompt is unavailable.",
+    "unresolvedTags": "Unresolved tags: fix the template or underlying data before copying.",
+    "copyResolved": "Copy resolved prompt",
+    "copyBlocked": "Copying is blocked until all tags are resolved.",
+    "notFinalized": "No brief is archived or sent to an AI at this stage. Finalization and privacy review belong to the dedicated workflow.",
     "tagDialogTitle": "SMN tag catalogue",
     "tagDialogIntro": "Choose an approved collective data field and insert its tag directly into your prompt.",
     "insertTag": "Insert SMN tag",

@@ -9,11 +9,15 @@ import BriefOverrides from "./brief-overrides";
 import HumanAnalysisForm from "@/app/app/ai-briefs/human-analysis-form";
 import {readBriefFacts,projectBriefSelection} from "@/server/ai-briefs/facts";
 import {readAnalysisJournal} from "@/server/ai-briefs/journal";
+import {renderCycleBriefPrompt} from "@/server/ai-briefs/prompt-context";
+import PromptTextPreview from "./prompt-text-preview";
+import "../templates/template-editor.css";
+import {requestLocale} from "@/i18n/locale.server";
 
 export const dynamic="force-dynamic";
 
 type BriefContext={
- id:string; name:string; status:string; team:string; product:string|null;
+ id:string; teamId:string; name:string; status:string; team:string; product:string|null;
  startAt:string; endAt:string; timeZone:string;
 };
 
@@ -30,7 +34,7 @@ export default async function PrepareAiBrief({searchParams}:{
  const scrum=mode==="scrum";
  const context=await withAuthDb(async db=>{
   const sql=scrum?`
-   SELECT s.id,s.name,s.status,t.name AS team,p.name AS product,
+   SELECT s.id,s.team_id AS "teamId",s.name,s.status,t.name AS team,p.name AS product,
    s.start_at::text AS "startAt",s.end_at::text AS "endAt",
    s.time_zone AS "timeZone"
    FROM public.smn_sprint s
@@ -40,7 +44,7 @@ export default async function PrepareAiBrief({searchParams}:{
    WHERE s.id=$1 AND s.deleted_at IS NULL
    AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'
   `:`
-   SELECT k.id,k.name,k.status,t.name AS team,p.name AS product,
+   SELECT k.id,k.team_id AS "teamId",k.name,k.status,t.name AS team,p.name AS product,
    k.start_on::text AS "startAt",k.end_on::text AS "endAt",
    k.time_zone AS "timeZone"
    FROM public.smn_kanban_period k
@@ -58,13 +62,7 @@ export default async function PrepareAiBrief({searchParams}:{
   "/app/admin/sprints/"+encodeURIComponent(context.id):
   "/app/admin/kanban-periods/"+encodeURIComponent(context.id)+"/report";
  const templates=await withAuthDb(listBriefTemplates);
- // The legacy TXT composer does not yet interpret prompt_text. Do not offer
- // prompt-only drafts as legacy briefs until the text-tag adapter is delivered.
- const newFormatOnly=(item:typeof templates[number])=>!item.builtin&&!!item.promptText&&
-  item.sections.length===1&&item.sections[0]==="Prompt libre"&&item.depth===1&&
-  item.questions.length===0&&item.instructions.length===0&&item.data.length===0;
- const pending=templates.filter(t=>t.active&&newFormatOnly(t));
- const available=templates.filter(t=>t.active&&!newFormatOnly(t));
+ const available=templates.filter(t=>t.active);
  const selected=available.find(t=>t.id===template)??available[0];
  const fields=allowedBriefFields(scrum?"scrum":"kanban",selected.data);
  const facts=await withAuthDb(db=>readBriefFacts(db,scrum?"scrum":"kanban",context.id)).catch(()=>({}));
@@ -74,6 +72,9 @@ export default async function PrepareAiBrief({searchParams}:{
   return teams.rows.length===1?readAnalysisJournal(db,teams.rows[0].id,{}):[];
  }).catch(()=>[]);
  const preparedAt=new Date().toISOString();
+ const locale=(await requestLocale())==="en"?"en":"fr";
+ const resolved=selected.promptText?
+  await withAuthDb(db=>renderCycleBriefPrompt(db,scrum?"scrum":"kanban",context,selected.promptText!,locale,new Date(preparedAt))).catch(()=>null):null;
  const provisional=context.status!=="closed";
  return <main className="container-fluid px-3 px-lg-4 py-4">
   <div className="d-flex flex-wrap justify-content-between gap-2"><Link href={back}>← Retour au cycle</Link><Link href="/app/ai-briefs/archives">Bibliothèque des briefs archivés</Link></div>
@@ -97,7 +98,6 @@ export default async function PrepareAiBrief({searchParams}:{
     <h2 id="brief-templates" className="h5">Modèles de briefs</h2>
     <Link className="btn btn-outline-secondary btn-sm mb-3" href="/app/admin/ai-briefs/templates">Administrer les modèles</Link>
     <p className="text-secondary small">Choisissez un modèle pour consulter sa configuration. Les paramètres sont réutilisables et cette consultation n’enregistre rien.</p>
-    {pending.length>0&&<p className="alert alert-info" role="status">Les nouveaux modèles en texte libre sont enregistrés, mais leur génération attend le moteur de résolution des tags. Ils ne sont pas proposés ici pour éviter de produire un brief incomplet.</p>}
     <div className="d-flex flex-wrap gap-2 mb-3">
      {available.map(item=><Link key={item.id}
       className={item.id===selected.id?"btn btn-primary btn-sm":"btn btn-outline-primary btn-sm"}
@@ -105,8 +105,10 @@ export default async function PrepareAiBrief({searchParams}:{
       href={"/app/admin/ai-briefs/prepare?"+new URLSearchParams({mode:mode!,id:context.id,template:item.id}).toString()}>
       {item.title}</Link>)}
     </div>
-    <h3 className="h6">{selected.title}</h3><p>{selected.description}</p><p className="small text-secondary">Profondeur : {selected.depth}/5</p>
-    <div className="row g-3">
+    <h3 className="h6">{selected.title}</h3><p>{selected.description}</p>
+    {selected.promptText?<PromptTextPreview result={resolved} locale={locale} source={selected.promptText} cycleStatus={context.status}/>:
+    <p className="small text-secondary">Profondeur : {selected.depth}/5</p>}
+    {!selected.promptText&&<><div className="row g-3">
      <div className="col-12 col-lg-6"><h4 className="h6">Rubriques</h4><ol>{selected.sections.map(s=><li key={s}>{s}</li>)}</ol></div>
      <div className="col-12 col-lg-6"><h4 className="h6">Données collectives proposées</h4><ul>{fields.map(field=><li key={field}><code>{field}</code></li>)}</ul></div>
      <div className="col-12 col-lg-6"><h4 className="h6">Questions proposées</h4><ul>{selected.questions.map(q=><li key={q}>{q}</li>)}</ul></div>
@@ -120,7 +122,7 @@ export default async function PrepareAiBrief({searchParams}:{
       <tbody>{projected.map(item=><tr key={item.key}><th scope="row">{item.label}</th><td>{item.value??"Non renseigné"}</td><td>{item.unit??"—"}</td><td>{item.quality}</td><td>{item.source}{item.snapshotVersion!==null?" · V"+item.snapshotVersion:""}</td></tr>)}</tbody>
      </table></div>
     </div>
-    <BriefOverrides key={selected.id+":"+selected.revision} template={selected} mode={scrum?"scrum":"kanban"} context={context} facts={facts} preparedAt={preparedAt} historical={historical}/>
+    <BriefOverrides key={selected.id+":"+selected.revision} template={selected} mode={scrum?"scrum":"kanban"} context={context} facts={facts} preparedAt={preparedAt} historical={historical}/></>}
     <p className="small text-secondary">Les champs individuels sont toujours exclus. Les données absentes resteront absentes ; aucune mesure ni conclusion ne sera inventée.</p>
    </section>
    <HumanAnalysisForm mode={scrum?"scrum":"kanban"} cycleId={context.id}/>
