@@ -85,12 +85,10 @@ test("Paramètres Équipes : sélection, édition, refus de conflit et sauvegard
   await page.click(".list-group-item button");
   assert.equal(await page.$eval("#smn-team-settings-name",el=>(el as HTMLInputElement).value),"Équipe Alpha");
   assert.equal(await page.$eval('button[type=submit][form="smn-teams-settings-form"]',el=>(el as HTMLButtonElement).disabled),true);
-  await page.$eval("#smn-team-settings-name",el=>{
-   const input=el as HTMLInputElement;
-   const setter=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,"value")!.set!;
-   setter.call(input,"Équipe Alpha revue");
-   input.dispatchEvent(new Event("input",{bubbles:true}));
-  });
+  // Use actual user keyboard events: React 19 tracks controlled input values.
+  await page.click("#smn-team-settings-name",{clickCount:3});
+  await page.keyboard.press("ControlOrMeta+A");
+  await page.keyboard.type("Équipe Alpha revue");
   await page.waitForFunction(()=>document.querySelector("form")?.getAttribute("data-smn-unsaved-changes")==="true");
   assert.equal(await page.$eval('button[type=submit][form="smn-teams-settings-form"]',el=>(el as HTMLButtonElement).disabled),false);
   state.failNext=true;
