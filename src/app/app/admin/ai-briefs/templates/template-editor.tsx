@@ -111,11 +111,11 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
   setDraft(x=>({...x,promptText:result.text}));
   setCopied(false);setFeedback(null);
   selection.current={start:result.caret,end:result.caret};
-  requestAnimationFrame(()=>{
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
    const field=promptRef.current;
    if(!field)return;
    field.focus();field.setSelectionRange(result.caret,result.caret);
-  });
+  }));
  }
  function submit(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
@@ -182,6 +182,8 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
    </div>
    <textarea ref={promptRef} id="brief-template-prompt" className="form-control smn-brief-prompt-editor" rows={17}
     onSelect={e=>{selection.current={start:e.currentTarget.selectionStart,end:e.currentTarget.selectionEnd};}}
+    onClick={e=>{selection.current={start:e.currentTarget.selectionStart,end:e.currentTarget.selectionEnd};}}
+    onKeyUp={e=>{selection.current={start:e.currentTarget.selectionStart,end:e.currentTarget.selectionEnd};}}
     maxLength={PROMPT_TEXT_LIMIT} required value={draft.promptText} disabled={busy||locked}
     spellCheck aria-describedby="brief-template-prompt-hint"
     placeholder={tr("placeholder")} onChange={e=>{setDraft(x=>({...x,promptText:e.target.value}));setCopied(false);}}/>
