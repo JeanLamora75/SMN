@@ -40,7 +40,7 @@ async function bundle(){
     onResolve:(o:{filter:RegExp},f:(a:{path:string})=>unknown)=>void;
     onLoad:(o:{filter:RegExp;namespace?:string},f:()=>unknown)=>void;
    }){
-    build.onResolve({filter:/admin\/indicators\/universal-input$/},()=>({
+    build.onResolve({filter:/admin\/indicators\/universal-input$|\/help\/help-header-action$/},()=>({
      path:"input-stub",namespace:"qa-stub",
     }));
     build.onLoad({filter:/.*/,namespace:"qa-stub"},()=>({
