@@ -24,6 +24,7 @@ on:
       - "tests/smn-442-gui-offline-restoration.test.ts"
       - "tests/smn-442-gui-crash-recovery.test.ts"
       - "tests/smn-456-tickets-backup-transfer.test.ts"
+      - "tests/smn-47*.test.ts"
       - "tests/smn-48*.test.ts"
       - "prisma/migrations/20261116_smn48*/**"
       - "tests/settings-ux-harmonization.test.ts"
@@ -36,6 +37,7 @@ on:
       - "prisma/migrations/20261101_smn_dashboard_slots_additive/**"
       - "_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql"
       - ".github/workflows/portable-package.yml"
+      - ".github/workflows/smn-488-ai-qualification.yml"
   pull_request:
     branches: ["main"]
     paths:
