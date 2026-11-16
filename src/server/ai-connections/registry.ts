@@ -2,6 +2,7 @@ import "server-only";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {purgeAiCredentialVersions} from "./vault";
+import {evaluateFreeModel} from "./free-catalog";
 
 export const AI_PROVIDERS = ["gemini","groq","openrouter"] as const;
 export type AiProvider=typeof AI_PROVIDERS[number];
@@ -22,6 +23,7 @@ export function validateAiConnectionAction(raw:unknown):Input|null{
  if(!["create","update","disable","delete"].includes(String(v.action)))return null;
  if(v.action==="create"||v.action==="update"){
   if(!validLabel(v.label)||!AI_PROVIDERS.includes(v.providerId as AiProvider)||!validModel(v.modelId??null))return null;
+  if(typeof v.modelId==="string"&&!evaluateFreeModel(v.providerId,v.modelId).allowed)return null;
  }
  if(v.action!=="create"&&(!UUID.test(String(v.id??""))||!Number.isSafeInteger(v.revision)||Number(v.revision)<1))return null;
  return v as Input;

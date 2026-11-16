@@ -92,6 +92,7 @@ for(const file of [
  "prisma/migrations/20261116_smn472_prompt_text/migration.sql",
  "prisma/migrations/20261116_smn477_brief_legacy_cleanup/migration.sql",
  "prisma/migrations/20261116_smn480_ai_connections/migration.sql",
+ "prisma/migrations/20261116_smn482_free_quota/migration.sql",
 ]){
  const destination=path.join(appDir,file);
  await mkdir(path.dirname(destination),{recursive:true});

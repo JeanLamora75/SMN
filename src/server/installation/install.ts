@@ -96,6 +96,9 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
   const aiConnectionSql=readFileSync(migrationFile(
    "20261116_smn480_ai_connections","migration.sql"),"utf8");
   await client.query(aiConnectionSql);
+  // SMN-482: quota reservation is additive and never authorizes paid models.
+  const freeQuotaSql=readFileSync(migrationFile("20261116_smn482_free_quota","migration.sql"),"utf8");
+  await client.query(freeQuotaSql);
   await client.query("COMMIT");transaction=false;
   // L'installation est acceptée uniquement après diagnostic physique v33.
   const after=classifySnapshot(await probePostgres(uri.toString()));
