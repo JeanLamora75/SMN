@@ -9,6 +9,7 @@ import OfficeTagConfigurator from "../../../reports/office-tag-configurator";
 import {insertPromptTag} from "@/lib/ai-brief-tag-insertion";
 import {useLocale} from "@/i18n/client";
 import {aiBriefText,type AiBriefKey} from "@/lib/ai-brief-messages";
+import {localizedNativeBrief} from "@/lib/ai-brief-native-locales";
 
 type Historic={id:string;type:"human"|"ai";origin:string;createdAt:string;content:string;cycleId:string};
 type Cycle={id:string;teamId:string;name:string;team:string;product:string|null;status:string;startAt:string;endAt:string;timeZone:string};
@@ -80,7 +81,8 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
   try{
    const last=await latest();
    if(!last||!last.active)throw Error(t("unavailable"));
-   setBase(last);setPrompt(last.promptText);setObservations("");setSelectedHistory([]);
+   const shown=localizedNativeBrief(last,locale);
+   setBase(shown);setPrompt(shown.promptText);setObservations("");setSelectedHistory([]);
    invalidate();setConflict(false);setActiveView("edit");setMessage(t("reloaded"));
   }catch(e){setMessage(e instanceof Error?e.message:"Rechargement impossible.");}
  }
