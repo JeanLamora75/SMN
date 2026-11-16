@@ -134,6 +134,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
     <label htmlFor="brief-privacy-reviewed" className="form-check-label">J’ai examiné le TXT intégral affiché et vérifié les noms, données privées et secrets éventuellement présents dans les textes libres. Je confirme cette version exacte uniquement.</label></div></div>}
   </div>
   </div>
+  </div>
   <div className="d-flex flex-wrap gap-2 mt-3">
    <button className="btn btn-primary btn-sm" disabled={conflict||saving} onClick={async()=>{if(!await checkRevision())return;setPreview(currentTxt);setPrivacyReviewed(false);setReviewedText(null);setActiveView("preview");}}>Générer l’aperçu TXT</button>
    <button className="btn btn-outline-primary btn-sm" onClick={()=>void checkRevision()} disabled={saving}>Actualiser le contenu / vérifier la révision</button>
