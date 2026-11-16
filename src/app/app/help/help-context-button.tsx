@@ -46,7 +46,7 @@ export function HelpContextButton({articleId,screenTitle,className=""}:{
   if(!open)return;
   const node=dialog.current;
   if(!node)return;
-  try{node.showModal();}catch{setOpen(false);return;}
+  try{node.showModal();}catch{queueMicrotask(()=>setOpen(false));return;}
   const first=node.querySelector<HTMLElement>('[data-initial-focus="true"]');
   (first??node).focus();
   const keydown=(event:KeyboardEvent)=>{
