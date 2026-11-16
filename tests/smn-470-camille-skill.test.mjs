@@ -130,6 +130,6 @@ test("AC5 — pilote FR/EN réel : création, mise à jour, index périmé puis 
   assert.deepEqual(pilot.updated.map(x=>x.locale).sort(),["en","fr"]);
   assert.equal(pilot.assertions.length,6);
   assert.match(pilot.note,/Simulation déterministe isolée/);
-  assert.ok(report.endsWith("/pilot-smn-470.md"));
+  assert.equal(path.basename(report),"pilot-smn-470.md");
  }finally{await rm(output,{recursive:true,force:true});}
 });
