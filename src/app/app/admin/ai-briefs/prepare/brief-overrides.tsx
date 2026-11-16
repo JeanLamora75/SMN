@@ -6,6 +6,7 @@ import type {BriefFact} from "@/server/ai-briefs/facts";
 import {resolveBriefPrompt} from "@/lib/ai-brief-tag-resolver";
 import {canApproveBrief} from "@/lib/ai-brief-review";
 import OfficeTagConfigurator from "../../../reports/office-tag-configurator";
+import {insertPromptTag} from "@/lib/ai-brief-tag-insertion";
 
 type Historic={id:string;type:"human"|"ai";origin:string;createdAt:string;content:string;cycleId:string};
 type Cycle={id:string;name:string;team:string;product:string|null;status:string;startAt:string;endAt:string;timeZone:string};
@@ -99,8 +100,9 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
  }
  function insertTag(tag:string){
   const {start,end}=cursor.current;
-  setPrompt(old=>old.slice(0,start)+tag+old.slice(end));
-  const n=start+tag.length;cursor.current={start:n,end:n};invalidate();
+  const result=insertPromptTag(prompt,tag,start,end);
+  setPrompt(result.text);
+  const n=result.cursor;cursor.current={start:n,end:n};invalidate();
   requestAnimationFrame(()=>{input.current?.focus();input.current?.setSelectionRange(n,n);});
  }
  return <section className="border rounded-3 p-3 mt-3" aria-label="Préparation du prompt IA">
