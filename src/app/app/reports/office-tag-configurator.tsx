@@ -113,7 +113,7 @@ export default function OfficeTagConfigurator({locale,teamId,onInsert,disabled=f
    <div className="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
     <div ref={dialog} className="modal-content smn-office-tag-config-dialog" role="dialog" aria-modal="true" aria-labelledby="smn-tag-config-title">
      <div className="modal-header smn-office-tag-config-header">
-      <div className="smn-office-tag-config-title-group"><span className="smn-office-tag-config-icon" aria-hidden="true">{"{}"}</span><div><p className="smn-office-tag-config-eyebrow mb-1">COCKPIT AGILE</p><h2 className="modal-title fs-5" id="smn-tag-config-title">{tr("Title")}</h2><p className="smn-office-tag-config-intro small mb-0">{tr("Intro")}</p></div></div>
+      <div className="smn-office-tag-config-title-group"><span className="smn-office-tag-config-icon" aria-hidden="true">{"{}"}</span><div><p className="smn-office-tag-config-eyebrow mb-1">COCKPIT AGILE</p><h2 className="modal-title fs-5" id="smn-tag-config-title">{briefMode?t("briefPromptEditor.tagDialogTitle"):tr("Title")}</h2><p className="smn-office-tag-config-intro small mb-0">{briefMode?t("briefPromptEditor.tagDialogIntro"):tr("Intro")}</p></div></div>
       <button data-close type="button" className="btn-close" aria-label={tr("Close")} onClick={()=>setOpen(false)}/>
      </div>
      <div className="modal-body smn-office-tag-config-body d-grid gap-3">
