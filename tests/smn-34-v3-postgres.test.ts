@@ -111,14 +111,15 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
  const root=await mkdtemp(join(tmpdir(),"smn34-full-backup-"));
  const backup=join(root,"backups"),documents=join(root,"private-documents");
  const reports=join(root,"report-pdfs"),office=join(root,"office-reports"),
-  templates=join(root,"office-templates");
+  templates=join(root,"office-templates"),tickets=join(root,"tickets");
  const originalEnv={
   SMN_DATABASE_URL:process.env.SMN_DATABASE_URL,
   SMN_BACKUP_DIR:process.env.SMN_BACKUP_DIR,
   SMN_PRIVATE_DOCUMENTS_DIR:process.env.SMN_PRIVATE_DOCUMENTS_DIR,
   SMN_PRIVATE_REPORT_ARCHIVE_DIR:process.env.SMN_PRIVATE_REPORT_ARCHIVE_DIR,
   SMN_OFFICE_REPORTS_DIR:process.env.SMN_OFFICE_REPORTS_DIR,
-  SMN_OFFICE_TEMPLATES_DIR:process.env.SMN_OFFICE_TEMPLATES_DIR
+  SMN_OFFICE_TEMPLATES_DIR:process.env.SMN_OFFICE_TEMPLATES_DIR,
+  SMN_TICKETS_DIR:process.env.SMN_TICKETS_DIR
  };
  const admin=new Client({connectionString:maintenance.toString(),connectionTimeoutMillis:3500});
  const owned:string[]=[];
@@ -131,13 +132,14 @@ test("SMN-34 PostgreSQL 18 — paquet v3 et reconstruction réellement isolée",
    await admin.query('CREATE DATABASE "'+name+'"');
    owned.push(name);
   }
-  await Promise.all([backup,documents,reports,office,templates].map(path=>mkdir(path,{recursive:true})));
+  await Promise.all([backup,documents,reports,office,templates,tickets].map(path=>mkdir(path,{recursive:true})));
   process.env.SMN_DATABASE_URL=url(source);
   process.env.SMN_BACKUP_DIR=backup;
   process.env.SMN_PRIVATE_DOCUMENTS_DIR=documents;
   process.env.SMN_PRIVATE_REPORT_ARCHIVE_DIR=reports;
   process.env.SMN_OFFICE_REPORTS_DIR=office;
   process.env.SMN_OFFICE_TEMPLATES_DIR=templates;
+  process.env.SMN_TICKETS_DIR=tickets;
   assert.deepEqual(await installExpress({adminUsername:"smn34",
    adminEmail:"smn34@example.test",password:"TestPassword-SMN-34-2026"},url(source)),{ok:true});
   const db=new Client({connectionString:url(source)});
