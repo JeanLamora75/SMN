@@ -7,6 +7,8 @@ export const INITIAL_REQUIRED_RELATIONS = [
 export const INSTALLATION_RELATIONS = [
   "public._prisma_migrations:r", "public.smn_installation:r", "public.smn_product:r",
   "public.smn_team:r", "public.smn_account:r", "public.smn_recovery_phrase:r", "public.smn_auth_audit:r",
+  // SMN-480: additional non-secret connection metadata table.
+  "public.smn_ai_connection:r",
   "public.smn_indicator_team_grant:r",
   "public.smn_indicator_dashboard_slot:r",
   "public.smn_dashboard_layout:r",
