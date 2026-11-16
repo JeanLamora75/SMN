@@ -7,6 +7,8 @@
     "save": "Save"
   },
   "briefPromptEditor": {
+    "tagDialogTitle": "SMN tag catalogue",
+    "tagDialogIntro": "Choose an approved collective data field and insert its tag directly into your prompt.",
     "insertTag": "Insert SMN tag",
     "insert": "Insert at cursor",
     "indicatorsUnavailable": "Choose a team or sprint before selecting its indicators. This page has no team context.",
