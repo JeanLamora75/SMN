@@ -134,7 +134,11 @@ jobs:
       - name: Analyser les fichiers distribués avec Microsoft Defender
         shell: pwsh
         run: ./scripts/windows/scan-distribution.ps1 -Stage directory -Target '_package/SMN-Windows'
+      # Push/PR must execute the full package build and offline installation tests,
+      # but must never publish an unqualified ZIP. Only an explicit release run
+      # may reach the immutable SMN-478 qualification receipt gate.
       - name: Construire le ZIP transmissible et vérifier son empreinte
+        if: github.event_name == 'workflow_dispatch'
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -148,6 +152,7 @@ jobs:
           & node scripts/windows/verify-delivery.mjs $destination ($destination + '.evidence.json') ($destination + '.sha256')
           if ($LASTEXITCODE -ne 0) { throw 'Contrôle intégrité du ZIP final invalide' }
       - name: Vérifier les articles et index Aide directement dans le ZIP final
+        if: github.event_name == 'workflow_dispatch'
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -171,12 +176,14 @@ jobs:
             Write-Host "PASS : 64 articles FR/EN et 2 index Aide présents dans le ZIP final"
           } finally { $zip.Dispose() }
       - name: Analyser le ZIP final avec Microsoft Defender
+        if: github.event_name == 'workflow_dispatch'
         shell: pwsh
         run: ./scripts/windows/scan-distribution.ps1 -Stage zip -Target "_package/SMN-Setup-Windows-x64-v33-$env:GITHUB_RUN_ID.zip"
       # GitHub's artifact service can intermittently return HTML instead of
       # its JSON API response. Retry once as a separate artifact. Do NOT mask
       # an unavailable download: if neither upload succeeds the job fails.
       - name: Publier la distribution Windows vérifiée
+        if: github.event_name == 'workflow_dispatch'
         id: artifact_primary
         continue-on-error: true
         uses: actions/upload-artifact@v4
@@ -193,7 +200,7 @@ jobs:
           compression-level: 0
       - name: Retenter la publication en cas d'erreur du service d'artefacts
         id: artifact_retry
-        if: steps.artifact_primary.outcome == 'failure'
+        if: github.event_name == 'workflow_dispatch' && steps.artifact_primary.outcome == 'failure'
         continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
@@ -208,7 +215,7 @@ jobs:
           retention-days: 14
           compression-level: 0
       - name: Exiger une archive réellement publiée
-        if: always()
+        if: github.event_name == 'workflow_dispatch' && always()
         shell: pwsh
         env:
           PRIMARY: ${{ steps.artifact_primary.outcome }}
