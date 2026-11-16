@@ -29,3 +29,21 @@ test("SMN-475 no individual data, no invented values",()=>{
  assert.equal(result.safe,false);
  assert.doesNotMatch(result.text,/Équipe Alpha/);
 });
+
+test("SMN-475: official report indicator projection resolves only available values",()=>{
+ const indicators=[
+  {tag:"VELOCITY",value:"24",unit:"SP",source:"computed",available:true,reason:null},
+  {tag:"PRIVATE",value:null,unit:"SP",source:"manual",available:false,reason:"missing_source"}
+ ];
+ const available=resolveBriefPrompt({...input,indicators,promptText:"{{INDICATOR_VELOCITY}}"});
+ assert.equal(available.safe,true);
+ assert.match(available.text,/24 SP/);
+ assert.match(available.text,/computed/);
+ const missing=resolveBriefPrompt({...input,indicators,promptText:"{{INDICATOR_PRIVATE}}"});
+ assert.equal(missing.safe,false);
+ assert.equal(missing.diagnostics.length,1);
+});
+test("SMN-475: unsupported collection modifiers are not silently ignored",()=>{
+ const result=resolveBriefPrompt({...input,promptText:"{{ROW:INDICATORS|SORT=INDICATOR_NAME:ASC}}"});
+ assert.equal(result.safe,false);
+});
