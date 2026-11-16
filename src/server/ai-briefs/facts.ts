@@ -1,7 +1,7 @@
 import type {Client} from "pg";
 import {composeStandardReport} from "@/server/reports/standard-composition";
 import {composeKanbanReport} from "@/server/kanban/report-preparation";
-import {allowedBriefFields,type BriefMode} from "@/lib/ai-brief-templates";
+import type {BriefMode} from "@/lib/ai-brief-templates";
 
 export type BriefFact={key:string;label:string;value:string|null;unit:string|null;source:string;quality:"recorded"|"calculated"|"provisional"|"unavailable";snapshotVersion:number|null};
 const fact=(key:string,label:string,raw:unknown,unit:string|null,source:string,version:number|null,provisional:boolean):BriefFact=>{
@@ -9,9 +9,6 @@ const fact=(key:string,label:string,raw:unknown,unit:string|null,source:string,v
  return {key,label,value,unit,source,quality:value===null?"unavailable":provisional?"provisional":"recorded",snapshotVersion:version};
 };
 const object=(v:unknown):Record<string,unknown>=>v&&typeof v==="object"&&!Array.isArray(v)?v as Record<string,unknown>:{};
-export function projectBriefSelection(mode:BriefMode,fields:readonly string[],data:Record<string,BriefFact>):BriefFact[]{
- return allowedBriefFields(mode,fields).map(key=>data[key]).filter((x):x is BriefFact=>Boolean(x));
-}
 export async function readBriefFacts(db:Client,mode:BriefMode,cycleId:string):Promise<Record<string,BriefFact>>{
  const result:Record<string,BriefFact>={};
  const put=(key:string,label:string,value:unknown,unit:string|null,source:string,version:number|null,provisional:boolean)=>{
