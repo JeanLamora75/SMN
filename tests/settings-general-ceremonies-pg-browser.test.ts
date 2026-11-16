@@ -158,7 +158,7 @@ test("Paramètres généraux et cérémonies : vrais formulaires Chromium, HTTP 
   await page.waitForSelector("#template-day");
   await page.select("#template-day","3");
   await page.click("#template-name",{clickCount:3});
-  await page.keyboard.press("ControlOrMeta+A");
+  await page.keyboard.press(process.platform==="darwin"?"Meta+A":"Control+A");
   await page.keyboard.type("Daily revue");
   await page.waitForFunction(()=>!(document.querySelector("#ceremony-fixture button[form=smn-ceremony-template-editor]") as HTMLButtonElement).disabled);
   await page.click("#ceremony-fixture button[form=smn-ceremony-template-editor]");
