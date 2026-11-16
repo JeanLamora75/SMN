@@ -8,7 +8,7 @@ const articles:Readonly<Record<string,string>>={
  "/app":"dashboard",
  "/app/dashboard-builder":"dashboard",
  "/app/admin/links":"links",
- "/app/admin/settings/links":"links",
+ "/app/admin/settings/links":"link-settings",
  "/app/admin/settings":"general-settings",
  "/app/admin/settings/general":"general-settings",
  "/app/admin/settings/teams":"teams",
