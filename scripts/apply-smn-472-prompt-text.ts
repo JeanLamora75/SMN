@@ -37,7 +37,7 @@ export async function applySmn472(db:Client,apply:boolean){
   let pending=0;
   for(const row of rows.rows){
    if(isValidPromptText(row.prompt_text))continue;
-   if(row.prompt_text!==null && row.prompt_text.trim().length)throw Error("smn-472: prompt_text invalide: "+row.id);
+   if(String(row.prompt_text??"").trim().length>0)throw Error("smn-472: prompt_text invalide: "+row.id);
    const converted=convertLegacyPrompt(row);
    if(!isValidPromptText(converted))throw Error("smn-472: conversion invalide: "+row.id);
    pending++;
