@@ -18,11 +18,17 @@ export default function HelpSetupChecklist({steps}:{steps:readonly HelpSetupStep
  const [loaded,setLoaded]=useState(false);
  const [error,setError]=useState(false);
  useEffect(()=>{
-  try{
-   const saved=window.localStorage.getItem(HELP_SETUP_STORAGE_KEY);
-   setProgress(parseHelpSetupProgress(saved));
-  }catch{setError(true);}
-  setLoaded(true);
+  // Storage hydration runs after the effect, avoiding synchronous cascaded renders.
+  let active=true;
+  queueMicrotask(()=>{
+   if(!active)return;
+   try{
+    const saved=window.localStorage.getItem(HELP_SETUP_STORAGE_KEY);
+    setProgress(parseHelpSetupProgress(saved));
+   }catch{setError(true);}
+   setLoaded(true);
+  });
+  return ()=>{active=false;};
  },[]);
 
  function change(id:HelpSetupStep["id"],status:HelpSetupStatus){
