@@ -3,11 +3,10 @@ import {notFound,redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withAuthDb} from "@/server/auth/database";
-import {allowedBriefFields} from "@/lib/ai-brief-templates";
 import {listBriefTemplates} from "@/server/ai-briefs/templates";
 import BriefOverrides from "./brief-overrides";
 import HumanAnalysisForm from "@/app/app/ai-briefs/human-analysis-form";
-import {readBriefFacts,projectBriefSelection} from "@/server/ai-briefs/facts";
+import {readBriefFacts} from "@/server/ai-briefs/facts";
 import {readAnalysisJournal} from "@/server/ai-briefs/journal";
 import {readBriefIndicatorValues} from "@/server/ai-briefs/indicators";
 
@@ -61,9 +60,8 @@ export default async function PrepareAiBrief({searchParams}:{
  const templates=await withAuthDb(listBriefTemplates);
  const available=templates.filter(t=>t.active);
  const selected=available.find(t=>t.id===template)??available[0];
- const fields=allowedBriefFields(scrum?"scrum":"kanban",selected.data);
  const facts=await withAuthDb(db=>readBriefFacts(db,scrum?"scrum":"kanban",context.id)).catch(()=>({}));
- const projected=projectBriefSelection(scrum?"scrum":"kanban",fields,facts);
+ const projected=Object.values(facts).filter(item=>item.unit!==null);
  const indicators=await withAuthDb(db=>readBriefIndicatorValues(db,context.teamId,scrum?"scrum":"kanban",context.id)).catch(()=>[]);
  const historical=await withAuthDb(async db=>{
   const teams=await db.query<{id:string}>("SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode) IN ('scrum','kanban')");
