@@ -87,6 +87,11 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
   const promptSql=readFileSync(migrationFile(
    "20261116_smn472_prompt_text","migration.sql"),"utf8");
   await client.query(promptSql);
+  // The baseline is immutable; the final installed schema drops obsolete columns
+  // in the same transaction before the application becomes available.
+  const promptCleanupSql=readFileSync(migrationFile(
+   "20261116_smn477_brief_legacy_cleanup","migration.sql"),"utf8");
+  await client.query(promptCleanupSql);
   await client.query("COMMIT");transaction=false;
   // L'installation est acceptée uniquement après diagnostic physique v33.
   const after=classifySnapshot(await probePostgres(uri.toString()));
