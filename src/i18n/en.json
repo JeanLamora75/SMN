@@ -7,6 +7,15 @@
     "save": "Save"
   },
   "briefPromptEditor": {
+    "tagDialogTitle": "SMN tag catalogue",
+    "tagDialogIntro": "Choose an approved collective data field and insert its tag directly into your prompt.",
+    "insertTag": "Insert SMN tag",
+    "insert": "Insert at cursor",
+    "indicatorsUnavailable": "Choose a team or sprint before selecting its indicators. This page has no team context.",
+    "tagPrivacyInfo": "SMN tags can expose application data. Only approved collective tags can be inserted. Review the data before sharing with an AI.",
+    "tagRestricted": "This tag cannot be used in an AI prompt: it may contain personal details, contacts, links or unreviewed data.",
+    "chartsUnavailable": "Office charts produce images and cannot be inserted into a plain-text prompt.",
+    "tagInsertError": "Cannot insert this tag: invalid expression or prompt length limit exceeded.",
     "heading": "AI brief templates",
     "eyebrow": "AGILE COCKPIT",
     "intro": "Write reusable prompts in a simple notepad-style editor. Built-in templates are protected but can be duplicated.",

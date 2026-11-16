@@ -7,6 +7,15 @@
     "save": "Enregistrer"
   },
   "briefPromptEditor": {
+    "tagDialogTitle": "Catalogue de tags SMN",
+    "tagDialogIntro": "Choisissez une donnée collective autorisée et insérez son tag directement dans votre prompt.",
+    "insertTag": "Insérer un tag SMN",
+    "insert": "Insérer au curseur",
+    "indicatorsUnavailable": "Choisissez d’abord une équipe ou un sprint pour sélectionner ses indicateurs. Cette page ne possède pas de contexte d’équipe.",
+    "tagPrivacyInfo": "Les tags affichent des données issues de SMN. Seuls les tags collectifs autorisés sont insérables. Relisez les données avant tout partage avec une IA.",
+    "tagRestricted": "Ce tag n’est pas autorisé dans un prompt IA : il peut contenir des données personnelles, des contacts, des liens ou des informations non validées.",
+    "chartsUnavailable": "Les graphiques Office produisent des images : leur insertion dans un prompt texte n’est pas prise en charge.",
+    "tagInsertError": "Insertion impossible : tag non valide ou limite de longueur du prompt dépassée.",
     "heading": "Modèles de briefs IA",
     "eyebrow": "COCKPIT AGILE",
     "intro": "Rédigez des prompts réutilisables comme dans un bloc-notes. Les modèles intégrés restent protégés, mais peuvent être dupliqués.",

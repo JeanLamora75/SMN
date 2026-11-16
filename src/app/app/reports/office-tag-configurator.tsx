@@ -3,6 +3,7 @@ import {useEffect,useMemo,useRef,useState} from "react";
 import {officeRowDefinitions,officeScalarDefinitions,officeChartDefinitions} from "./office-tags";
 import {serializeOfficeTag} from "@/lib/office-tag-builder";
 import {useTranslation} from "@/i18n/client";
+import {briefTagRestriction,canOfferBriefTag,AI_BRIEF_SAFE_ROW_FIELDS} from "@/lib/brief-prompt-tag-policy";
 
 type Locale="fr"|"en";
 type Family="scalar"|"indicator"|"row"|"chart";
@@ -12,7 +13,8 @@ type Catalog={definitions:Indicator[];selections:{indicator_id:string;is_active:
 type ChartStyle={id:string;name:string};
 type ChartType="bar"|"line"|"area"|"pie"|"donut"|"gauge";
 const fieldName=/^[A-Z][A-Z0-9_]*$/;
-export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;teamId:string|null}){
+export default function OfficeTagConfigurator({locale,teamId,onInsert,disabled=false}:{locale:Locale;teamId:string|null;onInsert?:(tag:string)=>void;disabled?:boolean}){
+ const briefMode=typeof onInsert==="function";
  const t=useTranslation();
  const tr=(key:string)=>t(("reportsCenter.tagBuilder"+key) as Parameters<typeof t>[0]);
  const [open,setOpen]=useState(false),[family,setFamily]=useState<Family>("scalar");
@@ -38,15 +40,16 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
   return all.filter(x=>(x.label+" "+x.description).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().includes(q));
  },[family,indicators,locale,search]);
  const currentRow=officeRowDefinitions.find(x=>x.source===key);
- const currentFields=currentRow?.fields??[];
+ const currentFields=briefMode?(currentRow?.fields??[]).filter(field=>AI_BRIEF_SAFE_ROW_FIELDS.has(field)):currentRow?.fields??[];
  const computed=serializeOfficeTag({family,key,rules,
   allowedFields:currentFields,
   chart:{type:chartType,tags:chartTags,last,style,explicitLast,explicitType:chartType!=="bar"}});
- const canCopy=!!computed&&options.some(x=>x.value===key)&&
+ const allowedBrief=!briefMode||canOfferBriefTag(family,key,teamId);
+ const canCopy=!!computed&&allowedBrief&&options.some(x=>x.value===key)&&
   (family!=="indicator"||!!teamId&&selected.has(key))&&
   (family!=="chart"||(!catalogError&&!loading&&(style===""||!styleError)&&(!chartTags.length||chartTags.every(x=>selected.has(x)))));
  function selectFamily(next:Family){
-  setFamily(next);setSearch("");setKey(next==="scalar"?"TEAM_NAME":next==="row"?"MEMBERS_ACTIVE":next==="chart"?"bar":"");
+  setFamily(next);setSearch("");setKey(next==="scalar"?"TEAM_NAME":next==="row"?(briefMode?"GOALS":"MEMBERS_ACTIVE"):next==="chart"?"bar":"");
   setRules([]);setChartTags([]);setChartType("bar");setLast(6);setExplicitLast(false);setStyle("");
   setCopied(false);setCopyFailed(false);
  }
@@ -59,12 +62,12 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
     const ids=new Set(data.selections.filter(s=>s.is_active).map(s=>s.indicator_id));
     if(alive)setIndicators(data.definitions.filter(x=>ids.has(x.id)&&x.archived_at===null&&fieldName.test(x.tag)));
    }):Promise.resolve(),
-   fetch("/api/admin/reports/chart-styles",{cache:"no-store"}).then(async r=>{
+   !briefMode?fetch("/api/admin/reports/chart-styles",{cache:"no-store"}).then(async r=>{
     if(!r.ok)throw Error("styles");
     const data=await r.json() as {styles?:ChartStyle[]};
     if(!Array.isArray(data.styles))throw Error("styles");
     if(alive)setStyles(data.styles.filter(x=>/^[a-z][a-z0-9-]{2,63}$/.test(x.id)));
-   })
+   }):Promise.resolve()
   ]).then(results=>{
    if(!alive)return;
    if(results[0].status==="rejected")setCatalogError(true);
@@ -72,7 +75,7 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
    setLoading(false);
   });
   return()=>{alive=false};
- },[open,teamId]);
+ },[open,teamId,briefMode]);
  useEffect(()=>{
   if(!open)return;
   const previous=document.activeElement as HTMLElement|null;
@@ -96,15 +99,21 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
   catch{setCopyFailed(true);}
  }
  const list=options;
+ const restriction=briefMode?briefTagRestriction(family,key,teamId):"allowed";
+ function insert(){
+  if(!onInsert||!canCopy)return;
+  onInsert(computed);
+  setOpen(false);
+ }
  return <>
-  <button ref={opener} type="button" className="btn btn-primary btn-sm" onClick={()=>{setLoading(true);setCatalogError(false);setStyleError(false);setIndicators([]);setStyles([]);setOpen(true);selectFamily("scalar");}}>
-   <span aria-hidden="true">⚙ </span>{tr("Open")}
+  <button ref={opener} type="button" disabled={disabled} className="btn btn-primary btn-sm" onClick={()=>{setLoading(true);setCatalogError(false);setStyleError(false);setIndicators([]);setStyles([]);setOpen(true);selectFamily("scalar");}}>
+   <span aria-hidden="true">⚙ </span>{briefMode?t("briefPromptEditor.insertTag"):tr("Open")}
   </button>
   {open&&<div className="modal d-block smn-office-tag-config-modal" role="presentation" style={{backgroundColor:"rgba(0,0,0,.6)",zIndex:1090}}>
    <div className="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
     <div ref={dialog} className="modal-content smn-office-tag-config-dialog" role="dialog" aria-modal="true" aria-labelledby="smn-tag-config-title">
      <div className="modal-header smn-office-tag-config-header">
-      <div className="smn-office-tag-config-title-group"><span className="smn-office-tag-config-icon" aria-hidden="true">{"{}"}</span><div><p className="smn-office-tag-config-eyebrow mb-1">COCKPIT AGILE</p><h2 className="modal-title fs-5" id="smn-tag-config-title">{tr("Title")}</h2><p className="smn-office-tag-config-intro small mb-0">{tr("Intro")}</p></div></div>
+      <div className="smn-office-tag-config-title-group"><span className="smn-office-tag-config-icon" aria-hidden="true">{"{}"}</span><div><p className="smn-office-tag-config-eyebrow mb-1">COCKPIT AGILE</p><h2 className="modal-title fs-5" id="smn-tag-config-title">{briefMode?t("briefPromptEditor.tagDialogTitle"):tr("Title")}</h2><p className="smn-office-tag-config-intro small mb-0">{briefMode?t("briefPromptEditor.tagDialogIntro"):tr("Intro")}</p></div></div>
       <button data-close type="button" className="btn-close" aria-label={tr("Close")} onClick={()=>setOpen(false)}/>
      </div>
      <div className="modal-body smn-office-tag-config-body d-grid gap-3">
@@ -116,7 +125,10 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
       <label className="form-label">{tr("Search")}
        <input type="search" className="form-control" value={search} onChange={e=>setSearch(e.target.value)}/>
       </label>
-      {family==="indicator"&&!teamId&&<p className="alert alert-warning mb-0" role="status">{tr("TeamRequired")}</p>}
+      {family==="indicator"&&!teamId&&<p className="alert alert-warning mb-0" role="status">{briefMode?t("briefPromptEditor.indicatorsUnavailable"):tr("TeamRequired")}</p>}
+      {briefMode&&<p className="small text-secondary mb-0">{t("briefPromptEditor.tagPrivacyInfo")}</p>}
+      {briefMode&&restriction==="privacy"&&<p className="alert alert-warning mb-0" role="status">{t("briefPromptEditor.tagRestricted")}</p>}
+      {briefMode&&restriction==="chart"&&<p className="alert alert-warning mb-0" role="status">{t("briefPromptEditor.chartsUnavailable")}</p>}
       {loading&&(family==="indicator"||family==="chart")&&<p role="status">{tr("Loading")}</p>}
       {catalogError&&(family==="indicator"||family==="chart")&&<p className="alert alert-danger" role="alert">{tr("CatalogError")}</p>}
       {styleError&&family==="chart"&&<p className="alert alert-warning" role="alert">{tr("StyleError")}</p>}
@@ -130,7 +142,7 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
         {list.map(x=><option key={x.value} value={x.value}>{x.label} ({x.value})</option>)}
        </select>
       </label>}
-      {family==="row"&&currentRow&&<div className="border rounded p-3 d-grid gap-2">
+      {family==="row"&&currentRow&&(!briefMode||allowedBrief)&&<div className="border rounded p-3 d-grid gap-2">
        <h3 className="h6 mb-0">{tr("Sort")}</h3>
        <p className="small text-secondary mb-0">{tr("SortHint")}</p>
        {rules.map((rule,i)=><div key={rule.field} className="d-flex gap-2 align-items-center flex-wrap">
@@ -150,10 +162,12 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
        <button type="button" className="btn btn-outline-primary btn-sm align-self-start" disabled={rules.length>=currentFields.length}
         onClick={()=>setRules(prev=>[...prev,{field:currentFields.find(x=>!prev.some(r=>r.field===x))!,direction:"ASC"}])}>{tr("AddSort")}</button>
        <h3 className="h6 mt-2 mb-0">{tr("Columns")}</h3>
-       <div className="d-flex flex-wrap gap-2">{currentFields.map(field=><button className="btn btn-outline-secondary btn-sm" type="button" key={field}
-        title={tr("CopyColumn")} onClick={()=>void copy("{{"+field+"}}")}>{field}</button>)}</div>
+       <div className="d-flex flex-wrap gap-2">{currentFields.map(field=>briefMode?
+        <span className="badge text-bg-light" key={field}>{field}</span>:
+        <button className="btn btn-outline-secondary btn-sm" type="button" key={field}
+         title={tr("CopyColumn")} onClick={()=>void copy("{{"+field+"}}")}>{field}</button>)}</div>
       </div>}
-      {family==="chart"&&<div className="border rounded p-3 d-grid gap-3">
+      {family==="chart"&&!briefMode&&<div className="border rounded p-3 d-grid gap-3">
        <div><label className="form-label">{tr("ChartType")}
         <select className="form-select" value={chartType} onChange={e=>{const next=e.target.value as ChartType;setChartType(next);setKey(next);setChartTags(old=>next==="gauge"?old.slice(0,1):old);if(["pie","donut","gauge"].includes(next))setExplicitLast(false);}}>
          {officeChartDefinitions.map(x=><option key={x.type} value={x.type}>{locale==="fr"?x.fr:x.en}</option>)}
@@ -191,7 +205,8 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
      <div className="modal-footer smn-office-tag-config-footer">
       <button className="btn btn-outline-secondary" type="button" onClick={()=>selectFamily(family)}>{tr("Reset")}</button>
       <button className="btn btn-outline-secondary" type="button" onClick={()=>setOpen(false)}>{tr("Close")}</button>
-      <button className="btn btn-primary" type="button" disabled={!canCopy} onClick={()=>void copy(computed)}>{tr("Copy")}</button>
+      {briefMode?<button className="btn btn-primary" type="button" disabled={!canCopy} onClick={insert}>{t("briefPromptEditor.insert")}</button>:
+       <button className="btn btn-primary" type="button" disabled={!canCopy} onClick={()=>void copy(computed)}>{tr("Copy")}</button>}
      </div>
     </div>
    </div>

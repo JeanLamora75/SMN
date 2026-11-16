@@ -8,6 +8,7 @@ import {listBriefTemplates} from "@/server/ai-briefs/templates";
 import SettingsPageShell from "../../settings/settings-page-shell";
 import TemplateEditor from "./template-editor";
 import "./template-editor.css";
+import "@/app/app/reports/report-center-cockpit.css";
 
 export const dynamic="force-dynamic";
 
