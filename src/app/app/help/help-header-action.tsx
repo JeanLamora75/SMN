@@ -13,7 +13,7 @@ const articles:Readonly<Record<string,string>>={
  "/app/admin/settings/general":"general-settings",
  "/app/admin/settings/teams":"teams",
  "/app/admin/settings/jira":"jira-settings",
- "/app/admin/settings/maintenance":"backup",
+ "/app/admin/settings/maintenance":"maintenance-settings",
  "/app/admin/members":"members",
  "/app/team-calendar":"calendar",
  "/app/admin/kanban-periods":"kanban-periods",
