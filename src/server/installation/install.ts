@@ -92,6 +92,10 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
   const promptCleanupSql=readFileSync(migrationFile(
    "20261116_smn477_brief_legacy_cleanup","migration.sql"),"utf8");
   await client.query(promptCleanupSql);
+  // SMN-480: metadata-only AI connections; no external keys in the database.
+  const aiConnectionSql=readFileSync(migrationFile(
+   "20261116_smn480_ai_connections","migration.sql"),"utf8");
+  await client.query(aiConnectionSql);
   await client.query("COMMIT");transaction=false;
   // L'installation est acceptée uniquement après diagnostic physique v33.
   const after=classifySnapshot(await probePostgres(uri.toString()));
