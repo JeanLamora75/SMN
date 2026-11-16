@@ -8,7 +8,7 @@ test("historical analyses are never included by default",()=>{
  assert.match(ui,/historical\.filter/);
 });
 test("explicit selection includes type, origin, timestamp and cycle",()=>{
- assert.match(ui,/x.type\+"\|"\+x.createdAt\+"\|"\+x.origin/);
+ assert.match(ui,/x.type\+" \| "\+x.createdAt\+" \| "\+x.origin/);
  assert.match(ui,/x.cycleId/);
  assert.match(ui,/sanitize\(x.content\)/);
  assert.match(ui,/t\("historyIncluded"\)/);
