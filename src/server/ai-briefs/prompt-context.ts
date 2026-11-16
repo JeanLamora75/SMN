@@ -28,12 +28,12 @@ export async function renderCycleBriefPrompt(db:Client,mode:BriefMode,cycle:Brie
   !/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/.test(cycle.id))throw Error("invalid-brief-cycle-scope");
  const source=cycle.status==="closed"?"closure":"live";
  const scalars:Record<string,PromptValue>={
-  TEAM_NAME:record(cycle.team,cycle,source),
-  SPRINT_NAME:record(cycle.name,cycle,source),
-  SPRINT_START:record(cycle.startAt,cycle,source),
-  SPRINT_END:record(cycle.endAt,cycle,source),
-  SPRINT_STATUS:record(cycle.status,cycle,source),
-  PRODUCT_NAME:record(cycle.product,cycle,source),
+  TEAM_NAME:record(cycle.team,cycle,"team-record"),
+  SPRINT_NAME:record(cycle.name,cycle,"cycle-record"),
+  SPRINT_START:record(cycle.startAt,cycle,"cycle-record"),
+  SPRINT_END:record(cycle.endAt,cycle,"cycle-record"),
+  SPRINT_STATUS:record(cycle.status,cycle,"cycle-record"),
+  PRODUCT_NAME:record(cycle.product,cycle,"team-record"),
   TODAY:record(officeReportDate(preparedAt,locale,cycle.timeZone),cycle,"generation")
  };
  const tables:Record<string,PromptTable>={};
