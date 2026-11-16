@@ -93,6 +93,6 @@ describe("SMN-469 — contract and security of the Help module",()=>{
  it("validates every installed FR/EN article and search index",async()=>{
   const evidence=await verifyOfflineHelp(root);
   assert.deepEqual(evidence.locales,["fr","en"]);
-  assert.equal(evidence.articleCount,16);
+  assert.equal(evidence.articleCount,32);
  });
 });
