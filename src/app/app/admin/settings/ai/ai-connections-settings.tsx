@@ -44,7 +44,7 @@ export default function AiConnectionsSettings(){
   }catch{setError(t("aiConnections.loadError"));}
   finally{setLoading(false);}
  },[t]);
- useEffect(()=>{void load();},[load]);
+ useEffect(()=>{void Promise.resolve().then(load);},[load]);
  const shown=useMemo(()=>items.filter(item=>{
   const matchesSearch=[item.label,item.providerId,item.modelId??""].some(x=>
    x.toLocaleLowerCase().includes(query.toLocaleLowerCase().trim()));
