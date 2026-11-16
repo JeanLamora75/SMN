@@ -1,3 +1,5 @@
+import "./help/help-center.css";
+import "./help/help-dialog.css";
 import {redirect} from "next/navigation";
 import type {ReactNode} from "react";
 import {currentAccount} from "@/server/auth/session";
