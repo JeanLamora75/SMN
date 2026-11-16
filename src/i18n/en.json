@@ -7,6 +7,7 @@
     "save": "Save"
   },
   "briefPromptEditor": {
+    "confirmTextReview": "I have reviewed the full prompt for personal information, secrets or confidential content, and approve copying this exact version.",
     "resolvedTitle": "AI prompt with cycle data",
     "resolvedHint": "Tags are replaced only with authorized data from the selected cycle. Values show their source and quality.",
     "provisionalCycle": "This cycle is not closed. The displayed values can still change.",
