@@ -9,6 +9,7 @@ export default function PromptTextPreview({result,source,locale,cycleStatus}:{
  const t=useTranslation();
  const tr=(key:string)=>t(("briefPromptEditor."+key) as Parameters<typeof t>[0]);
  const [copied,setCopied]=useState(false);
+ const [approvedText,setApprovedText]=useState<string|null>(null);
  const [copyFailed,setCopyFailed]=useState(false);
  const ready=!!result?.complete;
  return <section className="border rounded-3 p-3 d-grid gap-3" aria-labelledby="brief-resolved-prompt-title">
@@ -26,14 +27,19 @@ export default function PromptTextPreview({result,source,locale,cycleStatus}:{
    <pre className="mb-0">{result.text}</pre>
   </div>}
   {!result&&<pre className="smn-brief-source-preview">{source}</pre>}
+  {result&&result.complete&&<label className="form-check d-flex align-items-start gap-2">
+   <input className="form-check-input" type="checkbox" checked={approvedText===result.text}
+    onChange={event=>setApprovedText(event.target.checked?result.text:null)}/>
+   <span className="form-check-label">{tr("confirmTextReview")}</span>
+  </label>}
   <div className="d-flex gap-2 align-items-center flex-wrap">
-   <button type="button" className="btn btn-outline-secondary btn-sm" disabled={!ready}
+   <button type="button" className="btn btn-outline-secondary btn-sm" disabled={!ready||approvedText!==result?.text}
     onClick={async()=>{
-     if(!result?.complete)return;
+     if(!result?.complete||approvedText!==result.text)return;
      try{await navigator.clipboard.writeText(result.text);setCopied(true);setCopyFailed(false);}
      catch{setCopied(false);setCopyFailed(true);}
     }}>{tr("copyResolved")}</button>
-   {!ready&&<span className="small text-secondary">{tr("copyBlocked")}</span>}
+   {(!ready||approvedText!==result?.text)&&<span className="small text-secondary">{tr("copyBlocked")}</span>}
   </div>
   {copied&&<p className="text-success small mb-0" role="status">{tr("copied")}</p>}
   {copyFailed&&<p className="text-danger small mb-0" role="alert">{tr("copyFailed")}</p>}
