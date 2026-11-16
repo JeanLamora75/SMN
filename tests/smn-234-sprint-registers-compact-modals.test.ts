@@ -64,11 +64,12 @@ describe("SMN-234 — Registres compacts et modales de l'onglet Sprint",()=>{
   assert.equal((html.match(/aria-haspopup="dialog"/g)??[]).length,1);
   assert.doesNotMatch(html,/bi-pencil-square/);
  });
- it("fait automatique sans fiche éditable : consultation mais aucun faux formulaire",()=>{
+ it("fait marquant : consultation et actions d’édition/suppression autorisées",()=>{
   const html=render("highlight",{href:null});
   assert.match(html,/Titre sans soulignement/);
   assert.ok((html.match(/aria-haspopup="dialog"/g)??[]).length>=1);
-  assert.doesNotMatch(html,/bi-pencil-square/);
+  assert.match(html,/bi-pencil-square/);
+  assert.match(html,/smn-sprint-register-delete/);
  });
  it("le formulaire réel réutilise RegistryCreate et rafraîchit après sauvegarde",()=>{
   const row=read("src/app/app/admin/sprints/[sprintId]/sprint-register-row.tsx");
