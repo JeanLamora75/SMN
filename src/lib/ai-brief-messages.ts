@@ -101,7 +101,22 @@ export const aiBriefMessages={fr:{
   "txtHeader": "BRIEF IA — TEXTE BRUT",
   "manualTxt": "Transmission à une IA : manuelle uniquement.",
   "modelAdminTitle": "Administration des modèles de briefs IA",
-  "modelAdminHelp": "Créez des modèles réutilisables. Leur désactivation ne modifie jamais les archives TXT."
+  "modelAdminHelp": "Créez des modèles réutilisables. Leur désactivation ne modifie jamais les archives TXT.",
+  "diagUnknown": "Tag inconnu du catalogue Office",
+  "diagEmpty": "Expression de tag vide",
+  "diagChart": "Les graphiques ne sont pas pris en charge dans un prompt TXT",
+  "diagIndicator": "Indicateur indisponible pour ce cycle",
+  "diagIndicatorMissing": "non sélectionné",
+  "diagCollection": "Collection inconnue",
+  "diagRowOptions": "Options de collection non prises en charge en rendu TXT",
+  "diagUnsafe": "Collection non autorisée sans revue des données métier",
+  "diagNoData": "Aucune donnée collective disponible",
+  "diagSensitive": "Texte libre potentiellement sensible : insertion automatique interdite",
+  "diagUnavailable": "Aucune valeur disponible ou accès non autorisé",
+  "diagUnresolved": "TAG NON RÉSOLU",
+  "diagSource": "source",
+  "diagQuality": "qualité",
+  "diagVersion": "version"
 },en:{
   "template": "Template",
   "newTemplate": "+ New template",
@@ -204,7 +219,22 @@ export const aiBriefMessages={fr:{
   "txtHeader": "AI BRIEF — PLAIN TEXT",
   "manualTxt": "Sending to an AI: manually only.",
   "modelAdminTitle": "AI brief template administration",
-  "modelAdminHelp": "Create reusable templates. Deactivating a template never changes archived TXT."
+  "modelAdminHelp": "Create reusable templates. Deactivating a template never changes archived TXT.",
+  "diagUnknown": "Unknown tag in the Office catalog",
+  "diagEmpty": "Empty tag expression",
+  "diagChart": "Charts are not supported in plain-text prompts",
+  "diagIndicator": "Indicator unavailable for this cycle",
+  "diagIndicatorMissing": "not selected",
+  "diagCollection": "Unknown collection",
+  "diagRowOptions": "Collection options are not supported in plain-text output",
+  "diagUnsafe": "Collection requires a business-data privacy review",
+  "diagNoData": "No collective data available",
+  "diagSensitive": "Potentially sensitive free text: automatic insertion forbidden",
+  "diagUnavailable": "No value available or access denied",
+  "diagUnresolved": "UNRESOLVED TAG",
+  "diagSource": "source",
+  "diagQuality": "quality",
+  "diagVersion": "version"
 }} as const;
 export type AiBriefKey=keyof typeof aiBriefMessages.fr;
 export type AiBriefLocale=keyof typeof aiBriefMessages;
