@@ -1,21 +1,24 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {test} from "node:test";
+import {canApproveBrief} from "../src/lib/ai-brief-review";
 const ui=readFileSync("src/app/app/admin/ai-briefs/prepare/brief-overrides.tsx","utf8");
-test("privacy approval is bound to the exact previewed TXT",()=>{
- assert.match(ui,/reviewedText===preview&&preview===currentTxt/);
- assert.match(ui,/disabled=\{preview===null\|\|preview!==currentTxt\|\|conflict\}/);
- assert.match(ui,/setReviewedText\(e.target.checked\?preview:null\)/);
+const state={preview:"TXT exact",currentTxt:"TXT exact",reviewedText:"TXT exact",privacyReviewed:true,revisionChecked:true,conflict:false};
+test("approval attaches to exact preview, revision and privacy review",()=>{
+ assert.equal(canApproveBrief(state),true);
+ for(const update of [{currentTxt:"TXT changed"},{preview:null},{reviewedText:null},{privacyReviewed:false},{revisionChecked:false},{conflict:true}])
+  assert.equal(canApproveBrief({...state,...update}),false);
 });
-test("editing free text or template revokes the previous approval",()=>{
- for(const setter of ["setObservations","setHumanQuestions","setHumanInstructions","setDraft"]){
-  assert.ok(ui.includes(setter));
- }
+test("text edits and history changes revoke approval",()=>{
+ for(const setter of ["setObservations","setPrompt","setSelectedHistory"])assert.ok(ui.includes(setter),setter);
+ assert.match(ui,/function invalidate\(\)/);
+ assert.match(ui,/setPreview\(null\)/);
  assert.match(ui,/setPrivacyReviewed\(false\)/);
  assert.match(ui,/setReviewedText\(null\)/);
 });
-test("the complete preview and its confidentiality warning are visible",()=>{
- assert.match(ui,/readOnly value=\{preview\}/);
- assert.match(ui,/noms, informations privées ou secrets/);
- assert.match(ui,/aucun export ni finalisation possible/);
+test("preview is read-only, complete and requires privacy confirmation",()=>{
+ assert.match(ui,/readOnly value=\{preview\?\?""\}/);
+ assert.match(ui,/t\("privacyConfirm"\)/);
+ assert.match(ui,/disabled=\{saving\|\|!approved\}/);
+ assert.match(ui,/txtBytes>0&&txtBytes<=200000/);
 });
