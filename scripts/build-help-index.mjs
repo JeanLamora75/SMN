@@ -39,7 +39,9 @@ export async function buildHelpIndexes({check=false,base=root}={}){
   const file=path.join(target,locale+".json");
   if(check){
    const actual=await readFile(file,"utf8").catch(()=>null);
-   if(actual!==output)throw Error("help-index-stale:"+locale);
+   // Git on Windows may check out text JSON with CRLF. Compare canonical
+   // content, not checkout-specific end-of-line encoding.
+   if(actual?.replace(/\r\n/g,"\n")!==output)throw Error("help-index-stale:"+locale);
   }else await writeFile(file,output,"utf8");
   generated.push({locale,articles:rows.length});
  }
