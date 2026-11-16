@@ -25,7 +25,7 @@ Date : 16 novembre 2026. Epic : SMN-479.
 |---|---|---|---|---|
 | Gemini | `gemini-2.5-flash-lite` | https://ai.google.dev/gemini-api/docs/pricing | Free Tier : entrée et sortie offertes pour ce modèle, limites effectives par projet vérifiables en AI Studio ; données soumises aux conditions du niveau gratuit et pouvant être utilisées pour améliorer les produits Google | **Documentation vérifiée ; essai compte à faire** |
 | Groq | `openai/gpt-oss-20b` | https://console.groq.com/docs/rate-limits et https://console.groq.com/docs/billing-faqs | Free Plan Limits publiées pour ce modèle (table consultée : 30 RPM, 1K RPD, 8K TPM, 200K TPD). Les limites sont celles de l'organisation et peuvent varier. Developer tier facturable après upgrade. | **Documentation vérifiée ; essai compte à faire** |
-| OpenRouter | `meta-llama/llama-3.3-70b-instruct:free` | https://openrouter.ai/meta-llama/llama-3.3-70b-instruct:free et https://openrouter.ai/collections/free-models | Fiche du modèle : prix nul. Variante `:free` sans achat de crédits ; 50 requêtes/jour et 20/min sur compte sans achat, échecs comptabilisés. Certains fournisseurs peuvent manquer selon région ou disponibilité. | **Documentation vérifiée ; essai compte à faire** |
+| OpenRouter | `inclusionai/ling-3.2-flash:free` | https://openrouter.ai/inclusionai/ling-3.2-flash:free et https://openrouter.ai/collections/free-models | Fiche du modèle : prix nul. Variante `:free` sans achat de crédits ; 50 requêtes/jour et 20/min sur compte sans achat, échecs comptabilisés. Certains fournisseurs peuvent manquer selon région ou disponibilité. | **Documentation vérifiée ; essai compte à faire** |
 
 Autres vérifications officielles :
 - https://ai.google.dev/gemini-api/docs/rate-limits : les limites réelles de Gemini sont propres au projet, niveau de compte et modèle, et peuvent évoluer.
@@ -47,3 +47,11 @@ Autres vérifications officielles :
 ### Preuve de publication
 
 L'actualisation documentaire et du catalogue candidat a été publiée sur `main`. La certification des comptes/API et la clôture fonctionnelle de SMN-482 restent conditionnées à des preuves réelles.
+
+### Vérification complémentaire de présence dans le catalogue public
+
+La fiche de `meta-llama/llama-3.3-70b-instruct:free` existe, mais l'identifiant gratuit n'a pas été retrouvé dans la réponse du catalogue public `https://openrouter.ai/api/v1/models` au contrôle du 16/11/2026. Il est donc **écarté des candidats prioritaires** pour éviter une fausse disponibilité.
+
+Le modèle de substitution `inclusionai/ling-3.2-flash:free` est présent dans le catalogue public avec `pricing.prompt=0`, `pricing.completion=0` et l'endpoint `/api/v1/chat/completions`. Sa fiche officielle https://openrouter.ai/inclusionai/ling-3.2-flash:free confirme « Free ». Vérification de catalogue sans authentification, **pas** un appel de génération avec compte test ; pas d'activation de l'allowlist.
+
+La page du modèle indique également qu'il n'est pas disponible via la route dédiée à l'UE. SMN ne doit pas présumer de l'hébergement régional ou de la confidentialité des données transmises.
