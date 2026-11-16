@@ -5,7 +5,7 @@ import {installedDatabaseUri} from "../src/server/auth/database";
 
 const obsolete=["sections","questions","instructions","data","depth"] as const;
 type CatalogColumn={column_name:string};
-type Stats={templates:number;missing:number;archives:number;columns:string[]};
+type Stats={templates:number;missing:number;archives:number;columns:string[];templateDigest:string;archiveDigest:string};
 
 export async function inspectBriefCleanup(db:Client):Promise<Stats>{
  const tables=await db.query<{model:string|null;archive:string|null}>(`
@@ -22,11 +22,20 @@ export async function inspectBriefCleanup(db:Client):Promise<Stats>{
   SELECT count(*)::text AS templates, count(*) FILTER(
   WHERE prompt_text IS NULL OR btrim(prompt_text)='' OR length(prompt_text)>100000
   )::text AS missing FROM public.smn_ai_brief_template`);
- const archives=await db.query<{n:string}>("SELECT count(*)::text AS n FROM public.smn_ai_brief_archive");
+ const templatesDigest=await db.query<{digest:string}>(`
+  SELECT md5(coalesce(string_agg(id::text||':'||revision::text,'|' ORDER BY id),'')) AS digest
+  FROM public.smn_ai_brief_template`);
+ const archives=await db.query<{n:string;digest:string}>(`
+  SELECT count(*)::text AS n,
+   md5(coalesce(string_agg(id::text||':'||template_id||':'||
+   template_revision::text||':'||sha256,'|' ORDER BY id),'')) AS digest
+  FROM public.smn_ai_brief_archive`);
  return {
   templates:Number(counts.rows[0]?.templates??0),
   missing:Number(counts.rows[0]?.missing??0),
   archives:Number(archives.rows[0]?.n??0),
+  archiveDigest:archives.rows[0]?.digest??"",
+  templateDigest:templatesDigest.rows[0]?.digest??"",
   columns:names.filter(x=>obsolete.some(v=>v===x))
  };
 }
@@ -40,7 +49,8 @@ export async function applyBriefCleanup(db:Client,apply:boolean){
   const sql=readFileSync(new URL("../prisma/migrations/20261116_smn477_brief_legacy_cleanup/migration.sql",import.meta.url),"utf8");
   await db.query(sql);
   const after=await inspectBriefCleanup(db);
-  if(after.columns.length||after.archives!==before.archives||after.templates!==before.templates||after.missing!==0)
+  if(after.columns.length||after.archives!==before.archives||after.templates!==before.templates||
+   after.archiveDigest!==before.archiveDigest||after.templateDigest!==before.templateDigest||after.missing!==0)
    throw Error("smn-477: preuve d'équivalence du schéma et des volumes refusée");
   await db.query("COMMIT");
   return {applied:true,before,after};
