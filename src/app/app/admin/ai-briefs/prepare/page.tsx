@@ -9,6 +9,8 @@ import HumanAnalysisForm from "@/app/app/ai-briefs/human-analysis-form";
 import {readBriefFacts} from "@/server/ai-briefs/facts";
 import {readAnalysisJournal} from "@/server/ai-briefs/journal";
 import {readBriefIndicatorValues} from "@/server/ai-briefs/indicators";
+import {requestLocale} from "@/i18n/locale.server";
+import {aiBriefText,type AiBriefKey} from "@/lib/ai-brief-messages";
 
 export const dynamic="force-dynamic";
 
@@ -20,6 +22,8 @@ type BriefContext={
 export default async function PrepareAiBrief({searchParams}:{
  searchParams:Promise<{mode?:string;id?:string;template?:string}>;
 }){
+ const locale=await requestLocale();
+ const t=(key:AiBriefKey)=>aiBriefText(locale,key);
  const account=await currentAccount();
  if(!account)redirect("/login");
  if(account.must_change_password)redirect("/change-password");
@@ -70,27 +74,27 @@ export default async function PrepareAiBrief({searchParams}:{
  const preparedAt=new Date().toISOString();
  const provisional=context.status!=="closed";
  return <main className="container-fluid px-3 px-lg-4 py-4">
-  <div className="d-flex flex-wrap justify-content-between gap-2"><Link href={back}>← Retour au cycle</Link><Link href="/app/ai-briefs/archives">Bibliothèque des briefs archivés</Link></div>
+  <div className="d-flex flex-wrap justify-content-between gap-2"><Link href={back}>{t("back")}</Link><Link href="/app/ai-briefs/archives">{t("library")}</Link></div>
   <section className="smn-panel rounded-4 p-4 my-3">
-   <h1 className="h4">Préparer un brief IA</h1>
-   <p className="text-secondary">Contexte repris automatiquement du cycle sélectionné. Aucun nouveau cycle n’est créé.</p>
+   <h1 className="h4">{t("prepareTitle")}</h1>
+   <p className="text-secondary">{t("prepareIntro")}</p>
    {provisional&&<div className="alert alert-warning" role="status">
-    Brief provisoire : cette période n’est pas clôturée. Les données peuvent encore évoluer.
+    {t("provisional")}
    </div>}
    <dl className="row mb-3">
-    <dt className="col-sm-3">Identifiant</dt><dd className="col-sm-9">{context.id}</dd>
-    <dt className="col-sm-3">Cycle</dt><dd className="col-sm-9">{context.name}</dd>
-    <dt className="col-sm-3">Équipe</dt><dd className="col-sm-9">{context.team}</dd>
-    <dt className="col-sm-3">Produit</dt><dd className="col-sm-9">{context.product??"Non renseigné"}</dd>
-    <dt className="col-sm-3">Mode</dt><dd className="col-sm-9">{scrum?"Scrum":"Kanban"}</dd>
-    <dt className="col-sm-3">Dates</dt><dd className="col-sm-9">{context.startAt} — {context.endAt} ({context.timeZone})</dd>
-    <dt className="col-sm-3">Statut</dt><dd className="col-sm-9">{context.status}</dd>
-    <dt className="col-sm-3">Préparé le</dt><dd className="col-sm-9"><time dateTime={preparedAt}>{new Intl.DateTimeFormat("fr-FR",{dateStyle:"long",timeStyle:"medium",timeZone:"Europe/Paris"}).format(new Date(preparedAt))} (Europe/Paris)</time></dd>
+    <dt className="col-sm-3">{t("identifier")}</dt><dd className="col-sm-9">{context.id}</dd>
+    <dt className="col-sm-3">{t("cycle")}</dt><dd className="col-sm-9">{context.name}</dd>
+    <dt className="col-sm-3">{t("team")}</dt><dd className="col-sm-9">{context.team}</dd>
+    <dt className="col-sm-3">{t("product")}</dt><dd className="col-sm-9">{context.product??t("unknown")}</dd>
+    <dt className="col-sm-3">{t("agileMode")}</dt><dd className="col-sm-9">{scrum?"Scrum":"Kanban"}</dd>
+    <dt className="col-sm-3">{t("dates")}</dt><dd className="col-sm-9">{context.startAt} — {context.endAt} ({context.timeZone})</dd>
+    <dt className="col-sm-3">{t("status")}</dt><dd className="col-sm-9">{context.status}</dd>
+    <dt className="col-sm-3">{t("preparedAt")}</dt><dd className="col-sm-9"><time dateTime={preparedAt}>{new Intl.DateTimeFormat(locale==="en"?"en-GB":"fr-FR",{dateStyle:"long",timeStyle:"medium",timeZone:context.timeZone}).format(new Date(preparedAt))} ({context.timeZone})</time></dd>
    </dl>
    <section aria-labelledby="brief-templates" className="border-top pt-3 mt-3">
-    <h2 id="brief-templates" className="h5">Modèles de briefs</h2>
-    <Link className="btn btn-outline-secondary btn-sm mb-3" href="/app/admin/ai-briefs/templates">Administrer les modèles</Link>
-    <p className="text-secondary small">Choisissez un point de départ puis préparez et relisez votre brief. Aucun modèle n’est enregistré depuis cette page.</p>
+    <h2 id="brief-templates" className="h5">{t("models")}</h2>
+    <Link className="btn btn-outline-secondary btn-sm mb-3" href="/app/admin/ai-briefs/templates">{t("manageModels")}</Link>
+    <p className="text-secondary small">{t("selectModel")}</p>
     <div className="d-flex flex-wrap gap-2 mb-3">
      {available.map(item=><Link key={item.id}
       className={item.id===selected.id?"btn btn-primary btn-sm":"btn btn-outline-primary btn-sm"}
@@ -100,24 +104,24 @@ export default async function PrepareAiBrief({searchParams}:{
     </div>
     <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
      <h3 className="h6 m-0">{selected.title}</h3>
-     <span className="badge text-bg-light">{selected.builtin?"Modèle natif":"Modèle personnalisé"} · version {selected.revision}</span>
+     <span className="badge text-bg-light">{selected.builtin?t("nativeModel"):t("customModel")} · {t("version")} {selected.revision}</span>
     </div>
     <p className="text-secondary">{selected.description}</p>
-    <p className="small text-secondary">Un modèle sert de point de départ. Les ajustements réalisés ci-dessous concernent ce brief uniquement. La copie et l’archivage exigent une relecture explicite du texte final.</p>
+    <p className="small text-secondary">{t("modelDescription")}</p>
     <div className="border rounded-3 p-3 mt-3">
-     <h3 className="h6">Valeurs collectives disponibles et provenance</h3>
-     <p className="small text-secondary">Les cases vides restent non renseignées. Les données individuelles ne sont pas chargées.</p>
+     <h3 className="h6">{t("provenanceTitle")}</h3>
+     <p className="small text-secondary">{t("provenanceHelp")}</p>
      <div className="table-responsive"><table className="table table-sm">
-      <thead><tr><th>Indicateur</th><th>Valeur</th><th>Unité</th><th>Qualité</th><th>Source</th></tr></thead>
-      <tbody>{projected.map(item=><tr key={item.key}><th scope="row">{item.label}</th><td>{item.value??"Non renseigné"}</td><td>{item.unit??"—"}</td><td>{item.quality}</td><td>{item.source}{item.snapshotVersion!==null?" · V"+item.snapshotVersion:""}</td></tr>)}</tbody>
+      <thead><tr><th>{t("indicator")}</th><th>{t("value")}</th><th>{t("unit")}</th><th>{t("quality")}</th><th>{t("source")}</th></tr></thead>
+      <tbody>{projected.map(item=><tr key={item.key}><th scope="row">{item.label}</th><td>{item.value??t("unknown")}</td><td>{item.unit??"—"}</td><td>{item.quality}</td><td>{item.source}{item.snapshotVersion!==null?" · V"+item.snapshotVersion:""}</td></tr>)}</tbody>
      </table></div>
     </div>
     <BriefOverrides key={selected.id+":"+selected.revision} template={selected} mode={scrum?"scrum":"kanban"} context={context} facts={facts} preparedAt={preparedAt} historical={historical} indicators={indicators}/>
-    <p className="small text-secondary">Les champs individuels sont toujours exclus. Les données absentes resteront absentes ; aucune mesure ni conclusion ne sera inventée.</p>
+    <p className="small text-secondary">{t("personalInfoExcluded")}</p>
    </section>
    <HumanAnalysisForm mode={scrum?"scrum":"kanban"} cycleId={context.id}/>
-   <p className="small text-secondary">La consultation seule ne crée aucun document. Seule l’action « Finaliser et archiver » conserve le TXT explicitement validé.</p>
-   <Link className="btn btn-outline-secondary" href={back}>Fermer sans enregistrer</Link>
+   <p className="small text-secondary">{t("noAutoArchive")}</p>
+   <Link className="btn btn-outline-secondary" href={back}>{t("close")}</Link>
   </section>
  </main>;
 }
