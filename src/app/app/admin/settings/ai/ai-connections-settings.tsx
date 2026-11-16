@@ -2,7 +2,7 @@
 import {useCallback,useEffect,useMemo,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../../../bootstrap-icon";
-import LinkDialog from "../../../links/link-dialog";
+import LinkDialog from "../../links/link-dialog";
 import SettingsFilterPanel from "../settings-filter-panel";
 type Provider="gemini"|"groq"|"openrouter";
 type Connection={

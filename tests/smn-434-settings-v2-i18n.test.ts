@@ -9,14 +9,14 @@ const admin={role:"admin" as const,is_active:true,must_change_password:false};
 const user={role:"user" as const,is_active:true,must_change_password:false};
 const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 describe("SMN-434 — Paramètres V2 et internationalisation exhaustive",()=>{
- it("fournit exactement six groupes et 20 entrées sans doublon",()=>{
+ it("fournit exactement six groupes et 21 entrées sans doublon",()=>{
   const groups=settingsCatalog("scrum",admin);
   assert.deepEqual(groups.map(group=>group.id),[
    "application","organization","practices","calendar","reports","administration"
   ]);
   const entries=groups.flatMap(group=>group.entries);
-  assert.equal(entries.length,20);
-  assert.equal(new Set(entries.map(entry=>entry.id)).size,20);
+  assert.equal(entries.length,21);
+  assert.equal(new Set(entries.map(entry=>entry.id)).size,21);
   for(const id of ["companies","closures","indicators","chartStyles"])
    assert.equal(entries.filter(e=>e.id===id).length,1);
  });
@@ -51,7 +51,7 @@ describe("SMN-434 — Paramètres V2 et internationalisation exhaustive",()=>{
    assert.deepEqual(search(locale==="fr"?"miSes a jouR":"updates"),["maintenance"]);
    assert.deepEqual(search(locale==="fr"?"styles graphiques":"chart styles"),["chartStyles"]);
    assert.deepEqual(search("nonexistent-settings-term"),[]);
-   assert.equal(search(" ").length,20);
+   assert.equal(search(" ").length,21);
   }
   assert.equal(normalizeSettingsQuery("  ÉTÉ   AgIlE  "),"ete agile");
  });
@@ -71,11 +71,18 @@ describe("SMN-434 — Paramètres V2 et internationalisation exhaustive",()=>{
     }
    }
   }
+  const aiFr=JSON.parse(read("src/i18n/ai-connections.fr.json")).aiConnections;
+  const aiEn=JSON.parse(read("src/i18n/ai-connections.en.json")).aiConnections;
+  for(const entry of groups.flatMap(g=>g.entries).filter(e=>e.id==="aiConnections")){
+   assert.equal(entry.label,"aiConnections.title");
+   assert.equal(entry.description,"aiConnections.description");
+   assert.ok(aiFr.title&&aiFr.description&&aiEn.title&&aiEn.description);
+  }
   for(const group of groups){
    for(const messages of [fr,en]){
     assert.equal(typeof messages.groups[group.id],"string");
     assert(messages.groups[group.id].trim().length>0);
-    for(const entry of group.entries){
+    for(const entry of group.entries.filter(x=>x.id!=="aiConnections")){
      for(const property of ["title","description"]){
       assert.equal(typeof messages.items[entry.id]?.[property],"string");
       assert(messages.items[entry.id][property].trim().length>0);
