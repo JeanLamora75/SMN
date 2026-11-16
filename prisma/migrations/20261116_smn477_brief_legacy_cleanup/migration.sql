@@ -20,9 +20,17 @@ BEGIN
 END $smn$;
 ALTER TABLE public.smn_ai_brief_template
  ALTER COLUMN prompt_text SET NOT NULL;
-ALTER TABLE public.smn_ai_brief_template
- ADD CONSTRAINT smn_ai_brief_template_prompt_text_valid
- CHECK (length(btrim(prompt_text))>0 AND length(prompt_text)<=100000);
+DO $smn$
+BEGIN
+ IF NOT EXISTS (
+  SELECT 1 FROM pg_constraint WHERE conrelid='public.smn_ai_brief_template'::regclass
+  AND conname='smn_ai_brief_template_prompt_text_valid'
+ ) THEN
+  ALTER TABLE public.smn_ai_brief_template
+   ADD CONSTRAINT smn_ai_brief_template_prompt_text_valid
+   CHECK (length(btrim(prompt_text))>0 AND length(prompt_text)<=100000);
+ END IF;
+END $smn$;
 ALTER TABLE public.smn_ai_brief_template
  DROP COLUMN IF EXISTS sections,
  DROP COLUMN IF EXISTS questions,
