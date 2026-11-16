@@ -18,6 +18,19 @@ export async function applySmn472(db:Client,apply:boolean){
    await db.query("ROLLBACK");
    return {ready:false,reason:"migration-required",pending:null};
   }
+  const legacyColumns=await db.query<{column_name:string}>(`
+   SELECT column_name FROM information_schema.columns
+   WHERE table_schema='public' AND table_name='smn_ai_brief_template'
+   AND column_name=ANY($1::text[])`,[["sections","questions","instructions","data","depth"]]);
+  if(legacyColumns.rows.length===0){
+   const missing=await db.query<{n:string}>(`SELECT count(*)::text AS n
+    FROM public.smn_ai_brief_template
+    WHERE prompt_text IS NULL OR btrim(prompt_text)=''`);
+   if(Number(missing.rows[0].n)!==0)throw Error("smn-472: prompt_text incomplet dans le schéma nettoyé");
+   await db.query("ROLLBACK");
+   return {ready:true,pending:0,applied:false,alreadyClean:true};
+  }
+  if(legacyColumns.rows.length!==5)throw Error("smn-472: schéma partiellement migré ou corrompu");
   const rows=await db.query<{id:string;title:string;prompt_text:string|null;sections:string[];questions:string[];instructions:string[];data:string[];depth:number}>(`
    SELECT id::text,title,prompt_text,sections,questions,instructions,data,depth
    FROM public.smn_ai_brief_template ORDER BY id FOR UPDATE`);
