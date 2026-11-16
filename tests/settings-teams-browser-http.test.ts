@@ -102,7 +102,7 @@ test("Paramètres Équipes : sélection, édition, refus de conflit et sauvegard
   assert.equal(state.writes[0].body.name,"Équipe Alpha revue");
   assert.equal(await page.$eval("form",el=>el.getAttribute("data-smn-unsaved-changes")),"true");
   await page.click('button[type=submit][form="smn-teams-settings-form"]');
-  await page.waitForFunction(()=>document.querySelector("form")?.getAttribute("data-smn-unsaved-changes")==="false");
+  await page.waitForFunction(()=>document.querySelector("#smn-teams-settings-form")===null);
   assert.equal(state.items[0].name,"Équipe Alpha revue");
   assert.equal(state.items[0].revision,4);
   assert.equal(state.writes[1].body.revision,3);
