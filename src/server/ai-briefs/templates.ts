@@ -7,7 +7,7 @@ import {initialBriefTemplates,allowedBriefFields,type BriefMode} from "@/lib/ai-
 export type ManagedBriefTemplate={id:string;title:string;description:string;promptText:string;sections:string[];questions:string[];instructions:string[];data:string[];depth:number;revision:number;active:boolean;builtin:boolean};
 const builtins:ManagedBriefTemplate[]=initialBriefTemplates.map(t=>({...t,sections:[...t.sections],questions:[...t.questions],instructions:[...t.instructions],data:[...t.data],depth:2,promptText:convertLegacyPrompt({...t,depth:2}),revision:0,active:true,builtin:true}));
 const validStrings=(v:unknown,max=30):v is string[]=>Array.isArray(v)&&v.length<=max&&v.every(x=>typeof x==="string"&&x.trim().length>0&&x.length<=500);
-export function validateBriefTemplate(value:unknown):value is Omit<ManagedBriefTemplate,"id"|"revision"|"active"|"builtin">{
+export function validateBriefTemplate(value:unknown):value is Omit<ManagedBriefTemplate,"id"|"revision"|"active"|"builtin"|"promptText">{
  if(!value||typeof value!=="object"||Array.isArray(value))return false;
  const v=value as Record<string,unknown>;
  return typeof v.title==="string"&&v.title.trim().length>0&&v.title.length<=120&&typeof v.description==="string"&&v.description.length<=500&&
