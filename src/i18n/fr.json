@@ -7,6 +7,7 @@
     "save": "Enregistrer"
   },
   "briefPromptEditor": {
+    "confirmTextReview": "J’ai relu intégralement ce prompt et vérifié l’absence de données personnelles, de secrets ou de contenus confidentiels. J’autorise la copie de cette version exacte.",
     "resolvedTitle": "Prompt IA avec données du cycle",
     "resolvedHint": "Les tags sont remplacés uniquement par des données autorisées du cycle sélectionné. Les valeurs affichent leur source et leur qualité.",
     "provisionalCycle": "Cycle non clôturé : les valeurs affichées peuvent encore évoluer.",
