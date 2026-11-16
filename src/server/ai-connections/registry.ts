@@ -1,6 +1,7 @@
 import "server-only";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {purgeAiCredentialVersions} from "./vault";
 
 export const AI_PROVIDERS = ["gemini","groq","openrouter"] as const;
 export type AiProvider=typeof AI_PROVIDERS[number];
@@ -66,6 +67,12 @@ export async function mutateAiConnection(db:Client,raw:unknown){
     AND installation_id='singleton' AND revision=$2 RETURNING id,revision`,[v.id,v.revision]);
   if(!updated.rowCount){await db.query("ROLLBACK");return {ok:false as const,error:"conflict-or-not-found"};}
   await db.query("COMMIT");
+  // Updating a connection deliberately requires re-entering its key.
+  // Removing/deleting cannot leave an old credential in the active vault.
+  if(v.action!=="disable"){
+   try{await purgeAiCredentialVersions(v.id!);}
+   catch{return {ok:true as const,id:v.id!,revision:v.action==="delete"?null:v.revision!+1,cleanupPending:true};}
+  }
   return {ok:true as const,id:v.id!,revision:v.action==="delete"?null:v.revision!+1};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
