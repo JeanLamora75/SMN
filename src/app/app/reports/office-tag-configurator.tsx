@@ -12,7 +12,7 @@ type Catalog={definitions:Indicator[];selections:{indicator_id:string;is_active:
 type ChartStyle={id:string;name:string};
 type ChartType="bar"|"line"|"area"|"pie"|"donut"|"gauge";
 const fieldName=/^[A-Z][A-Z0-9_]*$/;
-export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;teamId:string|null}){
+export default function OfficeTagConfigurator({locale,teamId,onInsert}:{locale:Locale;teamId:string|null;onInsert?:(tag:string)=>void}){
  const t=useTranslation();
  const tr=(key:string)=>t(("reportsCenter.tagBuilder"+key) as Parameters<typeof t>[0]);
  const [open,setOpen]=useState(false),[family,setFamily]=useState<Family>("scalar");
@@ -191,7 +191,8 @@ export default function OfficeTagConfigurator({locale,teamId}:{locale:Locale;tea
      <div className="modal-footer smn-office-tag-config-footer">
       <button className="btn btn-outline-secondary" type="button" onClick={()=>selectFamily(family)}>{tr("Reset")}</button>
       <button className="btn btn-outline-secondary" type="button" onClick={()=>setOpen(false)}>{tr("Close")}</button>
-      <button className="btn btn-primary" type="button" disabled={!canCopy} onClick={()=>void copy(computed)}>{tr("Copy")}</button>
+      {onInsert&&<button className="btn btn-primary" type="button" disabled={!canCopy||family==="chart"||key.startsWith("MEMBER")||key==="LINKS_TRANSVERSE"} onClick={()=>{onInsert(computed);setOpen(false);}}>{locale==="fr"?"Insérer dans le prompt":"Insert into prompt"}</button>}
+      <button className="btn btn-outline-primary" type="button" disabled={!canCopy} onClick={()=>void copy(computed)}>{tr("Copy")}</button>
      </div>
     </div>
    </div>
