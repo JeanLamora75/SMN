@@ -50,7 +50,7 @@ export async function renderCycleBriefPrompt(db:Client,mode:BriefMode,cycle:Brie
    for(const item of values)if(item.available&&item.value!==null){
     indicators[item.tag]={
      value:item.value,unit:item.unit,source:"report-indicator-projection",
-     quality:item.source==="computed"?"calculated":quality(cycle)
+     quality:cycle.status==="closed"?(item.source==="computed"?"calculated":"recorded"):"provisional"
     };
    }
   }catch{/* Leave unresolved: the renderer reports that the source is unavailable. */}
@@ -89,14 +89,14 @@ export async function renderCycleBriefPrompt(db:Client,mode:BriefMode,cycle:Brie
        GOAL_DESCRIPTION:text(g.description),GOAL_COMMENT:text(g.comment)
       })),source:report.source,quality:quality(cycle),snapshotVersion:version};
      // Only a closed Kanban snapshot is an authoritative qualitative source.
-     if(report.source==="closure"&&Array.isArray(report.qualitative)){
+     if(report.source==="closure"&&report.quality.qualitativeLinks==="captured-explicit-links"&&Array.isArray(report.qualitative)){
       const kind:Record<string,string>={RISKS:"risk",OBSTACLES:"obstacle",DEPENDENCIES:"dependency",ACTIONS:"action",DECISIONS:"decision"};
       for(const key of needed.filter(x=>x in kind)){
        const prefix=key==="DEPENDENCIES"?"DEPENDENCY":key.slice(0,-1);
        const rows=(report.qualitative as unknown[]).map(object).filter(i=>String(i.type)===kind[key]);
        tables[key]={rows:rows.map(i=>({
         [prefix+"_TITLE"]:text(i.title),[prefix+"_STATUS"]:text(i.status),
-        [prefix+"_PRIORITY"]:text(i.priority),[prefix+"_DATE"]:text(i.date)
+        [prefix+"_PRIORITY"]:text(i.priority),[prefix+"_DATE"]:text(i.occurred_on)
        })),source:"kanban-closure",quality:"recorded",snapshotVersion:version};
       }
      }
