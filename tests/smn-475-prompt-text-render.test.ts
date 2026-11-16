@@ -45,11 +45,11 @@ test("empty known table is not the same as a missing data source",()=>{
  assert.equal(missing.text,"{{ROW:DEPENDENCIES}}");
 });
 test("dependency requester, contributor and owner never leak into AI text",()=>{
- const data=input("{{ROW:DEPENDENCIES}}");
- data.tables.DEPENDENCIES={rows:[{
+ const base=input("{{ROW:DEPENDENCIES}}");
+ const data:PromptRenderInput={...base,tables:{...base.tables,DEPENDENCIES:{rows:[{
   DEPENDENCY_TITLE:"API externe",DEPENDENCY_STATUS:"ouverte",DEPENDENCY_DATE:"2026-11-01",
   DEPENDENCY_REQUESTER:"Alice Private",DEPENDENCY_CONTRIBUTOR:"Bob Private",DEPENDENCY_OWNER:"Secret Owner"
- }],source:"sprint-registers",quality:"provisional"};
+ }],source:"sprint-registers",quality:"provisional"}}};
  const result=renderBriefPrompt(data);
  assert.equal(result.complete,true);
  assert.match(result.text,/API externe/);
