@@ -1,4 +1,4 @@
-/** SMN-472 — migration explicite et transactionnelle. Ne jamais exécuter automatiquement sur une session. */
+/** Explicit transactional schema upgrade; never run implicitly during a user session. */
 import {Client} from "pg";
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {convertLegacyPrompt,isValidPromptText} from "../src/lib/ai-brief-prompt";
