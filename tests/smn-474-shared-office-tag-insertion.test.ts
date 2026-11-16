@@ -73,6 +73,9 @@ test("the same Cockpit dialog supports insert mode while the report keeps copy m
  assert.match(office,/onClick=\{insert\}/);
  assert.match(office,/onClick=\{\(\)=>void copy\(computed\)\}/);
  assert.match(office,/briefTagRestriction/);
+ assert.match(office,/briefMode\?\s*<span className="badge text-bg-light"/);
+ assert.match(office,/\(!briefMode\|\|allowedBrief\)/);
+ assert.match(office,/tagDialogTitle/);
  assert.match(office,/onKey\(event:KeyboardEvent\)/);
  assert.match(office,/event\.key==="Escape"/);
  assert.match(office,/normalize\("NFD"\)/);
