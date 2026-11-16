@@ -7,6 +7,8 @@
     "save": "Enregistrer"
   },
   "briefPromptEditor": {
+    "tagDialogTitle": "Catalogue de tags SMN",
+    "tagDialogIntro": "Choisissez une donnée collective autorisée et insérez son tag directement dans votre prompt.",
     "insertTag": "Insérer un tag SMN",
     "insert": "Insérer au curseur",
     "indicatorsUnavailable": "Choisissez d’abord une équipe ou un sprint pour sélectionner ses indicateurs. Cette page ne possède pas de contexte d’équipe.",
