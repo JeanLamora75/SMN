@@ -31,7 +31,12 @@ test("SMN-485 sends only after explicit consent and never auto-persists response
  assert.match(ui,/result\.stored!==false/);
  assert.match(ui,/setAnswer\(result\)/);
  assert.match(ui,/window\.confirm/);
- assert.doesNotMatch(ui,/localStorage|sessionStorage|indexedDB|saveManualAiResponse|\/api\/ai-briefs\/archives\/.*\/responses"/);
+ // SMN-486 adds a separate explicit Save action. The send handler itself
+ // must remain free of persistence or archival API calls.
+ const sending=ui.split("async function send(){")[1]?.split("async function copy(){")[0]??"";
+ assert.ok(sending.length>100);
+ assert.doesNotMatch(sending,/saveManualAiResponse|\/api\/ai-briefs\/archives\/|saveResponse\(/);
+ assert.match(ui,/onClick=\{\(\)=>void saveResponse\(\)\}/);
 });
 test("SMN-485 translations FR EN are complete and support quota/privacy failures",()=>{
  const fr=JSON.parse(read("src/i18n/ai-connections.fr.json")).aiSend as Record<string,string>;
