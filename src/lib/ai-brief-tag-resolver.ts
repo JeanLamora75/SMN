@@ -30,6 +30,7 @@ export function resolveBriefPrompt(input:ResolveBriefInput):ResolvedBrief{
  }
  const text=input.promptText.replace(/\{\{([^{}]{1,500})\}\}/g,(original:string,raw:string)=>{
   const tag=String(raw).trim();
+  if(!tag)return fail(original,"Expression vide");
   if(tag.startsWith("CHART:"))return fail(tag,"Graphiques non pris en charge dans un prompt TXT");
   if(tag.startsWith("INDICATOR_")){
    const item=indicators.get(tag.slice("INDICATOR_".length));
