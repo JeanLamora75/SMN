@@ -1,66 +1,114 @@
 "use client";
-import {useState} from "react";
+import {useRef,useState} from "react";
 import type {ManagedBriefTemplate} from "@/server/ai-briefs/templates";
-import {allowedBriefFields} from "@/lib/ai-brief-templates";
+import OfficeTagConfigurator from "../../../reports/office-tag-configurator";
 
-const fields=[...new Set([
- "cycle.name","cycle.dates","cycle.status","team.name","product.name","objectives","risks","dependencies","decisions",
- "scrum.storyPoints.committed","scrum.storyPoints.completed","scrum.capacity.planned","kanban.started","kanban.wip","kanban.throughput","kanban.cycleTime","kanban.leadTime","kanban.capacity.planned"
-])];
-const initial={title:"",description:"",sections:["Contexte"],questions:[],instructions:[],data:["cycle.name","team.name"],depth:2};
-type Draft={title:string;description:string;sections:string[];questions:string[];instructions:string[];data:string[];depth:number};
-const lines=(v:string)=>v.split("\n").map(x=>x.trim()).filter(Boolean);
+type Draft={title:string;description:string;promptText:string};
+const blank=():Draft=>({title:"",description:"",promptText:""});
+const from=(t:ManagedBriefTemplate):Draft=>({title:t.title,description:t.description,promptText:t.promptText});
 export default function TemplateEditor({original}:{original:ManagedBriefTemplate[]}){
  const [templates,setTemplates]=useState(original);
- const [selected,setSelected]=useState<string>("new");
+ const [selected,setSelected]=useState("new");
  const current=templates.find(t=>t.id===selected);
- const [draft,setDraft]=useState<Draft>({...initial});
+ const [draft,setDraft]=useState<Draft>(blank);
  const [busy,setBusy]=useState(false),[message,setMessage]=useState("");
- const choose=(id:string)=>{
-  setSelected(id);setMessage("");
+ const [locale,setLocale]=useState<"fr"|"en">("fr");
+ const textarea=useRef<HTMLTextAreaElement>(null);
+ const cursor=useRef({start:0,end:0});
+ const baseline=current?from(current):blank();
+ const dirty=JSON.stringify(draft)!==JSON.stringify(baseline);
+ function choose(id:string,force=false){
+  if(!force&&dirty&&!window.confirm("Abandonner les modifications non enregistrées ?"))return;
   const found=templates.find(t=>t.id===id);
-  setDraft(found?{title:found.title,description:found.description,sections:[...found.sections],questions:[...found.questions],instructions:[...found.instructions],data:[...found.data],depth:found.depth}:{...initial});
- };
+  setSelected(id);
+  setDraft(found?from(found):blank());
+  setMessage("");
+  cursor.current={start:0,end:0};
+ }
+ function duplicate(){
+  if(!current)return;
+  const copy={...draft,title:draft.title+" — copie"};
+  setSelected("new");setDraft(copy);setMessage("Copie locale : enregistrez pour créer un nouveau modèle.");
+ }
+ function insert(tag:string){
+  const {start,end}=cursor.current;
+  const left=draft.promptText.slice(0,start);
+  const right=draft.promptText.slice(end);
+  setDraft(old=>({...old,promptText:left+tag+right}));
+  const next=start+tag.length;
+  cursor.current={start:next,end:next};
+  requestAnimationFrame(()=>{textarea.current?.focus();textarea.current?.setSelectionRange(next,next);});
+ }
  async function send(action:"create"|"update"|"activate"|"deactivate"){
-  if(action==="deactivate"&&!window.confirm("Désactiver ce modèle ? Les briefs déjà archivés et leur origine resteront inchangés."))return;
+  if((action==="create"||action==="update")&&(!draft.title.trim()||!draft.promptText.trim())){
+   setMessage("Le nom et le prompt sont obligatoires.");return;
+  }
+  if(action==="deactivate"&&!window.confirm("Désactiver ce modèle ? Les archives restent accessibles."))return;
   setBusy(true);setMessage("");
   try{
    const body=action==="create"?{action,template:draft}:{action,id:current?.id,revision:current?.revision,...(action==="update"?{template:draft}:{})};
-   const res=await fetch("/api/admin/ai-briefs/templates",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
-   if(!res.ok)throw Error((await res.json()).error??"Erreur");
-   const loaded=await fetch("/api/admin/ai-briefs/templates");
-   if(!loaded.ok)throw Error("Actualisation impossible");
+   const response=await fetch("/api/admin/ai-briefs/templates",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+   const result=await response.json() as {error?:string;id?:string;revision?:number};
+   if(!response.ok||result.error)throw Error(result.error==="migration-required"?"Migration SMN-472 requise avant tout enregistrement.":result.error??"Enregistrement impossible.");
+   const loaded=await fetch("/api/admin/ai-briefs/templates",{cache:"no-store"});
+   if(!loaded.ok)throw Error("Enregistré, mais actualisation impossible.");
    const json=await loaded.json() as {templates:ManagedBriefTemplate[]};
-   setTemplates(json.templates);choose("new");
-   setMessage("Modèle enregistré. Les archives existantes sont conservées.");
-  }catch(e){setMessage(e instanceof Error?e.message:"Erreur");}
+   setTemplates(json.templates);
+   const id=action==="create"?result.id:current?.id;
+   const latest=json.templates.find(t=>t.id===id);
+   setSelected(latest?.id??"new");setDraft(latest?from(latest):blank());
+   setMessage("Modèle enregistré. Les archives historiques restent inchangées.");
+  }catch(e){setMessage(e instanceof Error?e.message:"Enregistrement impossible.");}
   finally{setBusy(false);}
  }
- return <div className="row g-3">
-  <div className="col-12 col-lg-4"><label className="form-label" htmlFor="brief-template-choice">Modèle</label>
-   <select id="brief-template-choice" className="form-select" value={selected} onChange={e=>choose(e.target.value)}>
-    <option value="new">+ Nouveau modèle</option>
-    {templates.map(t=><option key={t.id} value={t.id}>{t.title}{t.active?"":" (désactivé)"}{t.builtin?" — initial":""}</option>)}
-   </select>
-   {current?.builtin&&<p className="small text-secondary mt-2">Modèle initial protégé : créez un nouveau modèle pour le personnaliser.</p>}
-  </div>
-  <div className="col-12 col-lg-8">
-   <fieldset disabled={busy||Boolean(current?.builtin)} className="d-grid gap-3">
-    <div><label htmlFor="brief-name" className="form-label">Nom</label><input id="brief-name" className="form-control" maxLength={120} value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})}/></div>
-    <div><label htmlFor="brief-description" className="form-label">Description</label><textarea id="brief-description" className="form-control" value={draft.description} onChange={e=>setDraft({...draft,description:e.target.value})}/></div>
-    {(["sections","questions","instructions"] as const).map(key=><div key={key}><label htmlFor={"brief-"+key} className="form-label">{{sections:"Rubriques (une par ligne, ordre conservé)",questions:"Questions (une par ligne)",instructions:"Consignes (une par ligne)"}[key]}</label>
-     <textarea id={"brief-"+key} rows={4} className="form-control" value={draft[key].join("\n")} onChange={e=>setDraft({...draft,[key]:lines(e.target.value)})}/></div>)}
-    <div><label htmlFor="brief-depth" className="form-label">Profondeur d&apos;analyse (1 à 5)</label><input id="brief-depth" type="number" min={1} max={5} className="form-control" value={draft.depth} onChange={e=>setDraft({...draft,depth:Number(e.target.value)})}/></div>
-    <div><p className="mb-1">Données collectives autorisées</p><div className="row g-2">
-     {fields.map(field=><label className="col-12 col-md-6 form-check" key={field}><input className="form-check-input" type="checkbox" checked={draft.data.includes(field)} onChange={e=>setDraft({...draft,data:e.target.checked?[...draft.data,field]:draft.data.filter(x=>x!==field)})}/> <span className="form-check-label">{field}</span></label>)}
-    </div><p className="small text-secondary mt-2">Scrum/Kanban : seuls les champs compatibles seront proposés. Les données individuelles sont interdites.</p></div>
-   </fieldset>
-   <div className="d-flex gap-2 mt-3 flex-wrap">
-    {!current&&<button className="btn btn-primary" disabled={busy} onClick={()=>send("create")}>Créer le modèle</button>}
-    {current&&!current.builtin&&<><button className="btn btn-primary" disabled={busy} onClick={()=>send("update")}>Enregistrer</button>
-     <button className="btn btn-outline-secondary" disabled={busy} onClick={()=>send(current.active?"deactivate":"activate")}>{current.active?"Désactiver":"Réactiver"}</button></>}
+ return <div className="d-grid gap-3">
+  <div className="d-flex flex-wrap gap-2 align-items-end justify-content-between">
+   <label className="form-label flex-grow-1 mb-0" htmlFor="brief-template-choice">Modèle
+    <select className="form-select mt-1" id="brief-template-choice" value={selected} onChange={e=>choose(e.target.value)}>
+     <option value="new">+ Nouveau modèle</option>
+     {templates.map(t=><option key={t.id} value={t.id}>{t.title}{t.builtin?" · natif":""}{t.active?"":" · désactivé"}</option>)}
+    </select>
+   </label>
+   <div className="d-flex gap-2">
+    {current&&<button className="btn btn-outline-primary" type="button" onClick={duplicate} disabled={busy}>Dupliquer</button>}
+    <button className="btn btn-outline-secondary" type="button" onClick={()=>choose("new")} disabled={busy}>Nouveau modèle</button>
    </div>
-   {message&&<p className="mt-3" role="status">{message}</p>}
   </div>
+  {current?.builtin&&<p className="alert alert-info mb-0" role="status">Modèle natif protégé : utilisez « Dupliquer » pour le personnaliser.</p>}
+  <fieldset disabled={busy||Boolean(current?.builtin)} className="d-grid gap-3">
+   <label className="form-label" htmlFor="brief-name">Nom du modèle *
+    <input id="brief-name" className="form-control mt-1" maxLength={120} value={draft.title} onChange={e=>setDraft(x=>({...x,title:e.target.value}))}/>
+   </label>
+   <label className="form-label" htmlFor="brief-description">Description facultative
+    <input id="brief-description" className="form-control mt-1" maxLength={500} value={draft.description} onChange={e=>setDraft(x=>({...x,description:e.target.value}))}/>
+   </label>
+   <div className="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+    <strong>Prompt libre</strong>
+    <div className="d-flex gap-2 align-items-center">
+     <label htmlFor="brief-lang">Catalogue</label>
+     <select id="brief-lang" className="form-select form-select-sm w-auto" value={locale} onChange={e=>setLocale(e.target.value as "fr"|"en")}>
+      <option value="fr">Français</option><option value="en">English</option>
+     </select>
+     <OfficeTagConfigurator locale={locale} teamId={null} onInsert={insert}/>
+    </div>
+   </div>
+   <label className="form-label" htmlFor="brief-prompt">Texte du prompt *
+    <textarea ref={textarea} id="brief-prompt" rows={20} maxLength={100000}
+     className="form-control font-monospace mt-1" style={{minHeight:380,resize:"vertical"}} value={draft.promptText}
+     onSelect={e=>{cursor.current={start:e.currentTarget.selectionStart,end:e.currentTarget.selectionEnd};}}
+     onClick={e=>{cursor.current={start:e.currentTarget.selectionStart,end:e.currentTarget.selectionEnd};}}
+     onChange={e=>{setDraft(x=>({...x,promptText:e.target.value}));cursor.current={start:e.target.selectionStart,end:e.target.selectionEnd};}}/>
+   </label>
+   <p className="small text-secondary">Les tags sont insérés au curseur ; les graphiques et données personnelles ne peuvent pas être insérés dans un prompt transmissible à une IA.</p>
+  </fieldset>
+  <div className="d-flex gap-2 flex-wrap">
+   {!current&&<button type="button" className="btn btn-primary" disabled={busy||!draft.title.trim()||!draft.promptText.trim()} onClick={()=>void send("create")}>Créer le modèle</button>}
+   {current&&!current.builtin&&<>
+    <button type="button" className="btn btn-primary" disabled={busy||!dirty||!draft.title.trim()||!draft.promptText.trim()} onClick={()=>void send("update")}>Enregistrer</button>
+    <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={()=>void send(current.active?"deactivate":"activate")}>{current.active?"Désactiver":"Réactiver"}</button>
+   </>}
+  </div>
+  {dirty&&<p className="small text-warning-emphasis mb-0" role="status">Modifications non enregistrées.</p>}
+  {message&&<p role="status" className="mb-0">{message}</p>}
  </div>;
 }
