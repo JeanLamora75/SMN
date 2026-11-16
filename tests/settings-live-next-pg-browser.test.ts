@@ -273,11 +273,15 @@ test("SMN v33 réel : Chromium → connexion admin → API Next.js → PostgreSQ
   // La famille Utilisateurs teste le véritable formulaire et le registre SQL.
   const users=await page.goto(origin+"/app/admin/users",{waitUntil:"domcontentloaded"});
   assert.equal(users?.status(),200);
-  await page.waitForSelector('form input[type="email"]',{timeout:20000});
-  await page.type('form input[autocomplete="off"]',"testmember");
-  await page.type('form input[type="email"]',"member@example.test");
-  await page.type('form input[type="password"]',"Temporary-Member-2026");
-  await page.click("form button[type=submit]");
+  // Account creation moved into the Cockpit Agile modal. Exercise the header
+  // control and the actual form rather than assuming an inline page form.
+  await page.waitForSelector("#smn-account-create-action",{timeout:20000});
+  await page.click("#smn-account-create-action");
+  await page.waitForSelector("dialog.smn-account-editor-dialog[open] #account-create-email",{timeout:15000});
+  await page.type("#account-create-username","testmember");
+  await page.type("#account-create-email","member@example.test");
+  await page.type("#account-create-password","Temporary-Member-2026");
+  await page.click("#smn-account-form button[type=submit]");
   await page.waitForFunction(()=>document.body.textContent?.includes("testmember")===true);
   const member=await db(target.toString(),async client=>(await client.query(
    "SELECT role,is_active FROM public.smn_account WHERE username='testmember'")).rows[0]);
