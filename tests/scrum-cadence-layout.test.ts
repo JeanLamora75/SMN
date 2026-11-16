@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
+const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8").replace(/\r\n/g,"\n");
 const page=read("src/app/app/admin/scrum-cadence/page.tsx");
 const form=read("src/app/app/admin/scrum-cadence/cadence-form.tsx");
 
