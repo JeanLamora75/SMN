@@ -15,6 +15,7 @@ import {validExtraName} from "./extra-archives";
 import {inspectRestoreFileTree} from "./restore-file-cutover-drill";
 import {stageTicketTransfer,inspectTicketTransferBytes,ticketTransferScopes,type TicketTransfer} from "./tickets-transfer";
 import {managedPostgresExecutable} from "../bootstrap/managed-paths";
+import {assertPortableAiBriefSchema} from "../ai-briefs/schema-compat";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 type DocumentPart=BackupComponent&{sourceName:string};
@@ -242,6 +243,8 @@ export async function rehearseBackupRestore(options:{
    AND state='initialized'`);
   if(installed.rowCount!==1||installed.rows[0].schema_version!==manifest.schemaVersion)
    throw Error("restore-schema-mismatch");
+  if(installed.rows[0].schema_version===33)
+   await assertPortableAiBriefSchema(sandbox);
   // A cryptographically valid CSV must also belong to an actual restored team/cycle.
   if(ticketBundle){
    const scopes=ticketTransferScopes(ticketBundle);
