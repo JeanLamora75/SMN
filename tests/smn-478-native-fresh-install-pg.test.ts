@@ -12,7 +12,7 @@ test("SMN-478: completely virgin PostgreSQL → native v33 final prompt schema a
   !["localhost","127.0.0.1","::1"].includes(source.hostname))
   throw Error("smn478-virgin-install-must-use-local-postgres");
  const adminUri=new URL(source);adminUri.pathname="/postgres";
- const name="smn478_virgin_"+randomBytes(6).toString("hex");
+ const name="smn_478_virgin_"+randomBytes(6).toString("hex");
  const freshUri=new URL(source);freshUri.pathname="/"+name;
  const admin=new Client({connectionString:adminUri.toString(),connectionTimeoutMillis:3500});
  let created=false;
