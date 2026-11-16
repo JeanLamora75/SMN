@@ -42,6 +42,7 @@ export default function OfficeTagConfigurator({locale,teamId,onInsert}:{locale:L
  const computed=serializeOfficeTag({family,key,rules,
   allowedFields:currentFields,
   chart:{type:chartType,tags:chartTags,last,style,explicitLast,explicitType:chartType!=="bar"}});
+ const insertForbidden=family==="chart"||family==="row"&&key!=="INDICATORS"||family==="scalar"&&["SPRINT_GOAL","PRODUCT_GOAL","PRODUCT_VISION"].includes(key);
  const canCopy=!!computed&&options.some(x=>x.value===key)&&
   (family!=="indicator"||!!teamId&&selected.has(key))&&
   (family!=="chart"||(!catalogError&&!loading&&(style===""||!styleError)&&(!chartTags.length||chartTags.every(x=>selected.has(x)))));
@@ -191,7 +192,8 @@ export default function OfficeTagConfigurator({locale,teamId,onInsert}:{locale:L
      <div className="modal-footer smn-office-tag-config-footer">
       <button className="btn btn-outline-secondary" type="button" onClick={()=>selectFamily(family)}>{tr("Reset")}</button>
       <button className="btn btn-outline-secondary" type="button" onClick={()=>setOpen(false)}>{tr("Close")}</button>
-      {onInsert&&<button className="btn btn-primary" type="button" disabled={!canCopy||family==="chart"||key.startsWith("MEMBER")||key==="LINKS_TRANSVERSE"} onClick={()=>{onInsert(computed);setOpen(false);}}>{locale==="fr"?"Insérer dans le prompt":"Insert into prompt"}</button>}
+      {onInsert&&insertForbidden&&<p className="small text-warning-emphasis mb-0" role="status">Ce tag n’est pas autorisé dans un prompt IA sans résolution textuelle et vérification de confidentialité.</p>}
+      {onInsert&&<button className="btn btn-primary" type="button" disabled={!canCopy||insertForbidden} onClick={()=>{onInsert(computed);setOpen(false);}}>{locale==="fr"?"Insérer dans le prompt":"Insert into prompt"}</button>}
       <button className="btn btn-outline-primary" type="button" disabled={!canCopy} onClick={()=>void copy(computed)}>{tr("Copy")}</button>
      </div>
     </div>
