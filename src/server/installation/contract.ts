@@ -9,6 +9,8 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_team:r", "public.smn_account:r", "public.smn_recovery_phrase:r", "public.smn_auth_audit:r",
   // SMN-480: additional non-secret connection metadata table.
   "public.smn_ai_connection:r",
+  // SMN-482: preventive free-tier quota accounting, not a provider entitlement.
+  "public.smn_ai_free_request_quota:r",
   "public.smn_indicator_team_grant:r",
   "public.smn_indicator_dashboard_slot:r",
   "public.smn_dashboard_layout:r",
