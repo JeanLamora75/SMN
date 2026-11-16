@@ -65,7 +65,7 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
    const latest=json.templates.find(t=>t.id===id);
    setSelected(latest?.id??"new");setDraft(latest?from(latest,locale):blank());
    setMessage(t("saved"));
-  }catch(e){setMessage(e instanceof Error?e.message:"Enregistrement impossible.");}
+  }catch(e){setMessage(e instanceof Error?e.message:t("saveFailed"));}
   finally{setBusy(false);}
  }
  return <div className="d-grid gap-3">
