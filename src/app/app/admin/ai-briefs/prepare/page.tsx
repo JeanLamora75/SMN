@@ -11,6 +11,7 @@ import {readAnalysisJournal} from "@/server/ai-briefs/journal";
 import {readBriefIndicatorValues} from "@/server/ai-briefs/indicators";
 import {requestLocale} from "@/i18n/locale.server";
 import {aiBriefText,type AiBriefKey} from "@/lib/ai-brief-messages";
+import {localizedNativeBrief} from "@/lib/ai-brief-native-locales";
 
 export const dynamic="force-dynamic";
 
@@ -64,6 +65,7 @@ export default async function PrepareAiBrief({searchParams}:{
  const templates=await withAuthDb(listBriefTemplates);
  const available=templates.filter(t=>t.active);
  const selected=available.find(t=>t.id===template)??available[0];
+ const displayed=localizedNativeBrief(selected,locale);
  const facts=await withAuthDb(db=>readBriefFacts(db,scrum?"scrum":"kanban",context.id)).catch(()=>({}));
  const projected=Object.values(facts).filter(item=>item.unit!==null);
  const indicators=await withAuthDb(db=>readBriefIndicatorValues(db,context.teamId,scrum?"scrum":"kanban",context.id)).catch(()=>[]);
@@ -100,13 +102,13 @@ export default async function PrepareAiBrief({searchParams}:{
       className={item.id===selected.id?"btn btn-primary btn-sm":"btn btn-outline-primary btn-sm"}
       aria-current={item.id===selected.id?"page":undefined}
       href={"/app/admin/ai-briefs/prepare?"+new URLSearchParams({mode:mode!,id:context.id,template:item.id}).toString()}>
-      {item.title}</Link>)}
+      {localizedNativeBrief(item,locale).title}</Link>)}
     </div>
     <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
-     <h3 className="h6 m-0">{selected.title}</h3>
+     <h3 className="h6 m-0">{displayed.title}</h3>
      <span className="badge text-bg-light">{selected.builtin?t("nativeModel"):t("customModel")} · {t("version")} {selected.revision}</span>
     </div>
-    <p className="text-secondary">{selected.description}</p>
+    <p className="text-secondary">{displayed.description}</p>
     <p className="small text-secondary">{t("modelDescription")}</p>
     <div className="border rounded-3 p-3 mt-3">
      <h3 className="h6">{t("provenanceTitle")}</h3>
@@ -116,7 +118,7 @@ export default async function PrepareAiBrief({searchParams}:{
       <tbody>{projected.map(item=><tr key={item.key}><th scope="row">{item.label}</th><td>{item.value??t("unknown")}</td><td>{item.unit??"—"}</td><td>{item.quality}</td><td>{item.source}{item.snapshotVersion!==null?" · V"+item.snapshotVersion:""}</td></tr>)}</tbody>
      </table></div>
     </div>
-    <BriefOverrides key={selected.id+":"+selected.revision} template={selected} mode={scrum?"scrum":"kanban"} context={context} facts={facts} preparedAt={preparedAt} historical={historical} indicators={indicators}/>
+    <BriefOverrides key={selected.id+":"+selected.revision} template={displayed} mode={scrum?"scrum":"kanban"} context={context} facts={facts} preparedAt={preparedAt} historical={historical} indicators={indicators}/>
     <p className="small text-secondary">{t("personalInfoExcluded")}</p>
    </section>
    <HumanAnalysisForm mode={scrum?"scrum":"kanban"} cycleId={context.id}/>
