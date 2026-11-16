@@ -62,6 +62,13 @@ test("unknown, forbidden, invalid and chart tags fail closed",()=>{
  assert.deepEqual(result.diagnostics.map(d=>d.reason),["unknown","restricted","invalid","unsupported"]);
  assert.equal(result.text,source);
 });
+test("unbalanced tag delimiters are reported and block copying",()=>{
+ for(const bad of ["Données : {{ROW:GOALS","Fin : }}","{{TEAM_NAME}} puis {{ROW:RISKS"]){
+  const result=renderBriefPrompt(input(bad));
+  assert.equal(result.complete,false);
+  assert.ok(result.diagnostics.some(d=>d.reason==="invalid"));
+ }
+});
 test("missing values and teamless indicator are never invented",()=>{
  const missing=renderBriefPrompt(input("But : {{SPRINT_GOAL}}"));
  assert.equal(missing.complete,false);
