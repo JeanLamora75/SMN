@@ -89,7 +89,7 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
      <select id="brief-lang" className="form-select form-select-sm w-auto" value={locale} onChange={e=>setLocale(e.target.value as "fr"|"en")}>
       <option value="fr">Français</option><option value="en">English</option>
      </select>
-     {!current?.builtin&&{!current?.builtin&&<OfficeTagConfigurator locale={locale} teamId={null} onInsert={insert}/>}}
+     {!current?.builtin&&<OfficeTagConfigurator locale={locale} teamId={null} onInsert={insert}/> }
     </div>
    </div>
    <label className="form-label" htmlFor="brief-prompt">Texte du prompt *
