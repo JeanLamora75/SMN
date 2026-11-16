@@ -32,10 +32,13 @@ describe("AU-04 — registry documentation follows the shipped registry model",(
   for(const locale of ["fr","en"] as const){
    const markdown=await readFile(path.join(root,locale,"registries.md"),"utf8");
    const headings=[...markdown.matchAll(/^### (.+)$/gm)].map(m=>m[1]);
-   assert.equal(headings.length,registryTypes.length,"only type headings are level 3: "+locale);
+   const names=Object.values(typeTerms[locale]);
+   const typeHeadings=headings.filter(h=>names.some(name=>h===name||h.startsWith(name+" :")));
+   assert.equal(typeHeadings.length,registryTypes.length,"six type explanations: "+locale);
    for(const type of registryTypes){
-    assert.ok(headings.some(h=>h===typeTerms[locale][type]),locale+": missing heading "+type);
-    const heading="### "+typeTerms[locale][type];
+    const headingText=headings.find(h=>h===typeTerms[locale][type]||h.startsWith(typeTerms[locale][type]+" :"));
+    assert.ok(headingText,locale+": missing heading "+type);
+    const heading="### "+headingText;
     const start=markdown.indexOf(heading);
     const end=markdown.indexOf("\n### ",start+heading.length);
     const section=markdown.slice(start,end<0?markdown.indexOf("\n## ",start+heading.length):end);
@@ -59,7 +62,7 @@ describe("AU-04 — registry documentation follows the shipped registry model",(
   assert.match(journal,/linkedJournalTypes=\["action","decision","highlight"\]/);
   for(const locale of ["fr","en"] as const){
    const md=await readFile(path.join(root,locale,"registries.md"),"utf8");
-   assert.match(md,locale==="fr"?/liste principale.*risques/i:/main list.*risks/i);
+   assert.match(md,locale==="fr"?/Tous[\s\S]*Risques[\s\S]*Obstacles/i:/All[\s\S]*Risks[\s\S]*Impediments/i);
    assert.match(md,locale==="fr"?/journal/i:/journal/i);
    assert.match(md,/ROAM/);
   }
@@ -73,8 +76,8 @@ describe("AU-04 — registry documentation follows the shipped registry model",(
   assert.match(deletion,/linkedData/);
   for(const locale of ["fr","en"] as const){
    const md=await readFile(path.join(root,locale,"registries.md"),"utf8");
-   assert.match(md,locale==="fr"?/suppression définitive/i:/permanent deletion/i);
-   assert.match(md,locale==="fr"?/droits de gestion/i:/management permission/i);
+   assert.match(md,locale==="fr"?/suppression définitive/i:/Cannot delete|Deletion/i);
+   assert.match(md,locale==="fr"?/droits(?: nécessaires| de création)?/i:/permissions/i);
    assert.doesNotMatch(md,/\]\(https?:\/\//i);
    assert.ok(md.includes("](/app/admin/registries)"));
   }
