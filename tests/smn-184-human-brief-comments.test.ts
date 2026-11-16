@@ -11,7 +11,7 @@ test("human observations remain explicitly separate from reported facts",()=>{
 });
 test("empty human notes cannot generate fictional analysis",()=>{
  assert.match(ui,/observations\.trim\(\)\?/);
- assert.match(ui,/\: ""/);
+ assert.match(ui,/\:""/);
  assert.doesNotMatch(ui,/hypothèse automatique|conclusion automatique/i);
 });
 test("privacy approval is invalidated on every human text edit",()=>{
