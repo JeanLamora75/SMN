@@ -21,6 +21,7 @@ import {officeTemplatesDirectory} from "../reports/office-catalog";
 import {ticketStorageDirectory} from "./tickets-transfer";
 import {inspectOfflineRestoreMaintenance} from "./restore-maintenance";
 import {freshCutoverMac,FRESH_CUTOVER_GENESIS} from "./fresh-cutover-journal";
+import {assertPortableAiBriefSchema} from "../ai-briefs/schema-compat";
 
 /**
  * External-operator ONLY. Promotes a VERIFIED candidate already restored into
@@ -252,6 +253,7 @@ export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs
    "SELECT current_setting('server_version') AS v");
   if(!version.rows[0]?.v.startsWith("18."))
    throw Error("migration-pg18-required");
+  await assertPortableAiBriefSchema(target);
   const database=await fingerprintPublicTables(target);
   await target.query("ROLLBACK");
   const staged=await inspectRestoreFileTree(a.stagedRoot);
