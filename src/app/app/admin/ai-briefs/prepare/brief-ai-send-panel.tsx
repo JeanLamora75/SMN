@@ -25,7 +25,7 @@ const friendlyKey=(code:string)=>{
  return "aiSend.failure" as const;
 };
 
-/** Deliberately volatile response and consent. Never localStorage/sessionStorage. */
+/** Response and consent are volatile, never browser-persisted. */
 export default function BriefAiSendPanel({archiveId,reviewedText,cycleName,teamName}:{
  archiveId:string;reviewedText:string;cycleName:string;teamName:string;
 }){
