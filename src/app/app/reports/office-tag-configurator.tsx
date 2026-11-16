@@ -142,7 +142,7 @@ export default function OfficeTagConfigurator({locale,teamId,onInsert,disabled=f
         {list.map(x=><option key={x.value} value={x.value}>{x.label} ({x.value})</option>)}
        </select>
       </label>}
-      {family==="row"&&currentRow&&<div className="border rounded p-3 d-grid gap-2">
+      {family==="row"&&currentRow&&(!briefMode||allowedBrief)&&<div className="border rounded p-3 d-grid gap-2">
        <h3 className="h6 mb-0">{tr("Sort")}</h3>
        <p className="small text-secondary mb-0">{tr("SortHint")}</p>
        {rules.map((rule,i)=><div key={rule.field} className="d-flex gap-2 align-items-center flex-wrap">
@@ -162,8 +162,10 @@ export default function OfficeTagConfigurator({locale,teamId,onInsert,disabled=f
        <button type="button" className="btn btn-outline-primary btn-sm align-self-start" disabled={rules.length>=currentFields.length}
         onClick={()=>setRules(prev=>[...prev,{field:currentFields.find(x=>!prev.some(r=>r.field===x))!,direction:"ASC"}])}>{tr("AddSort")}</button>
        <h3 className="h6 mt-2 mb-0">{tr("Columns")}</h3>
-       <div className="d-flex flex-wrap gap-2">{currentFields.map(field=><button className="btn btn-outline-secondary btn-sm" type="button" key={field}
-        title={tr("CopyColumn")} onClick={()=>void copy("{{"+field+"}}")}>{field}</button>)}</div>
+       <div className="d-flex flex-wrap gap-2">{currentFields.map(field=>briefMode?
+        <span className="badge text-bg-light" key={field}>{field}</span>:
+        <button className="btn btn-outline-secondary btn-sm" type="button" key={field}
+         title={tr("CopyColumn")} onClick={()=>void copy("{{"+field+"}}")}>{field}</button>)}</div>
       </div>}
       {family==="chart"&&!briefMode&&<div className="border rounded p-3 d-grid gap-3">
        <div><label className="form-label">{tr("ChartType")}
