@@ -41,3 +41,17 @@ test("SMN-482 quota relation is accepted by the physical installation diagnostic
  assert.match(probe,/INSTALLATION_RELATIONS/);
  assert.match(diagnostic,/INSTALLATION_RELATIONS/);
 });
+
+test("SMN-482 official-source candidates never become authorized without account evidence",()=>{
+ const snapshot=freeCatalogSnapshot();
+ assert.equal(snapshot.candidates.length,3);
+ for(const candidate of snapshot.candidates){
+  assert.equal(candidate.accountTested,false);
+  assert.equal(candidate.selectable,false);
+  assert.match(candidate.documentationUrl,/^https:\/\//);
+  assert.equal(candidate.documentationCheckedAt,"2026-11-16");
+  assert.equal(evaluateFreeModel(candidate.providerId,candidate.modelId).allowed,false);
+ }
+ assert.equal(evaluateFreeModel("openrouter","openrouter/free").allowed,false);
+ assert.equal(snapshot.qualified.length,0);
+});
