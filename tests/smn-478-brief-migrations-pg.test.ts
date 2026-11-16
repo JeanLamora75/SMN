@@ -46,10 +46,10 @@ test("SMN-478: empty legacy database → additive 472 → final 477; safe repeti
   assert.equal((await applySmn472(db,true)).ready,true);
   const first=await applyBriefCleanup(db,true);
   assert.equal(first.applied,true);
-  assert.deepEqual(first.after.columns,[]);
+  assert.deepEqual(first.after!.columns,[]);
   const second=await applyBriefCleanup(db,true);
   assert.equal(second.applied,true);
-  assert.deepEqual(second.after.columns,[]);
+  assert.deepEqual(second.after!.columns,[]);
  });
 });
 test("SMN-478: custom templates, historical archives and SHA256 survive migration and rollback",{timeout:120000},async()=>{
@@ -86,9 +86,9 @@ test("SMN-478: custom templates, historical archives and SHA256 survive migratio
   assert.equal(converted.rows[0].revision,7);
   const result=await applyBriefCleanup(db,true);
   assert.equal(result.applied,true);
-  assert.deepEqual(result.after.columns,[]);
-  assert.equal(result.after.archiveDigest,result.before.archiveDigest);
-  assert.equal(result.after.templateDigest,result.before.templateDigest);
+  assert.deepEqual(result.after!.columns,[]);
+  assert.equal(result.after!.archiveDigest,result.before.archiveDigest);
+  assert.equal(result.after!.templateDigest,result.before.templateDigest);
   const updated=await db.query<{id:string;revision:number}>(
    "SELECT id::text,revision FROM public.smn_ai_brief_template");
   assert.deepEqual(updated.rows,original.rows);
