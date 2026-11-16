@@ -16,7 +16,7 @@ export function validateBriefTemplate(value:unknown):value is Omit<ManagedBriefT
  Number.isInteger(v.depth)&&Number(v.depth)>=1&&Number(v.depth)<=5;
 }
 
-export function validatePromptTemplate(value:unknown):value is {title:string;description:string;promptText:string}{
+export function validatePromptTemplate(value:unknown):value is {title:string;description?:string;promptText:string}{
  if(!value||typeof value!=="object"||Array.isArray(value))return false;
  const v=value as Record<string,unknown>;
  return typeof v.title==="string"&&v.title.trim().length>0&&v.title.length<=120&&
