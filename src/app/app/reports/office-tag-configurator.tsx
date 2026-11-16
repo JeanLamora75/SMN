@@ -49,7 +49,7 @@ export default function OfficeTagConfigurator({locale,teamId,onInsert,disabled=f
   (family!=="indicator"||!!teamId&&selected.has(key))&&
   (family!=="chart"||(!catalogError&&!loading&&(style===""||!styleError)&&(!chartTags.length||chartTags.every(x=>selected.has(x)))));
  function selectFamily(next:Family){
-  setFamily(next);setSearch("");setKey(next==="scalar"?"TEAM_NAME":next==="row"?"MEMBERS_ACTIVE":next==="chart"?"bar":"");
+  setFamily(next);setSearch("");setKey(next==="scalar"?"TEAM_NAME":next==="row"?(briefMode?"GOALS":"MEMBERS_ACTIVE"):next==="chart"?"bar":"");
   setRules([]);setChartTags([]);setChartType("bar");setLast(6);setExplicitLast(false);setStyle("");
   setCopied(false);setCopyFailed(false);
  }
