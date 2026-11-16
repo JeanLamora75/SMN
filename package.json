@@ -117,10 +117,10 @@
     "db:check:smn-477": "tsx scripts/apply-smn-477-brief-cleanup.ts --check",
     "db:cleanup:smn-477": "tsx scripts/apply-smn-477-brief-cleanup.ts --apply",
     "test:smn-477": "tsx --test tests/smn-477-brief-cleanup.test.ts tests/smn-472-prompt-migration.test.ts tests/smn-180-brief-template-management.test.ts tests/smn-188-initial-ai-brief-templates.test.ts",
-    "test:smn-478": "tsx --test tests/smn-478-brief-ui-i18n.test.ts tests/smn-478-transfer-gate.test.ts",
+    "test:smn-478": "tsx --test tests/smn-478-brief-ui-i18n.test.ts tests/smn-478-transfer-gate.test.ts tests/smn-478-windows-contract.test.ts tests/smn-478-delivery-gate.test.mjs",
     "db:test:smn-478": "tsx --test tests/smn-478-brief-migrations-pg.test.ts tests/smn-478-native-fresh-install-pg.test.ts",
     "browser:test:smn-478": "tsx --test tests/smn-478-brief-browser.e2e.ts",
-    "validate:smn-478": "pnpm test:smn-478 && pnpm db:test:smn-478 && pnpm typecheck && pnpm lint && pnpm build"
+    "validate:smn-478": "pnpm test:smn-472-476 && pnpm test:smn-477 && pnpm test:smn-478 && pnpm db:test:smn-478 && pnpm typecheck && pnpm lint && pnpm build"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
