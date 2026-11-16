@@ -78,7 +78,8 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
   <h3 className="h5">Adapter ce brief uniquement</h3>
   <p className="small text-secondary">Modèle : {base.title} · Révision {base.revision}. Les changements ci-dessous restent en mémoire dans cette page, sans enregistrement automatique.</p>
   {conflict&&<div className="alert alert-warning" role="alert">Le modèle a été modifié ou désactivé. Rechargez sa configuration avant de continuer.</div>}
-  <div className="row g-3 align-items-start">\n  <div className="btn-group d-lg-none mb-3" role="group" aria-label="Vue de préparation">
+  <div className="row g-3 align-items-start">
+  <div className="btn-group d-lg-none mb-3" role="group" aria-label="Vue de préparation">
    <button type="button" className={"btn btn-sm "+(activeView==="edit"?"btn-primary":"btn-outline-primary")} aria-pressed={activeView==="edit"} onClick={()=>setActiveView("edit")}>Rédiger</button>
    <button type="button" className={"btn btn-sm "+(activeView==="preview"?"btn-primary":"btn-outline-primary")} aria-pressed={activeView==="preview"} onClick={()=>setActiveView("preview")} disabled={preview===null}>Aperçu</button>
   </div>
@@ -122,11 +123,17 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
 
   </div>
   </div>
-  </div>\n  <div className="col-12 col-lg-6">\n  <h4 className="h6">Aperçu et revue de confidentialité</h4>\n  <p className="small text-secondary">Vérifiez l’intégralité du contenu, y compris les données et leur provenance, avant toute copie ou archive.</p>\n  {preview!==null&&!approved&&<p className="alert alert-warning mt-3" role="alert">Confidentialité non vérifiée : le TXT peut contenir des noms, informations privées ou secrets issus des textes libres. Relisez le texte intégral et confirmez cette version exacte avant tout partage.</p>}
+  </div>
+  <div className="col-12 col-lg-6">
+  <h4 className="h6">Aperçu et revue de confidentialité</h4>
+  <p className="small text-secondary">Vérifiez l’intégralité du contenu, y compris les données et leur provenance, avant toute copie ou archive.</p>
+  {preview!==null&&!approved&&<p className="alert alert-warning mt-3" role="alert">Confidentialité non vérifiée : le TXT peut contenir des noms, informations privées ou secrets issus des textes libres. Relisez le texte intégral et confirmez cette version exacte avant tout partage.</p>}
   {preview!==null&&<div className="mt-3"><label htmlFor="brief-txt-preview" className="form-label fw-semibold">Aperçu TXT plat (non archivé)</label><textarea id="brief-txt-preview" className="form-control font-monospace" rows={20} readOnly value={preview}/><p className="small mt-2">{approved?"Version affichée vérifiée pour confidentialité (non archivée).":"Version non validée : aucun export ni finalisation possible."}</p></div>}
   {preview!==null&&<div className="border rounded p-3 mt-3" aria-label="Revue de confidentialité"><div className="form-check mt-3"><input type="checkbox" className="form-check-input" id="brief-privacy-reviewed" disabled={preview===null||preview!==currentTxt||conflict} checked={approved} onChange={e=>{setPrivacyReviewed(e.target.checked);setReviewedText(e.target.checked?preview:null);}}/>
     <label htmlFor="brief-privacy-reviewed" className="form-check-label">J’ai examiné le TXT intégral affiché et vérifié les noms, données privées et secrets éventuellement présents dans les textes libres. Je confirme cette version exacte uniquement.</label></div></div>}
-  </div>\n  </div>\n  <div className="d-flex flex-wrap gap-2 mt-3">
+  </div>
+  </div>
+  <div className="d-flex flex-wrap gap-2 mt-3">
    <button className="btn btn-primary btn-sm" disabled={conflict||saving} onClick={async()=>{if(!await checkRevision())return;setPreview(currentTxt);setPrivacyReviewed(false);setReviewedText(null);setActiveView("preview");}}>Générer l’aperçu TXT</button>
    <button className="btn btn-outline-primary btn-sm" onClick={()=>void checkRevision()} disabled={saving}>Actualiser le contenu / vérifier la révision</button>
    <button className="btn btn-outline-secondary btn-sm" onClick={()=>void reload()} disabled={saving}>Recharger le modèle (abandonner les ajustements)</button>
