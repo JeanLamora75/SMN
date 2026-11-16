@@ -9,7 +9,10 @@ test("SMN-477: the application contract no longer has the five legacy columns",(
  const page=read("src/app/app/admin/ai-briefs/prepare/page.tsx");
  const editor=read("src/app/app/admin/ai-briefs/templates/template-editor.tsx");
  assert.match(server,/prompt_text/);
- assert.doesNotMatch(server,/\b(?:sections|questions|instructions|depth)\b/);
+ // Legacy column names remain only in the migration readiness guard.
+ assert.match(server,/column_name=ANY\(\$1::text\[\]\)/);
+ assert.doesNotMatch(server,/SELECT[^;`]*\b(?:sections|questions|instructions|data|depth)\b[^;`]*FROM public\.smn_ai_brief_template/i);
+ assert.doesNotMatch(server,/INSERT INTO public\.smn_ai_brief_template[^;`]*\b(?:sections|questions|instructions|data|depth)\b/i);
  assert.doesNotMatch(server,/convertLegacyPrompt|validateBriefTemplate|briefFieldsForMode/);
  assert.doesNotMatch(page,/selected\.data|projectBriefSelection/);
  assert.doesNotMatch(editor,/\b(?:sections|questions|instructions|depth)\b/);
