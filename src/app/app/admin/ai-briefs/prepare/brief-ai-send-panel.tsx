@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import {useCallback,useEffect,useRef,useState} from "react";
+import {useCallback,useEffect,useRef,useState,type MouseEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 
 type Provider="gemini"|"groq"|"openrouter";
@@ -38,6 +38,9 @@ export default function BriefAiSendPanel({archiveId,reviewedText,cycleName,teamN
  const [preview,setPreview]=useState<Preview|null>(null);
  const [consent,setConsent]=useState(false);
  const [answer,setAnswer]=useState<Answer|null>(null);
+ const [responseKey,setResponseKey]=useState<string|null>(null);
+ const [savedId,setSavedId]=useState<string|null>(null);
+ const [saving,setSaving]=useState(false);
  const [feedback,setFeedback]=useState("");
  const busy=useRef(false);
  const load=useCallback(async()=>{
@@ -59,14 +62,14 @@ export default function BriefAiSendPanel({archiveId,reviewedText,cycleName,teamN
  },[t]);
  useEffect(()=>{void Promise.resolve().then(load);},[load]);
  useEffect(()=>{
-  if(!answer)return;
+  if(!answer||savedId)return;
   const warn=(event:BeforeUnloadEvent)=>{
    event.preventDefault();
    event.returnValue="";
   };
   window.addEventListener("beforeunload",warn);
   return ()=>window.removeEventListener("beforeunload",warn);
- },[answer]);
+ },[answer,savedId]);
  const eligible=connections.filter(c=>c.enabled&&c.credentialState==="configured"&&
   c.lastTestStatus==="passed"&&c.modelId!==null&&
   free.some(m=>m.providerId===c.providerId&&m.modelId===c.modelId));
@@ -106,6 +109,8 @@ export default function BriefAiSendPanel({archiveId,reviewedText,cycleName,teamN
    if(!response.ok||!result.ok)throw Error("error" in result?result.error:"unavailable");
    if(result.stored!==false||result.archiveId!==archiveId)throw Error("invalid");
    setAnswer(result);
+   setResponseKey(crypto.randomUUID());
+   setSavedId(null);
    setFeedback(t("aiSend.unsaved"));
   }catch(error){setFeedback(t(friendlyKey(error instanceof Error?error.message:"unavailable")));}
   finally{busy.current=false;setPhase("idle");}
@@ -115,16 +120,40 @@ export default function BriefAiSendPanel({archiveId,reviewedText,cycleName,teamN
   try{await navigator.clipboard.writeText(answer.response);setFeedback(t("aiSend.copied"));}
   catch{setFeedback(t("aiSend.copyFailed"));}
  }
+ async function saveResponse(){
+  if(!answer||!responseKey||busy.current||savedId||saving)return;
+  busy.current=true;setSaving(true);setFeedback("");
+  try{
+   const response=await fetch("/api/ai-briefs/archives/"+encodeURIComponent(archiveId)+"/responses",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({text:answer.response,provider:answer.provider,model:answer.model,
+     idempotencyKey:responseKey})
+   });
+   const result=await response.json() as {ok?:boolean;id?:string;error?:string;alreadySaved?:boolean};
+   if(!response.ok||!result.ok||result.id!==responseKey)
+    throw Error(result.error??"unavailable");
+   // Confirmation only after the server has committed the response.
+   setSavedId(result.id);
+   setFeedback(t(result.alreadySaved?"aiSend.alreadySaved":"aiSend.saveSuccess"));
+  }catch(error){
+   const code=error instanceof Error?error.message:"unavailable";
+   setFeedback(t(code==="idempotency-conflict"?"aiSend.saveConflict":"aiSend.saveFailed"));
+  }finally{busy.current=false;setSaving(false);}
+ }
  function discard(){
-  if(!answer||window.confirm(t("aiSend.discardConfirm"))){
-   setAnswer(null);invalidate();
+  if(!answer||savedId||window.confirm(t("aiSend.discardConfirm"))){
+   setAnswer(null);setResponseKey(null);setSavedId(null);invalidate();
   }
+ }
+ function confirmLeaving(event:MouseEvent<HTMLAnchorElement>){
+  if(answer&&!savedId&&!window.confirm(t("aiSend.leaveConfirm")))event.preventDefault();
  }
  return <section className="smn-panel rounded-3 p-3 p-md-4 mt-4" aria-labelledby="ai-send-heading">
   <div className="d-flex flex-wrap justify-content-between gap-2">
    <div><h3 id="ai-send-heading" className="h5 mb-1">{t("aiSend.title")}</h3>
     <p className="text-secondary small mb-2">{t("aiSend.intro")}</p></div>
-   <Link href="/app/admin/settings/ai" className="btn btn-outline-secondary btn-sm align-self-start">
+   <Link href="/app/admin/settings/ai" onClick={confirmLeaving}
+    className="btn btn-outline-secondary btn-sm align-self-start">
     {t("aiSend.configure")}
    </Link>
   </div>
@@ -143,7 +172,7 @@ export default function BriefAiSendPanel({archiveId,reviewedText,cycleName,teamN
   <div className="d-flex flex-wrap gap-2">
    <button type="button" className="btn btn-outline-primary" disabled={!chosen||phase!=="idle"||!!answer}
     onClick={()=>void getPreview()}>{phase==="previewing"?t("aiSend.previewing"):t("aiSend.preview")}</button>
-   {answer&&<button type="button" className="btn btn-outline-secondary" onClick={discard}>
+   {answer&&<button type="button" className="btn btn-outline-secondary" disabled={saving} onClick={discard}>
     {t("aiSend.newRequest")}</button>}
   </div>
   {preview&&chosen&&sameDestination(chosen,preview)&&<div className="border rounded-3 p-3 mt-3">
@@ -164,16 +193,18 @@ export default function BriefAiSendPanel({archiveId,reviewedText,cycleName,teamN
   {phase==="sending"&&<p role="status" className="mt-3">{t("aiSend.sending")}</p>}
   {answer&&<div className="border rounded-3 p-3 mt-3">
    <h4 className="h6">{t("aiSend.response")}</h4>
-   <p className="small text-secondary">{answer.provider} · {answer.model} · {t("aiSend.unsaved")}</p>
+   <p className="small text-secondary">{answer.provider} · {answer.model} · {t(savedId?"aiSend.saved":"aiSend.unsaved")}</p>
    <textarea className="form-control font-monospace" aria-label={t("aiSend.response")}
     rows={12} readOnly value={answer.response}/>
    <div className="d-flex flex-wrap gap-2 mt-3">
     <button type="button" className="btn btn-outline-primary" onClick={()=>void copy()}>
      {t("aiSend.copy")}</button>
-    <Link href={"/app/ai-briefs/archives/"+archiveId} className="btn btn-outline-secondary">
-     {t("aiSend.manualArchive")}</Link>
+    <button type="button" className="btn btn-primary" disabled={saving||!!savedId||!responseKey}
+     onClick={()=>void saveResponse()}>{saving?t("aiSend.saving"):t(savedId?"aiSend.saved":"aiSend.saveResponse")}</button>
+    <Link href={"/app/ai-briefs/archives/"+archiveId} onClick={confirmLeaving}
+     className="btn btn-outline-secondary">{t("aiSend.viewArchive")}</Link>
    </div>
-   <p className="small text-secondary mt-2 mb-0">{t("aiSend.saveLater")}</p>
+   <p className="small text-secondary mt-2 mb-0">{t(savedId?"aiSend.savedDetail":"aiSend.saveExplanation")}</p>
   </div>}
   {feedback&&<p role="status" className="small mt-3 mb-0">{feedback}</p>}
  </section>;

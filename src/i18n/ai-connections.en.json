@@ -97,8 +97,6 @@
     "copy": "Copy response",
     "copied": "Response copied. Nothing was saved.",
     "copyFailed": "Unable to copy the response.",
-    "manualArchive": "Open archive to save manually",
-    "saveLater": "Direct saving in this screen will be added in SMN-486. You can copy the response and manually paste it into the archive.",
     "newRequest": "New request",
     "discardConfirm": "This response is not saved. Discard it and start a new request?",
     "expired": "Approval expired or already used. Preview again.",
@@ -110,6 +108,17 @@
     "changed": "The archived text, connection, or model changed. Nothing was sent: preview again.",
     "failure": "Sending was rejected. Check your connection, then request a new preview.",
     "loadError": "Unable to load AI connections.",
-    "finalizeFirst": "Finalize the TXT after reviewing its contents. The AI will receive exactly this archived version, without automatic changes."
+    "finalizeFirst": "Finalize the TXT after reviewing its contents. The AI will receive exactly this archived version, without automatic changes.",
+    "saveResponse": "Save response",
+    "saving": "Saving…",
+    "saved": "Response saved",
+    "saveSuccess": "Response saved to the archive after PostgreSQL confirmed the transaction.",
+    "alreadySaved": "This response was already saved; no duplicate was created.",
+    "saveFailed": "Saving could not be confirmed. You can retry without creating a duplicate.",
+    "saveConflict": "Save conflict. No duplicate was created.",
+    "saveExplanation": "This response has not been saved. Only the Save response button writes to the database.",
+    "savedDetail": "The response is linked to the archive. You can review it in the library.",
+    "viewArchive": "View archive",
+    "leaveConfirm": "This AI response has not been saved and will be lost if you leave this screen. Continue?"
   }
 }

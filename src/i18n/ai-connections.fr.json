@@ -97,8 +97,6 @@
     "copy": "Copier la réponse",
     "copied": "Réponse copiée. Aucune sauvegarde n'a été effectuée.",
     "copyFailed": "Impossible de copier la réponse.",
-    "manualArchive": "Ouvrir l'archive pour l'enregistrer manuellement",
-    "saveLater": "L'enregistrement direct depuis cet écran sera ajouté dans SMN-486. Vous pouvez copier la réponse et la coller dans l'archive manuellement.",
     "newRequest": "Nouvelle demande",
     "discardConfirm": "Cette réponse n'est pas enregistrée. Voulez-vous la supprimer et préparer une nouvelle demande ?",
     "expired": "L'autorisation est expirée ou a déjà été utilisée. Recommencez la prévisualisation.",
@@ -110,6 +108,17 @@
     "changed": "Le texte archivé, la connexion ou le modèle a changé. Aucun envoi effectué : reprenez l'aperçu.",
     "failure": "L'envoi a été refusé. Vérifiez la connexion et réessayez après une nouvelle prévisualisation.",
     "loadError": "Impossible de charger les connexions IA.",
-    "finalizeFirst": "Finalisez d'abord le TXT après en avoir vérifié le contenu. L'IA recevra exactement cette version archivée, sans modification automatique."
+    "finalizeFirst": "Finalisez d'abord le TXT après en avoir vérifié le contenu. L'IA recevra exactement cette version archivée, sans modification automatique.",
+    "saveResponse": "Enregistrer la réponse",
+    "saving": "Enregistrement…",
+    "saved": "Réponse enregistrée",
+    "saveSuccess": "Réponse enregistrée dans l'archive après confirmation de PostgreSQL.",
+    "alreadySaved": "Cette réponse était déjà enregistrée ; aucun doublon n'a été créé.",
+    "saveFailed": "L'enregistrement n'a pas pu être confirmé. Vous pouvez réessayer sans créer de doublon.",
+    "saveConflict": "Conflit d'enregistrement. Aucun doublon n'a été créé.",
+    "saveExplanation": "La réponse n'est pas enregistrée. Seul le bouton « Enregistrer la réponse » écrira dans la base.",
+    "savedDetail": "La réponse a été rattachée à l'archive. Vous pouvez la consulter depuis la bibliothèque.",
+    "viewArchive": "Consulter l'archive",
+    "leaveConfirm": "La réponse IA n'est pas enregistrée et sera perdue en quittant cet écran. Continuer ?"
   }
 }

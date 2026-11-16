@@ -9,14 +9,11 @@ export function validManualAiResponse(raw:unknown):raw is {text:string;provider?
  const x=raw as Record<string,unknown>;
  return typeof x.text==="string"&&x.text.trim().length>0&&Buffer.byteLength(x.text,"utf8")<=250000&&
   (x.provider===undefined||x.provider===null||typeof x.provider==="string"&&x.provider.length<=120)&&
-  (x.model===undefined||x.model===null||typeof x.model==="string"&&x.model.length<=120);
+  (x.model===undefined||x.model===null||typeof x.model==="string"&&x.model.length<=120)&&
+  (x.idempotencyKey===undefined||typeof x.idempotencyKey==="string"&&briefArchiveIdValid(x.idempotencyKey));
 }
 const optional=(x:string|null|undefined)=>x?.trim()||null;
 async function ensureResponseSchema(db:Client){
- await assertAiBriefSchema(db,"responses");
- await assertAiBriefSchema(db,"responses");
- await assertAiBriefSchema(db,"responses");
- await assertAiBriefSchema(db,"responses");
  await assertAiBriefSchema(db,"responses");
 }
 export async function listManualAiResponses(db:Client,archiveId:string,teamId:string):Promise<ManualAiResponse[]>{
@@ -31,20 +28,40 @@ export async function listManualAiResponses(db:Client,archiveId:string,teamId:st
   ORDER BY r.created_at DESC,r.id DESC`,[archiveId,teamId]);
  return r.rows;
 }
+/** The optional UUID is allocated per received response on the client, never per click.
+ * A lost HTTP reply can safely be retried with the same UUID after commit.
+ */
 export async function saveManualAiResponse(db:Client,archiveId:string,teamId:string,actorId:string,raw:unknown){
  if(!briefArchiveIdValid(archiveId)||!validManualAiResponse(raw))return {ok:false as const,error:"invalid-input"};
- const x=raw as {text:string;provider?:string|null;model?:string|null};
+ const x=raw as {text:string;provider?:string|null;model?:string|null;idempotencyKey?:string};
  await db.query("BEGIN");
  try{
   const archive=await readPrivateBriefArchive(db,archiveId,teamId);
   if(archive.state!=="ok"){await db.query("ROLLBACK");return {ok:false as const,error:archive.state};}
   await ensureResponseSchema(db);
-  const id=randomUUID();
-  await db.query(`INSERT INTO public.smn_ai_brief_response
-   (id,archive_id,team_id,author_id,response_text,provider,model) VALUES($1,$2,$3,$4,$5,$6,$7)`,
-   [id,archiveId,teamId,actorId,x.text,optional(x.provider),optional(x.model)]);
+  const id=x.idempotencyKey??randomUUID();
+  const provider=optional(x.provider),model=optional(x.model);
+  const inserted=await db.query<{id:string}>(`INSERT INTO public.smn_ai_brief_response
+   (id,archive_id,team_id,author_id,response_text,provider,model)
+   VALUES($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (id) DO NOTHING RETURNING id::text`,
+   [id,archiveId,teamId,actorId,x.text,provider,model]);
+  if(inserted.rows.length){
+   await db.query("COMMIT");
+   return {ok:true as const,id,alreadySaved:false};
+  }
+  // A duplicate UUID is reusable only by the same account, archive, team,
+  // text and provider/model, never to read or overwrite somebody else's answer.
+  const found=await db.query<{id:string}>(`SELECT id::text FROM public.smn_ai_brief_response
+   WHERE id=$1 AND archive_id=$2 AND team_id=$3 AND author_id=$4
+   AND response_text=$5 AND provider IS NOT DISTINCT FROM $6::text
+   AND model IS NOT DISTINCT FROM $7::text AND deleted_at IS NULL`,
+   [id,archiveId,teamId,actorId,x.text,provider,model]);
+  if(!found.rows.length){
+   await db.query("ROLLBACK");
+   return {ok:false as const,error:"idempotency-conflict"};
+  }
   await db.query("COMMIT");
-  return {ok:true as const,id};
+  return {ok:true as const,id,alreadySaved:true};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);
   if((e as {code?:string}).code==="23505")return {ok:false as const,error:"already-active"};
   throw e;}
