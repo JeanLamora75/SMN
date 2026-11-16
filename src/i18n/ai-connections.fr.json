@@ -27,7 +27,7 @@
     "removeKey": "Retirer la clé",
     "checkLocal": "Vérifier le coffre local",
     "remoteTest": "Tester la connexion API",
-    "remoteUnavailable": "Test API indisponible tant qu'aucun modèle gratuit n'est qualifié et que la passerelle n'est pas livrée.",
+    "remoteUnavailable": "Test API bloqué : aucun modèle gratuit approuvé.",
     "modelHelp": "Aucun modèle n'est encore autorisé. Un modèle gratuit ne devient sélectionnable qu'après qualification réelle.",
     "key": "Clé API",
     "keyHelp": "La clé est chiffrée localement. Elle n'est jamais affichée après enregistrement.",
@@ -69,6 +69,9 @@
     "keyNotReturned": "Les clés enregistrées ne sont jamais relues dans le navigateur.",
     "statusAll": "Tous",
     "noResults": "Aucune connexion ne correspond aux filtres.",
-    "remoteLater": "Le test distant sera disponible après SMN-484 et qualification des modèles gratuits."
+    "remoteLater": "Le test distant sera disponible après SMN-484 et qualification des modèles gratuits.",
+    "remoteTestPassed": "Test API réussi",
+    "remoteTestFailed": "Échec du test API : vérifiez la clé, le modèle gratuit et le quota.",
+    "remoteQuota": "Quota fournisseur épuisé"
   }
 }

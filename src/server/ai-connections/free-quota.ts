@@ -6,13 +6,15 @@ import {evaluateFreeModel} from "./free-catalog";
  * a timeout or failed call still counts, so retries never burn quota silently.
  * All decisions occur in the database transaction, safe under concurrency.
  */
-export async function reserveFreeAiRequest(db:Client,connectionId:string,now:Date=new Date()){
+export async function reserveFreeAiRequest(db:Client,connectionId:string,now:Date=new Date(),
+ purpose:"send"|"probe"="send"){
  const selected=await db.query<{provider_id:string;model_id:string|null;enabled:boolean;
   credential_state:string;last_test_status:string}>(`SELECT provider_id,model_id,enabled,
   credential_state,last_test_status FROM public.smn_ai_connection
   WHERE id=$1 AND installation_id='singleton'`,[connectionId]);
  const item=selected.rows[0];
- if(!item||!item.enabled||item.credential_state!=="configured"||item.last_test_status!=="passed")
+ if(!item||item.credential_state!=="configured"||
+  (purpose==="send"&&(!item.enabled||item.last_test_status!=="passed")))
   return {ok:false as const,error:"connection-unavailable"};
  const free=evaluateFreeModel(item.provider_id,item.model_id,now);
  if(!free.allowed)return {ok:false as const,error:free.reason};

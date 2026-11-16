@@ -27,7 +27,7 @@
     "removeKey": "Remove key",
     "checkLocal": "Check local vault",
     "remoteTest": "Test API connection",
-    "remoteUnavailable": "API testing is unavailable until a free model is approved and the gateway is delivered.",
+    "remoteUnavailable": "API test blocked: no approved free model.",
     "modelHelp": "No models have been approved yet. A free model becomes selectable only after real qualification.",
     "key": "API key",
     "keyHelp": "Your key is encrypted locally and never displayed after saving.",
@@ -69,6 +69,9 @@
     "keyNotReturned": "Stored keys are never returned to the browser.",
     "statusAll": "All",
     "noResults": "No connections match the filters.",
-    "remoteLater": "Remote testing will become available after SMN-484 and free-model qualification."
+    "remoteLater": "Remote testing will become available after SMN-484 and free-model qualification.",
+    "remoteTestPassed": "API test successful",
+    "remoteTestFailed": "API test failed: check the key, approved free model, and quota.",
+    "remoteQuota": "Provider quota exhausted"
   }
 }

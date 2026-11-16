@@ -29,6 +29,7 @@ export default function AiConnectionsSettings(){
  const [reveal,setReveal]=useState(false);
  const [pending,setPending]=useState<{connection:Connection;action:"delete"|"disable"|"remove"}|null>(null);
  const [checking,setChecking]=useState<string|null>(null);
+ const [remoteChecking,setRemoteChecking]=useState<string|null>(null);
  const load=useCallback(async()=>{
   setLoading(true);setError("");
   try{
@@ -131,6 +132,23 @@ export default function AiConnectionsSettings(){
   }catch{setError(t("aiConnections.localError"));}
   finally{setChecking(null);}
  };
+ const checkRemote=async(item:Connection)=>{
+  if(busy||remoteChecking)return;
+  setRemoteChecking(item.id);setError("");setNotice("");
+  try{
+   const response=await fetch("/api/admin/ai-connections/test",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({id:item.id,revision:item.revision})
+   });
+   const result=await response.json() as {ok?:boolean;error?:string;tested?:boolean};
+   if(!response.ok||!result.ok){
+    setError(result.error==="model-unverified"?t("aiConnections.remoteUnavailable"):
+     t("aiConnections.remoteTestFailed"));
+   }else setNotice(t("aiConnections.remoteTestPassed"));
+   await load();
+  }catch{setError(t("aiConnections.remoteTestFailed"));}
+  finally{setRemoteChecking(null);}
+ };
  const open=(item:Connection|null)=>{
   setDraft(item?{label:item.label,providerId:item.providerId,modelId:item.modelId,key:""}:initialDraft());
   setEditing(item);setReveal(false);setError("");setNotice("");
@@ -138,6 +156,9 @@ export default function AiConnectionsSettings(){
  const status=(item:Connection)=>{
   if(item.credentialState==="missing")return t("aiConnections.statusMissing");
   if(item.credentialState==="invalid")return t("aiConnections.statusInvalid");
+  if(item.enabled&&item.lastTestStatus==="passed")return t("aiConnections.remoteTestPassed");
+  if(item.lastTestStatus==="quota")return t("aiConnections.remoteQuota");
+  if(item.lastTestStatus==="failed")return t("aiConnections.remoteTestFailed");
   if(!item.enabled)return t("aiConnections.statusReady");
   return t("aiConnections.statusUntested");
  };
@@ -204,8 +225,10 @@ export default function AiConnectionsSettings(){
         disabled={busy||checking===item.id} onClick={()=>void verifyLocal(item)}>
         <BootstrapIcon name="search"/></button>
        <button type="button" className="btn btn-outline-secondary btn-sm"
-        aria-label={t("aiConnections.remoteTest")} title={t("aiConnections.remoteUnavailable")}
-        disabled><BootstrapIcon name="chat-dots"/></button>
+        aria-label={t("aiConnections.remoteTest")} title={t("aiConnections.remoteTest")}
+        disabled={busy||remoteChecking===item.id||item.credentialState!=="configured"||
+         !freeCatalog.qualified.some(m=>m.providerId===item.providerId&&m.modelId===item.modelId)}
+        onClick={()=>void checkRemote(item)}><BootstrapIcon name="chat-dots"/></button>
        <button type="button" className="btn btn-outline-secondary btn-sm"
         aria-label={t("aiConnections.removeKey")} title={t("aiConnections.removeKey")}
         disabled={busy||item.credentialState!=="configured"}
