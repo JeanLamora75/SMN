@@ -101,7 +101,7 @@ test("La modale affiche les six en-têtes CSV exacts du contrat, en FR et EN",()
   for(const column of TICKET_CSV_COLUMNS)
    assert.ok(html.includes("<code>"+column+"</code>"),"Colonne attendue : "+column);
   assert.match(html,language==="fr"?/Colonnes obligatoires du fichier CSV/:/Required CSV column headers/);
-  assert.match(html,language==="fr"?/Leur ordre est libre/:/They can appear in any order/);
+  assert.match(html,language==="fr"?/Leur ordre est libre/:/They may appear in any order/);
  }
 });
 
