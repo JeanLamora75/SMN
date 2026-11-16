@@ -16,7 +16,7 @@ const URLS={
  openrouter:"https://openrouter.ai"
 } as const;
 export function buildAiProviderRequest(provider:ProviderId,model:string,prompt:string,secret:string){
- if(prompt.length===0||Buffer.byteLength(prompt,"utf8")>160000||!/^[a-zA-Z0-9][a-zA-Z0-9._:/+-]{0,159}$/.test(model))
+ if(prompt.length===0||Buffer.byteLength(prompt,"utf8")>160000||model.includes("://")||model.includes("..")||!/^[a-zA-Z0-9][a-zA-Z0-9._:/+-]{0,159}$/.test(model))
   throw Error("ai-send-invalid");
  const fixed=URLS[provider];
  if(!fixed)throw Error("ai-send-unknown-provider");
