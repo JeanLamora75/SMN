@@ -55,6 +55,17 @@ export async function manageBriefTemplate(db:Client,actorId:string,raw:unknown){
   const installation=await db.query("SELECT id FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
   if(installation.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
   await ensureSchema(db);
+  // The legacy columns are NOT NULL in old databases; reject all writes until
+  // the explicit cleanup runs, rather than allowing a partially valid model.
+  const remaining=await db.query<{n:string}>(`
+   SELECT count(*)::text AS n FROM information_schema.columns
+   WHERE table_schema='public' AND table_name='smn_ai_brief_template'
+   AND column_name=ANY($1::text[])`,
+   [["sections","questions","instructions","data","depth"]]);
+  if(Number(remaining.rows[0]?.n??0)>0){
+   await db.query("ROLLBACK");
+   return {ok:false as const,error:"migration-required"};
+  }
   if(v.action==="create"){
    const t=v.template as {title:string;description?:string;promptText:string};
    const id=randomUUID();
