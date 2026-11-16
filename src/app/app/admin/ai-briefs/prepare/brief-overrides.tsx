@@ -85,6 +85,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
    <button type="button" className={"btn btn-sm "+(activeView==="preview"?"btn-primary":"btn-outline-primary")} aria-pressed={activeView==="preview"} onClick={()=>setActiveView("preview")} disabled={preview===null}>Aperçu</button>
   </div>
   <div className={"col-12 col-lg-6 "+(activeView==="preview"?"d-none d-lg-block":"")}>
+  <div>
   <fieldset disabled={conflict||saving}>
    <div className="row g-3">
     {(["sections","questions","instructions"] as const).map(key=><div className="col-12 col-lg-4" key={key}>
@@ -101,7 +102,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
    </div>
   </fieldset>
   </div>
-  <div className={"col-12 "+(activeView==="preview"?"d-none d-lg-block":"")}>
+  <div>
   <div className="border-top mt-3 pt-3"><h4 className="h6">Analyses historiques (inclusion volontaire)</h4>
    <p className="small text-secondary">Aucune analyse IA ou humaine n’est sélectionnée par défaut. Toute inclusion exige une nouvelle revue de confidentialité.</p>
    {historical.length===0?<p className="text-secondary small">Aucune analyse antérieure disponible.</p>:<div className="d-grid gap-2">{historical.map(a=><label key={a.type+":"+a.id} className="border rounded p-2">
@@ -124,7 +125,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
 
   </div>
   </div>
-  <div className="col-12 col-lg-6">
+  <div className={"col-12 col-lg-6 "+(activeView==="edit"?"d-none d-lg-block":"")}>
   <h4 className="h6">Aperçu et revue de confidentialité</h4>
   <p className="small text-secondary">Vérifiez l’intégralité du contenu, y compris les données et leur provenance, avant toute copie ou archive.</p>
   {preview!==null&&!approved&&<p className="alert alert-warning mt-3" role="alert">Confidentialité non vérifiée : le TXT peut contenir des noms, informations privées ou secrets issus des textes libres. Relisez le texte intégral et confirmez cette version exacte avant tout partage.</p>}
