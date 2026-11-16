@@ -5,7 +5,9 @@ import {initialBriefTemplates,allowedBriefFields,projectCollectiveBriefFacts} fr
 test("three initial templates cover review, trends and risks",()=>{
  assert.deepEqual(initialBriefTemplates.map(t=>t.id),["cycle-review","trends","risks-dependencies"]);
  for(const t of initialBriefTemplates){
-  assert.ok(t.sections.length&&t.questions.length&&t.instructions.length&&t.data.length);
+  assert.ok(t.promptText.trim().length>20);
+  assert.match(t.promptText,/\{\{SPRINT_NAME\}\}/);
+  assert.doesNotMatch(t.promptText,/member\.name|member\.email/i);
  }
 });
 test("Scrum and Kanban expose only mode-specific collective measures",()=>{
