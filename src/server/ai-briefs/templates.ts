@@ -32,9 +32,9 @@ export async function listBriefTemplates(db:Client):Promise<ManagedBriefTemplate
  const columns=await db.query<{present:boolean}>(`SELECT EXISTS(SELECT 1 FROM information_schema.columns
  WHERE table_schema='public' AND table_name='smn_ai_brief_template' AND column_name='prompt_text') AS present`);
  const migrated=columns.rows[0]?.present??false;
- const result=await db.query<Omit<ManagedBriefTemplate,"builtin">>(`SELECT id::text,title,description,sections,questions,instructions,data,depth,revision,active,
- ${migrated?"prompt_text AS \\"promptText\\"":"NULL::text AS \\"promptText\\""} FROM public.smn_ai_brief_template ORDER BY title,id`);
- return [...builtins,...result.rows.map(x=>({...x,promptText:x.promptText||convertLegacyPrompt(x),builtin:false}))];
+ const result=await db.query<(Omit<ManagedBriefTemplate,"builtin"|"promptText">&{prompt_text:string|null})>(`SELECT id::text,title,description,sections,questions,instructions,data,depth,revision,active,
+ ${migrated?"prompt_text":"NULL::text AS prompt_text"} FROM public.smn_ai_brief_template ORDER BY title,id`);
+ return [...builtins,...result.rows.map(x=>({...x,promptText:x.prompt_text||convertLegacyPrompt(x),builtin:false}))];
 }
 export async function manageBriefTemplate(db:Client,actorId:string,raw:unknown){
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false as const,error:"invalid-input"};
