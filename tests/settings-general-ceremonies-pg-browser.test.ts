@@ -139,7 +139,7 @@ test("Paramètres généraux et cérémonies : vrais formulaires Chromium, HTTP 
   await page.goto("http://127.0.0.1:"+address.port+"/");
   await page.addScriptTag({content:javascript});
   await page.waitForSelector("#country");
-  await page.waitForFunction(()=>document.querySelectorAll("#template-existing option").length===2);
+  await page.waitForSelector(".smn-ceremony-templates-table tbody tr");
   await page.select("#country","DE");
   await page.click("#general-fixture form button[type=submit]");
   await page.waitForSelector("#general-fixture [role=alert]");
@@ -151,18 +151,17 @@ test("Paramètres généraux et cérémonies : vrais formulaires Chromium, HTTP 
   assert.equal(updatedSettings.referenceCountry,"DE");assert.equal(updatedSettings.revision,4);
   assert.deepEqual(writes[1],{route:"settings",revision:3,status:200});
 
-  await page.select("#template-existing","ceremony-one");
+  // The current ceremony editor opens in a modal from the row action.
+  await page.click(".smn-ceremony-templates-table tbody tr button[aria-label]");
   await page.waitForFunction(()=>(document.querySelector("#template-name") as HTMLInputElement)?.value==="Daily");
   await page.select("#template-frequency","weekly");
   await page.waitForSelector("#template-day");
   await page.select("#template-day","3");
-  await page.$eval("#template-name",el=>{
-   const input=el as HTMLInputElement;
-   Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,"value")!.set!.call(input,"Daily revue");
-   input.dispatchEvent(new Event("input",{bubbles:true}));
-  });
-  await page.waitForFunction(()=>!(document.querySelector("#ceremony-fixture button[type=submit]") as HTMLButtonElement).disabled);
-  await page.click("#ceremony-fixture button[type=submit]");
+  await page.click("#template-name",{clickCount:3});
+  await page.keyboard.press("ControlOrMeta+A");
+  await page.keyboard.type("Daily revue");
+  await page.waitForFunction(()=>!(document.querySelector("#ceremony-fixture button[form=smn-ceremony-template-editor]") as HTMLButtonElement).disabled);
+  await page.click("#ceremony-fixture button[form=smn-ceremony-template-editor]");
   await page.waitForSelector("#ceremony-fixture [role=alert]");
   assert.deepEqual(writes[2],{route:"ceremony",revision:4,status:409});
   assert.equal(await page.$eval("#template-name",el=>(el as HTMLInputElement).value),"Daily revue");
