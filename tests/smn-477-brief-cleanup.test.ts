@@ -30,7 +30,7 @@ test("SMN-477: explicit SQL refuses missing backfill and never cascades",()=>{
  assert.match(sql,/RAISE EXCEPTION/);
  assert.match(sql,/DROP COLUMN IF EXISTS sections/);
  for(const name of ["questions","instructions","data","depth"])assert.match(sql,new RegExp("DROP COLUMN IF EXISTS "+name));
- assert.doesNotMatch(sql,/\bCASCADE\b|DROP TABLE|TRUNCATE|DELETE FROM/i);
+ assert.doesNotMatch(sql.replace(/--[^\n]*/g,""),/\bCASCADE\b|DROP TABLE|TRUNCATE|DELETE FROM/i);
  assert.match(sql,/ALTER COLUMN prompt_text SET NOT NULL/);
 });
 test("SMN-477: new Windows installs apply both migrations in a single transaction",()=>{
