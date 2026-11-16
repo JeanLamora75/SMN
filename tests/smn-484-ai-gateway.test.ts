@@ -70,3 +70,11 @@ test("SMN-484 is blocked without account-qualified free models",()=>{
  assert.doesNotMatch(delivery,/INSERT INTO public\.smn_ai_brief_response|saveManualAiResponse/);
  assert.match(delivery,/stored:false/); // result is emitted from volatile delivery
 });
+
+test("SMN-484 provider test cannot invalidate revision-bound encrypted keys",()=>{
+ const probe=read("src/server/ai-connections/connection-test.ts");
+ assert.match(probe,/testAiConnection/);
+ assert.match(probe,/loadAiCredential\(id,row\.provider_id,row\.revision\)/);
+ assert.doesNotMatch(probe,/revision=revision\+1/);
+ assert.match(probe,/revision:revision\}/);
+});
