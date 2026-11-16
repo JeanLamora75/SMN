@@ -13,6 +13,7 @@ import {wrapPortableTransferZip} from "@/server/backup/portable-transfer-zip";
 import {captureGuiTransferEvidence} from "@/server/backup/gui-transfer-evidence";
 import {withAuthDb} from "@/server/auth/database";
 import {assertPortableAiBriefSchema} from "@/server/ai-briefs/schema-compat";
+import {inspectPortableAiTransfer} from "@/server/backup/portable-ai-connections";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -45,7 +46,10 @@ export async function GET(request:NextRequest){
    blockers:report.blockers},409);
   // Backups remain possible before a schema upgrade, but cross-PC transfers
   // of incompatible schemas must be explicitly blocked before streaming any ZIP.
-  try{await withAuthDb(assertPortableAiBriefSchema);}
+  try{
+   await withAuthDb(assertPortableAiBriefSchema);
+   await withAuthDb(inspectPortableAiTransfer);
+  }
   catch{return jsonResult({error:"migration-brief-schema-upgrade-required"},409);}
   const evidence=format==="zip"?await captureGuiTransferEvidence(id):null;
   const compressed=await streamPortableBackup(root,item);

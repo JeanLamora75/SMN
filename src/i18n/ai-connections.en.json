@@ -7,7 +7,7 @@
     "search": "Search connections",
     "allProviders": "All providers",
     "allStatuses": "All statuses",
-    "statusMissing": "Key required",
+    "statusMissing": "Key required on this computer",
     "statusReady": "Local key present · model unverified",
     "statusInactive": "Disabled",
     "statusInvalid": "Key unavailable",

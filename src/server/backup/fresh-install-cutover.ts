@@ -22,6 +22,8 @@ import {ticketStorageDirectory} from "./tickets-transfer";
 import {inspectOfflineRestoreMaintenance} from "./restore-maintenance";
 import {freshCutoverMac,FRESH_CUTOVER_GENESIS} from "./fresh-cutover-journal";
 import {assertPortableAiBriefSchema} from "../ai-briefs/schema-compat";
+import {assertPortableDestinationVaultEmpty,inspectPortableAiTransfer,
+ quarantineRestoredAiConnections} from "./portable-ai-connections";
 
 /**
  * External-operator ONLY. Promotes a VERIFIED candidate already restored into
@@ -254,6 +256,7 @@ export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs
   if(!version.rows[0]?.v.startsWith("18."))
    throw Error("migration-pg18-required");
   await assertPortableAiBriefSchema(target);
+  await inspectPortableAiTransfer(target);
   const database=await fingerprintPublicTables(target);
   await target.query("ROLLBACK");
   const staged=await inspectRestoreFileTree(a.stagedRoot);
@@ -267,6 +270,9 @@ export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs
   if(!verdict.currentStateMatched||
    packageInfo.createdAt!==proof.payload?.archiveCreatedAt)
    throw Error("migration-source-candidate-differ");
+  // Never reuse destination secrets that belonged to another installation.
+  // Administrator can empty an existing vault via the SMN UI before retrying.
+  await assertPortableDestinationVaultEmpty();
   for(const op of operations){
    if(a.replaceInitializedDestination===true){
     // An installed destination may have files: preserve them in a rollback
@@ -288,6 +294,10 @@ export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs
   if(!physicalDiff||physicalDiff===".."||
    physicalDiff.startsWith(".."+sep)||isAbsolute(physicalDiff))
    throw Error("migration-staging-physical-path-invalid");
+  // The candidate was fingerprinted unmodified against signed source proof.
+  // Only now may its non-secret connection metadata be disabled for this PC.
+  // Never alter source DB or TXT archives. Maintenance and rollback stay active.
+  await quarantineRestoredAiConnections(target);
   await admin.connect();adminReady=true;
   const initial=await listDatabases(admin,["smn",a.candidateDb,rollbackDb]);
   if(!initial.has("smn")||!initial.has(a.candidateDb)||initial.has(rollbackDb))

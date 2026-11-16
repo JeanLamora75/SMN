@@ -7,7 +7,7 @@
     "search": "Rechercher une connexion",
     "allProviders": "Tous les fournisseurs",
     "allStatuses": "Tous les états",
-    "statusMissing": "Clé à renseigner",
+    "statusMissing": "Clé à renseigner sur ce PC",
     "statusReady": "Clé locale présente · modèle non validé",
     "statusInactive": "Désactivée",
     "statusInvalid": "Clé indisponible",

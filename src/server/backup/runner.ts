@@ -19,6 +19,7 @@ import {officeTemplatesDirectory} from "../reports/office-catalog";
 import {captureFenceUnchanged} from "./capture-fence";
 import {captureTicketTransfer,ticketStorageDirectory} from "./tickets-transfer";
 import {safeBackupFailureStage,type BackupFailureStage} from "./failure-stage";
+import {inspectPortableAiTransfer} from "./portable-ai-connections";
 
 type Admin=Readonly<{id:string;role:string;password_hash:string}>;
 export type BackupState=Readonly<{
@@ -115,6 +116,9 @@ export async function backupState():Promise<BackupState>{
 export async function createManualBackup(actor:Admin,phrase?:string):Promise<PublicBackupResult>{
  if(actor.role!=="admin")throw new Error("backup-forbidden");
  const root=backupRootPath();
+ // Never allow a custom backup path to contain the private AI credential vault.
+ if(sameOrNested(root,join(process.cwd(),"data","ai-secrets")))
+  throw Error("backup-ai-vault-overlap");
  await privateFolder(root,true);
  const source=installedPrivateDocumentsDirectory();
  if(source&&sameOrNested(root,source))throw new Error("backup-root-overlaps-documents");
@@ -131,6 +135,8 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
   await client.connect();
   failureStage="schema-check";
   await ensureAccountsSchema(client);
+  // Reject unexpected secret columns before any encrypted PostgreSQL snapshot.
+  await inspectPortableAiTransfer(client);
   failureStage="advisory-lock";
   const acquired=await client.query<{acquired:boolean}>(
    "SELECT pg_try_advisory_lock(20261021,30) AS acquired");
