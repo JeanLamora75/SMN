@@ -3,6 +3,7 @@ import {useState} from "react";
 import type {ManagedBriefTemplate} from "@/server/ai-briefs/templates";
 import {allowedBriefFields,type BriefMode} from "@/lib/ai-brief-templates";
 import {composeBriefTxt} from "@/lib/ai-brief-txt";
+import {canApproveBrief} from "@/lib/ai-brief-review";
 import type {BriefFact} from "@/server/ai-briefs/facts";
 
 type Editable={sections:string[];questions:string[];instructions:string[];data:string[];depth:number};
@@ -29,13 +30,13 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
  const fields=allowedBriefFields(mode,["cycle.name","cycle.dates","cycle.status","team.name","product.name","objectives","risks","dependencies","decisions","scrum.storyPoints.committed","scrum.storyPoints.completed","scrum.capacity.planned","kanban.started","kanban.wip","kanban.throughput","kanban.cycleTime","kanban.leadTime","kanban.capacity.planned"]);
  const changed=JSON.stringify(draft)!==JSON.stringify(editable(base));
  const currentTxt=composeBriefTxt({context,mode,preparedAt,template:{...base,...draft,questions:[...draft.questions,...lines(humanQuestions)],instructions:[...draft.instructions,...lines(humanInstructions)]},facts,observations:lines(observations),historicalAnalyses:historical.filter(a=>selectedHistory.includes(a.type+":"+a.id))});
- const approved=preview!==null&&reviewedText===preview&&preview===currentTxt&&privacyReviewed&&!conflict&&revisionChecked;
+ const approved=canApproveBrief({preview,currentTxt,reviewedText,privacyReviewed,conflict,revisionChecked});
  async function finalize(){
   if(!approved||preview===null||finalizedId!==null)return;
   setSaving(true);
   try{
    if(!await checkRevision())return;
-   if(preview!==currentTxt||reviewedText!==preview||!privacyReviewed){setMessage("Le contenu a changé : générez et relisez un nouvel aperçu.");return;}
+   if(!canApproveBrief({preview,currentTxt,reviewedText,privacyReviewed,conflict,revisionChecked:true})){setMessage("Le contenu a changé : générez et relisez un nouvel aperçu.");return;}
    const bytes=new TextEncoder().encode(preview);
    const digest=await crypto.subtle.digest("SHA-256",bytes);
    const approvedSha256=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");
@@ -121,7 +122,6 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
      <textarea id="human-instructions" className="form-control" rows={4} maxLength={6000} value={humanInstructions} onChange={e=>{setHumanInstructions(e.target.value);setPreview(null);setPrivacyReviewed(false);}}/></div>
    </div>
 
-  </div>
   </div>
   </div>
   <div className="col-12 col-lg-6">
