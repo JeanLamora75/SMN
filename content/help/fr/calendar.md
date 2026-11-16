@@ -82,7 +82,7 @@ Pour préparer correctement le sprint, il est important de faire apparaître les
 
 **Exemple :** une personne est absente le jeudi après-midi. Déclarez une absence du jeudi au jeudi, en choisissant **après-midi** comme demi-journée de début et de fin. Vous évitez ainsi de la compter absente sur toute la journée.
 
-Les absences sont des données métier liées au membre : elles sont également utiles à l'analyse de sa disponibilité et de la capacité d'équipe. Pour vérifier sa semaine de travail, ses affectations ou ses jours fériés, consultez aussi le [guide Membres](/app/admin/members).
+Les absences sont des données métier liées au membre : elles sont également utiles à l'analyse de sa disponibilité et de la capacité d'équipe. Pour vérifier sa semaine de travail, ses affectations ou ses jours fériés, consultez aussi le guide Membres.
 
 ## 6. Repérez rapidement qui est absent
 
