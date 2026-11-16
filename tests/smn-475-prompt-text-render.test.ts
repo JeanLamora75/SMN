@@ -20,8 +20,8 @@ const input=(prompt:string,mode:"scrum"|"kanban"="scrum"):PromptRenderInput=>({
 test("resolves collective scalar and active indicator with unit, provenance and quality",()=>{
  const result=renderBriefPrompt(input("{{TEAM_NAME}} / {{SPRINT_NAME}} : {{INDICATOR_VELOCITY}}"));
  assert.equal(result.complete,true);
- assert.match(result.text,/Équipe A \[source : sprint-snapshot ; qualité : recorded ; version de clôture : 2\]/);
- assert.match(result.text,/17 SP \[source : report-indicator-projection ; qualité : calculated/);
+ assert.match(result.text,/Équipe A \[source : sprint-snapshot ; qualité : enregistrée ; version de clôture : 2\]/);
+ assert.match(result.text,/17 SP \[source : report-indicator-projection ; qualité : calculée/);
  assert.equal(result.diagnostics.length,0);
 });
 test("renders authorized Office ROW with stable sorting and row count",()=>{
