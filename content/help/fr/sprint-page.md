@@ -64,7 +64,7 @@ L'onglet affiche, lorsque les données et les permissions le permettent :
 
 **Exemple :** si une personne rejoint l'équipe au milieu du sprint et qu'une autre est absente deux demi-journées, le total doit tenir compte de ces situations.
 
-Pour diagnostiquer un chiffre inattendu, utilisez **Gérer les membres** et vérifiez les dates d'affectation, les horaires, la localisation et les absences dans les fiches [Membres](/app/admin/members).
+Pour diagnostiquer un chiffre inattendu, utilisez **Gérer les membres** et vérifiez les dates d'affectation, les horaires, la localisation et les absences dans les fiches Membres.
 
 > **Important :** une valeur indisponible **n'est pas zéro**. Pour un sprint clôturé, certaines valeurs peuvent provenir d'une photographie historique, tandis qu'un cycle encore ouvert peut présenter une projection.
 
