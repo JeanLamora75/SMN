@@ -7,6 +7,14 @@
     "save": "Enregistrer"
   },
   "briefPromptEditor": {
+    "resolvedTitle": "Prompt IA avec données du cycle",
+    "resolvedHint": "Les tags sont remplacés uniquement par des données autorisées du cycle sélectionné. Les valeurs affichent leur source et leur qualité.",
+    "provisionalCycle": "Cycle non clôturé : les valeurs affichées peuvent encore évoluer.",
+    "resolverUnavailable": "Les sources de données n’ont pas pu être chargées. Aucun prompt résolu n’est disponible.",
+    "unresolvedTags": "Tags non résolus : corrigez le modèle ou les données avant de copier.",
+    "copyResolved": "Copier le prompt résolu",
+    "copyBlocked": "Copie bloquée tant que tous les tags ne sont pas résolus.",
+    "notFinalized": "Aucun brief n’est archivé ni envoyé à une IA à cette étape. La finalisation et la revue de confidentialité seront réalisées dans le parcours dédié.",
     "tagDialogTitle": "Catalogue de tags SMN",
     "tagDialogIntro": "Choisissez une donnée collective autorisée et insérez son tag directement dans votre prompt.",
     "insertTag": "Insérer un tag SMN",
