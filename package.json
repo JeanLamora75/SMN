@@ -110,7 +110,10 @@
     "test:coverage-matrix": "node scripts/coverage-matrix.mjs --run",
     "db:migrate:ceremony-appearance": "tsx scripts/apply-smn-229-ceremony-appearance.ts",
     "test:ceremony-appearance": "tsx --test tests/smn-229-ceremony-appearance.test.ts",
-    "restore:audit": "tsx scripts/smn-34-audit-readonly.ts"
+    "restore:audit": "tsx scripts/smn-34-audit-readonly.ts",
+    "test:smn-472-476": "tsx --test tests/smn-472-prompt-migration.test.ts tests/smn-474-brief-tag-insertion.test.ts tests/smn-475-brief-tag-resolver.test.ts tests/smn-476-brief-review.test.ts",
+    "db:check:smn-472": "tsx scripts/apply-smn-472-prompt-text.ts --check",
+    "db:migrate:smn-472": "tsx scripts/apply-smn-472-prompt-text.ts --apply"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
