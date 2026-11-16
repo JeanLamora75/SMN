@@ -47,9 +47,18 @@ export function freeCatalogSnapshot(at:Date=new Date()){
    .map(m=>({providerId:m.providerId,modelId:m.modelId,expiresAt:m.expiresAt,
     sourceUrl:m.sourceUrl,quotaPerDay:m.dailyRequestLimit})),
   candidates:[
-   {providerId:"gemini" as const,documentationUrl:"https://ai.google.dev/gemini-api/docs/pricing"},
-   {providerId:"groq" as const,documentationUrl:"https://console.groq.com/docs/rate-limits"},
-   {providerId:"openrouter" as const,documentationUrl:"https://openrouter.ai/models?max_price=0"}
+   {providerId:"gemini" as const,modelId:"gemini-2.5-flash-lite",
+    documentationUrl:"https://ai.google.dev/gemini-api/docs/pricing",
+    evidence:"Free input/output on the Free tier; account-project quotas must be checked",
+    documentationCheckedAt:"2026-11-16",accountTested:false,selectable:false},
+   {providerId:"groq" as const,modelId:"openai/gpt-oss-20b",
+    documentationUrl:"https://console.groq.com/docs/rate-limits",
+    evidence:"Listed in Free Plan Limits; billing requires Developer upgrade",
+    documentationCheckedAt:"2026-11-16",accountTested:false,selectable:false},
+   {providerId:"openrouter" as const,modelId:"meta-llama/llama-3.3-70b-instruct:free",
+    documentationUrl:"https://openrouter.ai/meta-llama/llama-3.3-70b-instruct:free",
+    evidence:"Specific zero-price model; free variants at most 50/day, 20/min without credits",
+    documentationCheckedAt:"2026-11-16",accountTested:false,selectable:false}
   ],
   caveat:"An application allowlist cannot guarantee that an externally billable account incurs no charges."
  };
