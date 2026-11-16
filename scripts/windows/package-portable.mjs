@@ -149,7 +149,8 @@ const migrationScripts=[
  "smn-40-cutover-release",
  "smn-40-offline-maintenance",
  "smn-gui-offline-restore",
- "smn-gui-offline-recover"
+ "smn-gui-offline-recover",
+ "smn-478-verify-brief-schema"
 ];
 const migrationDir=path.join(appDir,"maintenance","migration");
 await mkdir(migrationDir,{recursive:true});
