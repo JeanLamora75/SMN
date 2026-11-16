@@ -151,3 +151,52 @@ L'architecture de Winston et les présents critères sont des entrées de cadrag
 - Les archives et réponses historiques restent accessibles sans réécriture.
 
 **Traçabilité :** arbitrages validés par le Product Owner le 16 novembre 2026. Ce document est une spécification UX, pas une implémentation ni une preuve de test.
+
+---
+## Addendum du 16 novembre 2026 — connexions IA et envoi direct (Sally)
+
+**Décisions UX fermes :** plusieurs connexions et clés (y compris plusieurs par fournisseur) ; choix de l'IA **au moment de l'envoi** ; seuls les modèles gratuits qualifiés apparaissent comme utilisables ; une réponse n'est enregistrée **que par clic explicite**. Conception prête pour découpage Jira, sans implémentation.
+
+### A. Écran Paramètres > Intelligence artificielle
+
+- Entrée dans le catalogue Paramètres, visible suivant permissions : administrateur pour gérer les connexions ; autres utilisateurs autorisés peuvent sélectionner uniquement les connexions actives depuis leurs briefs.
+- Page plein format Cockpit Agile : en-tête, bouton « Ajouter une connexion », bloc de filtres distinct, table/listing dans un bloc blanc distinct. Colonnes : nom personnalisé, fournisseur, modèle gratuit, statut (connectée / à tester / clé à renseigner / quota atteint / inactive), dernier test, actions icônes accessibles.
+- Création/édition dans une **modale Cockpit Agile** : nom, fournisseur dans un sélecteur, clé API masquée, modèle choisi dans le catalogue **gratuit vérifié**, activation, aide vers la page officielle de création de clé. N'afficher aucune clé existante et ne jamais la préremplir. Changer la clé nécessite de la ressaisir.
+- Actions : Tester la connexion (sans envoyer les données d'un sprint), modifier, désactiver, supprimer avec confirmation. Un échec de test n'efface pas les valeurs déjà enregistrées. L'utilisateur peut créer plusieurs connexions Gemini, Groq, etc.
+- Afficher une notice non alarmiste : « L'utilisation de modèles gratuits peut être limitée par des quotas. N'envoyez pas de données confidentielles sans autorisation. » Afficher un message spécifique lorsque la gratuité d'un modèle ne peut plus être confirmée ; blocage explicite de l'envoi.
+- Conception accessible clavier, focus géré à l'ouverture/fermeture des modales, descriptions et erreurs traduites. Aucune carte « gratuite » ne doit garantir l'absence absolue de facture si la facturation du compte externe est activée.
+
+### B. Parcours depuis un brief de sprint
+
+1. L'utilisateur ouvre « Générer un brief IA », choisit ou personnalise son prompt en texte libre avec tags, puis visualise le résultat **intégral** des tags résolus.
+2. Un bloc « Envoyer à une IA » présente un sélecteur de connexion **au moment de l'action**. Afficher sous la connexion le fournisseur, le modèle gratuit, et son état. Ne pas forcer un choix figé dans le modèle de brief.
+3. Clic « Prévisualiser l'envoi » : montrer en lecture seule le texte exact, l'équipe/sprint, le destinataire IA, le modèle, les avertissements de confidentialité et les tags sensibles. L'utilisateur valide la transmission pour cet aperçu seulement.
+4. Clic « Envoyer à l'IA » actif uniquement si tous les contrôles sont satisfaits. État d'envoi clair, pas de doublon, annulation visuelle sans promesse qu'une requête déjà envoyée sera révoquée ; pas d'envoi automatique.
+5. Après succès : afficher une zone « Réponse de l'IA » sélectionnable, avec « Copier », **« Enregistrer la réponse »** et « Nouvelle demande ». Indication permanente « Non enregistrée » jusqu'au succès réel d'un enregistrement explicite. Ne pas enregistrer lors de l'envoi, de l'affichage, de la copie ou du changement d'onglet.
+6. Au clic « Enregistrer la réponse », vérifier l'archive de rattachement/permissions ; s'il faut d'abord finaliser une archive, guider clairement l'utilisateur et demander confirmation avant toute écriture. Après succès seulement, montrer « Enregistrée dans les archives ». Préserver l'immutabilité du TXT original.
+7. Si l'utilisateur quitte la page, change de brief ou actualise pendant qu'une réponse non enregistrée existe, avertir de sa perte possible. Le navigateur ne doit pas utiliser localStorage/sessionStorage/indexedDB pour persister le contenu d'une réponse non sauvegardée.
+
+### C. Erreurs et scénarios de restauration
+
+- Aucun fournisseur connecté : état vide avec accès à la configuration pour un administrateur, invitation à contacter l'administrateur sinon.
+- Clé absente après transfert ZIP : état **« Clé à renseigner sur ce PC »**, bouton « Configurer la clé » dans Paramètres. Ne pas confondre transfert de données réussi et connexions IA opérationnelles.
+- Modèle devenu payant / gratuité non vérifiable : désactivation de l'envoi, explication, bouton d'actualisation du catalogue ou de choix d'une autre connexion **gratuite vérifiée**.
+- Quota épuisé : réponse explicite sans nouvelle tentative implicite ; l'utilisateur peut choisir une autre connexion, puis doit revoir et confirmer le nouvel envoi.
+- Erreur authentification, réseau, délai dépassé, retour trop volumineux : messages différenciés, sans exposer clé ni corps de réponse de diagnostic brut.
+- Réponse reçue mais non enregistrée : badge textuel « Non enregistrée », copie possible, dialogue de prévention de perte. Une réponse déjà sauvegardée reste consultable selon les droits.
+- Chargement, lecture seule, modèle supprimé, changement de langue, petit écran, clavier/lecteur d'écran : parcours documentés et testables.
+
+### D. Critères UX de recette avant User Stories
+
+1. Ajouter deux connexions du même fournisseur sans conflit et choisir celle à utiliser à chaque envoi.
+2. Aucun modèle non qualifié gratuit ne peut être sélectionné, ni devenir implicitement payant.
+3. Une clé existante est toujours masquée, jamais restituée à l'édition.
+4. La revue affiche exactement le prompt résolu et doit être recommencée après modification de contenu, contexte, fournisseur ou modèle.
+5. Envoi réussi ne crée **aucune réponse enregistrée** ; seul le bouton « Enregistrer la réponse » le fait, avec confirmation de succès.
+6. Après migration/restauration, connexions identifiables mais mention « Clé à renseigner », sans exigence de ligne de commande.
+7. Interface conforme Cockpit Agile (filtres séparés, pleine largeur sous en-tête, modales de configuration), FR/EN et extensibilité à 6–10 langues.
+8. Aucun appel réseau automatique à l'ouverture de Paramètres, des archives ou des briefs.
+
+### E. Recommandation Sally
+
+Conserver une action primaire claire « Prévisualiser l'envoi » puis « Envoyer à l'IA », et rendre **« Enregistrer la réponse » explicitement secondaire et volontaire**. Ne pas ajouter de comparaison multi-IA ou d'historique automatique à cette première version. **Aucune User Story créée ici.**
