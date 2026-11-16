@@ -1,5 +1,5 @@
 import {randomBytes,createHash} from "node:crypto";
-import {open,lstat,readdir,mkdir,cp,rename,readFile,realpath} from "node:fs/promises";
+import {open,lstat,readdir,mkdir,cp,rename,readFile,writeFile,realpath} from "node:fs/promises";
 import {join,resolve,relative,isAbsolute,basename,sep} from "node:path";
 import {tmpdir} from "node:os";
 import {Client} from "pg";
@@ -23,7 +23,8 @@ import {inspectOfflineRestoreMaintenance} from "./restore-maintenance";
 import {freshCutoverMac,FRESH_CUTOVER_GENESIS} from "./fresh-cutover-journal";
 import {assertPortableAiBriefSchema} from "../ai-briefs/schema-compat";
 import {assertPortableDestinationVaultEmpty,inspectPortableAiTransfer,
- quarantineRestoredAiConnections} from "./portable-ai-connections";
+ quarantineRestoredAiConnections,assertOnlyAiConnectionChanged,
+ signAiQuarantineEvidence} from "./portable-ai-connections";
 
 /**
  * External-operator ONLY. Promotes a VERIFIED candidate already restored into
@@ -297,7 +298,15 @@ export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs
   // The candidate was fingerprinted unmodified against signed source proof.
   // Only now may its non-secret connection metadata be disabled for this PC.
   // Never alter source DB or TXT archives. Maintenance and rollback stay active.
-  await quarantineRestoredAiConnections(target);
+  const aiInventory=await quarantineRestoredAiConnections(target);
+  const afterAiQuarantine=await fingerprintPublicTables(target);
+  assertOnlyAiConnectionChanged(database,afterAiQuarantine);
+  const aiEvidence=signAiQuarantineEvidence(key,{
+   version:1,archiveId:a.archiveId,cutoverId:session,
+   sourceDigest:database.digest,promotedDigest:afterAiQuarantine.digest,
+   connections:aiInventory.connectionsNeedingKey,
+   archives:aiInventory.archivesPreserved,responses:aiInventory.savedResponsesPreserved
+  });
   await admin.connect();adminReady=true;
   const initial=await listDatabases(admin,["smn",a.candidateDb,rollbackDb]);
   if(!initial.has("smn")||!initial.has(a.candidateDb)||initial.has(rollbackDb))
@@ -317,6 +326,9 @@ export async function activateFreshManagedInstallation(a:FreshInstallCutoverArgs
   journal=join(a.operatorJournalDir,"migration-"+session+".jsonl");
   await (await open(journal,"wx",0o600)).close();
   await record("intent");
+  // Signed locally; NEVER part of the imported ZIP or a public response.
+  await writeFile(join(a.operatorJournalDir,"ai-quarantine-"+session+".json"),
+   JSON.stringify(aiEvidence)+"\n",{flag:"wx",mode:0o600});
   // Stage files beside their target directories: the eventual rename is on
   // the same filesystem even when the OS TEMP volume is different.
   for(let i=0;i<operations.length;i++){

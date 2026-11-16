@@ -4,9 +4,12 @@ import {mkdtemp,mkdir,writeFile,rm} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {readFileSync} from "node:fs";
+import {randomBytes} from "node:crypto";
+import type {FingerprintSet} from "../src/server/backup/restore-row-fingerprint";
 import type {Client} from "pg";
 import {inspectPortableAiTransfer,assertPortableDestinationVaultEmpty,
- quarantineRestoredAiConnections} from "../src/server/backup/portable-ai-connections";
+ quarantineRestoredAiConnections,signAiQuarantineEvidence,verifyAiQuarantineEvidence,
+ assertOnlyAiConnectionChanged} from "../src/server/backup/portable-ai-connections";
 
 const connections=["id","installation_id","label","provider_id","model_id","enabled",
  "credential_state","last_test_status","last_test_at","revision",
@@ -127,4 +130,51 @@ test("SMN-487 ZIP, database, sandbox and offline promotion all honor privacy gua
  assert.match(gui,/rollbackVerifiedNewComputerCutover/);
  assert.match(policy,/SET enabled=false,credential_state='missing'/);
  assert.doesNotMatch(policy,/DELETE FROM public\.smn_ai_brief_archive|UPDATE public\.smn_ai_brief_response/);
+});
+
+test("SMN-487 only AI connection metadata may differ in the signed post-cutover state",()=>{
+ const before:FingerprintSet={digest:"a".repeat(64),tables:[
+  {table:"smn_ai_connection",rows:2,sha256:"a".repeat(64)},
+  {table:"smn_ai_brief_archive",rows:3,sha256:"b".repeat(64)},
+  {table:"smn_ai_brief_response",rows:2,sha256:"c".repeat(64)},
+  {table:"smn_team",rows:1,sha256:"d".repeat(64)}
+ ]};
+ const after:FingerprintSet={digest:"e".repeat(64),tables:before.tables.map(x=>
+  x.table==="smn_ai_connection"?{...x,sha256:"f".repeat(64)}:x)};
+ assert.doesNotThrow(()=>assertOnlyAiConnectionChanged(before,after));
+ const changedTxt={...after,tables:after.tables.map(x=>x.table==="smn_ai_brief_archive"?
+  {...x,sha256:"0".repeat(64)}:x)};
+ assert.throws(()=>assertOnlyAiConnectionChanged(before,changedTxt),/migration-ai-unexpected-table-change/);
+ const missing={...after,tables:after.tables.slice(1)};
+ assert.throws(()=>assertOnlyAiConnectionChanged(before,missing),/migration-ai-unexpected-table-change/);
+});
+test("SMN-487 post-cutover AI transformation evidence must be signed and identity-bound",()=>{
+ const key=randomBytes(32),id="00000000-0000-4000-8000-000000000007";
+ const input={version:1 as const,archiveId:id,cutoverId:"abcdefabcdef",
+  sourceDigest:"a".repeat(64),promotedDigest:"e".repeat(64),
+  connections:2,archives:3,responses:2};
+ const receipt=signAiQuarantineEvidence(key,input);
+ assert.equal(verifyAiQuarantineEvidence(key,receipt,id,input.cutoverId,
+  input.sourceDigest,input.promotedDigest),true);
+ for(const altered of [
+  {...receipt,responses:3},{...receipt,promotedDigest:"b".repeat(64)},
+  {...receipt,sourceDigest:"c".repeat(64)},{...receipt,mac:"0".repeat(64)}
+ ]){
+  assert.equal(verifyAiQuarantineEvidence(key,altered,id,input.cutoverId,
+   input.sourceDigest,input.promotedDigest),false);
+ }
+ assert.equal(verifyAiQuarantineEvidence(randomBytes(32),receipt,id,input.cutoverId,
+  input.sourceDigest,input.promotedDigest),false);
+ key.fill(0);
+});
+test("SMN-487 offline postcheck validates authenticated post-quarantine digest",()=>{
+ const cutover=readFileSync("src/server/backup/fresh-install-cutover.ts","utf8");
+ const postcheck=readFileSync("scripts/smn-40-cutover-postcheck.ts","utf8");
+ assert.match(cutover,/assertOnlyAiConnectionChanged\(database,afterAiQuarantine\)/);
+ assert.match(cutover,/signAiQuarantineEvidence\(key/);
+ assert.match(postcheck,/verifyAiQuarantineEvidence\(key/);
+ assert.match(postcheck,/migration-postcheck-ai-inventory-differ/);
+ assert.match(postcheck,/migration-postcheck-ai-secrets-not-reentered/);
+ assert.match(postcheck,/databaseDigest:authenticatedSourceDigest/);
+ assert.match(postcheck,/comparePortableCurrentState\(proof,key/);
 });

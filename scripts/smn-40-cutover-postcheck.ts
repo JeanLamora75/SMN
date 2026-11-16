@@ -16,6 +16,8 @@ import {fingerprintCurrentManagedFiles} from "../src/server/backup/current-manag
 import {readErasureLedger} from "../src/server/backup/erasure-ledger";
 import {ERASURE_GENESIS_MAC} from "../src/server/backup/erasure-evidence-format";
 import {hasUnresolvedErasureIntent} from "../src/server/backup/erasure-intent";
+import {verifyAiQuarantineEvidence,inspectPortableAiTransfer}
+ from "../src/server/backup/portable-ai-connections";
 import {comparePortableCurrentState,type SignedCurrentStateReceipt}
  from "../src/server/backup/current-state-transfer-receipt";
 
@@ -70,8 +72,37 @@ export async function inspectOfflineCutoverJournal(journalPath:string,receiptPat
     await current.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
     const database=await fingerprintPublicTables(current);
     const files=await fingerprintCurrentManagedFiles(current);
+    let authenticatedSourceDigest=database.digest;
+    const aiEvidenceFile=join(process.cwd(),"data","migration-audit",
+     "ai-quarantine-"+last.id+".json");
+    const aiStat=await lstat(aiEvidenceFile).catch((e:NodeJS.ErrnoException)=>{
+     if(e.code==="ENOENT")return null;
+     throw e;
+    });
+    if(aiStat){
+     if(!aiStat.isFile()||aiStat.isSymbolicLink()||
+        aiStat.size<200||aiStat.size>2048)
+      throw Error("migration-postcheck-ai-evidence-untrusted");
+     const aiEvidence=JSON.parse(await readFile(aiEvidenceFile,"utf8")) as unknown;
+     const original=proof.payload?.databaseDigest;
+     if(!original||!verifyAiQuarantineEvidence(key,aiEvidence,
+       last.archiveId,last.id,original,database.digest))
+      throw Error("migration-postcheck-ai-evidence-invalid");
+     const inventory=await inspectPortableAiTransfer(current);
+     const signed=aiEvidence as {connections:number;archives:number;responses:number};
+     if(inventory.connections!==signed.connections||
+        inventory.archives!==signed.archives||inventory.responses!==signed.responses)
+      throw Error("migration-postcheck-ai-inventory-differ");
+     if(inventory.hasConnections){
+      const active=await current.query<{n:string}>(`SELECT count(*)::text AS n
+       FROM public.smn_ai_connection WHERE enabled=true OR credential_state<>'missing'
+        OR last_test_status<>'never' OR last_test_at IS NOT NULL`);
+      if(active.rows[0]?.n!=="0")throw Error("migration-postcheck-ai-secrets-not-reentered");
+     }
+     authenticatedSourceDigest=original;
+    }
     const verdict=comparePortableCurrentState(proof,key,{
-     archiveId:last.archiveId,databaseDigest:database.digest,
+     archiveId:last.archiveId,databaseDigest:authenticatedSourceDigest,
      filesDigest:files.sha256,filesCount:files.count,
      ledgerCoverageStart:ledger.coverageStart,
      ledgerHeadMac:ledger.markers.at(-1)?.mac??ERASURE_GENESIS_MAC,

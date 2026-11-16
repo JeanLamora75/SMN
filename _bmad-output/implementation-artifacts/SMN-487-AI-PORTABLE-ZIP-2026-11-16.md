@@ -22,3 +22,16 @@ Date : 16 novembre 2026. Epic SMN-479. Architecture : Winston ; parcours UX : Sa
 - Une transaction interrompue avant commit laisse la candidate inchangée. Si une interruption survient plus tard dans la promotion, la politique SMN-442 reste responsable du rollback. Une candidate déjà assainie peut nécessiter une nouvelle reconstruction isolée pour retrouver l'empreinte de preuve originale avant un nouvel essai.
 - Le test d'export/import réel avec une **clé fictive et un compte IA Free de test** est encore à effectuer. Aucune preuve d'appel authentifié n'a été fabriquée.
 - La mise à jour d'une installation existante peut exiger les migrations SMN-480/482 ; on ne prétend pas qu'un archive plus ancienne contient les nouvelles connexions.
+
+## Preuve après bascule (correctif important)
+
+L'assainissement des connexions modifie volontairement l'empreinte **globale** du PostgreSQL restauré. Le contrôle de post-bascule SMN-442 exige normalement l'empreinte **exacte** du reçu source ; sans adaptation, il refuserait une migration réussie dont les connexions sont assainies.
+
+La solution ne supprime **aucun** garde d'intégrité :
+1. Avant toute modification du candidat, les empreintes de l'archive, de la base isolée, des fichiers et du ledger restent comparées au reçu source signé.
+2. La transaction assainit seulement la table `smn_ai_connection`. Une **seconde empreinte de toutes les tables** est calculée ; l'opération est rejetée si une autre table, son nombre de lignes ou son contenu diffère.
+3. Un reçu local `data/migration-audit/ai-quarantine-<session>.json` lie le reçu original, l'empreinte assainie, l'ID archive, l'ID de bascule et les effectifs connexions/archives/réponses. Il est authentifié HMAC-SHA256 avec la clé privée de sauvegarde déjà utilisée pour les preuves SMN-442, et ne figure **jamais** dans le ZIP.
+4. Le contrôle de post-bascule vérifie le HMAC, les deux empreintes, l'identité de bascule, les effectifs conservés et la désactivation de toutes les connexions. Ce n'est qu'avec cette preuve qu'il peut valider le reçu source **original** malgré la transformation connue et limitée. Sans reçu, l'ancienne exigence stricte d'égalité des empreintes reste obligatoire.
+5. Tout défaut de signature, changement dans les archives ou réponses, ou réactivation inattendue bloque la libération du marqueur de maintenance. Le rollback SMN-442 demeure responsable de retrouver la base initiale.
+
+**Limite de recette :** les validations unitaires de preuve sont ajoutées, mais une migration source→cible avec activation hors ligne et rollback réel sur Windows doit encore confirmer cette séquence.

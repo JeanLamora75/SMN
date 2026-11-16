@@ -1,4 +1,6 @@
 import type {Client} from "pg";
+import {createHmac,timingSafeEqual} from "node:crypto";
+import type {FingerprintSet} from "./restore-row-fingerprint";
 import {lstat,readdir} from "node:fs/promises";
 import {join,resolve} from "node:path";
 
@@ -115,4 +117,58 @@ export async function quarantineRestoredAiConnections(db:Client){
   await db.query("ROLLBACK").catch(()=>undefined);
   throw error;
  }
+}
+
+/** Secondary, local-only signed receipt for the ONE permitted change to an
+ * otherwise byte-fingerprinted database. It is never exported in ZIP.
+ * SMN-442's source digest and erasure-ledger proof still must match first.
+ */
+export type AiQuarantineReceipt=Readonly<{
+ version:1;archiveId:string;cutoverId:string;
+ sourceDigest:string;promotedDigest:string;
+ connections:number;archives:number;responses:number;mac:string;
+}>;
+const HEX=/^[a-f0-9]{64}$/;
+const ID=/^[a-f0-9]{12}$/;
+const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][0-9a-f]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
+function quarantineMac(key:Buffer,record:Omit<AiQuarantineReceipt,"mac">):string{
+ if(key.length!==32||!UUID.test(record.archiveId)||!ID.test(record.cutoverId)||
+    !HEX.test(record.sourceDigest)||!HEX.test(record.promotedDigest)||
+    [record.connections,record.archives,record.responses].some(n=>!Number.isSafeInteger(n)||n<0))
+  throw Error("migration-ai-evidence-invalid");
+ return createHmac("sha256",key).update([
+  "smn-ai-quarantine-v1",record.version,record.archiveId,record.cutoverId,
+  record.sourceDigest,record.promotedDigest,record.connections,
+  record.archives,record.responses
+ ].join("|")).digest("hex");
+}
+export function signAiQuarantineEvidence(key:Buffer,
+ value:Omit<AiQuarantineReceipt,"mac">):AiQuarantineReceipt{
+ if(value.version!==1)throw Error("migration-ai-evidence-invalid");
+ return {...value,mac:quarantineMac(key,value)};
+}
+export function verifyAiQuarantineEvidence(key:Buffer,value:unknown,archiveId:string,
+ cutoverId:string,sourceDigest:string,promotedDigest:string):value is AiQuarantineReceipt{
+ if(!value||typeof value!=="object"||Array.isArray(value))return false;
+ const v=value as AiQuarantineReceipt;
+ if(v.version!==1||v.archiveId!==archiveId||v.cutoverId!==cutoverId||
+    v.sourceDigest!==sourceDigest||v.promotedDigest!==promotedDigest||
+    typeof v.mac!=="string"||!HEX.test(v.mac))return false;
+ try{
+  const expected=Buffer.from(quarantineMac(key,v),"hex");
+  return timingSafeEqual(expected,Buffer.from(v.mac,"hex"));
+ }catch{return false;}
+}
+export function assertOnlyAiConnectionChanged(before:FingerprintSet,after:FingerprintSet){
+ if(before.tables.length!==after.tables.length)
+  throw Error("migration-ai-unexpected-table-change");
+ const left=new Map(before.tables.map(row=>[row.table,row]));
+ const right=new Map(after.tables.map(row=>[row.table,row]));
+ for(const [name,old] of left){
+  const next=right.get(name);
+  if(!next||old.rows!==next.rows||
+     name!=="smn_ai_connection"&&old.sha256!==next.sha256)
+   throw Error("migration-ai-unexpected-table-change");
+ }
+ if(left.size!==right.size)throw Error("migration-ai-unexpected-table-change");
 }
