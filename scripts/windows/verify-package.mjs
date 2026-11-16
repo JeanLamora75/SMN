@@ -69,6 +69,8 @@ for(const file of [
  "app/prisma/migrations/20261108_smn416_chart_styles/migration.sql",
  "app/prisma/migrations/20261109_smn39_privacy_receipt/migration.sql",
  "app/prisma/migrations/20261109_smn40_member_delete_guard/migration.sql",
+ "app/prisma/migrations/20261116_smn472_prompt_text/migration.sql",
+ "app/prisma/migrations/20261116_smn477_brief_legacy_cleanup/migration.sql",
 ]){
  assert.ok(existsSync(path.join(root,file)),"Required installation SQL missing: "+file);
 }
@@ -259,6 +261,24 @@ try {
     const restrictedHtml = await restrictedWelcome.text();
     assert.doesNotMatch(restrictedHtml,/Installer Scrum Master Notebook|smn-local-setup|<form[^>]*>/,
       "Le formulaire d'installation ne doit plus être envoyé");
+    // The runtime itself performs read-only validation using its own DPAPI
+    // credentials; no plaintext database password leaves the portable install.
+    const schemaVerifier=path.join(root,"app","maintenance","migration",
+      "smn-478-verify-brief-schema.mjs");
+    assert.ok(existsSync(schemaVerifier),"Vérificateur schéma des briefs IA absent du ZIP");
+    const schemaRun=spawnSync(path.join(root,"runtime","node","node.exe"),
+      [schemaVerifier],{
+        cwd:root,windowsHide:true,encoding:"utf8",timeout:30000,
+        env:{...process.env,SMN478_DISPOSABLE_PROOF:"YES",SMN_DATABASE_URL:""}
+      });
+    assert.equal(schemaRun.status,0,
+      "SMN-478 : nouvelle installation avec schéma Briefs IA invalide : "+schemaRun.stderr);
+    const schema=JSON.parse(schemaRun.stdout.trim());
+    assert.equal(schema.schemaVersion,33);
+    assert.equal(schema.legacyColumns,0);
+    assert.equal(schema.nativeTemplates,3);
+    assert.equal(schema.requiredPrompt,true);
+    console.log("PASS : nouveau schéma Briefs IA et modèles natifs vérifiés sur PostgreSQL Windows.");
     console.log("PASS : installation Express complète dans une base Windows isolée.");
   } else {
     console.log("PASS : page d'accueil et assistant accessibles sans base implicite.");
