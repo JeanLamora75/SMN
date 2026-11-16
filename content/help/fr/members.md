@@ -8,7 +8,7 @@ Un membre n'est pas simplement un nom dans une liste. **Son profil, son affectat
 
 1. Ouvrez [Équipe / Membres](/app/admin/members) et vérifiez le contexte d'équipe affiché.
 2. Choisissez la vue **Cartes** pour parcourir les profils, ou **Liste** pour comparer rapidement plusieurs personnes.
-3. Utilisez les filtres **nom**, **rôle**, **fonction** et **statut**, puis appliquez-les avec **Filtrer**.
+3. Utilisez la **recherche** par nom et les filtres **rôle**, **fonction** et **statut**, puis appliquez-les avec **Filtrer**.
 4. Examinez les sections **Actifs** et **Inactifs**. Une personne qui a quitté l'équipe peut rester dans l'historique sans devoir être supprimée.
 5. Cliquez sur un membre pour ouvrir sa fiche et contrôler ses données.
 
