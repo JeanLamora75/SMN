@@ -1,6 +1,9 @@
 "use client";
 
-import {useState,type FormEvent} from "react";
+import {useRef,useState,type FormEvent} from "react";
+import {useLocale} from "@/i18n/client";
+import OfficeTagConfigurator from "@/app/app/reports/office-tag-configurator";
+import {insertBriefTagAtSelection} from "@/lib/brief-prompt-tag-insertion";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 import {validatePromptModelDraft,type PromptModelDraft,PROMPT_TEXT_LIMIT} from "@/lib/ai-brief-prompt-model";
@@ -16,6 +19,9 @@ function equals(a:PromptModelDraft,b:PromptModelDraft):boolean{
 }
 export default function TemplateEditor({original}:{original:ManagedBriefTemplate[]}){
  const t=useTranslation();
+ const locale=useLocale();
+ const promptRef=useRef<HTMLTextAreaElement|null>(null);
+ const selection=useRef({start:0,end:0});
  const tr=(key:string)=>t(("briefPromptEditor."+key) as Parameters<typeof t>[0]);
  const [templates,setTemplates]=useState(original);
  const [selected,setSelected]=useState("new");
@@ -96,6 +102,21 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
   try{await navigator.clipboard.writeText(draft.promptText);setCopied(true);}
   catch{setFeedback({type:"error",message:tr("copyFailed")});}
  }
+ function insertTag(tag:string){
+  if(locked||busy)return;
+  const textarea=promptRef.current;
+  const range=selection.current;
+  const result=insertBriefTagAtSelection(draft.promptText,tag,range);
+  if(!result){setFeedback({type:"error",message:tr("tagInsertError")});return;}
+  setDraft(x=>({...x,promptText:result.text}));
+  setCopied(false);setFeedback(null);
+  selection.current={start:result.caret,end:result.caret};
+  requestAnimationFrame(()=>{
+   const field=promptRef.current;
+   if(!field)return;
+   field.focus();field.setSelectionRange(result.caret,result.caret);
+  });
+ }
  function submit(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
   if(locked)return;
@@ -151,14 +172,16 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
    </div>
    <div className="d-flex justify-content-between flex-wrap align-items-end gap-2">
     <label className="form-label mb-0" htmlFor="brief-template-prompt">{tr("prompt")}</label>
-    <div className="d-flex gap-2">
+    <div className="d-flex gap-2 flex-wrap">
+     <OfficeTagConfigurator locale={locale} teamId={null} disabled={busy||locked} onInsert={insertTag}/>
      <button type="button" className="btn btn-outline-secondary btn-sm" disabled={!draft.promptText}
       onClick={()=>setPreview(x=>!x)} aria-expanded={preview} aria-controls="brief-template-preview">{tr("preview")}</button>
      <button type="button" className="btn btn-outline-secondary btn-sm" disabled={!draft.promptText}
       onClick={()=>void copy()}>{tr("copy")}</button>
     </div>
    </div>
-   <textarea id="brief-template-prompt" className="form-control smn-brief-prompt-editor" rows={17}
+   <textarea ref={promptRef} id="brief-template-prompt" className="form-control smn-brief-prompt-editor" rows={17}
+    onSelect={e=>{selection.current={start:e.currentTarget.selectionStart,end:e.currentTarget.selectionEnd};}}
     maxLength={PROMPT_TEXT_LIMIT} required value={draft.promptText} disabled={busy||locked}
     spellCheck aria-describedby="brief-template-prompt-hint"
     placeholder={tr("placeholder")} onChange={e=>{setDraft(x=>({...x,promptText:e.target.value}));setCopied(false);}}/>
