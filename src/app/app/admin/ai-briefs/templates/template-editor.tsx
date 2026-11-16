@@ -2,6 +2,7 @@
 import {useRef,useState} from "react";
 import type {ManagedBriefTemplate} from "@/server/ai-briefs/templates";
 import OfficeTagConfigurator from "../../../reports/office-tag-configurator";
+import {insertPromptTag} from "@/lib/ai-brief-tag-insertion";
 
 type Draft={title:string;description:string;promptText:string};
 const blank=():Draft=>({title:"",description:"",promptText:""});
@@ -32,10 +33,9 @@ export default function TemplateEditor({original}:{original:ManagedBriefTemplate
  }
  function insert(tag:string){
   const {start,end}=cursor.current;
-  const left=draft.promptText.slice(0,start);
-  const right=draft.promptText.slice(end);
-  setDraft(old=>({...old,promptText:left+tag+right}));
-  const next=start+tag.length;
+  const result=insertPromptTag(draft.promptText,tag,start,end);
+  setDraft(old=>({...old,promptText:result.text}));
+  const next=result.cursor;
   cursor.current={start:next,end:next};
   requestAnimationFrame(()=>{textarea.current?.focus();textarea.current?.setSelectionRange(next,next);});
  }
