@@ -34,7 +34,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
  const [message,setMessage]=useState("");
  const input=useRef<HTMLTextAreaElement>(null);
  const cursor=useRef({start:0,end:0});
- const resolved=resolveBriefPrompt({promptText:prompt,mode,context,facts,preparedAt,indicators});
+ const resolved=resolveBriefPrompt({promptText:prompt,mode,context,facts,preparedAt,indicators,locale});
  const chosen=historical.filter(x=>selectedHistory.includes(x.type+":"+x.id));
  const historyText=chosen.length?"\n"+t("historyIncluded")+"\n"+chosen.map(x=>
   "- "+x.type+" | "+x.createdAt+" | "+x.origin+" | cycle "+x.cycleId+"\n"+sanitize(x.content)).join("\n"):"";
