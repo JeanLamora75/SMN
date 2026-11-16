@@ -95,9 +95,6 @@ export default function BriefAiSendPanel({archiveId,reviewedText,cycleName,teamN
  async function send(){
   if(!chosen||!preview||!consent||!sameDestination(chosen,preview)||
      preview.preview!==reviewedText||busy.current||answer)return;
-  if(Date.now()>=Date.parse(preview.expiresAt)){
-   invalidate();setFeedback(t("aiSend.expired"));return;
-  }
   busy.current=true;setPhase("sending");setConsent(false);setFeedback("");
   // Reusing the approval is forbidden by the backend even if the network fails.
   const approval=preview.approval;setPreview(null);
