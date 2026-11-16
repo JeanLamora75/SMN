@@ -7,27 +7,44 @@ export type CollectiveBriefField=
 
 export type InitialBriefTemplate={
  id:"cycle-review"|"trends"|"risks-dependencies";
- title:string;description:string;sections:readonly string[];
- questions:readonly string[];instructions:readonly string[];
- data:readonly CollectiveBriefField[];
+ title:string;description:string;promptText:string;
 };
 
+/** Builtin templates are immutable resources. They do not require a database row. */
 export const initialBriefTemplates:readonly InitialBriefTemplate[]=[
  {id:"cycle-review",title:"Bilan du cycle",description:"Synthèse factuelle des résultats et enseignements du cycle",
- sections:["Contexte","Objectifs","Résultats collectifs","Points de vigilance","Questions"],
- questions:["Quels résultats sont étayés par les données disponibles ?","Quels écarts méritent une investigation ?"],
- instructions:["Distinguer faits et interprétations.","Ne tirer aucune conclusion d'une métrique absente."],
- data:["cycle.name","cycle.dates","cycle.status","team.name","product.name","objectives","decisions","scrum.storyPoints.committed","scrum.storyPoints.completed","kanban.throughput"]},
+  promptText:[
+   "Rédige un bilan collectif du cycle {{SPRINT_NAME}} pour l'équipe {{TEAM_NAME}}.",
+   "Période : {{SPRINT_START}} — {{SPRINT_END}}. État : {{SPRINT_STATUS}}.",
+   "Produit : {{PRODUCT_NAME}}.",
+   "",
+   "Analyse les résultats disponibles et leurs éventuels écarts.",
+   "Données et indicateurs collectifs :",
+   "{{ROW:INDICATORS}}",
+   "",
+   "Quels résultats sont étayés par les données disponibles ?",
+   "Quels écarts méritent une investigation ?",
+   "Distingue les faits des interprétations et ne conclus jamais à partir d'une métrique absente."
+  ].join("\n")},
  {id:"trends",title:"Tendances",description:"Évolution de la performance collective sans évaluation individuelle",
- sections:["Périmètre","Métriques disponibles","Tendances observables","Questions"],
- questions:["Quels changements sont mesurables ?","Quelles informations manquent pour interpréter les évolutions ?"],
- instructions:["Ne pas extrapoler les valeurs manquantes.","Éviter les comparaisons individuelles."],
- data:["cycle.name","cycle.dates","team.name","scrum.storyPoints.completed","scrum.capacity.planned","kanban.throughput","kanban.cycleTime","kanban.leadTime"]},
+  promptText:[
+   "Analyse les tendances collectives pour l'équipe {{TEAM_NAME}}, cycle {{SPRINT_NAME}}.",
+   "Dates : {{SPRINT_START}} — {{SPRINT_END}}.",
+   "Métriques disponibles :",
+   "{{ROW:INDICATORS}}",
+   "Quels changements sont mesurables et quelles informations manquent ?",
+   "Ne déduis aucune tendance temporelle à partir d'une seule valeur.",
+   "N'extrapole aucune valeur manquante et évite les comparaisons individuelles."
+  ].join("\n")},
  {id:"risks-dependencies",title:"Risques et dépendances",description:"Analyse des risques collectifs et dépendances du cycle",
- sections:["Contexte","Risques","Dépendances","Décisions","Questions"],
- questions:["Quels risques collectifs nécessitent un suivi ?","Quelles dépendances pourraient affecter les objectifs ?"],
- instructions:["Utiliser uniquement les risques et dépendances effectivement consignés.","Ne pas divulguer d'identité ou de situation individuelle."],
- data:["cycle.name","cycle.dates","team.name","objectives","risks","dependencies","decisions"]}
+  promptText:[
+   "Prépare une analyse des risques et dépendances du cycle {{SPRINT_NAME}} de l'équipe {{TEAM_NAME}}.",
+   "Contexte : {{PRODUCT_NAME}}, {{SPRINT_START}} — {{SPRINT_END}}.",
+   "Identifie explicitement les risques, dépendances et décisions seulement s'ils sont renseignés dans le texte fourni.",
+   "Quels risques collectifs nécessitent un suivi ?",
+   "Quelles dépendances pourraient affecter les objectifs ?",
+   "Ne divulgue pas d'identité ni de situation individuelle ; n'invente aucune information absente."
+  ].join("\n")}
 ] as const;
 
 const common=new Set<CollectiveBriefField>(["cycle.name","cycle.dates","cycle.status","team.name","product.name","objectives","risks","dependencies","decisions"]);
