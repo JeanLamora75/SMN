@@ -113,6 +113,9 @@ export function renderBriefPrompt(input:PromptRenderInput):PromptRenderResult{
   const value=input.scalars[body];
   return value?.value!==null&&value?.value!==undefined&&value.value.trim()?describe(value,input.locale):diagnostic(tag,"missing");
  });
+ const unmatched=input.prompt.replace(TAG,"");
+ if(unmatched.includes("{{")||unmatched.includes("}}"))
+  diagnostics.push({tag:"{{…}}",reason:"invalid",message:m.invalid});
  if(output.length>MAX_OUTPUT)return{text:input.prompt,diagnostics:[...diagnostics,{tag:"",reason:"limit",message:m.limit}],complete:false,usedTags};
  return{text:output,diagnostics,complete:diagnostics.length===0,usedTags};
 }
