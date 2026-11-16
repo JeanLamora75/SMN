@@ -31,7 +31,7 @@ test("Cockpit Sprints: conserve les liens, acces et messages metier",()=>{
  const source=ui();
  for(const fragment of [
   'useDeferredValue(search)',
-  'canManage&&<div className="smn-sprints-hero-actions"',
+  '<div className="smn-sprints-hero-actions"',
   'href="/app/admin/sprints/historical"',
   'href={generateHref}',
   'sprintDetailPath(item.id)',
