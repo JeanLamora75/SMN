@@ -11,7 +11,7 @@ describe("Refonte UX du panneau latéral — premier lot",()=>{
    const menu=privateNavigation("scrum",role).flatMap(g=>g.entries);
    assert.deepEqual(menu.slice(0,5).map(e=>e.id),
     ["dashboard","members","cycles","tickets","centralCalendar"]);
-   assert.deepEqual(menu.slice(0,4).map(e=>e.href),
+   assert.deepEqual(menu.slice(0,5).map(e=>e.href),
     ["/app",role==="admin"?"/app/admin/members":null,"/app/admin/sprints","/app/tickets","/app/team-calendar"]);
   }
  });
