@@ -9,7 +9,7 @@ import {buildHelpIndexes} from "../scripts/build-help-index.mjs";
 
 const root=path.resolve(".");
 const base=" .agents/skills/bmad-agent-camille".trim();
-const read=(p)=>readFile(path.join(root,p),"utf8");
+const read=async(p)=>(await readFile(path.join(root,p),"utf8")).replace(/\r\n/g,"\n");
 
 function menuCodes(toml){
  return [...toml.matchAll(/^\[\[agent\.menu\]\]\s*\ncode = "([^"]+)"/gm)].map(m=>m[1]);
