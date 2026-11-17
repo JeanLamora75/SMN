@@ -14,6 +14,7 @@ import {aiBriefText,type AiBriefKey} from "@/lib/ai-brief-messages";
 import {localizedNativeBrief} from "@/lib/ai-brief-native-locales";
 import {formatBriefCycleDates} from "@/lib/ai-brief-date";
 import {formatBriefNumericValue} from "@/lib/ai-brief-number";
+import "./brief-cockpit.css";
 
 export const dynamic="force-dynamic";
 
@@ -95,58 +96,90 @@ export default async function PrepareAiBrief({searchParams}:{
  const localizedSource=(source:string)=>({current:locale==="en"?"Current data":"Données courantes",
   "current-saved-kpi":locale==="en"?"Saved capacity":"Capacité enregistrée",
   "closure-snapshot":locale==="en"?"Closure snapshot":"Instantané de clôture"} as Record<string,string>)[source]??source;
- return <main className="container-fluid px-3 px-lg-4 py-4">
-  <div className="d-flex flex-wrap justify-content-between gap-2"><Link href={back}>{t("back")}</Link><Link href="/app/ai-briefs/archives">{t("library")}</Link></div>
-  <section className="smn-panel rounded-4 p-4 my-3">
-   <h1 className="h4">{t("prepareTitle")}</h1>
-   <p className="text-secondary">{t("prepareIntro")}</p>
-   {provisional&&<div className="alert alert-warning" role="status">
-    {t("provisional")}
-   </div>}
-   <dl className="row mb-3">
-    <dt className="col-sm-3">{t("cycle")}</dt><dd className="col-sm-9">{context.name}</dd>
-    <dt className="col-sm-3">{t("team")}</dt><dd className="col-sm-9">{context.team}</dd>
-    <dt className="col-sm-3">{t("product")}</dt><dd className="col-sm-9">{context.product??t("unknown")}</dd>
-    <dt className="col-sm-3">{t("agileMode")}</dt><dd className="col-sm-9">{scrum?"Scrum":"Kanban"}</dd>
-    <dt className="col-sm-3">{t("dates")}</dt><dd className="col-sm-9">{formatBriefCycleDates(context.startAt,context.endAt,context.timeZone,locale)}</dd>
-    <dt className="col-sm-3">{t("status")}</dt><dd className="col-sm-9">{localizedStatus}</dd>
-    <dt className="col-sm-3">{t("preparedAt")}</dt><dd className="col-sm-9"><time dateTime={preparedAt}>{new Intl.DateTimeFormat(locale==="en"?"en-GB":"fr-FR",{dateStyle:"long",timeStyle:"medium",timeZone:context.timeZone}).format(new Date(preparedAt))} ({context.timeZone})</time></dd>
-   </dl>
-   <section aria-labelledby="brief-templates" className="border-top pt-3 mt-3">
-    <h2 id="brief-templates" className="h5">{t("models")}</h2>
-    <Link className="btn btn-outline-secondary btn-sm mb-3" href="/app/admin/ai-briefs/templates">{t("manageModels")}</Link>
-    <p className="text-secondary small">{t("selectModel")}</p>
-    <div className="d-flex flex-wrap gap-2 mb-3">
-     {available.map(item=><Link key={item.id}
-      className={item.id===selected.id?"btn btn-primary btn-sm":"btn btn-outline-primary btn-sm"}
-      aria-current={item.id===selected.id?"page":undefined}
-      href={"/app/admin/ai-briefs/prepare?"+new URLSearchParams({mode:mode!,id:context.id,template:item.id}).toString()}>
-      {localizedNativeBrief(item,locale).title}</Link>)}
+ return <main className="smn-page smn-team-page smn-brief-cockpit container-fluid px-3 px-lg-4 py-4">
+  <header className="smn-brief-hero mb-3">
+   <div className="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+    <div>
+     <p className="smn-brief-eyebrow mb-2">{scrum?"Scrum":"Kanban"} · {context.team}</p>
+     <h1 className="mb-2">{t("prepareTitle")}</h1>
+     <p className="smn-brief-subtitle mb-0">{t("prepareIntro")}</p>
     </div>
-    <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
-     <h3 className="h6 m-0">{displayed.title}</h3>
+    <nav className="d-flex flex-wrap gap-2" aria-label={locale==="en"?"AI brief navigation":"Navigation des briefs IA"}>
+     <Link className="btn btn-sm" href={back}>{t("back")}</Link>
+     <Link className="btn btn-sm" href="/app/ai-briefs/archives">{t("library")}</Link>
+    </nav>
+   </div>
+  </header>
+  <section className="smn-brief-card mb-3" aria-labelledby="brief-context-title">
+   <div className="smn-brief-card-header mb-3">
+    <div><h2 id="brief-context-title">{locale==="en"?"Cycle context":"Contexte du cycle"}</h2>
+     <p>{locale==="en"?"Information loaded from the selected cycle":"Informations reprises automatiquement du cycle sélectionné"}</p>
+    </div>
+    <span className={"badge "+(provisional?"text-bg-warning":"text-bg-success")}>{localizedStatus}</span>
+   </div>
+   <div className="smn-brief-context">
+    <div className="smn-brief-context-item"><strong>{t("cycle")}</strong><span>{context.name}</span></div>
+    <div className="smn-brief-context-item"><strong>{t("team")} · {t("product")}</strong><span>{context.team} · {context.product??t("unknown")}</span></div>
+    <div className="smn-brief-context-item"><strong>{t("dates")}</strong><span>{formatBriefCycleDates(context.startAt,context.endAt,context.timeZone,locale)}</span></div>
+   </div>
+   {provisional&&<div className="alert alert-warning smn-brief-context-banner mt-3 mb-0 py-2" role="status">{t("provisional")}</div>}
+  </section>
+  <section className="smn-brief-card mb-3" aria-labelledby="brief-templates">
+   <div className="smn-brief-card-header">
+    <div><h2 id="brief-templates">{t("models")}</h2>
+     <p>{t("selectModel")}</p></div>
+    <Link className="btn btn-outline-secondary btn-sm" href="/app/admin/ai-briefs/templates">{t("manageModels")}</Link>
+   </div>
+   <nav className="smn-brief-template-list" aria-label={t("models")}>
+    {available.map(item=><Link key={item.id}
+     className={item.id===selected.id?"btn btn-primary":"btn btn-outline-primary"}
+     aria-current={item.id===selected.id?"page":undefined}
+     href={"/app/admin/ai-briefs/prepare?"+new URLSearchParams({mode:mode!,id:context.id,template:item.id}).toString()}>
+     {localizedNativeBrief(item,locale).title}</Link>)}
+   </nav>
+   <div className="smn-brief-template-description">
+    <div className="d-flex align-items-center flex-wrap gap-2">
+     <strong>{displayed.title}</strong>
      <span className="badge text-bg-light">{selected.builtin?t("nativeModel"):t("customModel")} · {t("version")} {selected.revision}</span>
     </div>
-    <p className="text-secondary">{displayed.description}</p>
-    <p className="small text-secondary">{t("modelDescription")}</p>
-    <div className="border rounded-3 p-3 mt-3">
-     <h3 className="h6">{t("provenanceTitle")}</h3>
+    <p className="small text-secondary mb-0 mt-1">{displayed.description}</p>
+   </div>
+  </section>
+  <section aria-label={t("provenanceTitle")} className="mb-3">
+   <details className="smn-brief-details">
+    <summary>
+     <span>{t("provenanceTitle")} <span className="badge text-bg-secondary ms-2">{projected.length}</span></span>
+     <span className="smn-brief-small-muted">{locale==="en"?"Show details":"Afficher le détail"}</span>
+    </summary>
+    <div className="smn-brief-details-body">
      {(factsRead.failed||indicatorsRead.failed)&&<p role="alert" className="alert alert-warning">
       {locale==="en"?"Some collective data could not be loaded. Values are not replaced with estimates.":
        "Certaines données collectives n’ont pas pu être chargées. Aucune estimation ne les remplace."}
      </p>}
-     <p className="small text-secondary">{t("provenanceHelp")}</p>
-     <div className="table-responsive"><table className="table table-sm">
-      <thead><tr><th>{t("indicator")}</th><th>{t("value")}</th><th>{t("unit")}</th><th>{t("quality")}</th><th>{t("source")}</th></tr></thead>
-      <tbody>{projected.map(item=><tr key={item.key}><th scope="row">{item.label}</th><td>{formatBriefNumericValue(item.value,locale)??t("unknown")}</td><td>{item.unit??"—"}</td><td>{localizedQuality(item.quality)}</td><td>{localizedSource(item.source)}{item.snapshotVersion!==null?" · V"+item.snapshotVersion:""}</td></tr>)}</tbody>
-     </table></div>
+     <p className="smn-brief-small-muted">{t("provenanceHelp")}</p>
+     <div className="table-responsive">
+      <table className="table smn-brief-data-table">
+       <thead><tr><th scope="col">{t("indicator")}</th><th scope="col" className="smn-brief-number">{t("value")}</th>
+        <th scope="col">{t("unit")}</th><th scope="col">{t("quality")}</th><th scope="col">{t("source")}</th></tr></thead>
+       <tbody>{projected.map(item=><tr key={item.key}>
+        <th scope="row">{item.label}</th>
+        <td className="smn-brief-number">{formatBriefNumericValue(item.value,locale)??t("unknown")}</td>
+        <td>{item.unit??"—"}</td><td>{localizedQuality(item.quality)}</td>
+        <td>{localizedSource(item.source)}{item.snapshotVersion!==null?" · V"+item.snapshotVersion:""}</td>
+       </tr>)}</tbody>
+      </table>
+     </div>
     </div>
-    <BriefOverrides key={selected.id+":"+selected.revision} template={displayed} mode={scrum?"scrum":"kanban"} context={context} facts={facts} preparedAt={preparedAt} historical={historical} indicators={indicators}/>
-    <p className="small text-secondary">{t("personalInfoExcluded")}</p>
-   </section>
-   <HumanAnalysisForm mode={scrum?"scrum":"kanban"} cycleId={context.id}/>
-   <p className="small text-secondary">{t("noAutoArchive")}</p>
-   <Link className="btn btn-outline-secondary" href={back}>{t("close")}</Link>
+   </details>
   </section>
+  <BriefOverrides key={selected.id+":"+selected.revision} template={displayed} mode={scrum?"scrum":"kanban"}
+   context={context} facts={facts} preparedAt={preparedAt} historical={historical} indicators={indicators}/>
+  <section className="smn-brief-card mt-3" aria-label={locale==="en"?"Additional analysis":"Analyse complémentaire"}>
+   <HumanAnalysisForm mode={scrum?"scrum":"kanban"} cycleId={context.id}/>
+  </section>
+  <footer className="d-flex justify-content-between align-items-center gap-2 flex-wrap mt-3">
+   <p className="smn-brief-small-muted mb-0">{t("personalInfoExcluded")} {t("noAutoArchive")}</p>
+   <Link className="btn btn-outline-secondary" href={back}>{t("close")}</Link>
+  </footer>
  </main>;
 }
