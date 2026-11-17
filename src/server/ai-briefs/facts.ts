@@ -2,6 +2,7 @@ import type {Client} from "pg";
 import {composeStandardReport} from "@/server/reports/standard-composition";
 import {composeKanbanReport} from "@/server/kanban/report-preparation";
 import type {BriefMode} from "@/lib/ai-brief-templates";
+import {readSavedCapacityKpis} from "@/server/sprints/sprint-capacity-kpis";
 
 export type BriefFact={key:string;label:string;value:string|null;unit:string|null;source:string;quality:"recorded"|"calculated"|"provisional"|"unavailable";snapshotVersion:number|null};
 const fact=(key:string,label:string,raw:unknown,unit:string|null,source:string,version:number|null,provisional:boolean):BriefFact=>{
@@ -20,6 +21,9 @@ export async function readBriefFacts(db:Client,mode:BriefMode,cycleId:string):Pr
   const report=await composeStandardReport(db,cycleId);
   if(!report)return {};
   const s=report.sprint,p=report.projection;
+  // A finished sprint is not yet closed: use its explicitly saved current KPI.
+  // Closed sprints must retain their immutable closure snapshot values.
+  const savedCapacity=s.status==="closed"?null:await readSavedCapacityKpis(db,cycleId);
   const source=report.source,version=report.snapshotVersion,provisional=report.provisional;
   put("cycle.name","Sprint",s.name,null,source,version,provisional);
   put("cycle.dates","Dates",s.startAt+" — "+s.endAt,null,source,version,provisional);
@@ -28,7 +32,9 @@ export async function readBriefFacts(db:Client,mode:BriefMode,cycleId:string):Pr
   put("product.name","Produit",s.product,null,source,version,provisional);
   put("scrum.storyPoints.committed","SP engagés",p.scrum.storyPoints.committed.value,"SP",source,version,provisional);
   put("scrum.storyPoints.completed","SP terminés",p.scrum.storyPoints.completed.value,"SP",source,version,provisional);
-  put("scrum.capacity.planned","Capacité prévue",p.scrum.capacity.planned.value,"JH",source,version,provisional);
+  put("scrum.capacity.planned","Capacité prévue",p.scrum.capacity.planned.value??savedCapacity?.planned_jh,"JH",
+   p.scrum.capacity.planned.value!==null?source:savedCapacity?.planned_jh!==null&&savedCapacity?.planned_jh!==undefined?"current-saved-kpi":source,
+   version,provisional);
   const section=(key:string)=>report.sections.find(x=>x.key===key);
   put("objectives","Objectifs",report.goals.length?report.goals.map(x=>x.title).join(" ; "):null,null,source,version,provisional);
   for(const [key,sectionName] of [["risks","attention"],["dependencies","attention"],["decisions","decisions"]] as const){
