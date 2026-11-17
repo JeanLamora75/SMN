@@ -145,6 +145,10 @@ export default async function PrepareAiBrief({searchParams}:{
     <p className="small text-secondary mb-0 mt-1">{displayed.description}</p>
    </div>
   </section>
+  {(factsRead.failed||indicatorsRead.failed)&&<p role="alert" className="alert alert-warning mb-3">
+   {locale==="en"?"Some collective data could not be loaded. Open the indicator details to review the available values.":
+    "Certaines données collectives n’ont pas pu être chargées. Consultez le détail des indicateurs pour vérifier les valeurs disponibles."}
+  </p>}
   <section aria-label={t("provenanceTitle")} className="mb-3">
    <details className="smn-brief-details">
     <summary>
@@ -174,8 +178,15 @@ export default async function PrepareAiBrief({searchParams}:{
   </section>
   <BriefOverrides key={selected.id+":"+selected.revision} template={displayed} mode={scrum?"scrum":"kanban"}
    context={context} facts={facts} preparedAt={preparedAt} historical={historical} indicators={indicators}/>
-  <section className="smn-brief-card mt-3" aria-label={locale==="en"?"Additional analysis":"Analyse complémentaire"}>
-   <HumanAnalysisForm mode={scrum?"scrum":"kanban"} cycleId={context.id}/>
+  <section className="mt-3" aria-label={locale==="en"?"Additional analysis":"Analyse complémentaire"}>
+   <details className="smn-brief-details">
+    <summary>{locale==="en"?"Additional human analysis":"Analyse humaine complémentaire"}
+     <span className="smn-brief-small-muted">{locale==="en"?"Optional":"Facultatif"}</span>
+    </summary>
+    <div className="smn-brief-details-body">
+     <HumanAnalysisForm mode={scrum?"scrum":"kanban"} cycleId={context.id}/>
+    </div>
+   </details>
   </section>
   <footer className="d-flex justify-content-between align-items-center gap-2 flex-wrap mt-3">
    <p className="smn-brief-small-muted mb-0">{t("personalInfoExcluded")} {t("noAutoArchive")}</p>
