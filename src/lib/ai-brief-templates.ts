@@ -2,7 +2,7 @@ export type BriefMode="scrum"|"kanban";
 export type CollectiveBriefField=
  |"cycle.name"|"cycle.dates"|"cycle.status"|"team.name"|"product.name"
  |"objectives"|"risks"|"dependencies"|"decisions"
- |"scrum.storyPoints.committed"|"scrum.storyPoints.completed"|"scrum.capacity.planned"
+ |"scrum.capacity.planned"
  |"kanban.started"|"kanban.wip"|"kanban.throughput"|"kanban.cycleTime"|"kanban.leadTime"|"kanban.capacity.planned";
 
 export type InitialBriefTemplate={
@@ -48,7 +48,7 @@ export const initialBriefTemplates:readonly InitialBriefTemplate[]=[
 ] as const;
 
 const common=new Set<CollectiveBriefField>(["cycle.name","cycle.dates","cycle.status","team.name","product.name","objectives","risks","dependencies","decisions"]);
-const scrum=new Set<CollectiveBriefField>(["scrum.storyPoints.committed","scrum.storyPoints.completed","scrum.capacity.planned"]);
+const scrum=new Set<CollectiveBriefField>(["scrum.capacity.planned"]);
 const kanban=new Set<CollectiveBriefField>(["kanban.started","kanban.wip","kanban.throughput","kanban.cycleTime","kanban.leadTime","kanban.capacity.planned"]);
 
 export function allowedBriefFields(mode:BriefMode,fields:readonly string[]):CollectiveBriefField[]{
