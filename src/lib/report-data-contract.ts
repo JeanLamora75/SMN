@@ -7,7 +7,7 @@ export type ReportCycle={id:string;teamId:string;name:string;startAt:string;endA
 export type MeasuredValue={value:number|null;unit:"SP"|"JH"|"tickets"|"items"|"days"|"hours";sourceId:string|null};
 export type ScrumReportProjection={
  mode:"scrum";cycle:ReportCycle;provenance:ReportProvenance;
- scrum:{storyPoints:{committed:MeasuredValue;completed:MeasuredValue};capacity:{planned:MeasuredValue;actual:MeasuredValue};objectives:ReadonlyArray<{id:string;title:string;evaluation:string}>};
+ scrum:{legacyStoryPoints?:{committed:MeasuredValue;completed:MeasuredValue};capacity:{planned:MeasuredValue;actual:MeasuredValue};objectives:ReadonlyArray<{id:string;title:string;evaluation:string}>};
  kanban?:never;
 };
 export type KanbanReportProjection={
@@ -26,11 +26,11 @@ export function measuredFromStorage(value:unknown,unit:MeasuredValue["unit"],sou
  return typeof value==="string"&&/^[0-9]+([.][0-9]+)?$/.test(value)?measured(Number(value),unit,sourceId):measured(null,unit,sourceId);
 }
 export function projectScrum(input:{
- cycle:ReportCycle;provenance:ReportProvenance;committedSp:unknown;completedSp:unknown;
+ cycle:ReportCycle;provenance:ReportProvenance;legacyStoryPoints?:{committed:unknown;completed:unknown};
  plannedJh:unknown;actualJh:unknown;objectives:ScrumReportProjection["scrum"]["objectives"];
 }):ScrumReportProjection{
  return {mode:"scrum",cycle:input.cycle,provenance:input.provenance,scrum:{
- storyPoints:{committed:measuredFromStorage(input.committedSp,"SP"),completed:measuredFromStorage(input.completedSp,"SP")},
+ ...(input.legacyStoryPoints?{legacyStoryPoints:{committed:measuredFromStorage(input.legacyStoryPoints.committed,"SP"),completed:measuredFromStorage(input.legacyStoryPoints.completed,"SP")}}:{}),
  capacity:{planned:measuredFromStorage(input.plannedJh,"JH"),actual:measuredFromStorage(input.actualJh,"JH")},
  objectives:input.objectives}};
 }
