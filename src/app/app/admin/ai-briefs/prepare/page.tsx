@@ -13,6 +13,7 @@ import {requestLocale} from "@/i18n/locale.server";
 import {aiBriefText,type AiBriefKey} from "@/lib/ai-brief-messages";
 import {localizedNativeBrief} from "@/lib/ai-brief-native-locales";
 import {formatBriefCycleDates} from "@/lib/ai-brief-date";
+import {formatBriefNumericValue} from "@/lib/ai-brief-number";
 
 export const dynamic="force-dynamic";
 
@@ -137,7 +138,7 @@ export default async function PrepareAiBrief({searchParams}:{
      <p className="small text-secondary">{t("provenanceHelp")}</p>
      <div className="table-responsive"><table className="table table-sm">
       <thead><tr><th>{t("indicator")}</th><th>{t("value")}</th><th>{t("unit")}</th><th>{t("quality")}</th><th>{t("source")}</th></tr></thead>
-      <tbody>{projected.map(item=><tr key={item.key}><th scope="row">{item.label}</th><td>{item.value??t("unknown")}</td><td>{item.unit??"—"}</td><td>{localizedQuality(item.quality)}</td><td>{localizedSource(item.source)}{item.snapshotVersion!==null?" · V"+item.snapshotVersion:""}</td></tr>)}</tbody>
+      <tbody>{projected.map(item=><tr key={item.key}><th scope="row">{item.label}</th><td>{formatBriefNumericValue(item.value,locale)??t("unknown")}</td><td>{item.unit??"—"}</td><td>{localizedQuality(item.quality)}</td><td>{localizedSource(item.source)}{item.snapshotVersion!==null?" · V"+item.snapshotVersion:""}</td></tr>)}</tbody>
      </table></div>
     </div>
     <BriefOverrides key={selected.id+":"+selected.revision} template={displayed} mode={scrum?"scrum":"kanban"} context={context} facts={facts} preparedAt={preparedAt} historical={historical} indicators={indicators}/>
