@@ -12,6 +12,8 @@ import {aiBriefText,type AiBriefKey} from "@/lib/ai-brief-messages";
 import {localizedNativeBrief} from "@/lib/ai-brief-native-locales";
 import {useTranslation} from "@/i18n/client";
 import BriefAiSendPanel from "./brief-ai-send-panel";
+import {initialBriefTemplate} from "@/lib/ai-brief-templates";
+import {formatBriefCycleDates,formatBriefDateTime} from "@/lib/ai-brief-date";
 
 type Historic={id:string;type:"human"|"ai";origin:string;createdAt:string;content:string;cycleId:string};
 type Cycle={id:string;teamId:string;name:string;team:string;product:string|null;status:string;startAt:string;endAt:string;timeZone:string};
@@ -47,8 +49,8 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
   t("txtHeader"),
   t("team")+" : "+context.team,t("product")+" : "+(context.product??t("unknown")),
   "Mode : "+mode,t("cycle")+" : "+context.name,"Identifiant du cycle : "+context.id,
-  t("dates")+" : "+context.startAt+" — "+context.endAt+" ("+context.timeZone+")",
-  t("status")+" : "+context.status,t("preparedAt")+" : "+preparedAt,
+  t("dates")+" : "+formatBriefCycleDates(context.startAt,context.endAt,context.timeZone,locale),
+  t("status")+" : "+context.status,t("preparedAt")+" : "+formatBriefDateTime(preparedAt,context.timeZone,locale),
   t("templateName")+" : "+base.title+" ("+t("revision")+" "+base.revision+")",
   context.status==="closed"?"":t("contextWarning"),
   "",resolved.text,observationsText,historyText,
@@ -65,6 +67,14 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
   return json.templates.find(x=>x.id===base.id);
  }
  async function checkRevision(){
+  // Built-in templates are immutable code resources (revision 0), not database rows.
+  // Never require the custom-template API just to preview one of them.
+  if(base.builtin){
+   if(base.revision!==0||!initialBriefTemplate(base.id)){
+    setConflict(true);setRevisionChecked(false);setMessage(t("changed"));return false;
+   }
+   setRevisionChecked(true);return true;
+  }
   try{
    const last=await latest();
    if(!last||!last.active||last.revision!==base.revision){
@@ -82,9 +92,11 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
  }
  async function loadLatest(){
   try{
-   const last=await latest();
-   if(!last||!last.active)throw Error(t("unavailable"));
-   const shown=localizedNativeBrief(last,locale);
+   const shown=base.builtin?localizedNativeBrief(template,locale):await (async()=>{
+    const last=await latest();
+    if(!last||!last.active)throw Error(t("unavailable"));
+    return localizedNativeBrief(last,locale);
+   })();
    setBase(shown);setPrompt(shown.promptText);setObservations("");setSelectedHistory([]);
    invalidate();setConflict(false);setActiveView("edit");setMessage(t("reloaded"));
   }catch(e){setMessage(e instanceof Error?e.message:"Rechargement impossible.");}
