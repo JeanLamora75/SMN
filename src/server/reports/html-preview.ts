@@ -24,7 +24,10 @@ export async function composeHtmlReportPreview(db:Client,sprintId:string,reportI
  const dynamicIndicators=await readReportIndicatorProjection(db,report.sprint.teamId,"scrum",sprintId,reportIndicatorSelection);
  const v33=(await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton'")).rows[0]?.schema_version===33;
  const projection=report.projection.scrum;
- const metrics=v33?[]:projectSelectedMetrics({
+ // A v33 closure created before the cutover keeps its frozen legacy values readable.
+ // Active v33 cycles never project the retired SP metrics.
+ const legacyArchived=report.sprint.status==="closed"&&projection.legacyStoryPoints!==undefined;
+ const metrics=v33&&!legacyArchived?[]:projectSelectedMetrics({
  committed:projection.legacyStoryPoints?.committed.value??null,
  completed:projection.legacyStoryPoints?.completed.value??null,
  planned:projection.capacity.planned.value,
