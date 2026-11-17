@@ -10,7 +10,6 @@ import BackupsAdmin from "../../backups/backups-admin";
 import SettingsTabs from "../settings-tabs";
 import SettingsPageShell from "../settings-page-shell";
 import UpdatesAdmin from "./updates-admin";
-import BriefMigrationAdmin from "./brief-migration-admin";
 
 export const dynamic="force-dynamic";
 export default async function MaintenanceSettingsPage(){
@@ -26,8 +25,7 @@ export default async function MaintenanceSettingsPage(){
 
  return <SettingsPageShell title={translate(locale,"settingsCatalog.items.maintenance.title")} description={translate(locale,"settingsCatalog.items.maintenance.description")} eyebrow={translate(locale,"settingsCatalog.navigation.adminEyebrow")}>
   <SettingsTabs label={translate(locale,"settingsCatalog.items.maintenance.title")} sections={[
-   ...(updates?[{id:"updates",label:translate(locale,"offlineUpdates.title"),content:<UpdatesAdmin/>},
-    {id:"briefMigration",label:locale==="en"?"AI briefs migration":"Migration des briefs IA",content:<BriefMigrationAdmin/>}]:[]),
+   ...(updates?[{id:"updates",label:translate(locale,"offlineUpdates.title"),content:<UpdatesAdmin/>}]:[]),
    ...(backups?[{id:"backups",label:translate(locale,"settingsCatalog.items.backups.title"),content:<BackupsAdmin/>}]:[]),
    ...(audit?[{id:"audit",label:translate(locale,"settingsCatalog.items.audit.title"),content:<AuditJournalView entries={entries} locale={locale}/>}]:[])
   ]}/>
