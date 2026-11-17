@@ -12,6 +12,7 @@ import {readBriefIndicatorValues} from "@/server/ai-briefs/indicators";
 import {requestLocale} from "@/i18n/locale.server";
 import {aiBriefText,type AiBriefKey} from "@/lib/ai-brief-messages";
 import {localizedNativeBrief} from "@/lib/ai-brief-native-locales";
+import {formatBriefCycleDates} from "@/lib/ai-brief-date";
 
 export const dynamic="force-dynamic";
 
@@ -67,8 +68,12 @@ export default async function PrepareAiBrief({searchParams}:{
  const selected=available.find(t=>t.id===template)??available[0];
  const displayed=localizedNativeBrief(selected,locale);
  const facts=await withAuthDb(db=>readBriefFacts(db,scrum?"scrum":"kanban",context.id)).catch(()=>({}));
- const projected=Object.values(facts).filter(item=>item.unit!==null);
  const indicators=await withAuthDb(db=>readBriefIndicatorValues(db,context.teamId,scrum?"scrum":"kanban",context.id)).catch(()=>[]);
+ const projected=[...Object.values(facts).filter(item=>item.unit!==null),
+  ...indicators.filter(item=>item.available&&item.value!==null).map(item=>({
+   key:"indicator."+item.tag,label:item.tag,value:item.value,unit:item.unit,
+   source:item.source,quality:"recorded" as const,snapshotVersion:null
+  }))];
  const historical=await withAuthDb(async db=>{
   const teams=await db.query<{id:string}>("SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode) IN ('scrum','kanban')");
   return teams.rows.length===1?readAnalysisJournal(db,teams.rows[0].id,{}):[];
@@ -84,12 +89,11 @@ export default async function PrepareAiBrief({searchParams}:{
     {t("provisional")}
    </div>}
    <dl className="row mb-3">
-    <dt className="col-sm-3">{t("identifier")}</dt><dd className="col-sm-9">{context.id}</dd>
     <dt className="col-sm-3">{t("cycle")}</dt><dd className="col-sm-9">{context.name}</dd>
     <dt className="col-sm-3">{t("team")}</dt><dd className="col-sm-9">{context.team}</dd>
     <dt className="col-sm-3">{t("product")}</dt><dd className="col-sm-9">{context.product??t("unknown")}</dd>
     <dt className="col-sm-3">{t("agileMode")}</dt><dd className="col-sm-9">{scrum?"Scrum":"Kanban"}</dd>
-    <dt className="col-sm-3">{t("dates")}</dt><dd className="col-sm-9">{context.startAt} — {context.endAt} ({context.timeZone})</dd>
+    <dt className="col-sm-3">{t("dates")}</dt><dd className="col-sm-9">{formatBriefCycleDates(context.startAt,context.endAt,context.timeZone,locale)}</dd>
     <dt className="col-sm-3">{t("status")}</dt><dd className="col-sm-9">{context.status}</dd>
     <dt className="col-sm-3">{t("preparedAt")}</dt><dd className="col-sm-9"><time dateTime={preparedAt}>{new Intl.DateTimeFormat(locale==="en"?"en-GB":"fr-FR",{dateStyle:"long",timeStyle:"medium",timeZone:context.timeZone}).format(new Date(preparedAt))} ({context.timeZone})</time></dd>
    </dl>
