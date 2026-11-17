@@ -13,6 +13,7 @@ export async function readScrumReportProjection(db:Client,input:{
  const schema=present.rows[0];
  let committed:unknown=null,completed:unknown=null,planned:unknown=null,actual:unknown=null;
  let version:number|null=null,capturedAt:string|null=null;
+ let legacyHistoricalSnapshot=false;
  if(input.status==="closed"){
   if(schema?.closed){
    const r=await db.query<{version:number;closedAt:string;snapshot:Record<string,unknown>}>(`
@@ -22,7 +23,10 @@ export async function readScrumReportProjection(db:Client,input:{
    if(snap){version=r.rows[0].version;capturedAt=r.rows[0].closedAt;
     const sp=snap.storyPoints as Record<string,unknown>|null|undefined;
     const cap=snap.capacity as Record<string,unknown>|null|undefined;
-    committed=sp?.initial_sp;completed=sp?.done_sp;planned=cap?.initial_jh;actual=cap?.actual_jh;
+    // Only pre-v33 closures may carry legacy Story Points: never manufacture them for v33 snapshots.
+    legacyHistoricalSnapshot=!Array.isArray(snap.indicatorsV33);
+    if(!v33||legacyHistoricalSnapshot){committed=sp?.initial_sp;completed=sp?.done_sp;}
+    planned=cap?.initial_jh;actual=cap?.actual_jh;
    }
   }
  }else{
@@ -34,5 +38,6 @@ export async function readScrumReportProjection(db:Client,input:{
  }
  return projectScrum({cycle:input.cycle,provenance:{
   source:input.status==="closed"?"closure-snapshot":"current",snapshotVersion:version,capturedAt
- },committedSp:committed,completedSp:completed,plannedJh:planned,actualJh:actual,objectives:input.objectives});
+ },...(!v33||legacyHistoricalSnapshot?{legacyStoryPoints:{committed,completed}}:{}),
+ plannedJh:planned,actualJh:actual,objectives:input.objectives});
 }
