@@ -2,6 +2,7 @@ import {officeRowDefinitions,officeScalarDefinitions} from "@/app/app/reports/of
 import type {BriefFact} from "@/server/ai-briefs/facts";
 import {allowedBriefFields,type BriefMode} from "@/lib/ai-brief-templates";
 import {aiBriefText,type AiBriefKey} from "@/lib/ai-brief-messages";
+import {formatBriefNumericValue} from "@/lib/ai-brief-number";
 
 export type BriefTagDiagnostic={tag:string;reason:string};
 export type ResolveBriefInput={
@@ -38,7 +39,7 @@ export function resolveBriefPrompt(input:ResolveBriefInput):ResolvedBrief{
    const item=indicators.get(tag.slice("INDICATOR_".length));
    if(!item||!item.available||item.value===null)
     return fail(tag,tr("diagIndicator")+" : "+(item?.reason??tr("diagIndicatorMissing")));
-   return safe(item.value)+(item.unit?" "+safe(item.unit):"")+" [source: "+safe(item.source)+"]";
+   return safe(formatBriefNumericValue(item.value,input.locale??"fr"))+(item.unit?" "+safe(item.unit):"")+" [source: "+safe(item.source)+"]";
   }
   if(tag.startsWith("ROW:")){
    const source=tag.slice(4).split("|")[0];
@@ -47,16 +48,16 @@ export function resolveBriefPrompt(input:ResolveBriefInput):ResolvedBrief{
    // Only collective report facts are eligible for a text-only projection.
    if(source!=="INDICATORS")return fail(tag,tr("diagUnsafe"));
    const keys=allowedBriefFields(input.mode,[
-    "scrum.storyPoints.committed","scrum.storyPoints.completed","scrum.capacity.planned",
+    "scrum.capacity.planned",
     "kanban.started","kanban.wip","kanban.throughput","kanban.cycleTime","kanban.leadTime","kanban.capacity.planned"
    ]);
    const list=keys.map(key=>fact[key]).filter((x):x is BriefFact=>Boolean(x&&x.unit!==null&&x.value!==null));
    const dynamic=[...indicators.values()].filter(x=>x.available&&x.value!==null);
    if(list.length===0&&dynamic.length===0)return fail(tag,tr("diagNoData"));
-   const reportFacts=list.map(x=>"- "+safe(x.label)+": "+safe(x.value)+(x.unit?" "+safe(x.unit):"")+
+   const reportFacts=list.map(x=>"- "+safe(x.label)+": "+safe(formatBriefNumericValue(x.value,input.locale??"fr"))+(x.unit?" "+safe(x.unit):"")+
     " [source: "+safe(x.source)+"; "+tr("diagQuality")+": "+safe(x.quality)+
     (x.snapshotVersion===null?"":"; "+tr("diagVersion")+": "+x.snapshotVersion)+"]");
-   const dynamicFacts=dynamic.map(x=>"- "+safe(x.tag)+": "+safe(x.value)+
+   const dynamicFacts=dynamic.map(x=>"- "+safe(x.tag)+": "+safe(formatBriefNumericValue(x.value,input.locale??"fr"))+
     (x.unit?" "+safe(x.unit):"")+" [source: "+safe(x.source)+"; projection rapports Office]");
    return [...reportFacts,...dynamicFacts].slice(0,30).join("\n");
   }
