@@ -1,0 +1,43 @@
+/* BMAD Sally + Amelia: cockpit workspace for AI brief preparation. */
+.smn-brief-cockpit{width:100%;max-width:none;min-width:0;color:var(--smn-foreground)}
+.smn-brief-cockpit .smn-brief-hero{background:linear-gradient(116deg,#174778,#102b4b);color:#fff;border-radius:18px;padding:1.5rem 1.8rem}
+.smn-brief-eyebrow{font-size:.76rem;font-weight:750;letter-spacing:.09em;text-transform:uppercase;opacity:.82}
+.smn-brief-hero h1{font-size:clamp(1.4rem,2.3vw,1.9rem);font-weight:760}
+.smn-brief-hero .smn-brief-subtitle{color:#e2edfa;max-width:70ch}
+.smn-brief-hero .btn{border-color:#d9e8fa;color:#102b4b;background:#fff}
+.smn-brief-hero .btn:hover{background:#e8f1ff}
+.smn-brief-context{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+.smn-brief-context-item{border-left:3px solid var(--smn-border);padding-left:.9rem;min-width:0}
+.smn-brief-context-item strong{display:block;font-size:.77rem;font-weight:750;color:var(--smn-muted);margin-bottom:.25rem}
+.smn-brief-context-item span{display:block;font-size:.96rem;font-weight:650;overflow-wrap:anywhere}
+.smn-brief-cockpit .smn-brief-card{background:var(--smn-surface);border:1px solid var(--smn-border);border-radius:16px;padding:1.3rem 1.5rem;box-shadow:0 4px 14px rgba(15,32,57,.035)}
+.smn-brief-card-header{display:flex;align-items:start;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.smn-brief-card-header h2,.smn-brief-card-header h3{margin:0;font-size:1.08rem;font-weight:750}
+.smn-brief-card-header p{margin:.35rem 0 0;color:var(--smn-muted);font-size:.9rem}
+.smn-brief-template-list{display:flex;gap:.55rem;flex-wrap:wrap;margin-top:1rem}
+.smn-brief-template-list .btn{border-radius:10px;padding:.55rem .9rem}
+.smn-brief-template-description{border-left:3px solid var(--smn-brand);padding:.3rem 0 .3rem .9rem;margin-top:1rem}
+.smn-brief-details{border:1px solid var(--smn-border);border-radius:12px;overflow:hidden;background:var(--smn-surface)}
+.smn-brief-details>summary{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:.7rem;padding:1rem 1.1rem;font-weight:700;list-style:none}
+.smn-brief-details>summary::-webkit-details-marker{display:none}
+.smn-brief-details>summary:after{content:"+";font-size:1.35rem;font-weight:600;color:var(--smn-brand)}
+.smn-brief-details[open]>summary:after{content:"−"}
+.smn-brief-details[open]>summary{border-bottom:1px solid var(--smn-border)}
+.smn-brief-details-body{padding:1rem 1.1rem}
+.smn-brief-data-table{margin:0;font-size:.88rem;min-width:600px}
+.smn-brief-data-table thead th{background:var(--smn-muted-soft);color:var(--smn-foreground);font-weight:750;border-bottom:1px solid var(--smn-border)}
+.smn-brief-data-table td,.smn-brief-data-table th{padding:.55rem .7rem;vertical-align:middle;border-color:var(--smn-border)}
+.smn-brief-data-table tbody tr:nth-child(even){background:var(--smn-muted-soft)}
+.smn-brief-number{text-align:right;font-variant-numeric:tabular-nums}
+.smn-brief-workspace{border:1px solid var(--smn-border);border-radius:16px;padding:1.4rem;background:var(--smn-surface)}
+.smn-brief-workspace .smn-brief-edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;align-items:start}
+.smn-brief-editor-pane{min-width:0;border:1px solid var(--smn-border);background:var(--smn-surface);border-radius:12px;padding:1rem}
+.smn-brief-editor-pane textarea{width:100%;min-height:360px;resize:vertical;line-height:1.5;font-size:.88rem}
+.smn-brief-editor-pane .smn-brief-preview-text{background:var(--smn-muted-soft)}
+.smn-brief-actions{position:sticky;bottom:0;z-index:4;background:var(--smn-surface);padding:1rem 0 .25rem;border-top:1px solid var(--smn-border);box-shadow:0 -6px 12px rgba(15,32,57,.025)}
+.smn-brief-actions .btn{min-height:40px}
+.smn-brief-cockpit .smn-brief-status{font-size:.9rem}
+.smn-brief-cockpit .smn-brief-small-muted{font-size:.83rem;color:var(--smn-muted)}
+.smn-brief-cockpit .smn-brief-context-banner{border-radius:12px;padding:.75rem 1rem}
+@media(max-width:1000px){.smn-brief-context{grid-template-columns:repeat(2,minmax(0,1fr))}.smn-brief-workspace .smn-brief-edit-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:640px){.smn-brief-context{grid-template-columns:minmax(0,1fr)}.smn-brief-cockpit .smn-brief-card,.smn-brief-workspace{padding:1rem}.smn-brief-cockpit .smn-brief-hero{padding:1.2rem}.smn-brief-editor-pane{padding:.7rem}.smn-brief-editor-pane textarea{min-height:280px}.smn-brief-actions{position:static}}
