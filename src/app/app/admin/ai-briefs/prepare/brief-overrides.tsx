@@ -39,6 +39,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
  const [finalizedId,setFinalizedId]=useState<string|null>(null);
  const [message,setMessage]=useState("");
  const input=useRef<HTMLTextAreaElement>(null);
+ const previewField=useRef<HTMLTextAreaElement>(null);
  const cursor=useRef({start:0,end:0});
  const resolved=resolveBriefPrompt({promptText:prompt,mode,context,facts,preparedAt,indicators,locale});
  const chosen=historical.filter(x=>selectedHistory.includes(x.type+":"+x.id));
@@ -104,6 +105,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
  async function generatePreview(){
   if(!await checkRevision())return;
   setPreview(currentTxt);setPrivacyReviewed(false);setReviewedText(null);setActiveView("preview");
+  requestAnimationFrame(()=>previewField.current?.focus());
   setMessage(resolved.safe?t("previewReady"):t("previewInvalid"));
  }
  async function finalize(){
@@ -129,21 +131,24 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
   const n=result.cursor;cursor.current={start:n,end:n};invalidate();
   requestAnimationFrame(()=>{input.current?.focus();input.current?.setSelectionRange(n,n);});
  }
- return <section className="border rounded-3 p-3 mt-3" aria-label="Préparation du prompt IA">
-  <h3 className="h5">{t("prepareEditor")}</h3>
-  <p className="small text-secondary">{t("templateName")} {base.title} · {t("revision")} {base.revision}. {t("localChanges")}</p>
+ return <section className="smn-brief-workspace" aria-labelledby="smn-brief-editor-title">
+  <div className="smn-brief-card-header mb-3">
+   <div><h2 id="smn-brief-editor-title">{t("prepareEditor")}</h2>
+    <p>{t("templateName")} : {base.title} · {t("revision")} {base.revision}. {t("localChanges")}</p></div>
+   <span className="badge text-bg-light">{locale==="en"?"Workspace":"Atelier de rédaction"}</span>
+  </div>
   {conflict&&<p role="alert" className="alert alert-warning">{t("changed")}</p>}
   <div className="btn-group d-lg-none mb-3" role="group" aria-label="Mode de travail">
    <button type="button" className={"btn btn-sm "+(activeView==="edit"?"btn-primary":"btn-outline-primary")} onClick={()=>setActiveView("edit")} aria-pressed={activeView==="edit"}>{t("edit")}</button>
    <button type="button" className={"btn btn-sm "+(activeView==="preview"?"btn-primary":"btn-outline-primary")} onClick={()=>setActiveView("preview")} aria-pressed={activeView==="preview"}>{t("preview")}</button>
   </div>
-  <div className="row g-3">
-   <div className={"col-12 col-lg-6 "+(activeView==="preview"?"d-none d-lg-block":"")}>
+  <div className="smn-brief-edit-grid">
+   <div className={"smn-brief-editor-pane "+(activeView==="preview"?"d-none d-lg-block":"")}>
     <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
      <label htmlFor="brief-prompt" className="form-label fw-semibold mb-0">{t("promptLabel")}</label>
      <OfficeTagConfigurator locale={locale} teamId={context.teamId} onInsert={insertTag}/>
     </div>
-    <textarea ref={input} id="brief-prompt" rows={20} maxLength={100000} className="form-control font-monospace"
+    <textarea ref={input} id="brief-prompt" rows={18} maxLength={100000} className="form-control font-monospace"
      value={prompt} disabled={conflict||saving}
      onSelect={e=>{cursor.current={start:e.currentTarget.selectionStart,end:e.currentTarget.selectionEnd};}}
      onChange={e=>{setPrompt(e.target.value);cursor.current={start:e.target.selectionStart,end:e.target.selectionEnd};invalidate();}}/>
@@ -162,9 +167,9 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
      {historical.length===0&&<p className="small text-secondary">{t("noHistory")}</p>}
     </details>
    </div>
-   <div className={"col-12 col-lg-6 "+(activeView==="edit"?"d-none d-lg-block":"")}>
+   <div className={"smn-brief-editor-pane "+(activeView==="edit"?"d-none d-lg-block":"")}>
     <label htmlFor="brief-txt-preview" className="form-label fw-semibold">{t("txtPreview")}</label>
-    <textarea id="brief-txt-preview" className="form-control font-monospace" rows={20} readOnly value={preview??""} placeholder={t("previewPlaceholder")}/>
+    <textarea ref={previewField} id="brief-txt-preview" className="form-control font-monospace smn-brief-preview-text" rows={18} readOnly value={preview??""} placeholder={t("previewPlaceholder")}/>
     {!sizeAllowed&&<p className="alert alert-warning mt-3" role="alert">{t("tooLarge")}</p>}
     {resolved.diagnostics.length>0&&<div className="alert alert-warning mt-3" role="alert">
      <strong>{t("diagnostics")}</strong>
@@ -174,13 +179,13 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
      <label className="form-check-label" htmlFor="brief-privacy-reviewed">
       <input id="brief-privacy-reviewed" className="form-check-input me-2" type="checkbox"
        disabled={saving||conflict||!revisionChecked||!resolved.safe||!sizeAllowed||preview!==currentTxt}
-       checked={approved} onChange={e=>{setPrivacyReviewed(e.target.checked);setReviewedText(e.target.checked?preview:null);}}/>
+       checked={privacyReviewed} onChange={e=>{setPrivacyReviewed(e.target.checked);setReviewedText(e.target.checked?preview:null);}}/>
       {t("privacyConfirm")}
      </label>
     </div>}
    </div>
   </div>
-  <div className="d-flex flex-wrap gap-2 mt-3">
+  <div className="smn-brief-actions d-flex flex-wrap align-items-center gap-2 mt-3" aria-label={locale==="en"?"Brief actions":"Actions du brief"}>
    <button type="button" className="btn btn-primary" disabled={saving||conflict||!prompt.trim()} onClick={()=>void generatePreview()}>{t("generate")}</button>
    <button type="button" className="btn btn-outline-secondary" disabled={saving} onClick={()=>void loadLatest()}>{t("reload")}</button>
    <button type="button" className="btn btn-outline-primary" disabled={saving||!approved} onClick={async()=>{
@@ -190,7 +195,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
    }}>{t("copy")}</button>
    <button type="button" className="btn btn-primary" disabled={saving||!approved||finalizedId!==null} onClick={()=>void finalize()}>{t("finalize")}</button>
   </div>
-  <p className="alert alert-info mt-3 mb-2"><strong>{t("manualOnly")}</strong> {t("manualHelp")}</p>
+  <p className="smn-brief-small-muted mt-3 mb-2">{locale==="en"?"Nothing is transmitted to an AI provider until you finalize the brief and explicitly approve a send.":"Aucune transmission à une IA sans finalisation du brief et validation explicite de l’envoi."}</p>
   {!finalizedId&&<p className="small text-secondary mt-3">{ui("aiSend.finalizeFirst")}</p>}
   {finalizedId&&preview&&<BriefAiSendPanel key={finalizedId}
    archiveId={finalizedId} reviewedText={preview} cycleName={context.name} teamName={context.team}/> }
