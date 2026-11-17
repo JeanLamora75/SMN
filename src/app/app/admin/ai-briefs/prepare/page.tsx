@@ -67,8 +67,13 @@ export default async function PrepareAiBrief({searchParams}:{
  const available=templates.filter(t=>t.active);
  const selected=available.find(t=>t.id===template)??available[0];
  const displayed=localizedNativeBrief(selected,locale);
- const facts=await withAuthDb(db=>readBriefFacts(db,scrum?"scrum":"kanban",context.id)).catch(()=>({}));
- const indicators=await withAuthDb(db=>readBriefIndicatorValues(db,context.teamId,scrum?"scrum":"kanban",context.id)).catch(()=>[]);
+ const factsRead=await withAuthDb(db=>readBriefFacts(db,scrum?"scrum":"kanban",context.id))
+  .then(value=>({value,failed:false as const}))
+  .catch(()=>({value:{} as Record<string,import("@/server/ai-briefs/facts").BriefFact>,failed:true as const}));
+ const indicatorsRead=await withAuthDb(db=>readBriefIndicatorValues(db,context.teamId,scrum?"scrum":"kanban",context.id))
+  .then(value=>({value,failed:false as const}))
+  .catch(()=>({value:[] as import("@/server/ai-briefs/indicators").BriefIndicatorValue[],failed:true as const}));
+ const facts=factsRead.value,indicators=indicatorsRead.value;
  const projected=[...Object.values(facts).filter(item=>item.unit!==null),
   ...indicators.filter(item=>item.available&&item.value!==null).map(item=>({
    key:"indicator."+item.tag,label:item.tag,value:item.value,unit:item.unit,
@@ -80,6 +85,15 @@ export default async function PrepareAiBrief({searchParams}:{
  }).catch(()=>[]);
  const preparedAt=new Date().toISOString();
  const provisional=context.status!=="closed";
+ const localizedStatus=({closed:locale==="en"?"Closed":"Clôturé",
+  finished:locale==="en"?"Finished":"Terminé",active:locale==="en"?"Active":"En cours",
+  planned:locale==="en"?"Planned":"Planifié"} as Record<string,string>)[context.status]??context.status;
+ const localizedQuality=(quality:string)=>({recorded:locale==="en"?"Recorded":"Enregistré",
+  calculated:locale==="en"?"Calculated":"Calculé",provisional:locale==="en"?"Provisional":"Provisoire",
+  unavailable:locale==="en"?"Unavailable":"Indisponible"} as Record<string,string>)[quality]??quality;
+ const localizedSource=(source:string)=>({current:locale==="en"?"Current data":"Données courantes",
+  "current-saved-kpi":locale==="en"?"Saved capacity":"Capacité enregistrée",
+  "closure-snapshot":locale==="en"?"Closure snapshot":"Instantané de clôture"} as Record<string,string>)[source]??source;
  return <main className="container-fluid px-3 px-lg-4 py-4">
   <div className="d-flex flex-wrap justify-content-between gap-2"><Link href={back}>{t("back")}</Link><Link href="/app/ai-briefs/archives">{t("library")}</Link></div>
   <section className="smn-panel rounded-4 p-4 my-3">
@@ -94,7 +108,7 @@ export default async function PrepareAiBrief({searchParams}:{
     <dt className="col-sm-3">{t("product")}</dt><dd className="col-sm-9">{context.product??t("unknown")}</dd>
     <dt className="col-sm-3">{t("agileMode")}</dt><dd className="col-sm-9">{scrum?"Scrum":"Kanban"}</dd>
     <dt className="col-sm-3">{t("dates")}</dt><dd className="col-sm-9">{formatBriefCycleDates(context.startAt,context.endAt,context.timeZone,locale)}</dd>
-    <dt className="col-sm-3">{t("status")}</dt><dd className="col-sm-9">{context.status}</dd>
+    <dt className="col-sm-3">{t("status")}</dt><dd className="col-sm-9">{localizedStatus}</dd>
     <dt className="col-sm-3">{t("preparedAt")}</dt><dd className="col-sm-9"><time dateTime={preparedAt}>{new Intl.DateTimeFormat(locale==="en"?"en-GB":"fr-FR",{dateStyle:"long",timeStyle:"medium",timeZone:context.timeZone}).format(new Date(preparedAt))} ({context.timeZone})</time></dd>
    </dl>
    <section aria-labelledby="brief-templates" className="border-top pt-3 mt-3">
@@ -116,10 +130,14 @@ export default async function PrepareAiBrief({searchParams}:{
     <p className="small text-secondary">{t("modelDescription")}</p>
     <div className="border rounded-3 p-3 mt-3">
      <h3 className="h6">{t("provenanceTitle")}</h3>
+     {(factsRead.failed||indicatorsRead.failed)&&<p role="alert" className="alert alert-warning">
+      {locale==="en"?"Some collective data could not be loaded. Values are not replaced with estimates.":
+       "Certaines données collectives n’ont pas pu être chargées. Aucune estimation ne les remplace."}
+     </p>}
      <p className="small text-secondary">{t("provenanceHelp")}</p>
      <div className="table-responsive"><table className="table table-sm">
       <thead><tr><th>{t("indicator")}</th><th>{t("value")}</th><th>{t("unit")}</th><th>{t("quality")}</th><th>{t("source")}</th></tr></thead>
-      <tbody>{projected.map(item=><tr key={item.key}><th scope="row">{item.label}</th><td>{item.value??t("unknown")}</td><td>{item.unit??"—"}</td><td>{item.quality}</td><td>{item.source}{item.snapshotVersion!==null?" · V"+item.snapshotVersion:""}</td></tr>)}</tbody>
+      <tbody>{projected.map(item=><tr key={item.key}><th scope="row">{item.label}</th><td>{item.value??t("unknown")}</td><td>{item.unit??"—"}</td><td>{localizedQuality(item.quality)}</td><td>{localizedSource(item.source)}{item.snapshotVersion!==null?" · V"+item.snapshotVersion:""}</td></tr>)}</tbody>
      </table></div>
     </div>
     <BriefOverrides key={selected.id+":"+selected.revision} template={displayed} mode={scrum?"scrum":"kanban"} context={context} facts={facts} preparedAt={preparedAt} historical={historical} indicators={indicators}/>
