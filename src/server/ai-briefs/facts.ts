@@ -30,8 +30,6 @@ export async function readBriefFacts(db:Client,mode:BriefMode,cycleId:string):Pr
   put("cycle.status","Statut",s.status,null,source,version,provisional);
   put("team.name","Équipe",s.team,null,source,version,provisional);
   put("product.name","Produit",s.product,null,source,version,provisional);
-  put("scrum.storyPoints.committed","SP engagés",p.scrum.storyPoints.committed.value,"SP",source,version,provisional);
-  put("scrum.storyPoints.completed","SP terminés",p.scrum.storyPoints.completed.value,"SP",source,version,provisional);
   put("scrum.capacity.planned","Capacité prévue",p.scrum.capacity.planned.value??savedCapacity?.planned_jh,"JH",
    p.scrum.capacity.planned.value!==null?source:savedCapacity?.planned_jh!==null&&savedCapacity?.planned_jh!==undefined?"current-saved-kpi":source,
    version,provisional);
