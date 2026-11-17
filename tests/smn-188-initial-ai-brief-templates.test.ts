@@ -12,9 +12,9 @@ test("three initial templates cover review, trends and risks",()=>{
 });
 test("Scrum and Kanban expose only mode-specific collective measures",()=>{
  assert.deepEqual(allowedBriefFields("kanban",["kanban.throughput","scrum.storyPoints.completed","member.name","risks"]),["kanban.throughput","risks"]);
- assert.deepEqual(allowedBriefFields("scrum",["scrum.storyPoints.completed","kanban.leadTime","member.email"]),["scrum.storyPoints.completed"]);
+ assert.deepEqual(allowedBriefFields("scrum",["scrum.storyPoints.completed","scrum.capacity.planned","kanban.leadTime","member.email"]),["scrum.capacity.planned"]);
 });
 test("le catalogue de données collectives exclut les champs individuels",()=>{
- assert.deepEqual(allowedBriefFields("scrum",["team.name","member.name","member.email","scrum.storyPoints.completed"]),["team.name","scrum.storyPoints.completed"]);
+ assert.deepEqual(allowedBriefFields("scrum",["team.name","member.name","member.email","scrum.storyPoints.completed"]),["team.name"]);
  assert.deepEqual(allowedBriefFields("kanban",["kanban.throughput","member.email"]),["kanban.throughput"]);
 });
