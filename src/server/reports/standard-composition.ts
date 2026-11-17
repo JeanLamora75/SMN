@@ -31,7 +31,7 @@ export async function composeStandardReport(db:Client,sprintId:string){
    add("indicators",[
     // Preserve pre-v33 archived values only when no dynamic closure capture exists.
     ...(frozen===null?["initial_sp","done_sp"].flatMap(k=>points?.[k]===null||points?.[k]===undefined?[]:[item(k,String(points[k]))]):[]),
-    ...(["initial_tickets","done_tickets"].flatMap(k=>tickets?.[k]===null||tickets?.[k]===undefined?[]:[item(k,String(tickets[k]))])),
+    ...(frozen===null?["initial_tickets","done_tickets"].flatMap(k=>tickets?.[k]===null||tickets?.[k]===undefined?[]:[item(k,String(tickets[k]))]):[]),
     ...(frozen??[]).filter(d=>d.state==="available"&&d.value!==null&&d.value!==undefined).map(d=>item(String(d.name),String(d.value)+(d.unit?" "+String(d.unit):"")))
    ]);
    const ceremonyKeys=["ceremonies","customMeetings","exceptionalMeetings"] as const;
