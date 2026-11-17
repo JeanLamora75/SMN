@@ -24,7 +24,8 @@ export async function readScrumReportProjection(db:Client,input:{
     const sp=snap.storyPoints as Record<string,unknown>|null|undefined;
     const cap=snap.capacity as Record<string,unknown>|null|undefined;
     // Only pre-v33 closures may carry legacy Story Points: never manufacture them for v33 snapshots.
-    legacyHistoricalSnapshot=!Array.isArray(snap.indicatorsV33);
+    legacyHistoricalSnapshot=!Array.isArray(snap.indicatorsV33)&&!!sp&&
+     (sp.initial_sp!==undefined||sp.done_sp!==undefined);
     if(!v33||legacyHistoricalSnapshot){committed=sp?.initial_sp;completed=sp?.done_sp;}
     planned=cap?.initial_jh;actual=cap?.actual_jh;
    }
