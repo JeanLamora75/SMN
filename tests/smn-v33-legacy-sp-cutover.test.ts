@@ -36,7 +36,7 @@ test("v33 report runtime skips legacy active tables and retains historical snaps
  const standard=source("src/server/reports/standard-composition.ts");
  const html=source("src/server/reports/html-preview.ts");
  assert.match(reader,/if\(!v33\)/);
- assert.match(reader,/legacyHistoricalSnapshot=!Array\.isArray\(snap\.indicatorsV33\)/);
+ assert.match(reader,/legacyHistoricalSnapshot=!Array\.isArray\(snap\.indicatorsV33\)&&!!sp/);
  assert.match(reader,/\!v33\|\|legacyHistoricalSnapshot/);
  assert.match(standard,/frozen===null/);
  assert.match(standard,/snapshot\.indicatorsV33/);
