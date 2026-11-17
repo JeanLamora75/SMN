@@ -40,6 +40,7 @@ test("v33 report runtime skips legacy active tables and retains historical snaps
  assert.match(reader,/\!v33\|\|legacyHistoricalSnapshot/);
  assert.match(standard,/frozen===null/);
  assert.match(standard,/snapshot\.indicatorsV33/);
+ assert.match(standard,/frozen===null\?\["initial_tickets","done_tickets"\]/);
  assert.match(html,/v33&&!legacyArchived\?\[\]/);
 });
 
