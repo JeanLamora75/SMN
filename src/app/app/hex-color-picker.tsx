@@ -6,8 +6,8 @@ const HEX=/^#[0-9a-fA-F]{6}$/;
 
 /** Shared hexadecimal color picker, reusing the Cockpit Agile ceremony palette.
  * Indicator definitions store #RRGGBB, not semantic ceremony color ids. */
-export function HexColorPicker({value,onChange,disabled=false,label="Couleur",locale="fr"}:{
- value?:string|null;onChange:(value:string)=>void;disabled?:boolean;label?:string;locale?:"fr"|"en";
+export function HexColorPicker({value,onChange,disabled=false,allowClear=true,label="Couleur",locale="fr"}:{
+ value?:string|null;onChange:(value:string)=>void;disabled?:boolean;allowClear?:boolean;label?:string;locale?:"fr"|"en";
 }){
  const id=useId();
  const valid=typeof value==="string"&&HEX.test(value);
@@ -20,8 +20,8 @@ export function HexColorPicker({value,onChange,disabled=false,label="Couleur",lo
     title={locale==="fr"?"Choisir une couleur personnalisée":"Choose a custom color"}
     aria-label={label}/>
    <output className="small text-body-secondary" htmlFor={id}>{valid?value!.toUpperCase():"—"}</output>
-   <button type="button" className="btn btn-outline-secondary btn-sm ms-auto" disabled={disabled||!valid}
-    onClick={()=>onChange("")}>{locale==="fr"?"Effacer":"Clear"}</button>
+   {allowClear&&<button type="button" className="btn btn-outline-secondary btn-sm ms-auto" disabled={disabled||!valid}
+    onClick={()=>onChange("")}>{locale==="fr"?"Effacer":"Clear"}</button>}
   </div>
   <details className="mt-1">
    <summary className="small text-primary" style={{cursor:"pointer"}}>
