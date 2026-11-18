@@ -3,6 +3,8 @@ import {useCallback,useEffect,useMemo,useRef,useState,type FormEvent} from "reac
 import {createPortal} from "react-dom";
 import {OPEN_ABSENCE_CATEGORY} from "./absence-category-create-button";
 import {useTranslation} from "@/i18n/client";
+import {useLocale} from "@/i18n/client";
+import {HexColorPicker} from "../../hex-color-picker";
 import SettingsFilterPanel from "../settings/settings-filter-panel";
 import {filterSettingsAbsences} from "@/lib/settings-collection-filter";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
@@ -21,7 +23,7 @@ const errorKey:Record<string,"invalidInput"|"nameRequired"|"colorRequired"|
 };
 
 export default function AbsenceCategoriesAdmin(){
- const t=useTranslation();
+ const t=useTranslation(),locale=useLocale();
  const [categories,setCategories]=useState<Category[]>([]);
  const [status,setStatus]=useState<"loading"|"ready"|"error">("loading");
  const [draft,setDraft]=useState<Draft>(EMPTY);
@@ -202,22 +204,9 @@ export default function AbsenceCategoriesAdmin(){
       maxLength={100} required value={draft.name} disabled={busy}
       onChange={e=>update("name",e.target.value)}/>
     </div>
-    <div className="d-flex flex-wrap gap-3 align-items-end">
-     <div className="flex-grow-1">
-      <label htmlFor="absence-category-color" className="form-label">
-       {t("absenceCategories.color")}</label>
-      <input id="absence-category-color" className="form-control" type="text"
-       maxLength={7} minLength={7} pattern="#[a-fA-F0-9]{6}" required
-       value={draft.color} disabled={busy}
-       onChange={e=>update("color",e.target.value)}/>
-     </div>
-     <div>
-      <label htmlFor="absence-category-picker" className="form-label">
-       {t("absenceCategories.colorPicker")}</label>
-      <input id="absence-category-picker" className="form-control form-control-color"
-       type="color" value={isHex(draft.color)?draft.color:"#6B7280"}
-       disabled={busy} onChange={e=>update("color",e.target.value.toUpperCase())}/>
-     </div>
+    <div>
+     <HexColorPicker value={draft.color} onChange={color=>update("color",color)}
+      allowClear={false} disabled={busy} label={t("absenceCategories.color")} locale={locale}/>
     </div>
     {draft.id&&<div>
      <label className="form-check-label">
