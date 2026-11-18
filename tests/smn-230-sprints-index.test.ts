@@ -193,6 +193,18 @@ describe("SMN-230 — liste de sprints consultable en lecture seule",()=>{
   assert.doesNotMatch(ui,/href="#"/);
   assert.match(ui,/href=\{sprintDetailPath\(item\.id\)\}/);
  });
+ it("rend les lignes de sprints cliquables sans détourner les actions",()=>{
+  const ui=read("src/app/app/admin/sprints/sprint-index-view.tsx");
+  const css=read("src/app/app/admin/sprints/sprints-cockpit.css");
+  assert.ok(ui.includes("onClick={event=>openSprintRow(event,item.id)}"));
+  assert.ok(ui.includes("router.push(sprintDetailPath(id))"));
+  assert.ok(ui.includes('target.closest("a,button,summary,details,input,select,textarea")'));
+  assert.ok(ui.includes("href={sprintDetailPath(item.id)}"));
+  assert.ok(!ui.includes("sprintsIndex.transitionNote"));
+  assert.match(css,/\.smn-sprints-row-title\{[^}]*font-size:1\.03rem;[^}]*text-decoration:none/s);
+  assert.ok(css.includes(".smn-sprints-clickable-row{cursor:pointer}"));
+  assert.ok(css.includes("tbody th:first-child{width:36%}"));
+ });
  it("isole le SQL de l'index dans une transaction PostgreSQL READ ONLY",()=>{
   const helper=read("src/server/sprints/read-only-db.ts");
   const route=read("src/app/api/sprints/index/route.ts");
