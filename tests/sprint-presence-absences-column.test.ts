@@ -42,7 +42,9 @@ test("absence display: unknown capacity days cannot produce a false zero",()=>{
  assert.equal(report.members[0].absenceJh,undefined);
 });
 test("absence display: detail column is between presence and development",()=>{
- const c=read("app/app/admin/sprints/[sprintId]/sprint-capacity-panel.tsx");
+ const panel=read("app/app/admin/sprints/[sprintId]/sprint-capacity-panel.tsx");
+ const c=read("app/app/admin/sprints/[sprintId]/sprint-capacity-member-table.tsx");
+ assert.match(panel,/SprintCapacityMemberTable members=\{data\.members\}/);
  const a=c.indexOf('t("sprintDetail.presenceJh")');
  const b=c.indexOf('Absences (J/H)');
  const d=c.indexOf('t("sprintDetail.presenceDevelopmentJh")');
