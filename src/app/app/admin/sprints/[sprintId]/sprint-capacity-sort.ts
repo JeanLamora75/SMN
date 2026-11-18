@@ -19,7 +19,17 @@ const contributionValue=(m:PresenceMember)=>m.contributionPercents?.length?
 
 /** Sort only the displayed members. Missing values always follow known values. */
 export function sortCapacityMembers(members:readonly PresenceMember[],sort:CapacitySort|null):PresenceMember[]{
- if(!sort)return [...members];
+ if(!sort){
+  // Initial order: Scrum Master, Product Owner, Developer, then alphabetically.
+  // A member with several roles belongs to the first matching group.
+  const rank=(member:PresenceMember)=>{
+   const roles=member.agileRoles??[];
+   return roles.includes("scrumMaster")?0:roles.includes("productOwner")?1:
+    roles.includes("developer")?2:3;
+  };
+  return [...members].sort((a,b)=>rank(a)-rank(b)||
+   text(a.displayName,b.displayName)||text(a.memberId,b.memberId));
+ }
  const descending=sort.direction==="desc",direction=descending?-1:1;
  return [...members].sort((a,b)=>{
   let comparison=0;
