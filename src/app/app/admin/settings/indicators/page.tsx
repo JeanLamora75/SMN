@@ -9,6 +9,7 @@ import IndicatorCatalog from "../../indicators/catalog-client";
 import TeamGrants from "../../indicators/team-grants";
 import IndicatorSettingsTabs from "./settings-tabs";
 import "../../sprints/[sprintId]/sprint-detail-cockpit.css";
+import "../../indicators/indicator-cockpit.css";
 import "./indicator-settings-cockpit.css";
 
 export const dynamic="force-dynamic";
