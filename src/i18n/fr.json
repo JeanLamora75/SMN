@@ -4339,7 +4339,9 @@
       "configureHint": "Les valeurs enregistrées ne sont affichées que si l’indicateur est actif pour cette équipe et visible sur cet écran.",
       "configureAction": "Configurer les indicateurs",
       "columnsHint": "{count} indicateur(s) affiché(s) pour cette équipe. Faites défiler le tableau horizontalement si nécessaire.",
-      "tableScroll": "Tableau des indicateurs par cycle, défilement horizontal"
+      "tableScroll": "Tableau des indicateurs par cycle, défilement horizontal",
+      "sortDescending": "Trier du plus grand au plus petit",
+      "sortAscending": "Trier du plus petit au plus grand"
     },
     "input": {
       "kanbanTitle": "Saisie des indicateurs Kanban",
