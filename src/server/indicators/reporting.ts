@@ -1,7 +1,7 @@
 import type {Client} from "pg";
 import type {ScreenKey} from "./catalog";
 
-export type ReportIndicator=Readonly<{id:string;tag:string;name:string;unit:string;style:string;order:number;icon:string|null;color:string|null}>;
+export type ReportIndicator=Readonly<{id:string;tag:string;name:string;unit:string;style:string;order:number;icon?:string|null;color?:string|null}>;
 export type ReportCycle=Readonly<{id:string;name:string;status:string;startAt?:string;endAt?:string;values:Record<string,string|null>}>;
 export type ReportData=Readonly<{columns:ReportIndicator[];cycles:ReportCycle[]}>;
 
