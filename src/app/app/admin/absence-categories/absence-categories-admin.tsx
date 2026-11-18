@@ -2,8 +2,7 @@
 import {useCallback,useEffect,useMemo,useRef,useState,type FormEvent} from "react";
 import {createPortal} from "react-dom";
 import {OPEN_ABSENCE_CATEGORY} from "./absence-category-create-button";
-import {useTranslation} from "@/i18n/client";
-import {useLocale} from "@/i18n/client";
+import {useLocale,useTranslation} from "@/i18n/client";
 import {HexColorPicker} from "../../hex-color-picker";
 import SettingsFilterPanel from "../settings/settings-filter-panel";
 import {filterSettingsAbsences} from "@/lib/settings-collection-filter";
@@ -13,7 +12,6 @@ type Category={id:string;name:string;color:string;isActive:boolean;
  updatedAt:string;usageCount:number};
 type Draft={id:string|null;updatedAt:string|null;name:string;color:string;isActive:boolean};
 const EMPTY:Draft={id:null,updatedAt:null,name:"",color:"#6B7280",isActive:true};
-const isHex=(color:string)=>/^#[0-9a-fA-F]{6}$/u.test(color);
 const errorKey:Record<string,"invalidInput"|"nameRequired"|"colorRequired"|
  "invalidName"|"invalidColor"|"duplicate"|"conflict"|"notFound"|"catalogueFull">={
  "invalid-input":"invalidInput","name-required":"nameRequired",
