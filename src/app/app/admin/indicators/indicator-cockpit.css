@@ -50,7 +50,8 @@
 .smn-indicator-cockpit .smn-indicator-preference-table .smn-indicator-drag-handle{cursor:grab;touch-action:none;min-width:2.2rem;font-size:1.1rem;line-height:1.25}
 .smn-indicator-cockpit .smn-indicator-preference-table .smn-indicator-drag-handle:active{cursor:grabbing}
 .smn-indicator-cockpit .smn-indicator-preference-table .smn-indicator-drop-target{outline:2px dashed var(--smn-brand);outline-offset:-2px;background:var(--smn-nav-active)}
-.smn-indicator-cockpit .smn-indicator-preference-table td:nth-child(3){white-space:nowrap}
+/* Long indicator names must be allowed to wrap inside their own cell. */
+.smn-indicator-cockpit .smn-indicator-preference-table td:nth-child(3){white-space:normal;overflow-wrap:anywhere}
 
 /* Accessible sorting: arrow stays at the left of the active column heading. */
 .smn-indicator-cockpit .smn-indicator-cycle-table .smn-indicator-sort-button{
@@ -78,16 +79,17 @@
  width:44px;min-width:44px;max-width:44px;padding-inline:4px;text-align:center;
 }
 .smn-indicator-preference-table :is(th,td).smn-indicator-preference-code-cell{
- width:220px;white-space:nowrap;padding-left:6px;padding-right:6px;
+ width:270px;white-space:normal;overflow-wrap:anywhere;padding-left:6px;padding-right:6px;
 }
-.smn-indicator-preference-code-content{display:inline-flex;align-items:center;gap:12px;min-height:32px}
+.smn-indicator-preference-code-content{display:flex;align-items:center;gap:12px;min-width:0;max-width:100%;min-height:32px}
+.smn-indicator-preference-code-text{min-width:0;overflow-wrap:anywhere;word-break:break-word;white-space:normal}
 .smn-indicator-preference-icon{
  display:inline-flex;align-items:center;justify-content:center;flex:none;
  width:32px;height:32px;min-width:32px;font-size:1.85rem;line-height:1;
 }
 .smn-indicator-preference-icon .bi{display:block;font-size:inherit;line-height:1}
 .smn-indicator-preference-table :is(th,td).smn-indicator-preference-name-cell{
- width:320px;white-space:normal;padding-left:6px;padding-right:12px;
+ width:325px;white-space:normal;overflow-wrap:anywhere;padding-left:6px;padding-right:12px;
 }
 .smn-indicator-preference-table :is(th,td).smn-indicator-preference-visible-cell{
  width:100px;white-space:nowrap;padding-left:6px;
