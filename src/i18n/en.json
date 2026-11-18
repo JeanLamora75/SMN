@@ -4339,7 +4339,9 @@
       "configureHint": "Saved values appear only when the indicator is active for this team and visible on this screen.",
       "configureAction": "Configure indicators",
       "columnsHint": "{count} indicator(s) displayed for this team. Scroll the table horizontally if needed.",
-      "tableScroll": "Indicators by cycle, horizontally scrollable table"
+      "tableScroll": "Indicators by cycle, horizontally scrollable table",
+      "sortDescending": "Sort descending",
+      "sortAscending": "Sort ascending"
     },
     "input": {
       "kanbanTitle": "Kanban indicator entry",
