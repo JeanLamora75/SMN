@@ -9,7 +9,7 @@ export type SprintMemberMetadata=Readonly<{
 }>;
 export type MemberDateScope=Readonly<{memberId:string;dates:readonly string[]}>;
 export type MemberVersionRow=Readonly<{
- member_id:string;assignment_id:string;professional_function:string|null;country_iso2:string|null;
+ member_id:string;assignment_id:string;professional_function:string|null;country_iso2?:string|null;
  start_on:string;end_on:string|null;
  effective_from:string|null;revision:number|null;
  scrum_master_percent:number|null;product_owner_percent:number|null;
