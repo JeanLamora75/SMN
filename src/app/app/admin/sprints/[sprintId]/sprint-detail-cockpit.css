@@ -169,11 +169,13 @@
 }
 .smn-sprint-detail-cockpit .smn-indicator-detail-watermark{
  position:absolute;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;
- pointer-events:none;overflow:hidden;opacity:.085;
+ pointer-events:none;overflow:hidden;opacity:.07;container-type:size;
 }
 .smn-sprint-detail-cockpit .smn-indicator-detail-watermark .bi{
- display:block;font-size:clamp(200px,18vw,420px);line-height:1;
- transform:scale(1.15);transform-origin:center;
+ display:block;flex:none;font-size:110px;
+ /* Fit the glyph to the actual card, not the viewport or its column count. */
+ font-size:min(100cqh,85cqw);line-height:1;
+ transform:none;
 }
 .smn-sprint-detail-cockpit .smn-indicator-detail-card-content{
  position:relative;z-index:1;min-width:0;
