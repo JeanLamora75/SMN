@@ -14,7 +14,7 @@ export async function GET(req:NextRequest,{params}:Params){
  const {id}=await params,teamId=req.nextUrl.searchParams.get("teamId");
  if(!teamId)return jsonResult({error:"invalid-input"},400);
  try{return jsonResult(await withAuthDb(async db=>{
-  await requireTeamMemberScope(db,{accountId:actor.id,role:"admin"},id,teamId);
+  await requireTeamMemberScope(db,{accountId:actor.id,role:"admin"},id,teamId,{allowHistoricalAssignment:true});
   const result=await db.query<{display_name:string;email:string|null;professional_function:string|null;revision:number;archived_at:string|null}>(`SELECT display_name,email,professional_function,revision,archived_at::text
    FROM public.smn_member WHERE id=$1 AND installation_id='singleton'`,[id]);
   if(result.rows.length!==1)throw Error("member-not-found");
@@ -37,7 +37,7 @@ export async function PATCH(req:NextRequest,{params}:Params){
     Object.keys(raw).sort().join(",")!=="displayName,email,professionalFunction,revision,teamId")
   return jsonResult({error:"invalid-input"},400);
  try{return await withAuthDb(async db=>{
-  await requireTeamMemberScope(db,{accountId:actor.id,role:"admin"},id,teamId);
+  await requireTeamMemberScope(db,{accountId:actor.id,role:"admin"},id,teamId,{allowHistoricalAssignment:true});
   await db.query("BEGIN");
   try{
    const current=await db.query<{display_name:string;email:string|null;professional_function:string|null;revision:number;archived_at:string|null}>(`
