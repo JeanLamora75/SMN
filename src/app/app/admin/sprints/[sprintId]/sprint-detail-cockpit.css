@@ -129,3 +129,11 @@
 .smn-sprint-detail-cockpit .smn-capacity-member-table .smn-capacity-sort-arrow{
  display:inline-block;min-width:1ch;flex:none;color:var(--smn-brand);font-weight:800;
 }
+
+/* Align the sprint-scoped country flag with its member name in a compact cell. */
+.smn-sprint-detail-cockpit .smn-capacity-member-identity{
+ display:inline-flex;align-items:center;gap:9px;min-height:26px;
+}
+.smn-sprint-detail-cockpit .smn-capacity-member-identity img{
+ border-radius:2px;object-fit:contain;
+}
