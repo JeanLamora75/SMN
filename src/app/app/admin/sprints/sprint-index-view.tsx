@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import {useRouter} from "next/navigation";
 import HelpHeaderAction from "../../help/help-header-action";
 import {useDeferredValue,useEffect,useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
@@ -15,7 +16,7 @@ type Result={
 const known=["planned","active","finished","closed","suspended"] as const;
 
 export default function SprintIndexView({canManage,permittedTeamIds=[],initialFilters,teamId}:{canManage:boolean;permittedTeamIds?:string[];initialFilters?:{search:string;status:string;sort:SprintIndexSort;page:number};teamId:string|null}){
- const t=useTranslation(),locale=useLocale();
+ const t=useTranslation(),locale=useLocale(),router=useRouter();
  const [search,setSearch]=useState(initialFilters?.search??"");
  const deferredSearch=useDeferredValue(search);
  const [filter,setFilter]=useState(initialFilters?.status??"all");
@@ -86,6 +87,12 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
  const mainStatuses=new Set(["all","active","planned","finished","closed"]);
  const allStatuses=[...new Set([...statuses,filter])].filter(status=>status!=="all");
  const extraStatuses=allStatuses.filter(status=>!mainStatuses.has(status));
+ const openSprintRow=(event:React.MouseEvent<HTMLTableRowElement>,id:string)=>{
+  const target=event.target;
+  if(!(target instanceof Element)||target.closest("a,button,summary,details,input,select,textarea"))return;
+  if(window.getSelection()?.toString())return;
+  router.push(sprintDetailPath(id));
+ };
  const tabs=[
   {status:"all",text:t("sprintsIndex.allStatuses")},
   {status:"active",text:t("sprintStates.active")},
@@ -201,7 +208,8 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
       </tr></thead>
       <tbody>{items.map(item=>{
        const current=item.status==="active"&&!item.suspended&&!item.stateMayBeStale;
-       return <tr key={item.id} className={current?"smn-sprints-current":""}>
+       return <tr key={item.id} className={"smn-sprints-clickable-row"+(current?" smn-sprints-current":"")}
+        onClick={event=>openSprintRow(event,item.id)}>
         <th scope="row">
          <Link href={sprintDetailPath(item.id)} className="smn-sprints-row-title fw-semibold">{item.name}</Link>
          {item.stateMayBeStale&&<small className="d-block text-warning-emphasis">
@@ -254,9 +262,5 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
    </>}
    {loading&&<p role="status" className="text-secondary">{t("sprintsIndex.loading")}</p>}
   </section>
-  {canManage&&<p className="smn-sprints-legacy-note small mb-0">
-   {t("sprintsIndex.transitionNote")} <Link href="/app/admin/sprints/tools">
-    {t("sprintsIndex.legacyTools")}</Link>
-  </p>}
  </div>;
 }
