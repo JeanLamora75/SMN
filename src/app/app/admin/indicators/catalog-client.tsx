@@ -10,6 +10,7 @@ import DashboardSlotEditor from "./dashboard-slot-editor";
 import IndicatorCycles from "./indicator-cycles";
 import PreferenceOrderTable from "./preference-order-table";
 import {useTranslation} from "@/i18n/client";
+import {IconPicker} from "../../icon-picker";
 type D={id:string;tag:string;name:string;description:string;indicator_type:"manual"|"computed";formula:string|null;archived_at:string|null;unit_name:string;unit_short:string;color:string|null;icon:string|null};
 type P={indicator_id:string;screen_key:string;is_visible:boolean;display_order:number;display_style:string};
 type Data={definitions:D[];selections:{indicator_id:string;is_active:boolean}[];preferences:P[]};
@@ -124,7 +125,7 @@ export default function IndicatorCatalog({teams,isAdmin,scope="team",activeTeamI
  <label className="col-md-3 form-label">{t("indicators.unit")}<input className="form-control" value={unitName} maxLength={80} onChange={e=>setUnitName(e.target.value)}/></label>
  <label className="col-md-3 form-label">{t("indicators.shortUnit")}<input className="form-control" value={unitShort} maxLength={20} onChange={e=>setUnitShort(e.target.value)}/></label>
  <label className="col-md-3 form-label">{t("indicators.color")}<input className="form-control" value={color} placeholder="#336699" pattern="#[0-9a-fA-F]{6}" onChange={e=>setColor(e.target.value)}/></label>
- <label className="col-md-3 form-label">{t("indicators.icon")}<input className="form-control" value={icon} maxLength={80} onChange={e=>setIcon(e.target.value)}/></label>
+ <div className="col-md-3"><span className="form-label d-block">{t("indicators.icon")}</span><IconPicker value={icon} onChange={name=>setIcon(name??"")} disabled={busy} label={t("indicators.icon")}/></div>
  </div></form>
      {edit?.indicator_type==="computed"&&edit.formula!==null&&<FormulaPublicationEditor key={edit.id+edit.formula} indicatorId={edit.id} initialFormula={edit.formula} onPublished={async()=>{await load();closeEditor();}}/>}
     </div>
