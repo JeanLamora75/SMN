@@ -51,3 +51,20 @@
 .smn-indicator-cockpit .smn-indicator-preference-table .smn-indicator-drag-handle:active{cursor:grabbing}
 .smn-indicator-cockpit .smn-indicator-preference-table .smn-indicator-drop-target{outline:2px dashed var(--smn-brand);outline-offset:-2px;background:var(--smn-nav-active)}
 .smn-indicator-cockpit .smn-indicator-preference-table td:nth-child(3){white-space:nowrap}
+
+/* Accessible sorting: arrow stays at the left of the active column heading. */
+.smn-indicator-cockpit .smn-indicator-cycle-table .smn-indicator-sort-button{
+ display:inline-flex;align-items:center;gap:5px;
+ padding:0;border:0;background:transparent;color:inherit;font:inherit;font-weight:inherit;
+ text-align:inherit;cursor:pointer;white-space:nowrap;
+}
+.smn-indicator-cockpit .smn-indicator-cycle-table .smn-indicator-sort-button:hover{
+ color:var(--smn-brand);text-decoration:underline;
+}
+.smn-indicator-cockpit .smn-indicator-cycle-table .smn-indicator-sort-button:focus-visible{
+ outline:3px solid var(--smn-brand);outline-offset:3px;border-radius:2px;
+}
+.smn-indicator-cockpit .smn-indicator-cycle-table .smn-indicator-sort-arrow{
+ display:inline-block;min-width:1ch;flex:none;font-size:1.05em;line-height:1;
+ color:var(--smn-brand);font-weight:800;
+}
