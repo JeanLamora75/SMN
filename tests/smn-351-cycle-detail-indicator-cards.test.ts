@@ -34,3 +34,19 @@ test("cycle detail supports a user-selected number of cards per row",()=>{
  assert.match(css,/grid-template-columns:repeat\(var\(--smn-detail-cards-per-row,3\),minmax\(0,1fr\)\)/);
  assert.match(css,/@media\(max-width:650px\)/);
 });
+
+test("les icônes du catalogue v33 s'affichent en filigrane sans masquer les valeurs",()=>{
+ const component=read("src/app/app/admin/indicators/reporting-view.tsx");
+ const reporting=read("src/server/indicators/reporting.ts");
+ const css=read("src/app/app/admin/sprints/[sprintId]/sprint-detail-cockpit.css");
+ assert.match(reporting,/d\.unit_short AS unit,d\.icon,d\.color,/);
+ assert.match(reporting,/icon:string\|null;color:string\|null/);
+ assert.match(component,/column\.icon&&isDashboardIcon\(column\.icon\)/);
+ assert.match(component,/<SMNIcon name=\{column\.icon\}\/>/);
+ assert.match(component,/smn-indicator-detail-watermark/);
+ assert.match(component,/smn-indicator-detail-card-content/);
+ assert.match(css,/\.smn-indicator-detail-watermark\{[\s\S]*?position:absolute;inset:0/);
+ assert.match(css,/pointer-events:none;overflow:hidden;opacity:\.085/);
+ assert.match(css,/\.smn-indicator-detail-card-content\{[\s\S]*?z-index:1/);
+ assert.match(css,/font-size:clamp\(140px,12vw,260px\)/);
+});
