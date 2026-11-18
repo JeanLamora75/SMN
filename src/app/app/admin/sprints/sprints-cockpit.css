@@ -215,3 +215,27 @@
 .smn-sprints-cockpit .smn-sprints-table .smn-sprints-percent{
  justify-content:flex-start;width:100%;
 }
+
+/* Sprint list: larger, plain title and spacious columns. */
+.smn-sprints-cockpit .smn-sprints-table thead th:first-child,
+.smn-sprints-cockpit .smn-sprints-table tbody th:first-child{width:36%}
+.smn-sprints-cockpit .smn-sprints-table thead th:nth-child(2),
+.smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(2){width:18%}
+.smn-sprints-cockpit .smn-sprints-table thead th:nth-child(3),
+.smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(3){width:30%}
+.smn-sprints-cockpit .smn-sprints-row-title{
+ font-size:1.03rem;font-weight:750;text-decoration:none;
+}
+.smn-sprints-cockpit .smn-sprints-row-title:hover,
+.smn-sprints-cockpit .smn-sprints-row-title:focus-visible{text-decoration:none}
+.smn-sprints-cockpit .smn-sprints-clickable-row{cursor:pointer}
+.smn-sprints-cockpit .smn-sprints-clickable-row:hover > th,
+.smn-sprints-cockpit .smn-sprints-clickable-row:hover > td{
+ background:color-mix(in srgb,var(--smn-brand) 8%,var(--smn-surface));
+}
+@media(max-width:767.98px){
+ .smn-sprints-cockpit .smn-sprints-table thead th:first-child,
+ .smn-sprints-cockpit .smn-sprints-table tbody th:first-child,
+ .smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(2),
+ .smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(3){width:auto}
+}
