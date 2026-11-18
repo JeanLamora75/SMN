@@ -73,7 +73,7 @@
 
 /* Shared across /admin/indicators and /admin/settings/indicators.
    Keep identity and visibility clustered on the left; presentation occupies the flexible right column. */
-.smn-indicator-preference-table{width:100%;min-width:850px;table-layout:fixed}
+.smn-indicator-preference-table{width:100%;min-width:900px;table-layout:fixed}
 .smn-indicator-preference-table :is(th,td){vertical-align:middle}
 .smn-indicator-preference-table :is(th,td).smn-indicator-preference-handle-cell{
  width:44px;min-width:44px;max-width:44px;padding-inline:4px;text-align:center;
