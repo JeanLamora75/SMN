@@ -78,7 +78,7 @@
  width:44px;min-width:44px;max-width:44px;padding-inline:4px;text-align:center;
 }
 .smn-indicator-preference-table :is(th,td).smn-indicator-preference-code-cell{
- width:245px;white-space:nowrap;padding-left:6px;padding-right:6px;
+ width:220px;white-space:nowrap;padding-left:6px;padding-right:6px;
 }
 .smn-indicator-preference-code-content{display:inline-flex;align-items:center;gap:12px;min-height:32px}
 .smn-indicator-preference-icon{
@@ -87,10 +87,10 @@
 }
 .smn-indicator-preference-icon .bi{display:block;font-size:inherit;line-height:1}
 .smn-indicator-preference-table :is(th,td).smn-indicator-preference-name-cell{
- width:400px;white-space:normal;padding-left:6px;padding-right:12px;
+ width:320px;white-space:normal;padding-left:6px;padding-right:12px;
 }
 .smn-indicator-preference-table :is(th,td).smn-indicator-preference-visible-cell{
- width:110px;white-space:nowrap;padding-left:6px;
+ width:100px;white-space:nowrap;padding-left:6px;
 }
 .smn-indicator-preference-visible-cell .form-check{
  display:inline-flex;align-items:center;min-height:0;padding-left:2.5em;
