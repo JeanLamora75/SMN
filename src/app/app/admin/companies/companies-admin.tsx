@@ -13,6 +13,11 @@ type Status="all"|"active"|"archived";
 type Translator=(key:TranslationKey,params?:TranslationParams)=>string;
 const VIEW_KEY="smn-company-settings-view";
 const palette=["blue","indigo","violet","teal","green","amber","orange","red"] as const;
+/* Display swatches, while persisting the existing semantic company color IDs. */
+const colorSwatches:Record<(typeof palette)[number],string>={
+ blue:"#0D6EFD",indigo:"#6610F2",violet:"#6F42C1",teal:"#20C997",
+ green:"#198754",amber:"#FFC107",orange:"#FD7E14",red:"#DC3545"
+};
 const blank=():Draft=>({name:"",comment:"",color:"blue"});
 const companyApiErrorKeys={
  "invalid-input":"invalidInput",
@@ -242,10 +247,18 @@ export default function CompaniesAdmin(){
      <textarea id="company-comment" className="form-control" maxLength={2000} disabled={busy} rows={2} value={draft.comment} onChange={e=>setDraft(x=>({...x,comment:e.target.value}))}/>
     </div>
     <div className="col-12 col-lg-3">
-     <label htmlFor="company-color" className="form-label">{t("companiesAdmin.color")}</label>
-     <select id="company-color" className="form-select" disabled={busy} value={draft.color} onChange={e=>setDraft(x=>({...x,color:e.target.value}))}>
-      {palette.map(color=><option key={color} value={color}>{t((`companiesAdmin.colorNames.${color}`) as TranslationKey)}</option>)}
-     </select>
+     <span id="company-color-label" className="form-label d-block">{t("companiesAdmin.color")}</span>
+     <div role="group" aria-labelledby="company-color-label" className="d-flex flex-wrap gap-2">
+      {palette.map(color=><button key={color} type="button" disabled={busy}
+       className={"btn btn-sm border rounded-3 d-inline-flex align-items-center justify-content-center"+(draft.color===color?" border-primary border-2":"")}
+       aria-label={t((`companiesAdmin.colorNames.${color}`) as TranslationKey)}
+       aria-pressed={draft.color===color} title={t((`companiesAdmin.colorNames.${color}`) as TranslationKey)}
+       onClick={()=>setDraft(x=>({...x,color}))}
+       style={{width:36,height:36,padding:4}}>
+       <span aria-hidden="true" className="rounded-circle border"
+        style={{width:23,height:23,backgroundColor:colorSwatches[color],display:"inline-block"}}/>
+      </button>)}
+     </div>
     </div>
      </div>
      </div>
