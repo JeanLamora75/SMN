@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useId,useMemo,useRef,useState} from "react";
+import {createPortal} from "react-dom";
 import {SMNIcon} from "./smn-icon";
 import {CEREMONY_ICON_COLORS,ceremonyIconColorHex,type CeremonyIconColor} from "@/lib/ceremony-appearance";
 import {DASHBOARD_ICONS,ICON_CATEGORIES,isDashboardIcon,type DashboardIconName} from "@/lib/dashboard-builder/icon-catalog";
@@ -79,10 +80,10 @@ export function IconPicker({value,onChange,color,onColorChange,disabled=false,la
    <span style={{color:ceremonyIconColorHex(color)}}>{selected?<SMNIcon name={selected.name}/>:<SMNIcon name="grid-3x3-gap"/>}</span>
    <span>{selected?selected.label:"Choisir une icône"}</span>
   </button>
-  {open&&<div className="modal d-block" style={{background:"rgba(0,0,0,.5)",zIndex:1080}} role="presentation"
+  {open&&createPortal(<div className="modal d-block" style={{background:"rgba(0,0,0,.5)",zIndex:1090}} role="presentation"
     onMouseDown={event=>{if(event.target===event.currentTarget)setOpen(false);}}>
    <div className="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-    <div ref={dialog} className="modal-content" role="dialog" aria-modal="true" aria-labelledby={id}>
+    <div ref={dialog} className="modal-content" role="dialog" data-smn-icon-picker-dialog="true" aria-modal="true" aria-labelledby={id}>
      <div className="modal-header align-items-start border-bottom" style={{background:"linear-gradient(110deg,var(--bs-primary-bg-subtle),var(--bs-body-bg))"}}>
       <div className="d-flex align-items-start gap-3">
        <span className="rounded-3 border bg-body p-2 d-flex align-items-center justify-content-center" style={{fontSize:"1.5rem",color:ceremonyIconColorHex(draftColor)??"var(--bs-primary)"}} aria-hidden="true"><SMNIcon name={selected?.name??"grid-3x3-gap"}/></span>
@@ -151,6 +152,6 @@ export function IconPicker({value,onChange,color,onColorChange,disabled=false,la
      </div>
     </div>
    </div>
-  </div>}
+  </div>,document.body)}
  </>;
 }
