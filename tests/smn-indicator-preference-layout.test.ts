@@ -37,5 +37,5 @@ test("la présentation reste dans une cellule alignée à droite et de taille co
  assert.match(css,/min-width:125px;max-width:100%;margin-left:auto/);
  assert.match(css,/smn-indicator-preference-icon/);
  assert.match(css,/gap:14px;min-height:40px/);
- assert.match(css,/width:40px;height:40px;min-width:40px;font-size:2\\.25rem/);
+ assert.match(css,/width:40px;height:40px;min-width:40px;font-size:2\.25rem/);
 });
