@@ -40,7 +40,7 @@ test("les icônes du catalogue v33 s'affichent en filigrane sans masquer les val
  const reporting=read("src/server/indicators/reporting.ts");
  const css=read("src/app/app/admin/sprints/[sprintId]/sprint-detail-cockpit.css");
  assert.match(reporting,/d\.unit_short AS unit,d\.icon,d\.color,/);
- assert.match(reporting,/icon:string\|null;color:string\|null/);
+ assert.match(reporting,/icon\?:string\|null;color\?:string\|null/);
  assert.match(component,/column\.icon&&isDashboardIcon\(column\.icon\)/);
  assert.match(component,/<SMNIcon name=\{column\.icon\}\/>/);
  assert.match(component,/smn-indicator-detail-watermark/);
