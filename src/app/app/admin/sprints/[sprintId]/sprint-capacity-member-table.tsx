@@ -3,6 +3,7 @@
 import {useState} from "react";
 import type {PresenceMember} from "@/lib/sprint-presence";
 import {useTranslation} from "@/i18n/client";
+import CountryFlag from "../../members/country-flag";
 import {nextCapacitySort,sortCapacityMembers,type CapacitySort,type CapacitySortKey} from "./sprint-capacity-sort";
 
 export default function SprintCapacityMemberTable({members,locale}:{members:readonly PresenceMember[];locale:"fr"|"en"}){
@@ -60,7 +61,7 @@ export default function SprintCapacityMemberTable({members,locale}:{members:read
     {heading("quality",t("sprintDetail.presenceQuality"))}
    </tr></thead>
    <tbody>{sortCapacityMembers(members,sort).map(member=><tr key={member.memberId}>
-    <th scope="row" className="fw-medium">{member.displayName}</th>
+    <th scope="row" className="fw-medium"><span className="smn-capacity-member-identity"><CountryFlag countryIso2={member.countryIso2} tableSize/><span>{member.displayName}</span></span></th>
     <td>{roleNames(member.agileRoles)}</td>
     <td>{member.professionalFunction?.trim()||"—"}</td>
     <td>{contribution(member.contributionPercents)}</td>
