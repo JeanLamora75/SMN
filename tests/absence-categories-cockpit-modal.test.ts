@@ -29,7 +29,7 @@ test("both create and edit use a native theme-aware dialog, not an inline form",
 });
 test("colour picker, category persistence, deactivation, historical protection and errors remain",()=>{
  for(const needle of ['method:"POST"','action:"update"','action:"create"','updatedAt:draft.updatedAt',
-  'type="color"','pattern="#[a-fA-F0-9]{6}"','checked={draft.isActive}',
+  '<HexColorPicker value={draft.color}', 'allowClear={false}','checked={draft.isActive}',
   'absenceCategories.usedHint','absenceCategories.noDelete',
   'notice&&isError&&<p role="alert"']){
   assert.ok(editor.includes(needle),needle);
