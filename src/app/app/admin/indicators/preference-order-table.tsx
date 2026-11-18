@@ -58,7 +58,7 @@ export default function PreferenceOrderTable({definitions,preferences,screen,tea
        <span className="smn-indicator-preference-code-content">
         {d.icon&&isDashboardIcon(d.icon)&&<span className="smn-indicator-preference-icon"
          style={{color:d.color&&/^#[0-9a-fA-F]{6}$/.test(d.color)?d.color:"var(--smn-brand)"}} aria-hidden="true"><SMNIcon name={d.icon}/></span>}
-        <span>{d.tag}</span>
+        <span className="smn-indicator-preference-code-text">{d.tag}</span>
        </span>
       </th>
       <td className="smn-indicator-preference-name-cell">{d.name}</td>
