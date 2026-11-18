@@ -19,8 +19,16 @@ test("deux clics inversent le sens et une nouvelle colonne recommence décroissa
  assert.deepEqual(nextCapacitySort(first,"presence"),{key:"presence",direction:"asc"});
  assert.deepEqual(nextCapacitySort(first,"function"),{key:"function",direction:"desc"});
 });
-test("sans tri l'ordre historique des membres est conservé",()=>{
- assert.deepEqual(names(sortCapacityMembers(members,null)),names(members));
+test("par défaut : Scrum Master, Product Owner, Développeur, puis noms alphabétiques",()=>{
+ const input:PresenceMember[]=[
+  members[0],members[1],members[2],
+  {...members[0],memberId:"d",displayName:"Aaron",agileRoles:["developer"]},
+  {...members[1],memberId:"e",displayName:"Béatrice",agileRoles:["productOwner"]},
+  {...members[0],memberId:"f",displayName:"Double rôle",agileRoles:["scrumMaster","developer"]}
+ ];
+ assert.deepEqual(names(sortCapacityMembers(input,null)),
+  ["Double rôle","Marc","Alice","Béatrice","Aaron","Zoe"]);
+ assert.deepEqual(names(input),["Zoe","Alice","Marc","Aaron","Béatrice","Double rôle"]);
 });
 test("les J/H sont triés numériquement et les valeurs manquantes restent à la fin",()=>{
  assert.deepEqual(names(sortCapacityMembers(members,{key:"presence",direction:"desc"})),["Zoe","Alice","Marc"]);
