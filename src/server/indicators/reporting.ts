@@ -1,7 +1,7 @@
 import type {Client} from "pg";
 import type {ScreenKey} from "./catalog";
 
-export type ReportIndicator=Readonly<{id:string;tag:string;name:string;unit:string;style:string;order:number}>;
+export type ReportIndicator=Readonly<{id:string;tag:string;name:string;unit:string;style:string;order:number;icon:string|null;color:string|null}>;
 export type ReportCycle=Readonly<{id:string;name:string;status:string;startAt?:string;endAt?:string;values:Record<string,string|null>}>;
 export type ReportData=Readonly<{columns:ReportIndicator[];cycles:ReportCycle[]}>;
 
@@ -13,8 +13,8 @@ export async function readIndicatorReporting(db:Client,teamId:string,screen:Scre
  const table=cycleType==="scrum"?"smn_sprint":"smn_kanban_period";
  const team=await db.query("SELECT 1 FROM public.smn_team WHERE id=$1 AND installation_id='singleton' AND agile_mode=$2 AND NOT is_archived",[teamId,cycleType]);
  if(team.rows.length!==1)throw Error("team-not-found");
- const columns=await db.query<{id:string;tag:string;name:string;unit:string;style:string;order:number}>(`
- SELECT d.id,d.tag,d.name,d.unit_short AS unit,COALESCE(p.display_style,'number') AS style,COALESCE(p.display_order,0) AS "order"
+ const columns=await db.query<ReportIndicator>(`
+ SELECT d.id,d.tag,d.name,d.unit_short AS unit,d.icon,d.color,COALESCE(p.display_style,'number') AS style,COALESCE(p.display_order,0) AS "order"
  FROM public.smn_indicator_definition d
  JOIN public.smn_indicator_team_selection s ON s.indicator_id=d.id AND s.team_id=$1 AND s.is_active=true
  LEFT JOIN public.smn_indicator_display_preference p ON p.indicator_id=d.id AND p.team_id=s.team_id AND p.screen_key=$2
