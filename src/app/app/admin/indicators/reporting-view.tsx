@@ -2,9 +2,11 @@
 import {useEffect,useRef,useState} from "react";
 import Link from "next/link";
 import IndicatorTrends from "./indicator-trends";
+import {SMNIcon} from "../../smn-icon";
+import {isDashboardIcon} from "@/lib/dashboard-builder/icon-catalog";
 import {useTranslation} from "@/i18n/client";
 import {formatIndicatorValue,formatIndicatorMeasurement} from "@/lib/indicators/format-value";
-type Definition={id:string;tag:string;name:string;unit:string;style:string;order:number};
+type Definition={id:string;tag:string;name:string;unit:string;style:string;order:number;icon?:string|null;color?:string|null};
 type Cycle={id:string;name:string;status:string;values:Record<string,string|null>};
 type Report={columns:Definition[];cycles:Cycle[]};
 function LegacyIndicatorReporting({teamId,cycleType,screen,cycleId,locale,cardsPerRow=3}:{teamId:string;cycleType:"scrum"|"kanban";screen:"cycle_list"|"cycle_detail"|"trends"|"dashboard";cycleId?:string;locale:"fr"|"en";cardsPerRow?:number}){
@@ -71,13 +73,19 @@ function LegacyIndicatorReporting({teamId,cycleType,screen,cycleId,locale,cardsP
     const cycle=data.cycles.find(c=>c.id===cycleId);
     const raw=cycle?.values[column.id]??null;
     return <div className="smn-indicator-detail-card" role="listitem" key={column.id}>
-     <article className="border rounded-4 bg-body p-3 h-100 d-flex flex-column text-center">
-      <h3 className="h6 fw-semibold mb-3">{column.name}</h3>
-      <div className="d-flex align-items-baseline justify-content-center gap-1 my-auto py-2">
-       <span className="fs-2 fw-bold lh-1">{formatIndicatorValue(raw,locale)}</span>
-       {raw!==null&&column.unit&&<span className="small text-secondary">{column.unit}</span>}
+     <article className="smn-indicator-detail-card-face border rounded-4 bg-body p-3 h-100 d-flex flex-column text-center">
+      {column.icon&&isDashboardIcon(column.icon)&&<div className="smn-indicator-detail-watermark" aria-hidden="true"
+       style={{color:column.color&&/^#[0-9a-fA-F]{6}$/.test(column.color)?column.color:"var(--smn-brand)"}}>
+       <SMNIcon name={column.icon}/>
+      </div>}
+      <div className="smn-indicator-detail-card-content d-flex flex-column flex-grow-1">
+       <h3 className="h6 fw-semibold mb-3">{column.name}</h3>
+       <div className="d-flex align-items-baseline justify-content-center gap-1 my-auto py-2">
+        <span className="fs-2 fw-bold lh-1">{formatIndicatorValue(raw,locale)}</span>
+        {raw!==null&&column.unit&&<span className="small text-secondary">{column.unit}</span>}
+       </div>
+       <div className="small fw-bold text-center mt-3">{column.tag}</div>
       </div>
-      <div className="small fw-bold text-center mt-3">{column.tag}</div>
      </article>
     </div>;
    })}
