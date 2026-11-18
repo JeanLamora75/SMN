@@ -31,11 +31,19 @@ test("le tri par glisser-déposer reste opérationnel sans boutons monter/descen
 
 test("la présentation reste dans une cellule alignée à droite et de taille compacte",()=>{
  const component=read("src/app/app/admin/indicators/preference-order-table.tsx");
- const css=read("src/app/app/admin/settings/indicators/indicator-settings-cockpit.css");
+ const css=read("src/app/app/admin/indicators/indicator-cockpit.css");
+ const teamPage=read("src/app/app/admin/indicators/page.tsx");
+ const settingsPage=read("src/app/app/admin/settings/indicators/page.tsx");
  assert.match(component,/className="form-select form-select-sm"/);
  assert.match(css,/smn-indicator-preference-style-cell \.form-select\{[\s\S]*?width:max-content/);
  assert.match(css,/min-width:125px;max-width:100%;margin-left:auto/);
  assert.match(css,/smn-indicator-preference-icon/);
- assert.match(css,/gap:14px;min-height:40px/);
- assert.match(css,/width:40px;height:40px;min-width:40px;font-size:2\.25rem/);
+ assert.match(css,/gap:12px;min-height:32px/);
+ assert.match(css,/width:32px;height:32px;min-width:32px;font-size:1\.85rem/);
+ assert.match(css,/width:220px;white-space:nowrap/);
+ assert.match(css,/width:320px;white-space:normal/);
+ assert.match(css,/width:100px;white-space:nowrap/);
+ assert.match(css,/table-layout:fixed/);
+ assert.match(teamPage,/import "\.\/indicator-cockpit\.css"/);
+ assert.match(settingsPage,/import "\.\.\/\.\.\/indicators\/indicator-cockpit\.css"/);
 });
