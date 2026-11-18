@@ -203,7 +203,9 @@ describe("SMN-230 — liste de sprints consultable en lecture seule",()=>{
   assert.ok(!ui.includes("sprintsIndex.transitionNote"));
   assert.match(css,/\.smn-sprints-row-title\{[^}]*font-size:1\.03rem;[^}]*text-decoration:none/s);
   assert.ok(css.includes(".smn-sprints-clickable-row{cursor:pointer}"));
-  assert.ok(css.includes("tbody th:first-child{width:36%}"));
+  assert.ok(css.includes("tbody th:first-child{width:40%}"));
+  assert.ok(css.includes("thead th:nth-child(-n+3)"));
+  assert.ok(ui.includes("smn-sprints-table--indicators"));
  });
  it("isole le SQL de l'index dans une transaction PostgreSQL READ ONLY",()=>{
   const helper=read("src/server/sprints/read-only-db.ts");
