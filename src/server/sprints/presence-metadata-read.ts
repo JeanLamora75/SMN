@@ -3,12 +3,13 @@ import type {AgileRole} from "@/lib/sprint-presence";
 
 export type SprintMemberMetadata=Readonly<{
  professionalFunction:string|null;
+ countryIso2:string|null;
  agileRoles:readonly AgileRole[]|null;
  contributionPercents:readonly number[]|null;
 }>;
 export type MemberDateScope=Readonly<{memberId:string;dates:readonly string[]}>;
 export type MemberVersionRow=Readonly<{
- member_id:string;assignment_id:string;professional_function:string|null;
+ member_id:string;assignment_id:string;professional_function:string|null;country_iso2:string|null;
  start_on:string;end_on:string|null;
  effective_from:string|null;revision:number|null;
  scrum_master_percent:number|null;product_owner_percent:number|null;
@@ -61,6 +62,7 @@ export function mapSprintMemberMetadata(
   }
   result.set(member.memberId,{
    professionalFunction,
+   countryIso2:found[0]?.country_iso2??null,
    agileRoles:complete?roles.map(([role])=>role).filter(role=>active.has(role)):null,
    contributionPercents:complete?percentages:null
   });
@@ -75,7 +77,7 @@ export async function readSprintMemberMetadata(
  if(!members.length)return new Map();
  const ids=[...new Set(members.map(m=>m.memberId))];
  const query=await db.query<MemberVersionRow>(`
-  SELECT a.member_id,a.id AS assignment_id,m.professional_function,
+  SELECT a.member_id,a.id AS assignment_id,m.professional_function,ml.country_iso2,
    a.start_on::text AS start_on,a.end_on::text AS end_on,
    v.effective_from::text AS effective_from,v.revision,
    v.scrum_master_percent,v.product_owner_percent,v.developer_percent,
@@ -84,6 +86,11 @@ export async function readSprintMemberMetadata(
   JOIN public.smn_member m ON m.id=a.member_id AND m.installation_id='singleton'
   LEFT JOIN public.smn_member_assignment_version v
    ON v.assignment_id=a.id AND v.effective_from<=$4::date
+  LEFT JOIN LATERAL (
+   SELECT loc.country_iso2 FROM public.smn_member_location loc
+   WHERE loc.member_id=m.id AND loc.effective_from<=$4::date
+   ORDER BY loc.effective_from DESC,loc.revision DESC LIMIT 1
+  ) ml ON true
   WHERE a.team_id=$1 AND a.member_id=ANY($2::text[])
    AND a.start_on<=$4::date AND (a.end_on IS NULL OR a.end_on>=$3::date)
   ORDER BY a.member_id,a.start_on,v.effective_from,v.revision
