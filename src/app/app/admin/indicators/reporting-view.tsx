@@ -7,7 +7,7 @@ import {formatIndicatorValue,formatIndicatorMeasurement} from "@/lib/indicators/
 type Definition={id:string;tag:string;name:string;unit:string;style:string;order:number};
 type Cycle={id:string;name:string;status:string;values:Record<string,string|null>};
 type Report={columns:Definition[];cycles:Cycle[]};
-function LegacyIndicatorReporting({teamId,cycleType,screen,cycleId,locale}:{teamId:string;cycleType:"scrum"|"kanban";screen:"cycle_list"|"cycle_detail"|"trends"|"dashboard";cycleId?:string;locale:"fr"|"en"}){
+function LegacyIndicatorReporting({teamId,cycleType,screen,cycleId,locale,cardsPerRow=3}:{teamId:string;cycleType:"scrum"|"kanban";screen:"cycle_list"|"cycle_detail"|"trends"|"dashboard";cycleId?:string;locale:"fr"|"en";cardsPerRow?:number}){
  const [data,setData]=useState<Report|null>(null),[error,setError]=useState(false),[chosen,setChosen]=useState("");
  const ref=useRef<SVGSVGElement>(null);
  const t=useTranslation();
@@ -66,11 +66,11 @@ function LegacyIndicatorReporting({teamId,cycleType,screen,cycleId,locale}:{team
     {(definition.style==="line"||definition.style==="bar")&&points.map((p,i)=><text key={"x"+i} x={p.x} y="314" fontSize="10" fill="var(--bs-body-color)" textAnchor="middle">{i+1}</text>)}
    </svg>
   </>}
-  {screen==="cycle_detail"&&data&&data.columns.length>0&&<div className="row g-3" role="list" aria-label={t("indicators.reporting.title")}>
+  {screen==="cycle_detail"&&data&&data.columns.length>0&&<div className="smn-indicator-detail-card-grid" style={{"--smn-detail-cards-per-row":cardsPerRow} as React.CSSProperties} role="list" aria-label={t("indicators.reporting.title")}>
    {data.columns.map(column=>{
     const cycle=data.cycles.find(c=>c.id===cycleId);
     const raw=cycle?.values[column.id]??null;
-    return <div className="col-12 col-sm-6 col-xl-4" role="listitem" key={column.id}>
+    return <div className="smn-indicator-detail-card" role="listitem" key={column.id}>
      <article className="border rounded-4 bg-body p-3 h-100 d-flex flex-column text-center">
       <h3 className="h6 fw-semibold mb-3">{column.name}</h3>
       <div className="d-flex align-items-baseline justify-content-center gap-1 my-auto py-2">
@@ -89,7 +89,7 @@ function LegacyIndicatorReporting({teamId,cycleType,screen,cycleId,locale}:{team
  </section>;
 }
 
-export default function IndicatorReporting(props:{teamId:string;cycleType:"scrum"|"kanban";screen:"cycle_list"|"cycle_detail"|"trends"|"dashboard";cycleId?:string;locale:"fr"|"en"}){
+export default function IndicatorReporting(props:{teamId:string;cycleType:"scrum"|"kanban";screen:"cycle_list"|"cycle_detail"|"trends"|"dashboard";cycleId?:string;locale:"fr"|"en";cardsPerRow?:number}){
  if(props.screen==="trends")return <IndicatorTrends teamId={props.teamId} cycleType={props.cycleType} cycleId={props.cycleId} locale={props.locale}/>;
  return <LegacyIndicatorReporting {...props}/>;
 }
