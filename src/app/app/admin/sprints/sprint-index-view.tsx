@@ -198,7 +198,7 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
     </div>}
    {(!error&&!loading&&items.length>0)&&<>
     <div className="table-responsive smn-sprints-table-wrap">
-     <table className="table table-hover align-middle smn-sprints-table">
+     <table className={"table table-hover align-middle smn-sprints-table"+(dynamicReport?.columns.length?" smn-sprints-table--indicators":"")}>
       <thead><tr>
        <th scope="col">{t("sprintStates.name")}</th>
        <th scope="col">{t("sprintStates.status")}</th>
