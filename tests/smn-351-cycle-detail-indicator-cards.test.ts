@@ -46,7 +46,9 @@ test("les icônes du catalogue v33 s'affichent en filigrane sans masquer les val
  assert.match(component,/smn-indicator-detail-watermark/);
  assert.match(component,/smn-indicator-detail-card-content/);
  assert.match(css,/\.smn-indicator-detail-watermark\{[\s\S]*?position:absolute;inset:0/);
- assert.match(css,/pointer-events:none;overflow:hidden;opacity:\.085/);
+ assert.match(css,/pointer-events:none;overflow:hidden;opacity:\.07;container-type:size/);
  assert.match(css,/\.smn-indicator-detail-card-content\{[\s\S]*?z-index:1/);
- assert.match(css,/font-size:clamp\(200px,18vw,420px\)/);
+ assert.match(css,/font-size:min\(100cqh,85cqw\)/);
+ assert.match(css,/transform:none/);
+ assert.doesNotMatch(css,/font-size:clamp\(200px,18vw,420px\)/);
 });
