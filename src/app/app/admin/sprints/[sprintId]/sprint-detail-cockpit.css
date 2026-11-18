@@ -172,7 +172,7 @@
  pointer-events:none;overflow:hidden;opacity:.085;
 }
 .smn-sprint-detail-cockpit .smn-indicator-detail-watermark .bi{
- display:block;font-size:clamp(140px,12vw,260px);line-height:1;
+ display:block;font-size:clamp(200px,18vw,420px);line-height:1;
  transform:scale(1.15);transform-origin:center;
 }
 .smn-sprint-detail-cockpit .smn-indicator-detail-card-content{
