@@ -113,3 +113,19 @@
 .smn-sprint-detail-cockpit .smn-sprint-register-delete:focus-visible{
  border-color:var(--bs-danger,#dc3545);
 }
+
+
+/* Interactive sorting scoped to the Sprint capacity member table. */
+.smn-sprint-detail-cockpit .smn-capacity-member-table .smn-capacity-sort-button{
+ display:inline-flex;align-items:center;gap:5px;padding:0;border:0;background:transparent;
+ color:inherit;font:inherit;font-weight:inherit;text-align:left;cursor:pointer;
+}
+.smn-sprint-detail-cockpit .smn-capacity-member-table .smn-capacity-sort-button:hover{
+ color:var(--smn-brand);text-decoration:underline;
+}
+.smn-sprint-detail-cockpit .smn-capacity-member-table .smn-capacity-sort-button:focus-visible{
+ outline:3px solid var(--smn-brand);outline-offset:3px;border-radius:2px;
+}
+.smn-sprint-detail-cockpit .smn-capacity-member-table .smn-capacity-sort-arrow{
+ display:inline-block;min-width:1ch;flex:none;color:var(--smn-brand);font-weight:800;
+}
