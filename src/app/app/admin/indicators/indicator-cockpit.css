@@ -68,3 +68,40 @@
  display:inline-block;min-width:1ch;flex:none;font-size:1.05em;line-height:1;
  color:var(--smn-brand);font-weight:800;
 }
+
+
+/* Shared across /admin/indicators and /admin/settings/indicators.
+   Keep identity and visibility clustered on the left; presentation occupies the flexible right column. */
+.smn-indicator-preference-table{width:100%;min-width:850px;table-layout:fixed}
+.smn-indicator-preference-table :is(th,td){vertical-align:middle}
+.smn-indicator-preference-table :is(th,td).smn-indicator-preference-handle-cell{
+ width:44px;min-width:44px;max-width:44px;padding-inline:4px;text-align:center;
+}
+.smn-indicator-preference-table :is(th,td).smn-indicator-preference-code-cell{
+ width:245px;white-space:nowrap;padding-left:6px;padding-right:6px;
+}
+.smn-indicator-preference-code-content{display:inline-flex;align-items:center;gap:12px;min-height:32px}
+.smn-indicator-preference-icon{
+ display:inline-flex;align-items:center;justify-content:center;flex:none;
+ width:32px;height:32px;min-width:32px;font-size:1.85rem;line-height:1;
+}
+.smn-indicator-preference-icon .bi{display:block;font-size:inherit;line-height:1}
+.smn-indicator-preference-table :is(th,td).smn-indicator-preference-name-cell{
+ width:400px;white-space:normal;padding-left:6px;padding-right:12px;
+}
+.smn-indicator-preference-table :is(th,td).smn-indicator-preference-visible-cell{
+ width:110px;white-space:nowrap;padding-left:6px;
+}
+.smn-indicator-preference-visible-cell .form-check{
+ display:inline-flex;align-items:center;min-height:0;padding-left:2.5em;
+}
+.smn-indicator-preference-visible-cell .form-check-input{cursor:pointer;margin-top:0}
+.smn-indicator-preference-table :is(th,td).smn-indicator-preference-style-cell{text-align:right}
+.smn-indicator-preference-style-cell .form-select{
+ display:block;width:max-content;min-width:125px;max-width:100%;margin-left:auto;
+}
+@media(max-width:700px){
+ .smn-indicator-preference-table :is(th,td).smn-indicator-preference-name-cell{
+  width:275px;white-space:normal;
+ }
+}
