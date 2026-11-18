@@ -17,6 +17,8 @@ export type PresenceMember=Readonly<{
  developmentJh:number|null;daysCount:number;unknownDays:number;
  /** Optional for closure snapshots created before the UX enhancement. */
  professionalFunction?:string|null;
+ /** Location applicable at the end of the sprint; absent in older snapshots. */
+ countryIso2?:string|null;
  agileRoles?:readonly AgileRole[]|null;
  contributionPercents?:readonly number[]|null;
 }>;
@@ -125,6 +127,9 @@ export function presenceFromSnapshot(value:unknown,version:number):SprintPresenc
   if(m.professionalFunction!==undefined&&m.professionalFunction!==null&&
    (typeof m.professionalFunction!=="string"||m.professionalFunction.length>120))
    return {state:"unavailable",reason:"read-failed"};
+  if(m.countryIso2!==undefined&&m.countryIso2!==null&&
+   (typeof m.countryIso2!=="string"||!/^[A-Za-z]{2}$/.test(m.countryIso2)))
+   return {state:"unavailable",reason:"read-failed"};
   if(m.agileRoles!==undefined&&m.agileRoles!==null&&
    (!Array.isArray(m.agileRoles)||m.agileRoles.some(role=>!allowedRoles.includes(role))||
     new Set(m.agileRoles).size!==m.agileRoles.length))
@@ -162,6 +167,8 @@ export function presenceFromSnapshot(value:unknown,version:number):SprintPresenc
     absences:(m.absences as PresenceAbsence[]).map(x=>({...x}))}:{}),
    ...(m.professionalFunction===undefined?{}:{
     professionalFunction:m.professionalFunction as string|null}),
+   ...(m.countryIso2===undefined?{}:{
+    countryIso2:m.countryIso2 as string|null}),
    ...(m.agileRoles===undefined?{}:{
     agileRoles:m.agileRoles as readonly AgileRole[]|null}),
    ...(m.contributionPercents===undefined?{}:{
