@@ -25,7 +25,7 @@ test("create and edit use one accessible Cockpit Agile dialog",()=>{
  assert.doesNotMatch(editor,/<form className="d-grid gap-3 border-top pt-3"/);
 });
 test("existing fields and saving behavior are preserved",()=>{
- for(const field of ["absence-category-name","absence-category-color","absence-category-picker","isActive",
+ for(const field of ["absence-category-name","<HexColorPicker value={draft.color}","allowClear={false}","isActive",
   "updatedAt:draft.updatedAt","usageCount","/api/admin/absence-categories"]){
   assert.ok(editor.includes(field),field);
  }
