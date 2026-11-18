@@ -41,9 +41,8 @@ export default function SprintCapacityMemberTable({members,locale}:{members:read
   aria-sort={sort?.key===key?(sort.direction==="desc"?"descending":"ascending"):"none"}>
   <button type="button" className="smn-capacity-sort-button"
    onClick={()=>setSort(previous=>nextCapacitySort(previous,key))}
-   title={sort?.key===key&&sort.direction==="desc"?
-    (locale==="fr"?"Trier par ordre croissant":"Sort ascending"):
-    (locale==="fr"?"Trier par ordre décroissant":"Sort descending")}>
+   title={t(sort?.key===key&&sort.direction==="desc"?
+    "indicators.reporting.sortAscending":"indicators.reporting.sortDescending")}>
    <span className="smn-capacity-sort-arrow" aria-hidden="true">{sort?.key===key?(sort.direction==="desc"?"↓":"↑"):""}</span>
    <span>{label}</span>
   </button>
