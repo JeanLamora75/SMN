@@ -40,8 +40,12 @@ test("la présentation reste dans une cellule alignée à droite et de taille co
  assert.match(css,/smn-indicator-preference-icon/);
  assert.match(css,/gap:12px;min-height:32px/);
  assert.match(css,/width:32px;height:32px;min-width:32px;font-size:1\.85rem/);
- assert.match(css,/width:220px;white-space:nowrap/);
- assert.match(css,/width:320px;white-space:normal/);
+ assert.match(css,/width:270px;white-space:normal;overflow-wrap:anywhere/);
+ assert.match(css,/width:325px;white-space:normal;overflow-wrap:anywhere/);
+ assert.match(css,/smn-indicator-preference-code-text\{min-width:0;overflow-wrap:anywhere/);
+ assert.match(component,/className="smn-indicator-preference-code-text"\>\{d\.tag\}/);
+ assert.match(css,/td:nth-child\(3\)\{white-space:normal;overflow-wrap:anywhere\}/);
+ assert.match(css,/min-width:850px;table-layout:fixed/);
  assert.match(css,/width:100px;white-space:nowrap/);
  assert.match(css,/table-layout:fixed/);
  assert.match(teamPage,/import "\.\/indicator-cockpit\.css"/);
