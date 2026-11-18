@@ -16,6 +16,8 @@ export function useDashboardModalFocus(onClose:()=>void,active=true){
   )).filter(el=>el.getClientRects().length>0);
   (node.querySelector<HTMLElement>('[data-initial-focus="true"]')??focusables()[0]??node).focus();
   const keydown=(event:KeyboardEvent)=>{
+   // The shared icon picker uses a higher, independent modal layer.
+   if(event.target instanceof Element&&event.target.closest("[data-smn-icon-picker-dialog]"))return;
    if(event.key==="Escape"){event.preventDefault();event.stopPropagation();close.current();return;}
    if(event.key!=="Tab")return;
    const items=focusables();
