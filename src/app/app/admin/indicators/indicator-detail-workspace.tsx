@@ -40,7 +40,7 @@ export default function IndicatorDetailWorkspace({teamId,cycleId,locale}:{
      onClick={()=>change(-1)} disabled={columns<=MIN_COLUMNS}
      title={locale==="fr"?"Afficher un indicateur de moins par ligne":"Show one fewer indicator per row"}
      aria-label={locale==="fr"?"Réduire le nombre d'indicateurs par ligne":"Decrease indicators per row"}>
-     <BootstrapIcon name="dash-lg"/>
+     <span aria-hidden="true" className="fw-bold">−</span>
     </button>
    </div>
   </div>
