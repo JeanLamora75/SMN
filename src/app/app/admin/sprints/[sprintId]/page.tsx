@@ -22,7 +22,7 @@ import SprintClosureAction from "./sprint-closure-action";
 import SprintDetailTabs from "./sprint-detail-tabs";
 import {HelpContextButton} from "../../../help/help-context-button";
 import SprintGoalsPanel from "./sprint-goals-panel";
-import UniversalIndicatorInput from "../../indicators/universal-input";
+import IndicatorDetailWorkspace from "../../indicators/indicator-detail-workspace";
 import {indicatorTeams} from "@/server/indicators/team-access";
 import SprintCeremoniesPanel from "./sprint-ceremonies-panel";
 import HistoricalPartialForm from "./historical-partial-form";
@@ -148,7 +148,7 @@ export default async function SprintDetailPage({params,searchParams}:{
     {active==="objectives"?<><SprintGoalsPanel
       sprintId={cycle.id} teamId={teamId} status={cycle.status} canManage={canManage}
       data={goals??{state:"unavailable",reason:"read-failed"}}/>{canManage&&cycle.status==="finished"&&<HistoricalPartialForm sprintId={cycle.id}/>}</>:
-     active==="indicators"?<>{canManageDynamicIndicators&&<UniversalIndicatorInput teamId={teamId} cycleType="scrum" cycleId={cycle.id}/>}{canManageDynamicIndicators&&<IndicatorReporting teamId={teamId} cycleType="scrum" screen="cycle_detail" cycleId={cycle.id} locale={locale}/>}</> :
+     active==="indicators"?<>{canManageDynamicIndicators&&<IndicatorDetailWorkspace teamId={teamId} cycleId={cycle.id} locale={locale}/>}</> :
      active==="ceremonies"?<><SprintCeremoniesPanel
       sprintId={cycle.id} teamId={teamId} timeZone={cycle.timeZone} locale={locale}
       canManage={canManage&&cycle.status!=="closed"}
