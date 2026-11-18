@@ -30,6 +30,17 @@ test("calendrier de travail : même périmètre historique et droits conservés"
  assert.match(route,/latest\?\.revision\?\?0/);
 });
 
+test("profil : lecture et modification accessibles à un ancien membre de la même équipe",()=>{
+ const route=read("src/app/api/admin/members/[id]/team-profile/route.ts");
+ assert.equal((route.match(/allowHistoricalAssignment:true/g)??[]).length,2);
+ assert.match(route,/export async function GET/);
+ assert.match(route,/export async function PATCH/);
+ assert.match(route,/actor\.role!=="admin"/);
+ assert.match(route,/m\.archived_at/);
+ assert.match(route,/m\.revision!==revision/);
+ assert.match(route,/INSERT INTO public\.smn_member_identity_history/);
+});
+
 test("les autres lecteurs ne reçoivent aucune autorisation historique implicite",()=>{
  const route=read("src/app/api/admin/members/[id]/team-absence/route.ts");
  assert.doesNotMatch(route,/allowHistoricalAssignment:true/);
