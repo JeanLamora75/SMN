@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useSyncExternalStore} from "react";
 import UniversalIndicatorInput from "./universal-input";
 import IndicatorReporting from "./reporting-view";
 import BootstrapIcon from "../../bootstrap-icon";
@@ -10,20 +10,27 @@ export function validIndicatorColumns(value:unknown):number{
  const parsed=typeof value==="number"?value:Number(value);
  return Number.isInteger(parsed)&&parsed>=MIN_COLUMNS&&parsed<=MAX_COLUMNS?parsed:DEFAULT_COLUMNS;
 }
+const COLUMNS_CHANGE_EVENT="smn-indicator-columns-changed";
+function readColumns(){
+ try{return validIndicatorColumns(window.localStorage.getItem(STORAGE_KEY));}
+ catch{return DEFAULT_COLUMNS;}
+}
+function subscribeColumns(onChange:()=>void){
+ const handleStorage=(event:StorageEvent)=>{if(event.key===STORAGE_KEY||event.key===null)onChange();};
+ window.addEventListener("storage",handleStorage);
+ window.addEventListener(COLUMNS_CHANGE_EVENT,onChange);
+ return ()=>{window.removeEventListener("storage",handleStorage);window.removeEventListener(COLUMNS_CHANGE_EVENT,onChange);};
+}
+function defaultColumns(){return DEFAULT_COLUMNS;}
 export default function IndicatorDetailWorkspace({teamId,cycleId,locale}:{
  teamId:string;cycleId:string;locale:"fr"|"en";
 }){
- const [columns,setColumns]=useState(DEFAULT_COLUMNS);
- useEffect(()=>{
-  try{setColumns(validIndicatorColumns(window.localStorage.getItem(STORAGE_KEY)));}
-  catch{/* Private browsing can block storage; keep the default. */}
- },[]);
+ const columns=useSyncExternalStore(subscribeColumns,readColumns,defaultColumns);
  const change=(direction:-1|1)=>{
-  setColumns(previous=>{
-   const next=Math.max(MIN_COLUMNS,Math.min(MAX_COLUMNS,previous+direction));
-   try{window.localStorage.setItem(STORAGE_KEY,String(next));}catch{/* In-memory setting still works. */}
-   return next;
-  });
+  const next=Math.max(MIN_COLUMNS,Math.min(MAX_COLUMNS,columns+direction));
+  try{window.localStorage.setItem(STORAGE_KEY,String(next));}
+  catch{/* Private browsing may block persistence. */}
+  window.dispatchEvent(new Event(COLUMNS_CHANGE_EVENT));
  };
  return <>
   <div className="smn-sprint-indicator-detail-toolbar">
