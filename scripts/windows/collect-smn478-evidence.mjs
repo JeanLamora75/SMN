@@ -85,7 +85,7 @@ export async function finalizeReceipt(env=process.env){
   await safeFile(data.logPath,root);
   if(hash(await readFile(data.logPath))!==data.sha256)
    throw Error("smn478-collector-log-mismatch:"+name);
-  checks.push({name,result:"passed",logPath:data.logPath,sha256:data.sha256,
+  checks.push({name,result:"passed",logPath:name+".log",sha256:data.sha256,
    disposable:true,runCommand:data.runCommand});
  }
  const receipt={version:1,gitCommit:commit,environment:"disposable",

@@ -179,6 +179,16 @@ jobs:
       - name: SMN-478 — Exiger les douze preuves avant livraison
         if: (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[smn-release]')))
         run: node scripts/windows/collect-smn478-evidence.mjs finalize
+      - name: Publier le reçu SMN-478 et ses 12 journaux vérifiés
+        if: (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[smn-release]')))
+        uses: actions/upload-artifact@v4
+        with:
+          name: SMN-478-Qualification-${{ github.run_id }}
+          path: |
+            _package/smn478-evidence/*.log
+            _package/smn478-evidence/*.json
+          if-no-files-found: error
+          retention-days: 30
       # Publishing requires explicit release intent: manual dispatch or a commit
       # deliberately marked [smn-release]. Ordinary pushes run verification only.
       # Every release rebuilds the package from its exact clean source commit.

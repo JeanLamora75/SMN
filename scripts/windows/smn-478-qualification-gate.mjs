@@ -2,6 +2,7 @@
 import {createHash} from "node:crypto";
 import {createReadStream} from "node:fs";
 import {lstat,readFile} from "node:fs/promises";
+import {dirname,isAbsolute,relative,resolve} from "node:path";
 const CHECKS=[
  "unit","typecheck","lint","build","browser",
  "postgresEmpty","postgresHistory","postgresRollback",
@@ -40,10 +41,14 @@ export async function verifySmn478Qualification(receiptPath,commit){
  for(const name of CHECKS){
   const c=found.get(name);
   if(!c)throw Error("smn478-delivery-check-missing");
-  const file=await lstat(c.logPath);
+  const logPath=resolve(dirname(receiptPath),c.logPath);
+  const rel=relative(dirname(receiptPath),logPath);
+  if(!isAbsolute(c.logPath)&&(rel.startsWith("..")||isAbsolute(rel)))
+   throw Error("smn478-delivery-log-invalid");
+  const file=await lstat(logPath);
   if(!file.isFile()||file.isSymbolicLink()||file.size<=0||file.size>5*1024*1024)
    throw Error("smn478-delivery-log-invalid");
-  if(await hashFile(c.logPath)!==c.sha256)
+  if(await hashFile(logPath)!==c.sha256)
    throw Error("smn478-delivery-log-mismatch");
  }
  return {qualified:true,gitCommit:commit,checks:CHECKS.length};

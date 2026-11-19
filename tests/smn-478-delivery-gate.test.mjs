@@ -30,6 +30,10 @@ test("SMN-478: release gate checks every stage and real log hashes",async t=>{
  t.after(()=>rm(x.folder,{recursive:true,force:true}));
  assert.deepEqual(await verifySmn478Qualification(x.receiptPath,commit),
   {qualified:true,gitCommit:commit,checks:12});
+ x.receipt.checks[6].logPath="postgresHistory.txt";
+ await x.save();
+ assert.deepEqual(await verifySmn478Qualification(x.receiptPath,commit),
+  {qualified:true,gitCommit:commit,checks:12});
  x.receipt.checks[6].result="failed";
  await x.save();
  await assert.rejects(verifySmn478Qualification(x.receiptPath,commit),/smn478-delivery-check-rejected/);
