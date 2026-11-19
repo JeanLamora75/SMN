@@ -11,9 +11,10 @@ export function validIndicatorColumns(value:unknown):number{
  return Number.isInteger(parsed)&&parsed>=MIN_COLUMNS&&parsed<=MAX_COLUMNS?parsed:DEFAULT_COLUMNS;
 }
 const COLUMNS_CHANGE_EVENT="smn-indicator-columns-changed";
+let fallbackColumns=DEFAULT_COLUMNS;
 function readColumns(){
  try{return validIndicatorColumns(window.localStorage.getItem(STORAGE_KEY));}
- catch{return DEFAULT_COLUMNS;}
+ catch{return fallbackColumns;}
 }
 function subscribeColumns(onChange:()=>void){
  const handleStorage=(event:StorageEvent)=>{if(event.key===STORAGE_KEY||event.key===null)onChange();};
@@ -28,6 +29,7 @@ export default function IndicatorDetailWorkspace({teamId,cycleId,locale}:{
  const columns=useSyncExternalStore(subscribeColumns,readColumns,defaultColumns);
  const change=(direction:-1|1)=>{
   const next=Math.max(MIN_COLUMNS,Math.min(MAX_COLUMNS,columns+direction));
+  fallbackColumns=next;
   try{window.localStorage.setItem(STORAGE_KEY,String(next));}
   catch{/* Private browsing may block persistence. */}
   window.dispatchEvent(new Event(COLUMNS_CHANGE_EVENT));
