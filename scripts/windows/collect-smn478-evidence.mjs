@@ -9,7 +9,7 @@ import {smn478RequiredChecks,verifySmn478Qualification} from "./smn-478-qualific
 
 const SHA=/^[a-f0-9]{40}$/;
 const RUN=/^[1-9][0-9]*$/;
-const SAFE=/^[a-zA-Z0-9._-]+$/;
+const EXECUTABLE=/^[^\r\n]+$/;
 export function qualificationContext(env=process.env){
  const commit=env.GITHUB_SHA,run=env.GITHUB_RUN_ID;
  if(!SHA.test(commit??"")||!RUN.test(run??"")||env.SMN478_DISPOSABLE!=="YES"||
@@ -35,7 +35,7 @@ const hash=bytes=>createHash("sha256").update(bytes).digest("hex");
 export async function captureCheck(name,command,args=[],env=process.env){
  const {commit,run}=qualificationContext(env);
  if(!smn478RequiredChecks.includes(name)||typeof command!=="string"||
-    !SAFE.test(command)||!Array.isArray(args)||args.some(a=>typeof a!=="string"||a.includes("\n")))
+    !EXECUTABLE.test(command)||!Array.isArray(args)||args.some(a=>typeof a!=="string"||a.includes("\n")))
   throw Error("smn478-collector-command-invalid");
  const root=folder(env);
  await mkdir(root,{recursive:true});
