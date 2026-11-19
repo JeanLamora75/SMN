@@ -56,9 +56,9 @@ function templateCellStyle(template:ReturnType<typeof getDashboardTemplate>,slot
  const cell=template?.slots.find(c=>c.slotId===slot.templateSlotId);
  return cell?{gridColumn:`${cell.column+1} / span ${cell.columnSpan}`,gridRow:`${cell.row+1} / span ${cell.rowSpan}`,minWidth:0}:{};
 }
-export default function DashboardConsultation({layout,teamId,teamName,navigation,mode,locale="fr",personalizing=false,canManage=false,headerActions}:{
+export default function DashboardConsultation({layout,teamId,teamName,navigation,mode,locale="fr",personalizing=false,canManage=false,headerActions,sprintGoals=[]}:{
  layout:DashboardLayout;teamId:string;teamName?:string|null;navigation:{current:DashboardCycle|null;previous:string|null;next:string|null};
- mode:"scrum"|"kanban";locale?:string;personalizing?:boolean;canManage?:boolean;headerActions?:ReactNode;
+ mode:"scrum"|"kanban";locale?:string;personalizing?:boolean;canManage?:boolean;headerActions?:ReactNode;sprintGoals?:readonly string[];
 }){
  const t=useTranslation();
  const cycleId=navigation.current?.id??null;
@@ -79,7 +79,7 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
   const complete=!!template&&active.length===template.slotCount;
   return <section key={block.id} className={styles.blockPanel} aria-label={block.title?.trim()||"Bloc du tableau de bord"}>
    {(block.title?.trim()||isDashboardIcon(block.icon))&&<h2 className={styles.blockHeading}>{isDashboardIcon(block.icon)&&<span className="me-2" style={{color:ceremonyIconColorHex(block.iconColor)??"inherit"}}><SMNIcon name={block.icon}/></span>}{block.title?.trim()}</h2>}
-   <div className={`${styles.innerSlots} ${styles.fixedContent}`} style={{gridTemplateColumns:`repeat(${complete?template.columns:Math.max(1,active.length)},minmax(0,1fr))`,gridTemplateRows:complete?`repeat(${template.rows},minmax(0,auto))`:"auto",height:headerMode?undefined:dimensions?.height==="auto"?undefined:dimensions?.height}}>
+   <div className={`${styles.innerSlots} ${styles.fixedContent}`} style={{gridTemplateColumns:`repeat(${complete?template.columns:Math.max(1,active.length)},minmax(0,1fr))`,gridTemplateRows:complete?`repeat(${template.rows},minmax(min-content,1fr))`:"auto",minHeight:headerMode?undefined:dimensions?.height==="auto"?undefined:dimensions?.height}}>
     {active.map(slot=>{
      const result=slots[slot.id];
      let model:VisualizationModel;
@@ -142,7 +142,20 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
      </div>
      {navigation.current&&<span className={`${styles.cockpitBadge} mt-2`}>{({closed:"Clôturé",completed:"Terminé",active:"En cours",in_progress:"En cours",planned:"Planifié"} as Record<string,string>)[navigation.current.status]??navigation.current.status}</span>}
     </div>
-    <div className={styles.headerKpis}>{header}</div>
+    <div className={styles.headerContent}>
+     {mode==="scrum"&&<div className={styles.goalCards} aria-label={locale==="fr"?"Objectifs du sprint et du produit":"Sprint and product goals"}>
+      <section className={styles.goalCard}>
+       <h2>{locale==="fr"?"Objectif de Sprint":"Sprint Goal"}</h2>
+       {sprintGoals.length?<ul>{sprintGoals.map((goal,i)=><li key={i}>{goal}</li>)}</ul>:
+        <p className={styles.goalEmpty}>{locale==="fr"?"Non renseigné":"Not specified"}</p>}
+      </section>
+      <section className={styles.goalCard}>
+       <h2>{locale==="fr"?"Objectif de Produit":"Product Goal"}</h2>
+       <p className={styles.goalEmpty}>{locale==="fr"?"Non renseigné":"Not specified"}</p>
+      </section>
+     </div>}
+     {header.length>0&&<div className={styles.headerKpis}>{header}</div>}
+    </div>
     <div className={styles.cockpitActions}>
      {headerActions}
      <button className={styles.headerButton} type="button" onClick={refresh}><span aria-hidden="true">↻</span> Actualiser</button>
