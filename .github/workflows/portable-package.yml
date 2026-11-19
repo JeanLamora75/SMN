@@ -173,6 +173,7 @@ jobs:
         env:
           SMN442_E2E_DISPOSABLE: "YES"
           SMN478_CAPTURE_PG: "YES"
+          SMN478_CAPTURE_BROWSER: "YES"
         run: node scripts/windows/collect-smn478-evidence.mjs run zipFreshRestore -- node scripts/windows/smn-442-acceptance.mjs
       - name: Analyser les fichiers distribués avec Microsoft Defender
         shell: pwsh

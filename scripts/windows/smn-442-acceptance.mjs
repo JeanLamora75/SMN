@@ -159,6 +159,38 @@ async function installPrivacy(){
  await writeFile(join(config,"privacy-ledger.key.enc"),encrypted);
  ledgerKey.fill(0);key.fill(0);
 }
+async function collectDisposableBrowserProof(){
+ if(process.env.SMN478_CAPTURE_BROWSER!=="YES")return;
+ const chrome=[
+  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe"
+ ].find(existsSync);
+ if(!chrome)throw Error("smn478-disposable-browser-executable-unavailable");
+ const portable=await ensurePg();
+ let cycleId;
+ try{
+  const uri=new URL(portable.uri);uri.pathname="/smn";
+  const db=new Client({connectionString:uri.toString(),connectionTimeoutMillis:5000});
+  try{
+   await db.connect();
+   const team=await db.query("SELECT id FROM public.smn_team ORDER BY id LIMIT 1");
+   assert.ok(team.rows[0]?.id,"SMN-478 requires a real disposable Scrum team");
+   cycleId=randomUUID();
+   await db.query(`INSERT INTO public.smn_sprint(id,team_id,number,name,start_at,end_at,time_zone,status)
+    VALUES($1,$2,478,'SMN-478 Browser Acceptance',now()-interval '1 day',
+     now()+interval '1 day','Europe/Paris','active')`,[cycleId,team.rows[0].id]);
+  }finally{await db.end().catch(()=>{});}
+ }finally{await portable.client.end().catch(()=>{});}
+ const authenticated=await login("admin",sourcePass);
+ assert.equal(authenticated.status,200,"SMN-478 browser login failed");
+ assert.match(authenticated.cookie,/^[^=;]+=[^;]+$/);
+ await captureCheck("browser","cmd.exe",
+  ["/d","/c","npx","tsx","--test","tests/smn-478-brief-browser.e2e.ts"],
+  {...process.env,SMN478_BROWSER_URL:base,SMN478_BROWSER_CHROME:chrome,
+   SMN478_TEST_COOKIE:authenticated.cookie,SMN478_TEST_CYCLE_ID:cycleId,
+   SMN478_TEST_MODE:"scrum"});
+}
 async function collectDisposablePgProofs(){
  if(process.env.SMN478_CAPTURE_PG!=="YES")return;
  const pg=await ensurePg();
@@ -418,6 +450,7 @@ try{
  await installPrivacy();
  await collectDisposablePgProofs();
  await seedSyntheticTeamMembers();
+ await collectDisposableBrowserProof();
  const briefProof=await seedAiBriefArchive();
  const {zip}=await saveSourceBackup();
  await stop();
