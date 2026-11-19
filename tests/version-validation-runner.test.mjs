@@ -43,7 +43,6 @@ test("le profil qualité centralisé conserve chaque garde obligatoire",()=>{
 test("les workflows spécialisés utilisent le périmètre ciblé et I0 conserve la qualité commune",()=>{
  const read=(name)=>readFileSync(new URL("../.github/workflows/"+name,import.meta.url),"utf8");
  for(const [file,profile] of [
-  ["smn-348-input.yml","smn-348"],
   ["smn-349-reporting.yml","smn-349"],
   ["smn-350-report-projection.yml","smn-350"],
   ["smn-351-cutover.yml","smn-351"],
@@ -53,6 +52,8 @@ test("les workflows spécialisés utilisent le périmètre ciblé et I0 conserve
   assert.ok(workflow.includes("pnpm test:validate-version"),file);
  }
  const i0=read("verify-i0.yml");
+ assert.match(i0,/run: pnpm test:smn-348/);
+ assert.match(i0,/run: pnpm db:test:smn-348/);
  assert.match(i0,/node scripts\/validate-version\.mjs --profile quality/);
  assert.match(i0,/pnpm test:validate-version/);
  assert.match(i0,/runs-on: windows-latest/);
