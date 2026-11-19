@@ -66,7 +66,7 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
    <ReportTemplateChooser sprintId={s.id}/>
    <ReportSectionEditor sprintId={s.id} sections={data.sections}/>
    <ReportLinkSelection sprintId={s.id}/>
-   <ReportContentEditor sprintId={s.id} values={{committed:data.projection.scrum.storyPoints.committed.value,completed:data.projection.scrum.storyPoints.completed.value,planned:data.projection.scrum.capacity.planned.value,actual:data.projection.scrum.capacity.actual.value}} facts={[]}/>
+   <ReportContentEditor sprintId={s.id} values={{committed:data.projection.scrum.legacyStoryPoints?.committed.value??null,completed:data.projection.scrum.legacyStoryPoints?.completed.value??null,planned:data.projection.scrum.capacity.planned.value,actual:data.projection.scrum.capacity.actual.value}} facts={[]}/>
    <FactSelection canManage={true}/>
    <ConfirmedHighlights canManage={true}/>
    <ReportHistoryOptions sprintId={s.id}/>
