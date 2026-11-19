@@ -135,9 +135,12 @@
 .fixedContent{overflow:visible}
 .headerContent{display:grid;gap:.65rem;min-width:0}
 .goalCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;min-width:0}
-.goalCard{min-width:0;border:1px solid rgba(255,255,255,.26);background:rgba(255,255,255,.12);border-radius:11px;padding:.7rem .85rem;color:#fff}
+.goalCard{min-width:0;border:0;background:transparent;box-shadow:none;padding:.25rem .4rem;color:#fff}
 .goalCard h2{font-size:.82rem;font-weight:750;margin:0 0 .35rem;color:#fff}
 .goalCard p,.goalCard ul{margin:0;font-size:.79rem;line-height:1.4;overflow-wrap:anywhere}
 .goalCard ul{padding-left:1.1rem;max-height:8rem;overflow-y:auto}
 .goalEmpty{color:var(--smn-context-muted,#dbe9fa);font-style:italic}
 @media(max-width:480px){.goalCards{grid-template-columns:minmax(0,1fr)}}
+
+/* Keep goal text on the cockpit background, aligned beside the action group. */
+@media(min-width:1200px){.cockpitLayout{grid-template-columns:minmax(210px,1fr) minmax(0,560px) auto;column-gap:.65rem}.headerContent{width:100%;justify-self:end}}
