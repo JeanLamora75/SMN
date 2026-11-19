@@ -9,7 +9,9 @@ const service=read("src/server/sprints/sprint-capacity-kpis.ts");
 
 test("Sprint indicators do not render obsolete historical capacity forms",()=>{
  assert.doesNotMatch(page,/HistoricalCapacityForm|HistoricalActualCapacityForm/);
- assert.match(page,/UniversalIndicatorInput/);
+ assert.match(page,/<IndicatorDetailWorkspace teamId=\{teamId\} cycleId=\{cycle\.id\} locale=\{locale\}/);
+ const workspace=read("src/app/app/admin/indicators/indicator-detail-workspace.tsx");
+ assert.match(workspace,/<UniversalIndicatorInput teamId=\{teamId\} cycleType="scrum" cycleId=\{cycleId\}/);
  assert.match(page,/IndicatorReporting/);
  assert.doesNotMatch(page,/<SprintIndicatorsPanel/);
 });

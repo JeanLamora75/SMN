@@ -14,6 +14,7 @@ test("Story Points writing checks only the actual needed Sprint and aggregate ta
 test("v32 errors can distinguish missing tables and actual server faults",()=>{
  assert.match(route,/sprint-story-points-save-failed/);
  assert.match(route,/error:"schema-not-ready"/);
- assert.match(dynamic,/UniversalIndicatorInput/);
+ assert.match(dynamic,/IndicatorDetailWorkspace/);
+ assert.match(read("src/app/app/admin/indicators/indicator-detail-workspace.tsx"),/UniversalIndicatorInput/);
  assert.doesNotMatch(dynamic,/<SprintIndicatorsPanel/);
 });

@@ -15,7 +15,9 @@ test("v32: writes remain team-scoped without depending on pilot-only v28 gate",(
 });
 test("v33 sprint indicator editor remains team-scoped with universal dynamic indicators",()=>{
  const dynamic=read("src/app/app/admin/indicators/indicator-cycles.tsx");
- assert.match(page,/UniversalIndicatorInput teamId=\{teamId\} cycleType="scrum" cycleId=\{cycle\.id\}/);
+ assert.match(page,/<IndicatorDetailWorkspace teamId=\{teamId\} cycleId=\{cycle\.id\} locale=\{locale\}/);
+ const workspace=read("src/app/app/admin/indicators/indicator-detail-workspace.tsx");
+ assert.match(workspace,/<UniversalIndicatorInput teamId=\{teamId\} cycleType="scrum" cycleId=\{cycleId\}/);
  assert.match(dynamic,/UniversalIndicatorInput/);
  assert.match(page,/canManageDynamicIndicators/);
 });

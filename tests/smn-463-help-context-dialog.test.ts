@@ -34,7 +34,7 @@ describe("SMN-463 — reusable Cockpit contextual help",()=>{
  it("traps focus, handles Escape and restores the invoking button",()=>{
   const component=source("src/app/app/help/help-context-button.tsx");
   for(const expression of [/node\.showModal\(\)/,/node\.close\(\)/,/event\.key==="Escape"/,
-   /event\.key!=="Tab"/,/event\.shiftKey/,/opener\.current\?\.focus\(\)/,
+   /event\.key!=="Tab"/,/event\.shiftKey/,/openerNode\?\.focus\(\)/,
    /aria-modal="true"/,/aria-labelledby=\{titleId\}/,/data-initial-focus="true"/,
    /onCancel=\{event=>\{event\.preventDefault\(\);close\(\);\}\}/]){
    assert.match(component,expression);

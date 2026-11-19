@@ -30,7 +30,8 @@ test("SMN-351: obsolete Fxx APIs fail closed on v33 and point to dynamic replace
 
 test("SMN-351: v33 Scrum report previews omit legacy Fxx while immutable references remain untouched",()=>{
  const compose=readFileSync("src/server/reports/html-preview.ts","utf8");
- assert.match(compose,/const metrics=v33\?\[\]:legacyMetrics/);
+ assert.match(compose,/const legacyArchived=report\.sprint\.status==="closed"&&projection\.legacyStoryPoints!==undefined/);
+ assert.match(compose,/const metrics=v33&&!legacyArchived\?\[\]:projectSelectedMetrics/);
  assert.match(compose,/trends:!v33&&/);
  assert.match(compose,/dynamicIndicators/);
  const frozen=readFileSync("src/server/reports/render-reference.ts","utf8");

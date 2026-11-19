@@ -19,5 +19,5 @@ test("flag names are normalized and missing assets do not show broken images",()
  assert.match(code,/\^\[A-Za-z\]\{2\}\$/);
  assert.match(code,/toLowerCase\(\)/);
  assert.match(code,/onError=\{\(\)=>setFailed\(true\)\}/);
- assert.match(code,/height:"1em"/);
+ assert.match(code,/height:tableSize\?"1\.65em":"1em"/);
 });

@@ -19,7 +19,9 @@ test("persistance locale et défilement sans débordement de la page",()=>{
  assert.match(source,/CHART_ZOOM_KEY="smn-indicator-trend-chart-zoom-v1"/);
  assert.match(source,/localStorage\.getItem\(CHART_ZOOM_KEY\)/);
  assert.match(source,/localStorage\.setItem\(CHART_ZOOM_KEY,String\(next\)\)/);
- assert.match(source,/setZoom\(validChartZoom\(stored\)\)/);
+ assert.match(source,/useSyncExternalStore\(subscribeZoom,readZoom,defaultZoom\)/);
+ assert.match(source,/validChartZoom\(window\.localStorage\.getItem\(CHART_ZOOM_KEY\)\)/);
+ assert.match(source,/window\.dispatchEvent\(new Event\(ZOOM_CHANGE_EVENT\)\)/);
  assert.match(source,/overflowX:"auto",maxWidth:"100%",overscrollBehaviorX:"contain"/);
  assert.match(source,/width:zoom\+"%"/);
  assert.match(source,/height:"auto",maxWidth:"none"/);
