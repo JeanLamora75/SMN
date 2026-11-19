@@ -28,9 +28,9 @@ type Navigation={current:DashboardCycle|null;previous:string|null;next:string|nu
 type SaveResponse={layout:DashboardLayout;revision:number;persisted:boolean};
 const copy=(layout:DashboardLayout):DashboardLayout=>structuredClone(layout);
 const signature=(layout:DashboardLayout)=>JSON.stringify(layout);
-export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,teamName,navigation,cycles,mode,locale}:{
+export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,teamName,navigation,cycles,mode,locale,sprintGoals=[]}:{
  initialLayout:DashboardLayout;initialRevision:number;canEdit:boolean;teamId:string;teamName?:string|null;
- navigation:Navigation;cycles:readonly DashboardCycle[];mode:"scrum"|"kanban";locale:string;
+ navigation:Navigation;cycles:readonly DashboardCycle[];mode:"scrum"|"kanban";locale:string;sprintGoals?:readonly string[];
 }){
  const [published,setPublished]=useState<DashboardLayout>(()=>copy(initialLayout));
  const [draft,setDraft]=useState<DashboardLayout|null>(null);
@@ -219,7 +219,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,te
    </div>)}</div>
   </details>}
   {!editing&&<DashboardConsultation layout={published} teamId={teamId} teamName={teamName} navigation={navigation}
-   mode={mode} locale={locale} personalizing={editing} canManage={canEdit}
+   mode={mode} locale={locale} personalizing={editing} canManage={canEdit} sprintGoals={sprintGoals}
    headerActions={<div className="d-flex align-items-center gap-2 flex-wrap"><HelpHeaderAction screenTitle={locale==="fr"?"Tableau de bord":"Dashboard"}/>{canEdit?<DashboardActionsMenu header items={[{label:"Personnaliser",action:enter},{label:"Copier vers une autre équipe",action:()=>setCopyOpen(true)}]}/>:null}</div>}/>}
   {editing&&<p className="small text-body-secondary mb-3">Modifiez les titres, les blocs et les emplacements ci-dessous. Enregistrez pour retrouver le résultat sur votre tableau de bord.</p>}
   {editing&&draft&&<section className="mb-5 pb-5" aria-label="Composition des lignes">
