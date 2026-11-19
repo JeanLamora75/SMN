@@ -38,6 +38,7 @@ on:
       - "prisma/baseline/**"
       - "prisma/migrations/20261101_smn_dashboard_slots_additive/**"
       - "_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql"
+      - "release/SMN-WINDOWS-RELEASE-REQUEST.md"
       - ".github/workflows/portable-package.yml"
       - ".github/workflows/smn-488-ai-qualification.yml"
   pull_request:
