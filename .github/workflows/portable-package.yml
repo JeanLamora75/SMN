@@ -70,6 +70,9 @@ jobs:
       SMN_RECOVERY_TEST: "true"
       SMN_PORT_FALLBACK_TEST: "true"
       SMN_PACKAGE_DIR: "_package/SMN-Windows"
+      SMN478_DISPOSABLE: "YES"
+      SMN478_EVIDENCE_DIR: ${{ runner.temp }}/smn478-evidence
+      SMN478_QUALIFICATION_RECEIPT: ${{ runner.temp }}/smn478-evidence/smn478-qualification-receipt.json
     steps:
       - uses: actions/checkout@v4
         with:
@@ -91,6 +94,19 @@ jobs:
         # Le build pilote autonome nécessite des fichiers copiables, pas les
         # jonctions Windows générées par le linker pnpm du poste de CI.
         run: npm install --no-package-lock --no-audit --no-fund --legacy-peer-deps
+      - name: Tester le collecteur de preuves SMN-478
+        run: node --test tests/smn-478-evidence-collector.test.mjs tests/smn-478-delivery-gate.test.mjs
+      # Each proof is bound to this one checkout and runner; release controls
+      # execute real commands and keep their individual SHA-256 logs locally.
+      - name: SMN-478 — Preuve suite unitaire complète
+        if: (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[smn-release]')))
+        run: node scripts/windows/collect-smn478-evidence.mjs run unit -- node scripts/run-ci-unit-tests.mjs --run
+      - name: SMN-478 — Preuve lint
+        if: (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[smn-release]')))
+        run: node scripts/windows/collect-smn478-evidence.mjs run lint -- cmd.exe /d /c npm run lint
+      - name: SMN-478 — Preuve typecheck
+        if: (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[smn-release]')))
+        run: node scripts/windows/collect-smn478-evidence.mjs run typecheck -- cmd.exe /d /c npm run typecheck
       - name: Valider les ressources Aide FR/EN avant packaging
         run: node --test tests/smn-468-offline-help.test.mjs
       - name: Contrat de protection des répertoires persistants et racine minimale
@@ -113,12 +129,16 @@ jobs:
         run: node --test tests/update-delivery.test.mjs
       - name: Parité des catalogues FR/EN
         run: npm run i18n:check
-      - name: Compiler SMN
-        # Le packaging reste autonome ; seul le build local Windows évite
-        # les symlinks refusés par les politiques de poste d'entreprise.
+      - name: Compiler SMN pour les contrôles ordinaires
+        if: ${{ !(github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[smn-release]'))) }}
         env:
           SMN_BUILD_STANDALONE: "1"
         run: npm run build
+      - name: SMN-478 — Preuve build autonome Windows
+        if: (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[smn-release]')))
+        env:
+          SMN_BUILD_STANDALONE: "1"
+        run: node scripts/windows/collect-smn478-evidence.mjs run build -- cmd.exe /d /c npm run build
       - name: Construire le paquet Node et PostgreSQL Windows vérifiés
         env:
           SMN_UPDATE_SIGNING_KEY_PEM_B64: ${{ secrets.SMN_UPDATE_SIGNING_KEY_PEM_B64 }}
@@ -132,14 +152,27 @@ jobs:
           $current = (git rev-parse HEAD).Trim()
           if ($current -ne $env:GITHUB_SHA) { throw 'Checkout modifié pendant le build' }
       - name: Contrôler le lancement autonome du paquet
+        if: ${{ !(github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[smn-release]'))) }}
         run: node scripts/windows/verify-package.mjs
+      - name: SMN-478 — Preuve installation Windows neuve
+        if: (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[smn-release]')))
+        run: node scripts/windows/collect-smn478-evidence.mjs run windowsFresh -- node scripts/windows/verify-package.mjs
       - name: SMN-442 — Recette réelle ZIP, destination remplie, rollback et réauthentification
+        if: ${{ !(github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[smn-release]'))) }}
         env:
           SMN442_E2E_DISPOSABLE: "YES"
         run: node scripts/windows/smn-442-acceptance.mjs
+      - name: SMN-478 — Preuve restauration ZIP installation neuve
+        if: (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[smn-release]')))
+        env:
+          SMN442_E2E_DISPOSABLE: "YES"
+        run: node scripts/windows/collect-smn478-evidence.mjs run zipFreshRestore -- node scripts/windows/smn-442-acceptance.mjs
       - name: Analyser les fichiers distribués avec Microsoft Defender
         shell: pwsh
         run: ./scripts/windows/scan-distribution.ps1 -Stage directory -Target '_package/SMN-Windows'
+      - name: SMN-478 — Exiger les douze preuves avant livraison
+        if: (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[smn-release]')))
+        run: node scripts/windows/collect-smn478-evidence.mjs finalize
       # Publishing requires explicit release intent: manual dispatch or a commit
       # deliberately marked [smn-release]. Ordinary pushes run verification only.
       # Every release rebuilds the package from its exact clean source commit.
