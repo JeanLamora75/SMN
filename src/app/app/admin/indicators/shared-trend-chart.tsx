@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useEffect,useState,useSyncExternalStore} from "react";
 import Image from "next/image";
 import {useTranslation} from "@/i18n/client";
 export type SharedChartType="bar"|"line"|"area"|"pie"|"donut"|"gauge";
@@ -16,24 +16,30 @@ export function validChartZoom(value:unknown):number{
  return Number.isInteger(parsed)&&parsed>=MIN_ZOOM&&parsed<=MAX_ZOOM&&
   (parsed-MIN_ZOOM)%ZOOM_STEP===0?parsed:DEFAULT_ZOOM;
 }
+const ZOOM_CHANGE_EVENT="smn-indicator-chart-zoom-changed";
+function readZoom(){
+ try{return validChartZoom(window.localStorage.getItem(CHART_ZOOM_KEY));}
+ catch{return DEFAULT_ZOOM;}
+}
+function subscribeZoom(onChange:()=>void){
+ const handleStorage=(event:StorageEvent)=>{if(event.key===CHART_ZOOM_KEY||event.key===null)onChange();};
+ window.addEventListener("storage",handleStorage);
+ window.addEventListener(ZOOM_CHANGE_EVENT,onChange);
+ return ()=>{window.removeEventListener("storage",handleStorage);window.removeEventListener(ZOOM_CHANGE_EVENT,onChange);};
+}
+function defaultZoom(){return DEFAULT_ZOOM;}
 export default function SharedTrendChart({payload,downloadName}:{payload:SharedChartPayload;downloadName:string}){
  const t=useTranslation();
  const tr=(key:"style"|"loading"|"unavailable"|"download"|"default")=>t(("indicators.sharedChart."+key) as Parameters<typeof t>[0]);
  const [catalog,setCatalog]=useState<Catalog|null>(null);
  const [catalogError,setCatalogError]=useState(false);
  const [chosen,setChosen]=useState("");
- const [zoom,setZoom]=useState(DEFAULT_ZOOM);
- useEffect(()=>{
-  try{
-   const stored=window.localStorage.getItem(CHART_ZOOM_KEY);
-   if(stored!==null)setZoom(validChartZoom(stored));
-  }catch{/* Local storage may be unavailable. */}
- },[]);
+ const zoom=useSyncExternalStore(subscribeZoom,readZoom,defaultZoom);
  const changeZoom=(direction:-1|1)=>{
   const next=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,zoom+direction*ZOOM_STEP));
-  setZoom(next);
   try{window.localStorage.setItem(CHART_ZOOM_KEY,String(next));}
-  catch{/* The setting still works for the current session. */}
+  catch{/* Private browsing may block persistence. */}
+  window.dispatchEvent(new Event(ZOOM_CHANGE_EVENT));
  };
  const [rendered,setRendered]=useState<{key:string;url:string}|null>(null);
  const [failedKey,setFailedKey]=useState("");
