@@ -42,7 +42,17 @@ if(signingSecret){
 
 // pnpm/Next produisent des liens symboliques vers .next/standalone ; un paquet
 // autonome doit copier leurs cibles, sinon Node cherchera les fichiers source.
-await cp(".next/standalone", appDir, { recursive: true, force: true, dereference: true });
+for(let attempt=1;attempt<=4;attempt++){
+ try{
+  await cp(".next/standalone",appDir,{recursive:true,force:true,dereference:true});
+  break;
+ }catch(error){
+  const retryable=error&&["EPERM","EBUSY","EACCES","EINVAL"].includes(error.code);
+  if(!retryable||attempt===4)throw error;
+  console.warn("SMN package: transient Windows standalone copy error; retry "+attempt+"/4");
+  await new Promise(resolve=>setTimeout(resolve,750*attempt));
+ }
+}
 // Standalone tracing can copy source-only files. The deliverable is runtime-only.
 for(const name of [".git",".github",".agents","_bmad","_bmad-output",
   "src","tests","docs","data",".env",".env.local",".env.example"]){
