@@ -45,7 +45,7 @@ describe("AU-02 — contextual help for Members, Calendar, Kanban periods",()=>{
   assert.match(dialog,/fetch\("\/api\/help\/articles\/"/);
   assert.match(dialog,/method:"GET"/);
   assert.match(dialog,/competingModal\(\)/);
-  assert.match(dialog,/opener\.current\?\.focus\(\)/);
+  assert.match(dialog,/openerNode\?\.focus\(\)/);
   assert.match(dialog,/href=\{guideHref\} target="_blank"/);
  });
  it("loads the exact pre-existing Markdown for every authorized locale and mode",async()=>{
