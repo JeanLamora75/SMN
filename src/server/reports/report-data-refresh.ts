@@ -7,7 +7,11 @@ type Content={metrics?:Record<string,Metric>;dataSource?:unknown;[key:string]:un
 const keys=["committedSp","completedSp","plannedJh","actualJh"] as const;
 function project(prepared:NonNullable<Awaited<ReturnType<typeof prepareSprintReport>>>){
  const p=prepared.projection.scrum;
- return {committedSp:p.storyPoints.committed,completedSp:p.storyPoints.completed,plannedJh:p.capacity.planned,actualJh:p.capacity.actual};
+ const historical=p.legacyStoryPoints;
+ return {
+  ...(historical?{committedSp:historical.committed,completedSp:historical.completed}:{}),
+  plannedJh:p.capacity.planned,actualJh:p.capacity.actual
+ };
 }
 export function compareReportMetrics(before:Record<string,Metric>,after:Record<string,Metric>){
  return keys.map(key=>({key,oldValue:before[key]?.value??null,newValue:after[key]?.value??null,
