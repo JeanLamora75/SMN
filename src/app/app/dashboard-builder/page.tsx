@@ -8,6 +8,7 @@ import {requestLocale} from "@/i18n/locale.server";
 import {DashboardEditor} from "./dashboard-editor";
 import {dashboardPermission} from "@/server/dashboard-builder/permissions";
 import {listDashboardCycles,cycleNavigation} from "@/server/dashboard-builder/cycles";
+import {readSprintDetailGoals} from "@/server/sprints/goals-detail-read";
 
 export const dynamic="force-dynamic";
 /** Separate route until approved cutover of the existing /app dashboard. */
@@ -31,12 +32,15 @@ export default async function DashboardBuilderPage({searchParams}:{
    const mode=context.context.mode as "scrum"|"kanban";
    const cycles=await listDashboardCycles(db,{installationId:owner.rows[0].installation_id,accountId:account.id,teamId},mode);
    const navigation=cycleNavigation(cycles,typeof query.cycleId==="string"?query.cycleId:null);
-   return {teamId,teamName:context.context.team,mode,layout:saved.layout,revision:saved.revision,canEdit:rights.canEdit,navigation,cycles};
+   const goals=mode==="scrum"&&navigation.current?
+    await readSprintDetailGoals(db,teamId,navigation.current.id).catch(()=>null):null;
+   const sprintGoals=goals?.state==="available"?goals.items.map(goal=>goal.title):[];
+   return {teamId,teamName:context.context.team,mode,layout:saved.layout,revision:saved.revision,canEdit:rights.canEdit,navigation,cycles,sprintGoals};
   }).catch(()=>null);
   if(!data)return <section className="smn-panel p-4" role="alert"><h1 className="h4">Tableau de bord indisponible</h1><p>La configuration de cette équipe est inaccessible.</p><Link href="/app">Retour</Link></section>;
   const locale=await requestLocale();
   return <div className="py-3">
    <DashboardEditor initialLayout={data.layout} initialRevision={data.revision} canEdit={data.canEdit}
-    teamId={data.teamId} teamName={data.teamName} navigation={data.navigation} cycles={data.cycles} mode={data.mode} locale={locale}/>
+    teamId={data.teamId} teamName={data.teamName} navigation={data.navigation} cycles={data.cycles} mode={data.mode} locale={locale} sprintGoals={data.sprintGoals}/>
   </div>;
  }
