@@ -5,7 +5,7 @@ import {prepareSprintReport} from "./sprint-preparation";
 type Metric={value:number|null;unit:string;sourceId?:string|null};
 type Content={metrics?:Record<string,Metric>;dataSource?:unknown;[key:string]:unknown};
 const keys=["committedSp","completedSp","plannedJh","actualJh"] as const;
-function project(prepared:NonNullable<Awaited<ReturnType<typeof prepareSprintReport>>>){
+function project(prepared:NonNullable<Awaited<ReturnType<typeof prepareSprintReport>>>):Record<string,Metric>{
  const p=prepared.projection.scrum;
  const historical=p.legacyStoryPoints;
  return {
