@@ -56,7 +56,7 @@ export async function createReportDocument(db:Client,actorId:string,sprintId:str
   const id=randomUUID(),initial={
    sections:structuredClone(template.sections),options:structuredClone(template.content),
    notes:emptyNotes(),blocks:[],dataSource:{source:prepared.source,snapshotVersion:prepared.snapshotVersion},
-   metrics:{committedSp:prepared.projection.scrum.storyPoints.committed,completedSp:prepared.projection.scrum.storyPoints.completed,
+   metrics:{committedSp:prepared.projection.scrum.legacyStoryPoints?.committed,completedSp:prepared.projection.scrum.legacyStoryPoints?.completed,
     plannedJh:prepared.projection.scrum.capacity.planned,actualJh:prepared.projection.scrum.capacity.actual},
    templateSnapshot:{id:template.id,revision:template.revision,
     sections:structuredClone(template.sections),content:structuredClone(template.content)}
