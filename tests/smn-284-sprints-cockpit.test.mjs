@@ -44,14 +44,14 @@ test("Cockpit Sprints: conserve les liens, acces et messages metier",()=>{
   'sprintsIndex.page',
   'sprintsIndex.previous',
   'sprintsIndex.next',
-  'sprintsIndex.transitionNote'
  ])assert.ok(source.includes(fragment),fragment);
  assert.doesNotMatch(source,/href="#"/);
 });
 
 test("Cockpit Sprints: affiche une seule liste, structure adaptable au mobile",()=>{
  const source=ui(),styles=css();
- assert.match(source,/<table className="table table-hover align-middle smn-sprints-table">/);
+ assert.match(source,/smn-sprints-table--indicators/);
+ assert.match(source,/dynamicReport\?\.columns\.length/);
  assert.match(source,/data-label=\{t\("sprintsIndex\.period"\)\}/);
  assert.match(source,/data-label=\{t\("sprintStates\.status"\)\}/);
  assert.match(styles,/@media\(max-width:767\.98px\)/);

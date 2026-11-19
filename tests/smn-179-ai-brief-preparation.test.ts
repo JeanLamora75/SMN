@@ -13,7 +13,11 @@ test("server authorizes editing and resolves actual cycle",()=>{
  assert.match(page,/db.query<BriefContext>\(sql,\[id\]\)/);
 });
 test("preparation remains read-only and localizes collective context",()=>{
- for(const key of ["identifier","team","product","agileMode","dates","status","preparedAt"])assert.ok(page.includes('t("'+key+'")'),key);
+ for(const key of ["prepareTitle","cycle","team","product","dates"])assert.ok(page.includes('t("'+key+'")'),key);
+ assert.match(page,/const locale=await requestLocale\(\)/);
+ assert.match(page,/const preparedAt=new Date\(\)\.toISOString\(\)/);
+ assert.match(page,/const localizedStatus=/);
+ assert.match(page,/formatBriefCycleDates/);
  assert.match(page,/provisional=context.status!=="closed"/);
  assert.match(page,/localizedNativeBrief/);
  assert.doesNotMatch(page,/db\.query[^\n]*\b(?:INSERT|UPDATE|DELETE)\b/i);

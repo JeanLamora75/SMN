@@ -5,9 +5,9 @@ import {convertLegacyPrompt} from "../src/lib/ai-brief-prompt";
 const context={id:"cycle-1",name:"Sprint A",team:"Equipe Atlas",product:"Produit A",status:"active",startAt:"2026-10-01",endAt:"2026-10-14",timeZone:"Europe/Paris"};
 test("TXT resolver keeps unit, source, quality and zero value",()=>{
  const r=resolveBriefPrompt({context,mode:"scrum",preparedAt:"2026-10-25",promptText:"{{TEAM_NAME}} — {{ROW:INDICATORS}}",facts:{
-  "scrum.storyPoints.completed":{key:"scrum.storyPoints.completed",label:"Terminés",value:"0",unit:"SP",source:"current",quality:"provisional",snapshotVersion:null}}});
+  "scrum.capacity.planned":{key:"scrum.capacity.planned",label:"Capacité planifiée",value:"0",unit:"J/H",source:"current",quality:"provisional",snapshotVersion:null}}});
  assert.equal(r.safe,true);assert.match(r.text,/Equipe Atlas/);
- assert.match(r.text,/Terminés: 0 SP/);
+ assert.match(r.text,/Capacité planifiée: 0 J\/H/);
  assert.match(r.text,/source: current/);
  assert.match(r.text,/provisional/);
  assert.doesNotMatch(r.text,/<(?:svg|img|canvas)/i);

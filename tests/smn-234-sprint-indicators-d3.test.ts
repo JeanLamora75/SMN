@@ -135,7 +135,8 @@ describe("SMN-234 D3 — compatibilité des lecteurs historiques et autorisation
  it("v33: l'onglet indicateurs utilise les saisies et rapports dynamiques d'équipe",()=>{
   const page=read("src/app/app/admin/sprints/[sprintId]/page.tsx");
   assert.match(page,/active==="indicators"/);
-  assert.match(page,/<UniversalIndicatorInput teamId=\{teamId\}/);
+  assert.match(page,/<IndicatorDetailWorkspace teamId=\{teamId\} cycleId=\{cycle\.id\} locale=\{locale\}/);
+  assert.match(read("src/app/app/admin/indicators/indicator-detail-workspace.tsx"),/<UniversalIndicatorInput teamId=\{teamId\} cycleType="scrum" cycleId=\{cycleId\}/);
   assert.match(page,/<IndicatorReporting teamId=\{teamId\}/);
   assert.match(page,/canManageDynamicIndicators/);
   assert.doesNotMatch(page,/<SprintIndicatorsPanel/);

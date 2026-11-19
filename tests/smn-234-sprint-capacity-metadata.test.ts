@@ -32,7 +32,7 @@ describe("Fiche Sprint — métadonnées des capacités",()=>{
  it("affiche les rôles Agile positifs uniquement, séparés par des virgules et traduits",()=>{
   const mapped=mapSprintMemberMetadata([{memberId,dates:days}], [version()]);
   assert.deepEqual(mapped.get(memberId),{
-   professionalFunction:"UX designer",
+   professionalFunction:"UX designer",countryIso2:null,
    agileRoles:["scrumMaster","developer"],
    contributionPercents:[75]
   });
@@ -64,7 +64,7 @@ describe("Fiche Sprint — métadonnées des capacités",()=>{
    version({effective_from:"2026-11-01",revision:5})
   ]);
   assert.deepEqual(mapped.get(memberId),{
-   professionalFunction:"UX designer",agileRoles:null,contributionPercents:null
+   professionalFunction:"UX designer",countryIso2:null,agileRoles:null,contributionPercents:null
   });
  });
  it("présente les changements de contribution de la période dans leur ordre réel",()=>{

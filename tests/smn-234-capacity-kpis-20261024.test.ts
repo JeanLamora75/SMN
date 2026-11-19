@@ -113,7 +113,9 @@ test("la route est RBAC et la fiche relie les deux colonnes au dashboard",()=>{
  const panel=file("src/app/app/admin/sprints/[sprintId]/sprint-indicators-panel.tsx");
  const dashboard=file("src/server/dashboard/cycle-reader.ts");
  assert.match(api,/authorizeApi\(req,"write",resource\)/);
- assert.match(detail,/UniversalIndicatorInput teamId=\{teamId\} cycleType="scrum"/);
+ assert.match(detail,/<IndicatorDetailWorkspace teamId=\{teamId\} cycleId=\{cycle\.id\} locale=\{locale\}/);
+ const workspace=file("src/app/app/admin/indicators/indicator-detail-workspace.tsx");
+ assert.match(workspace,/<UniversalIndicatorInput teamId=\{teamId\} cycleType="scrum" cycleId=\{cycleId\}/);
  assert.match(detail,/IndicatorReporting teamId=\{teamId\} cycleType="scrum"/);
  assert.match(panel,/group==="capacity"/);
  assert.match(panel,/calculatedPlanned/);
