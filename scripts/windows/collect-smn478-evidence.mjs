@@ -72,6 +72,12 @@ export async function captureCheck(name,command,args=[],env=process.env){
 /** The release receipt is produced only if every independently run check passed. */
 export async function finalizeReceipt(env=process.env){
  const {commit,run}=qualificationContext(env),root=folder(env),checks=[];
+ const missing=[];
+ for(const name of smn478RequiredChecks){
+  try{await lstat(join(root,name+".json"));}
+  catch(e){if(e?.code==="ENOENT")missing.push(name);else throw e;}
+ }
+ if(missing.length)throw Error("smn478-collector-missing:"+missing.join(","));
  for(const name of smn478RequiredChecks){
   const status=join(root,name+".json");
   await safeFile(status,root);

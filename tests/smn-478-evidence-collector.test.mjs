@@ -20,7 +20,7 @@ test("SMN-478 collector requires an actual disposable CI context",()=>{
 });
 test("SMN-478 collector refuses missing evidence and failed commands",async t=>{
  const {env}=await fixture(t);
- await assert.rejects(finalizeReceipt(env),/ENOENT/);
+ await assert.rejects(finalizeReceipt(env),/smn478-collector-missing:/);
  await assert.rejects(captureCheck("unit",process.execPath,
   ["-e","process.exit(9)"],env),/check-failed:unit/);
  await assert.rejects(captureCheck("unit",process.execPath,
@@ -38,7 +38,7 @@ test("SMN-478 collector creates 12 independently hashed logs and refuses corrupt
  assert.equal(receipt.gitCommit,commit);
  await writeFile(join(dir,"zipUpgradeRestore.log"),"corrupted");
  await assert.rejects(finalizeReceipt({...env,SMN478_EVIDENCE_DIR:
-  join(dir,"does-not-exist")}),/ENOENT/);
+  join(dir,"does-not-exist")}),/smn478-collector-missing:/);
  // Removing the receipt still does not allow a changed log to pass.
  await rm(receiptPath);
  await assert.rejects(finalizeReceipt(env),/log-mismatch:zipUpgradeRestore/);
