@@ -126,3 +126,18 @@
 .graduatedRingValue{grid-area:1/1;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;max-width:60%;min-width:0;overflow-wrap:anywhere;pointer-events:none}
 .graduatedRingValue .metricNumber{font-size:clamp(1.05rem,2vw,1.8rem)}
 .graduatedRingValue .metricUnit{font-size:.75rem}
+
+/* Rows stretch every panel and its slots to the tallest content in that row. */
+.blockCell>.blockPanel{height:100%;min-height:0}
+.blockPanel{display:flex;flex-direction:column}
+.blockPanel>.innerSlots{flex:1 1 auto;align-content:stretch}
+.blockPanel>.innerSlots>.slotCard{height:100%}
+.fixedContent{overflow:visible}
+.headerContent{display:grid;gap:.65rem;min-width:0}
+.goalCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;min-width:0}
+.goalCard{min-width:0;border:1px solid rgba(255,255,255,.26);background:rgba(255,255,255,.12);border-radius:11px;padding:.7rem .85rem;color:#fff}
+.goalCard h2{font-size:.82rem;font-weight:750;margin:0 0 .35rem;color:#fff}
+.goalCard p,.goalCard ul{margin:0;font-size:.79rem;line-height:1.4;overflow-wrap:anywhere}
+.goalCard ul{padding-left:1.1rem;max-height:8rem;overflow-y:auto}
+.goalEmpty{color:var(--smn-context-muted,#dbe9fa);font-style:italic}
+@media(max-width:480px){.goalCards{grid-template-columns:minmax(0,1fr)}}
