@@ -14,6 +14,7 @@ import {join,resolve} from "node:path";
 import {createRequire} from "node:module";
 import {pathToFileURL} from "node:url";
 import pg from "pg";
+import {captureCheck} from "./collect-smn478-evidence.mjs";
 
 const {Client}=pg;
 if(process.platform!=="win32"||process.env.GITHUB_ACTIONS!=="true"||
@@ -157,6 +158,20 @@ async function installPrivacy(){
   ciphertext.toString("hex")].join(":");
  await writeFile(join(config,"privacy-ledger.key.enc"),encrypted);
  ledgerKey.fill(0);key.fill(0);
+}
+async function collectDisposablePgProofs(){
+ if(process.env.SMN478_CAPTURE_PG!=="YES")return;
+ const pg=await ensurePg();
+ try{
+  const uri=new URL(pg.uri);uri.pathname="/smn";
+  const env={...process.env,SMN_DATABASE_URL:uri.toString()};
+  const migration=["/d","/c","npx","tsx","--test","tests/smn-478-brief-migrations-pg.test.ts"];
+  await captureCheck("postgresEmpty","cmd.exe",
+   ["/d","/c","npx","tsx","--test","tests/smn-478-native-fresh-install-pg.test.ts"],env);
+  await captureCheck("postgresHistory","cmd.exe",migration,env);
+  // A separate repetition makes the historical rollback scenario independently auditable.
+  await captureCheck("postgresRollback","cmd.exe",migration,env);
+ }finally{await pg.client.end().catch(()=>{});}
 }
 async function seedSyntheticTeamMembers(){
  const portable=await ensurePg();
@@ -401,6 +416,7 @@ try{
  await setup();
   await finishOnboarding("admin",sourceSetupPass,sourcePass);
  await installPrivacy();
+ await collectDisposablePgProofs();
  await seedSyntheticTeamMembers();
  const briefProof=await seedAiBriefArchive();
  const {zip}=await saveSourceBackup();
