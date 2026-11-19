@@ -25,7 +25,7 @@ test("SMN-478 collector refuses missing evidence and failed commands",async t=>{
   ["-e","process.exit(9)"],env),/check-failed:unit/);
  await assert.rejects(captureCheck("unit",process.execPath,
   ["-e","console.log('second try')"],env),/collector-duplicate/);
- await assert.rejects(finalizeReceipt(env),/check-rejected:unit/);
+ await assert.rejects(finalizeReceipt(env),/smn478-collector-missing:typecheck/);
 });
 test("SMN-478 collector creates 12 independently hashed logs and refuses corruption",async t=>{
  const {dir,env}=await fixture(t);
