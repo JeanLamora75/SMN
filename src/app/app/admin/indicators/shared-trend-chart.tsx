@@ -17,9 +17,10 @@ export function validChartZoom(value:unknown):number{
   (parsed-MIN_ZOOM)%ZOOM_STEP===0?parsed:DEFAULT_ZOOM;
 }
 const ZOOM_CHANGE_EVENT="smn-indicator-chart-zoom-changed";
+let fallbackZoom=DEFAULT_ZOOM;
 function readZoom(){
  try{return validChartZoom(window.localStorage.getItem(CHART_ZOOM_KEY));}
- catch{return DEFAULT_ZOOM;}
+ catch{return fallbackZoom;}
 }
 function subscribeZoom(onChange:()=>void){
  const handleStorage=(event:StorageEvent)=>{if(event.key===CHART_ZOOM_KEY||event.key===null)onChange();};
@@ -37,6 +38,7 @@ export default function SharedTrendChart({payload,downloadName}:{payload:SharedC
  const zoom=useSyncExternalStore(subscribeZoom,readZoom,defaultZoom);
  const changeZoom=(direction:-1|1)=>{
   const next=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,zoom+direction*ZOOM_STEP));
+  fallbackZoom=next;
   try{window.localStorage.setItem(CHART_ZOOM_KEY,String(next));}
   catch{/* Private browsing may block persistence. */}
   window.dispatchEvent(new Event(ZOOM_CHANGE_EVENT));
