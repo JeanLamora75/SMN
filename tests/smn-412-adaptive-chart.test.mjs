@@ -111,3 +111,29 @@ test("renderer does not modify legacy production export path or core chart seman
  assert.match(source,/emuToPixels/);
  assert.match(source,/new Resvg\(scene\.svg/);
 });
+
+
+test("SMN-478 trends: a single combined chart plots bars, a line and an area with independent colors",()=>{
+ const mixed={
+  ...fixture(1600,900,"bar",[
+   {name:"Capacité maximale",unit:"JH",values:[75,50,50,50,49, null]},
+   {name:"Capacité planifiée",unit:"JH",values:[26,26,24,24,24, null]},
+   {name:"Capacité réelle",unit:"JH",values:[20,21,23,22,23, null]}
+  ]),
+  seriesTypes:["bar","line","area"]
+ };
+ const scene=composeAdaptiveChart(mixed);
+ assert.ok(scene);
+ assert.deepEqual(scene.meta.seriesTypes,["bar","line","area"]);
+ assert.match(scene.svg,/<rect[^>]+fill="#1b508d"/);
+ assert.match(scene.svg,/<polyline[^>]+stroke="#b45638"/);
+ assert.match(scene.svg,/<polygon[^>]+fill="#159895"/);
+ assert.match(scene.svg,/Capacité maximale/);
+ assert.match(scene.svg,/Capacité planifiée/);
+ assert.match(scene.svg,/Capacité réelle/);
+ const bytes=renderAdaptiveChartPng(mixed);
+ assert.equal(inspectPng(bytes).width,1600);
+ assert.equal(inspectPng(bytes).height,900);
+ isError(()=>composeAdaptiveChart({...mixed,seriesTypes:["bar","pie","area"]}),"office-chart-invalid-series-types");
+ isError(()=>composeAdaptiveChart({...mixed,seriesTypes:["bar"]}),"office-chart-invalid-series-types");
+});

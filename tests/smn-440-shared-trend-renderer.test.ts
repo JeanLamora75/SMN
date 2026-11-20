@@ -40,3 +40,20 @@ test("SMN-440 new user-facing strings are localized in FR and EN",()=>{
   assert.ok(fr.indicators.sharedChart[key]&&en.indicators.sharedChart[key],key);
  }
 });
+
+
+test("SMN-440 combined trends use one PNG with distinct per-series chart styles",()=>{
+ const payload={
+  cycles:[{name:"Sprint 101"},{name:"Sprint 102"},{name:"Sprint 103"}],
+  series:[
+   {name:"Capacité maximale",unit:"JH",values:[75,50,49]},
+   {name:"Capacité planifiée",unit:"JH",values:[26,24,24]}
+  ],
+  seriesTypes:["bar","line"],
+  type:"bar",locale:"fr",style:PREDEFINED_CHART_STYLES[0].config,
+  target:{widthEmu:960*3048,heightEmu:560*3048}
+ };
+ const image=renderAdaptiveChartPng(payload);
+ assert.ok(Buffer.isBuffer(image));
+ assert.equal(image.subarray(1,4).toString(),"PNG");
+});

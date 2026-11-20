@@ -45,10 +45,11 @@ test("SMN-396: zero, null and missing observations remain distinct",()=>{
 test("SMN-396: shared renderer remains responsible for PNG, styles and security",()=>{
  const chart=readFileSync(new URL("../src/app/app/admin/indicators/shared-trend-chart.tsx",import.meta.url),"utf8");
  const endpoint=readFileSync(new URL("../src/app/api/admin/reports/charts/render/route.ts",import.meta.url),"utf8");
- assert.match(source,/type:row\.style,locale/);
+ assert.match(source,/type:chartStyle,locale/);
+ assert.match(source,/seriesTypes:chartTypes/);
  assert.match(source,/<SharedTrendChart payload=/);
  assert.match(source,/downloadName=/);
- assert.match(source,/selected\.map\(\(\{row,column\}\)/);
+ assert.match(source,/selected\.map\(\(\{column\}\)/);
  assert.match(source,/table className="table table-sm table-striped"/);
  assert.match(chart,/\/api\/admin\/reports\/charts\/render/);
  assert.match(chart,/downloadName\+"\.png"/);

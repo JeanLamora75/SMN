@@ -32,5 +32,6 @@ test("SMN trends cockpit: each row has an individual style and remove action",()
  assert.match(source,/canAdd&&/);
  assert.match(source,/setApplied\(\{rows:rows\.map\(row=>\(\{\.\.\.row\}\)\),start,end\}\)/);
  assert.match(source,/selected\.map\(\(\{row,column\}\)=>/);
- assert.match(source,/type:row\.style,locale/);
+ assert.match(source,/type:chartStyle,locale/);
+ assert.match(source,/seriesTypes:chartTypes/);
 });
