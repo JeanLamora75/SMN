@@ -2824,7 +2824,7 @@
     "presenceRestricted": "Individual attendance estimates are restricted to administrators. Read-only users can view the Sprint page without receiving named member data.",
     "presenceMethod": "Estimated person-days based on scheduled member half-days, excluding recorded absences, public holidays and company closures. Two available half-days = one presence person-day; development shares and allocations do not reduce presence.",
     "presenceTotal": "Estimated total presence",
-    "presenceDevelopmentTotal": "Estimated total development capacity",
+    "presenceDevelopmentTotal": "Planned Dev Capacity",
     "presenceMembers": "Members assigned during the Sprint",
     "presenceMember": "Member",
     "presenceJh": "Presence (person-days)",
@@ -2909,8 +2909,8 @@
     "presenceMissingIntro": "These missing inputs prevent calculation on some days. Check assignments, country, national holiday coverage and effective work calendars for the Sprint dates.",
     "presenceSeeDiagnosis": "Open the development capacity diagnosis",
     "presenceRoleMethod": "Total presence sums available half-days for all assigned members. Developer, Product Owner and Scrum Master capacities use effective Agile role shares, weighted by allocation and contribution. Calendars must be effective on the Sprint dates.",
-    "presenceProductOwnerTotal": "Total Product Owner capacity",
-    "presenceScrumMasterTotal": "Total Scrum Master capacity"
+    "presenceProductOwnerTotal": "Planned PO Capacity",
+    "presenceScrumMasterTotal": "Planned SM Capacity"
   },
   "registrySummary": {
     "heading": "Record overview",
