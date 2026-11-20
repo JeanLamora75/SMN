@@ -62,9 +62,9 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
  const [cancelError,setCancelError]=useState("");
  async function cancelVersion(assignmentId:string,revision:number){
   if(cancellingRevision!==null)return;
-  if(!window.confirm("Annuler la dernière révision "+revision+
-   " ? La version précédente sera rétablie et une copie de la révision annulée sera auditée. "+
-   "L'opération sera refusée si des sprints figés sont concernés."))return;
+  if(!window.confirm(locale==="fr"?
+   "Annuler la dernière révision "+revision+" ? La version précédente sera rétablie et une copie de la révision annulée sera auditée. L'opération sera refusée si des sprints figés sont concernés.":
+   "Undo the latest revision "+revision+"? The previous version will be restored and the cancellation will be audited. This operation is refused if frozen sprints are affected."))return;
   setCancellingRevision(revision);setCancelError("");
   try{
    const response=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+
@@ -74,15 +74,20 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
    });
    const result=await response.json() as {error?:string};
    if(!response.ok){
-    setCancelError(result.error==="frozen-period"?
+    setCancelError(locale==="fr"?(result.error==="frozen-period"?
      "Annulation refusée : des sprints clôturés ou des instantanés figés sont concernés.":
      result.error==="conflict"?"La révision a changé. Rechargez la fiche.":
-     "Annulation impossible. Vérifiez les droits et les journaux du serveur.");return;
+     "Annulation impossible. Vérifiez les droits et les journaux du serveur."):
+     (result.error==="frozen-period"?"Cancellation refused: closed sprints or frozen snapshots are affected.":
+     result.error==="conflict"?"This revision has changed. Reload the member page.":
+     "Unable to cancel the revision. Check access rights and server logs."));return;
    }
    if((result as {affectedClosedSprints?:number}).affectedClosedSprints)
-    window.alert("Révision annulée. Pour actualiser les KPI des sprints clôturés concernés, repassez ces sprints au statut Terminé, puis clôturez-les à nouveau. Les rapports déjà édités restent inchangés.");
+    window.alert(locale==="fr"?
+     "Révision annulée. Pour actualiser les KPI des sprints clôturés concernés, repassez ces sprints au statut Terminé, puis clôturez-les à nouveau. Les rapports déjà édités restent inchangés.":
+     "Revision cancelled. To refresh KPIs for affected closed sprints, return those sprints to Done, then close them again. Previously generated reports remain unchanged.");
    setRefreshKey(v=>v+1);router.refresh();
-  }catch{setCancelError("Impossible de contacter le serveur d'annulation.");}
+  }catch{setCancelError(locale==="fr"?"Impossible de contacter le serveur d'annulation.":"Unable to contact the cancellation service.");}
   finally{setCancellingRevision(null);}
  }
  const dialogRef=useRef<HTMLDialogElement>(null);
