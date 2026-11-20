@@ -45,7 +45,6 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
  const [applied,setApplied]=useState<Applied|null>(null);
  useEffect(()=>{
   const ctrl=new AbortController();
-  setBusy(true);
   void fetch("/api/admin/indicators/reporting?"+new URLSearchParams({teamId,cycleType,screen:"trends"}),{signal:ctrl.signal,cache:"no-store"})
    .then(async response=>{if(!response.ok)throw Error("unavailable");return response.json() as Promise<Report>;})
    .then(data=>{
