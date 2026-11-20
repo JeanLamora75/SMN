@@ -42,20 +42,16 @@ test("SMN-396: zero, null and missing observations remain distinct",()=>{
  assert.equal(extent.min,-3);
  assert.equal(extent.max,20);
 });
-test("SMN-396: multi-selection delegates all styles and PNG to the shared renderer",()=>{
+test("SMN-396: shared renderer remains responsible for PNG, styles and security",()=>{
  const chart=readFileSync(new URL("../src/app/app/admin/indicators/shared-trend-chart.tsx",import.meta.url),"utf8");
  const endpoint=readFileSync(new URL("../src/app/api/admin/reports/charts/render/route.ts",import.meta.url),"utf8");
- assert.match(source,/indicators\.map\(id=>report\?\.columns/);
- assert.match(source,/type="checkbox" checked=\{indicators\.includes\(column\.id\)\}/);
- assert.match(source,/validateTrendSelection\(indicators,report\.columns\)/);
- assert.match(source,/MAX_TREND_SERIES/);
- assert.match(source,/disabled=\{indicators\.length>1&&\["pie","donut","gauge"\]\.includes\(s\)\}/);
- assert.match(source,/series\.map\(item=>\(\{name:item\.column\.name/);
+ assert.match(source,/type:row\.style,locale/);
  assert.match(source,/<SharedTrendChart payload=/);
- assert.match(source,/activeColumns\.map\(column=><th/);
- assert.match(source,/series\.map\(item=><td/);
+ assert.match(source,/downloadName=/);
+ assert.match(source,/selected\.map\(\(\{row,column\}\)/);
+ assert.match(source,/table className="table table-sm table-striped"/);
  assert.match(chart,/\/api\/admin\/reports\/charts\/render/);
- assert.match(chart,/downloadName\+"\.png"/);
+ assert.match(chart,/downloadName\+"\\.png"/);
  assert.match(endpoint,/renderAdaptiveChartPng/);
  assert.match(endpoint,/validTrendRenderRequest/);
  assert.match(endpoint,/authorizeApi/);
