@@ -55,6 +55,7 @@ export default function SprintCapacityMemberTable({members,locale}:{members:read
     {heading("roles",t("sprintDetail.presenceAgileRoles"))}
     {heading("function",t("sprintDetail.presenceFunction"))}
     {heading("contribution",t("sprintDetail.presenceContribution"))}
+    {heading("max",locale==="fr"?"Max (J/H)":"Max (person-days)")}
     {heading("presence",t("sprintDetail.presenceJh"))}
     {heading("absence",locale==="fr"?"Absences (J/H)":"Absences (person-days)")}
     {heading("development",t("sprintDetail.presenceDevelopmentJh"))}
@@ -65,6 +66,7 @@ export default function SprintCapacityMemberTable({members,locale}:{members:read
     <td>{roleNames(member.agileRoles)}</td>
     <td>{member.professionalFunction?.trim()||"—"}</td>
     <td>{contribution(member.contributionPercents)}</td>
+    <td title={locale==="fr"?"Présence théorique : jours programmés, hors jours fériés et fermetures, avant absences.":"Theoretical presence: scheduled days excluding public holidays and closures, before absences."}>{fmt(member.maxJh)}</td>
     <td><strong>{fmt(member.presenceJh)}</strong></td>
     <td tabIndex={0} title={absenceTooltip(member)}
      aria-label={(locale==="fr"?"Absences : ":"Absences: ")+

@@ -1,6 +1,6 @@
 import type {PresenceMember} from "@/lib/sprint-presence";
 
-export type CapacitySortKey="name"|"roles"|"function"|"contribution"|"presence"|"absence"|"development"|"quality";
+export type CapacitySortKey="name"|"roles"|"function"|"contribution"|"max"|"presence"|"absence"|"development"|"quality";
 export type CapacitySort={key:CapacitySortKey;direction:"desc"|"asc"};
 
 export function nextCapacitySort(current:CapacitySort|null,key:CapacitySortKey):CapacitySort{
@@ -38,6 +38,7 @@ export function sortCapacityMembers(members:readonly PresenceMember[],sort:Capac
    case "roles":comparison=text(roleText(a),roleText(b))*direction;break;
    case "function":comparison=text(a.professionalFunction??"",b.professionalFunction??"")*direction;break;
    case "contribution":comparison=number(contributionValue(a),contributionValue(b),descending);break;
+   case "max":comparison=number(a.maxJh,b.maxJh,descending);break;
    case "presence":comparison=number(a.presenceJh,b.presenceJh,descending);break;
    case "absence":comparison=number(a.absenceJh,b.absenceJh,descending);break;
    case "development":comparison=number(a.developmentJh,b.developmentJh,descending);break;

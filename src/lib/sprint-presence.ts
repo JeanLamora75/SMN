@@ -10,6 +10,8 @@ export type PresenceAbsence=Readonly<{
 }>;
 export type PresenceMember=Readonly<{
  memberId:string;displayName:string;presenceJh:number|null;
+ /** Theoretical scheduled presence before absences, after holidays and closures. */
+ maxJh?:number|null;
  /** Optional for snapshots created before absence display support. */
  absenceJh?:number|null;absences?:readonly PresenceAbsence[];
  /** Diagnostic for live estimates only; no individual details in collective views. */
@@ -68,7 +70,7 @@ export function presenceFromCapacity(report:CapacityPresenceInput):PresenceData{
   if(!member.memberId||ids.has(member.memberId)||
    typeof member.displayName!=="string")throw Error("invalid-member");
   ids.add(member.memberId);
-  let presence=0,unknownDays=0;
+  let presence=0,maxPresence=0,unknownDays=0;
   let absenceKnown=true,absenceHalfDays=0;
   const absences:PresenceAbsence[]=[];
   const missingSources=new Set<PresenceMissingSource>();
@@ -87,10 +89,17 @@ export function presenceFromCapacity(report:CapacityPresenceInput):PresenceData{
     unknownDays++;continue;
    }
    presence+=day.availableHalfDays/2;
+   if(day.absenceItems!==undefined){
+    const absentHalfDays=day.absenceItems.reduce((sum,item)=>sum+item.halfDays,0);
+    // Eligible absences are de-duplicated and exclude holidays and closures.
+    if(day.availableHalfDays+absentHalfDays>2)absenceKnown=false;
+    maxPresence+=(day.availableHalfDays+absentHalfDays)/2;
+   }
   }
   const knownDevelopment=member.totalJh!==null&&Number.isFinite(member.totalJh)&&member.totalJh>=0;
   return {memberId:member.memberId,displayName:member.displayName,
    presenceJh:unknownDays===0?round(presence):null,
+   ...(absenceKnown?{maxJh:unknownDays===0?round(maxPresence):null}:{}),
    developmentJh:knownDevelopment?member.totalJh:null,
    daysCount:member.days.length,unknownDays,missingSources:[...missingSources].sort(),
    ...(absenceKnown?{absenceJh:unknownDays===0?round(absenceHalfDays/2):null,absences}:{}),
@@ -138,6 +147,10 @@ export function presenceFromSnapshot(value:unknown,version:number):SprintPresenc
    (!Array.isArray(m.contributionPercents)||m.contributionPercents.some(p=>
     !Number.isInteger(p)||p<0||p>100)))
    return {state:"unavailable",reason:"read-failed"};
+  const hasMaxJh=Object.hasOwn(m,"maxJh");
+  if(hasMaxJh&&(!validJh(m.maxJh)||
+   (m.maxJh!==null&&(m.presenceJh===null||m.maxJh<m.presenceJh))))
+   return {state:"unavailable",reason:"read-failed"};
   const hasAbsenceJh=Object.hasOwn(m,"absenceJh");
   const hasAbsences=Object.hasOwn(m,"absences");
   if(hasAbsenceJh!==hasAbsences)return {state:"unavailable",reason:"read-failed"};
@@ -158,9 +171,13 @@ export function presenceFromSnapshot(value:unknown,version:number):SprintPresenc
    if(m.absenceJh!==null&&Math.abs(totalHalfDays/2-Number(m.absenceJh))>0.0001)
     return {state:"unavailable",reason:"read-failed"};
   }
+  if(hasMaxJh&&hasAbsenceJh&&m.maxJh!==null&&m.absenceJh!==null&&
+   Math.abs(Number(m.maxJh)-(Number(m.presenceJh)+Number(m.absenceJh)))>0.0001)
+   return {state:"unavailable",reason:"read-failed"};
   seen.add(m.memberId);
   members.push({memberId:m.memberId,displayName:m.displayName,
    presenceJh:m.presenceJh as number|null,
+   ...(hasMaxJh?{maxJh:m.maxJh as number|null}:{}),
    developmentJh:m.developmentJh as number|null,
    daysCount:m.daysCount as number,unknownDays:m.unknownDays as number,
    ...(hasAbsenceJh?{absenceJh:m.absenceJh as number|null,
