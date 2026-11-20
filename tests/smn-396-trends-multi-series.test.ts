@@ -51,7 +51,7 @@ test("SMN-396: shared renderer remains responsible for PNG, styles and security"
  assert.match(source,/selected\.map\(\(\{row,column\}\)/);
  assert.match(source,/table className="table table-sm table-striped"/);
  assert.match(chart,/\/api\/admin\/reports\/charts\/render/);
- assert.match(chart,/downloadName\+"\\.png"/);
+ assert.match(chart,/downloadName\+"\.png"/);
  assert.match(endpoint,/renderAdaptiveChartPng/);
  assert.match(endpoint,/validTrendRenderRequest/);
  assert.match(endpoint,/authorizeApi/);

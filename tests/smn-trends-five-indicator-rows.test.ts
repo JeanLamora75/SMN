@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {initialTrendRows,nextTrendRow,validTrendRows} from "../src/app/app/admin/indicators/indicator-trends";
+import {initialTrendRows,nextTrendRow,validTrendRows} from "../src/lib/indicators/trend-config";
 const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
 const cols=Array.from({length:7},(_,i)=>({id:"i"+i,tag:"tag"+i,name:"Indicateur "+i,unit:i%2?"SP":"JH"}));
 

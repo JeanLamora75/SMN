@@ -4,12 +4,11 @@ import SharedTrendChart from "./shared-trend-chart";
 import {useTranslation} from "@/i18n/client";
 import {formatIndicatorValue} from "@/lib/indicators/format-value";
 import {trendNumbers} from "@/lib/indicators/trend-series";
+import {initialTrendRows,nextTrendRow,validTrendRows,type TrendRow as IndicatorRow,type TrendChartStyle as Style} from "@/lib/indicators/trend-config";
 
 type Column={id:string;tag:string;name:string;unit:string};
 type Cycle={id:string;name:string;status:string;values:Record<string,string|null>};
 type Report={columns:Column[];cycles:Cycle[]};
-type Style="bar"|"line"|"pie"|"donut"|"gauge"|"area";
-type IndicatorRow={key:number;indicatorId:string;style:Style};
 type Applied={rows:IndicatorRow[];start:string;end:string};
 const MAX_INDICATOR_ROWS=5;
 const styles:Style[]=["bar","line","pie","donut","gauge","area"];
@@ -19,21 +18,6 @@ export function defaultTrendRange(cycles:readonly Cycle[],currentId?:string){
  const last=currentId&&cycles.findIndex(c=>c.id===currentId)<0?Math.max(0,cycles.length-1):end;
  return {start:cycles[Math.max(0,last-5)]?.id??"",end:cycles[last]?.id??""};
 }
-export function initialTrendRows(columns:readonly Column[]):IndicatorRow[]{
- return columns[0]?[{key:0,indicatorId:columns[0].id,style:"bar"}]:[];
-}
-export function nextTrendRow(rows:readonly IndicatorRow[],columns:readonly Column[]):IndicatorRow[] {
- if(rows.length>=MAX_INDICATOR_ROWS)return [...rows];
- const next=columns.find(column=>!rows.some(row=>row.indicatorId===column.id));
- if(!next)return [...rows];
- return [...rows,{key:Math.max(-1,...rows.map(row=>row.key))+1,indicatorId:next.id,style:"bar"}];
-}
-export function validTrendRows(rows:readonly IndicatorRow[],columns:readonly Column[]):boolean{
- return rows.length>0&&rows.length<=MAX_INDICATOR_ROWS&&
-  new Set(rows.map(row=>row.indicatorId)).size===rows.length&&
-  rows.every(row=>columns.some(column=>column.id===row.indicatorId)&&styles.includes(row.style));
-}
-
 export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamId:string;cycleType:"scrum"|"kanban";cycleId?:string;locale:"fr"|"en"}){
  const t=useTranslation();
  const [report,setReport]=useState<Report|null>(null);
