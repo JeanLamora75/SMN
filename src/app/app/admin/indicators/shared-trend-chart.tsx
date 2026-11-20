@@ -6,6 +6,7 @@ export type SharedChartType="bar"|"line"|"area"|"pie"|"donut"|"gauge";
 export type SharedChartPayload={
  type:SharedChartType;locale:"fr"|"en";cycles:{name:string}[];
  series:{name:string;unit:string;values:(number|null)[]}[];
+ seriesTypes?:("bar"|"line"|"area")[];
 };
 type Style={id:string;name:string};
 type Catalog={styles:Style[];defaults:Record<SharedChartType,{styleId:string}>};

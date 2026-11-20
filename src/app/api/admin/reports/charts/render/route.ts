@@ -12,12 +12,15 @@ export const dynamic="force-dynamic";
 type Series={name:string;unit:string;values:(number|null)[]};
 const safeLabel=(v:unknown)=>typeof v==="string"&&v.length<=160&&!/[<>\x00-\x1f]/.test(v);
 export function validTrendRenderRequest(raw:unknown):raw is {
- type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";styleId:string;
+ type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";styleId:string;seriesTypes?:("bar"|"line"|"area")[];
  locale:"fr"|"en";cycles:{name:string}[];series:Series[];
 }{
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return false;
  const o=raw as Record<string,unknown>;
- if(Object.keys(o).some(k=>!["type","styleId","locale","cycles","series"].includes(k))||
+ if(o.seriesTypes!==undefined&&(!Array.isArray(o.seriesTypes)||!Array.isArray(o.series)||
+    o.seriesTypes.length!==o.series.length||!["bar","line","area"].includes(o.type as string)||
+    !o.seriesTypes.every((v:unknown)=>["bar","line","area"].includes(v as string))))return false;
+ if(Object.keys(o).some(k=>!["type","styleId","locale","cycles","series","seriesTypes"].includes(k))||
   !validChartType(o.type)||!validChartStyleId(o.styleId)||!["fr","en"].includes(o.locale as string)||
   !Array.isArray(o.cycles)||o.cycles.length<1||o.cycles.length>24||
   !o.cycles.every(c=>c&&typeof c==="object"&&!Array.isArray(c)&&Object.keys(c).length===1&&safeLabel(c.name))||
@@ -43,7 +46,7 @@ export async function POST(req:NextRequest){
   const style=catalog.styles.find(s=>s.id===body.styleId);
   if(!style||!validChartStyleConfig(style.config))return jsonResult({error:"style-not-found"},404);
   const png=renderAdaptiveChartPng({
-   cycles:body.cycles,series:body.series,type:body.type,locale:body.locale,style:style.config,
+   cycles:body.cycles,series:body.series,type:body.type,seriesTypes:body.seriesTypes,locale:body.locale,style:style.config,
    target:{widthEmu:960*3048,heightEmu:560*3048}
   });
   if(!png||png.length>8*1024*1024)return jsonResult({error:"chart-unavailable"},422);

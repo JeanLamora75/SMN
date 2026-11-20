@@ -68,7 +68,9 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
  })[style];
  const changeRow=(key:number,update:Partial<Pick<IndicatorRow,"indicatorId"|"style">>)=>
   setRows(previous=>previous.map(row=>row.key===key?{...row,...update}:row));
- const addRow=()=>setRows(previous=>nextTrendRow(previous,report?.columns??[]));
+ const addRow=()=>setRows(previous=>nextTrendRow(
+  previous.map(row=>["pie","donut","gauge"].includes(row.style)?{...row,style:"bar"}:row),
+  report?.columns??[]));
  const removeRow=(key:number)=>setRows(previous=>previous.length<=1?previous:previous.filter(row=>row.key!==key));
  const canAdd=!!report&&rows.length<MAX_INDICATOR_ROWS&&report.columns.some(column=>!rows.some(row=>row.indicatorId===column.id));
 
@@ -119,7 +121,7 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
        {locale==="fr"?"Style graphique":"Chart style"}
        <select className="form-select mt-1" value={row.style}
         onChange={event=>changeRow(row.key,{style:event.target.value as Style})}>
-        {styles.map(style=><option key={style} value={style}>{label(style)}</option>)}
+        {styles.map(style=><option key={style} value={style} disabled={rows.length>1&&["pie","donut","gauge"].includes(style)}>{label(style)}</option>)}
        </select>
       </label>
       <div style={{width:38,flexShrink:0}} className="d-flex justify-content-end">
@@ -137,27 +139,32 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
    </form>
    {report.columns.length===0&&<p role="status">{t("indicators.reporting.empty")}</p>}
    {range.length>24?<p role="alert">{t("indicators.sharedChart.maxCycles")}</p>:
-    selected.map(({row,column})=>{
-     const nums=trendNumbers(range,column.id);
-     const actual=nums.filter((value):value is number=>value!==null);
-     const parts=row.style==="pie"||row.style==="donut";
-     const last=nums.length?nums[nums.length-1]:null;
+    selected.length>0&&(()=>{
+     const series=selected.map(({column})=>({name:column.name,unit:column.unit,values:trendNumbers(range,column.id)}));
+     const chartTypes=selected.map(({row})=>row.style);
+     const multiple=selected.length>1;
+     const mixedUnits=new Set(series.map(item=>item.unit.trim().toLocaleLowerCase())).size>1;
+     const chartStyle=multiple?"bar":chartTypes[0];
+     const nums=series[0]?.values??[];
+     const actual=series.flatMap(item=>item.values).filter((v):v is number=>v!==null);
+     const parts=chartStyle==="pie"||chartStyle==="donut";
+     const last=nums.at(-1)??null;
      const gaugeValid=last!==null&&last>=0&&last<=100;
-     const nonnegative=nums.length>0&&actual.length===nums.length&&actual.some(n=>n>0)&&actual.every(n=>n>=0);
-     return <div key={row.key} className="mb-3">
-      {selected.length>1&&<h3 className="h6 mb-2">{column.name}</h3>}
-      {actual.length===0?<p role="status">{t("indicators.reporting.empty")}</p>:
-       row.style==="gauge"&&!gaugeValid?<p role="alert">{locale==="fr"?"La jauge nécessite une valeur finale comprise entre 0 et 100 (référence : 100).":"Gauge requires a final value between 0 and 100 (reference: 100)."}</p>:
-       parts&&range.length>6?<p role="alert">{t("indicators.sharedChart.maxSlices")}</p>:
-       parts&&!nonnegative?<p role="alert">{locale==="fr"?"Secteurs et anneau nécessitent des valeurs non négatives et renseignées pour chaque Sprint.":"Pie and donut need nonnegative values for every cycle."}</p>:
-       <SharedTrendChart payload={{
-        type:row.style,locale,
-        cycles:parts?[{name:range[range.length-1]?.name??""}]:range.map(c=>({name:c.name})),
-        series:parts?range.map((cycle,i)=>({name:cycle.name,unit:column.unit,values:[nums[i]]})):
-         [{name:column.name,unit:column.unit,values:nums}]
-       }} downloadName={"tendances-"+column.tag.replace(/[^a-z0-9_-]/gi,"_")}/>}
-     </div>;
-    })}
+     const nonnegative=nums.length>0&&nums.every(v=>v!==null&&v>=0)&&nums.some(v=>v!==null&&v>0);
+     return actual.length===0?<p role="status">{t("indicators.reporting.empty")}</p>:
+      multiple&&chartTypes.some(style=>!["bar","line","area"].includes(style))?
+       <p role="alert">{locale==="fr"?"Plusieurs indicateurs : utilisez Barres, Ligne ou Aire.":"Multiple indicators: use Bars, Line or Area."}</p>:
+      mixedUnits?<p role="alert">{locale==="fr"?"Les indicateurs d'un même graphique doivent avoir la même unité.":"Indicators on the same chart must have the same unit."}</p>:
+      chartStyle==="gauge"&&!gaugeValid?<p role="alert">{locale==="fr"?"La jauge nécessite une valeur finale comprise entre 0 et 100 (référence : 100).":"Gauge requires a final value between 0 and 100 (reference: 100)."}</p>:
+      parts&&range.length>6?<p role="alert">{t("indicators.sharedChart.maxSlices")}</p>:
+      parts&&!nonnegative?<p role="alert">{locale==="fr"?"Secteurs et anneau nécessitent des valeurs non négatives et renseignées pour chaque Sprint.":"Pie and donut need nonnegative values for every cycle."}</p>:
+      <SharedTrendChart payload={{
+       type:chartStyle,locale,
+       cycles:parts?[{name:range[range.length-1]?.name??""}]:range.map(c=>({name:c.name})),
+       series:parts?range.map((cycle,i)=>({name:cycle.name,unit:series[0].unit,values:[nums[i]]})):series,
+       ...(multiple?{seriesTypes:chartTypes as ("bar"|"line"|"area")[]}:{})
+      }} downloadName="tendances-comparaison"/>;
+    })()}
    {selected.length>0&&range.length<=24&&<div className="table-responsive mt-3">
     <table className="table table-sm table-striped">
      <thead><tr><th>{t("indicators.reporting.cycle")}</th><th>{t("indicators.reporting.status")}</th>

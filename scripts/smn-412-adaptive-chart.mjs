@@ -73,11 +73,15 @@ function geometry(target){
  *   target: {widthEmu:number,heightEmu:number},
  *   cycles: Array<{name:string}>,
  *   series: Array<{name?:string,tag?:string,unit?:string,values:Array<number|null>}>,
- *   type?: string,locale?: "fr"|"en",
+ *   type?: string,locale?: "fr"|"en",seriesTypes?: Array<"bar"|"line"|"area">,
  *   style?: import("../src/server/reports/chart-style-contract").ChartStyleConfig | null
  * }} args
  */
-export function composeAdaptiveChart({target,cycles,series,type="line",locale="fr",style=null}){
+export function composeAdaptiveChart({target,cycles,series,type="line",locale="fr",style=null,seriesTypes=null}){
+ if(seriesTypes!==null&&(!Array.isArray(seriesTypes)||seriesTypes.length!==series.length||
+   !seriesTypes.every(t=>["bar","line","area"].includes(t))||
+   !["bar","line","area"].includes(type)))
+  throw new OfficeChartLayoutError("office-chart-invalid-series-types");
  const common=style?.common??null,options=style?.types?.[type]??null;
  const palette=common?.palette??COLORS;
  const txt=(value,x,y,size,props={})=>xmlText(value,x,y,size,{
@@ -112,7 +116,7 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
  if(common?.title)svgParts.push(txt(common.title,w/2,pad+font*.7,font*1.15,{weight:600}));
  if(common?.subtitle)svgParts.push(txt(common.subtitle,w/2,pad+font*1.6,font*.85));
  // Advanced bar layouts are isolated from the unchanged legacy grouped chart.
- if(type==="bar"&&options&&(options.orientation==="horizontal"||options.mode==="stacked")){
+ if(!seriesTypes&&type==="bar"&&options&&(options.orientation==="horizontal"||options.mode==="stacked")){
   const horizontal=options.orientation==="horizontal",stacked=options.mode==="stacked";
   const values=series.flatMap(item=>item.values).filter(value=>value!==null);
   const cell=(horizontal?plotHeight:plotWidth)/cycles.length;
@@ -284,16 +288,21 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
    labelItems.push(label);
   });
   const baseline=scale(0);
+  const bars=seriesTypes?seriesTypes.filter(t=>t==="bar").length:series.length;
+  let barIndex=0;
   series.forEach((s,si)=>{
    const color=palette[si%palette.length];
-   if(type==="bar"){
+   const seriesType=seriesTypes?.[si]??type;
+   const seriesOptions=style?.types?.[seriesType]??options;
+   if(seriesType==="bar"){
+    const currentBar=barIndex++;
     const cw=plotWidth/cycles.length;
-    const bw=Math.min(cw/(series.length+1),Math.max(4,cw*.68/series.length))*
-     (options?Math.max(.1,1-options.gap/100):1);
-    const radius=Math.min(options?.radius??0,bw/2);
+    const bw=Math.min(cw/(bars+1),Math.max(4,cw*.68/bars))*
+     (seriesOptions?Math.max(.1,1-seriesOptions.gap/100):1);
+    const radius=Math.min(seriesOptions?.radius??0,bw/2);
     s.values.forEach((v,i)=>{
      if(v===null)return;
-     const x=colX(i)-bw*series.length/2+si*bw;
+     const x=colX(i)-bw*bars/2+currentBar*bw;
      svgParts.push(rect(x,Math.min(scale(v),baseline),Math.max(1,bw-2),Math.max(1,Math.abs(scale(v)-baseline)),color,radius?'rx="'+radius+'"':""));
      if(v===0)svgParts.push(rect(x,baseline-2,Math.max(1,bw-2),4,color));
      if(showLabels)svgParts.push(txt(number(v),x+bw/2,scale(v)-font*.16,font*.7));
@@ -306,7 +315,7 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
     });
     if(segment.length)segments.push(segment);
     for(const points of segments){
-     if(type==="area"&&points.length>1){
+     if(seriesType==="area"&&points.length>1){
       const footprint=stackedArea?[
        ...points.map(p=>p.slice(0,2)),
        ...points.slice().reverse().map(p=>[p[0],scale(stackLevels[si][p[2]].from)])
@@ -314,8 +323,8 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
       svgParts.push('<polygon points="'+footprint.map(p=>p.map(num).join(",")).join(" ")+'" fill="'+color+'" fill-opacity="'+(options?options.opacity:".18")+'"/>');
      }
      if(points.length>1){
-      const stroke=options?.strokeWidth??Math.max(3,font*.085);
-      if(type==="line"&&options?.smooth){
+      const stroke=seriesOptions?.strokeWidth??Math.max(3,font*.085);
+      if(seriesType==="line"&&seriesOptions?.smooth){
        let path="M "+points[0].map(num).join(" ");
        for(let i=1;i<points.length;i++){
         const a=points[i-1],b=points[i],middle=(a[0]+b[0])/2;
@@ -328,15 +337,15 @@ export function composeAdaptiveChart({target,cycles,series,type="line",locale="f
       const value=series[si].values.filter(v=>v!==null)[pi];
       svgParts.push(txt(number(value),p[0],p[1]-font*.3,font*.68));
      });
-     if(options?.marker!=="none")points.forEach(p=>svgParts.push(
-      options?.marker==="square"?
+     if(seriesOptions?.marker!=="none")points.forEach(p=>svgParts.push(
+      seriesOptions?.marker==="square"?
        rect(p[0]-Math.max(4,font*.12),p[1]-Math.max(4,font*.12),2*Math.max(4,font*.12),2*Math.max(4,font*.12),color):
        '<circle cx="'+num(p[0])+'" cy="'+num(p[1])+'" r="'+num(Math.max(4,font*.12))+'" fill="'+color+'"/>'
      ));
     }
    }
   });
-  drawn={style:type,points:vals.length,range:[lower,upper],labels:labelItems,rotated:useRotation};
+  drawn={style:type,seriesTypes:seriesTypes??undefined,points:vals.length,range:[lower,upper],labels:labelItems,rotated:useRotation};
  }
  if(legendNeeded&&["bar","line","area","gauge"].includes(type)){
   if(rightLegend){
