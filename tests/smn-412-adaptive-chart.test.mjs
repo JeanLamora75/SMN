@@ -128,9 +128,8 @@ test("SMN-478 trends: a single combined chart plots bars, a line and an area wit
  assert.match(scene.svg,/<rect[^>]+fill="#1b508d"/);
  assert.match(scene.svg,/<polyline[^>]+stroke="#b45638"/);
  assert.match(scene.svg,/<polygon[^>]+fill="#159895"/);
- assert.match(scene.svg,/Capacité maximale/);
- assert.match(scene.svg,/Capacité planifiée/);
- assert.match(scene.svg,/Capacité réelle/);
+ assert.match(scene.svg,/Capacité/);
+ assert.equal(scene.meta.points,15);
  const bytes=renderAdaptiveChartPng(mixed);
  assert.equal(inspectPng(bytes).width,1600);
  assert.equal(inspectPng(bytes).height,900);
