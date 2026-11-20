@@ -2522,6 +2522,7 @@
     "noneUpcoming": "Aucune absence à venir ou en cours.",
     "nonePast": "Aucune absence passée.",
     "capacityNotice": "Les disponibilités et capacités non figées sont recalculées lors de leur prochaine consultation. Les références initiales figées et les bilans clôturés restent inchangés.",
+    "openManage": "Ajouter/Gérer Absence",
     "manageTab": "Gérer les absences",
     "manageHeading": "Gestion des absences",
     "manageEmpty": "Aucune absence enregistrée dans cette équipe.",

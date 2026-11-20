@@ -1,6 +1,7 @@
 "use client";
-import {useEffect,useState,type FormEvent} from "react";
+import {Fragment,useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
+import BootstrapIcon from "../bootstrap-icon";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 import type {AbsenceItem,AbsenceState,AbsenceSlot} from "@/server/members/absence";
 
@@ -26,6 +27,12 @@ export default function MemberAbsenceEditor({memberId,teamId,record,initialDate,
  const [error,setError]=useState("");
  const [tab,setTab]=useState<"add"|"manage">("add");
  const [selected,setSelected]=useState<AbsenceItem|null>(record);
+ const activeAbsences=state?.absences.filter(item=>!item.deleted)??[];
+ const upcoming=activeAbsences.filter(item=>item.endOn>=today)
+  .sort((a,b)=>a.startOn.localeCompare(b.startOn)||a.id.localeCompare(b.id));
+ const past=activeAbsences.filter(item=>item.endOn<today)
+  .sort((a,b)=>b.startOn.localeCompare(a.startOn)||b.id.localeCompare(a.id));
+ const slotLabel=(slot:AbsenceSlot)=>t(slot==="morning"?"members.calendar.morning":"members.calendar.afternoon");
  const dirty=Boolean(draft&&baseline&&JSON.stringify(draft)!==JSON.stringify(baseline));
  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
  useEffect(()=>{onDirtyChange?.(Boolean(dirty),busy);},[dirty,busy,onDirtyChange]);
@@ -121,24 +128,47 @@ export default function MemberAbsenceEditor({memberId,teamId,record,initialDate,
      onClick={()=>switchTab("manage")} disabled={busy}>{t("memberAbsences.manageTab")} ({state.absences.filter(a=>!a.deleted).length})</button>
    </div>
    {tab==="manage"&&<section role="tabpanel" aria-label={t("memberAbsences.manageHeading")}>
-    {state.absences.filter(a=>!a.deleted).length===0?
+    {activeAbsences.length===0?
      <p className="text-secondary">{t("memberAbsences.manageEmpty")}</p>:
-     <div className="table-responsive"><table className="table table-striped table-sm align-middle">
-      <thead><tr><th>{t("memberAbsences.manageDates")}</th><th>{t("members.absence.category")}</th><th>{t("memberAbsences.manageReason")}</th><th>{t("memberAbsences.status")}</th><th>{t("memberAbsences.manageActions")}</th></tr></thead>
-      <tbody>{state.absences.filter(a=>!a.deleted)
-       .sort((a,b)=>b.startOn.localeCompare(a.startOn)||b.id.localeCompare(a.id))
-       .map(item=><tr key={item.id}>
-        <td>{item.startOn===item.endOn?item.startOn:item.startOn+" → "+item.endOn}
-         <span className="d-block small text-secondary">{item.startSlot} → {item.endSlot}</span></td>
+     <div className="table-responsive smn-absence-history"><table className="table table-sm align-middle">
+      <thead><tr><th scope="col">{t("memberAbsences.manageDates")}</th><th scope="col">{t("members.absence.category")}</th>
+       <th scope="col">{t("memberAbsences.manageReason")}</th><th scope="col">{t("memberAbsences.status")}</th>
+       <th scope="col">{t("memberAbsences.manageActions")}</th></tr></thead>
+      <tbody>{([
+       {id:"upcoming",title:t("memberAbsences.upcoming"),items:upcoming},
+       {id:"past",title:t("memberAbsences.past"),items:past}
+      ] as const).map(group=><Fragment key={group.id}>
+       {group.items.length>0&&<tr className={"smn-absence-section smn-absence-section--"+group.id}>
+        <th colSpan={5} scope="rowgroup">{group.title} ({group.items.length})</th>
+       </tr>}
+       {group.items.map(item=><tr key={item.id}
+        className={group.id==="upcoming"?"smn-absence-row--upcoming":"smn-absence-row--past"}>
+        <td><time dateTime={item.startOn}>{item.startOn}</time>
+         {item.startOn!==item.endOn&&<> → <time dateTime={item.endOn}>{item.endOn}</time></>}
+         <span className="d-block small text-secondary">
+          {slotLabel(item.startSlot)} → {slotLabel(item.endSlot)}
+         </span></td>
         <td>{item.categoryName}</td><td>{item.reason}</td>
-        <td>{t(item.isPlanned?"members.absence.plannedShort":"members.absence.unplanned")}</td>
-        <td><div className="d-flex flex-wrap gap-1">
-         <button type="button" className="btn btn-outline-primary btn-sm" disabled={busy||state.archived}
-          onClick={()=>editExisting(item)}>{t("members.absence.edit")}</button>
-         <button type="button" className="btn btn-outline-danger btn-sm" disabled={busy||state.archived}
-          onClick={()=>void deleteExisting(item)}>{t("memberAbsences.delete")}</button>
+        <td><span className={"badge "+(group.id==="upcoming"?"text-bg-primary":"text-bg-secondary")}>
+         {t(item.isPlanned?"members.absence.plannedShort":"members.absence.unplanned")}
+        </span></td>
+        <td><div className="d-flex align-items-center gap-2">
+         <button type="button" className="btn btn-outline-primary btn-sm smn-absence-icon-action"
+          disabled={busy||state.archived}
+          aria-label={t("members.absence.edit")+" : "+item.startOn}
+          title={t("members.absence.edit")} onClick={()=>editExisting(item)}>
+          <BootstrapIcon name="pencil-square"/>
+         </button>
+         <button type="button" className="btn btn-outline-danger btn-sm smn-absence-icon-action"
+          disabled={busy||state.archived}
+          aria-label={t("memberAbsences.delete")+" : "+item.startOn}
+          title={t("memberAbsences.delete")}
+          onClick={()=>void deleteExisting(item)}>
+          <BootstrapIcon name="trash"/>
+         </button>
         </div></td>
-       </tr>)}</tbody>
+       </tr>)}
+      </Fragment>)}</tbody>
      </table></div>}
     {error&&<p role="alert" className="alert alert-warning">{error}</p>}
    </section>}

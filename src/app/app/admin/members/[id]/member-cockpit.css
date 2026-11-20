@@ -177,3 +177,26 @@
 @media(max-width:650px){
  .smn-member-cockpit .smn-member-metrics{grid-template-columns:1fr}
 }
+
+/* Absences: upcoming/ongoing records first, separated from historical records. */
+.smn-member-edit-dialog .smn-absence-history .smn-absence-section--upcoming > th{
+ --bs-table-bg:#eaf5f1;background:#eaf5f1;color:#124b43;font-weight:750;
+ border-bottom:1px solid #95c9b8;padding:.65rem .55rem;
+}
+.smn-member-edit-dialog .smn-absence-history .smn-absence-section--past > th{
+ --bs-table-bg:#f1f3f6;background:#f1f3f6;color:#445267;font-weight:750;
+ border-bottom:1px solid var(--smn-border);padding:.65rem .55rem;
+}
+.smn-member-edit-dialog .smn-absence-history .smn-absence-row--upcoming > :is(td,th){
+ --bs-table-bg:#f2faf7;background:#f2faf7;
+ border-bottom-color:#cae4da;
+}
+.smn-member-edit-dialog .smn-absence-history .smn-absence-row--upcoming > td:first-child{
+ border-left:3px solid #27836d;font-weight:650;
+}
+.smn-member-edit-dialog .smn-absence-history .smn-absence-row--past > :is(td,th){
+ --bs-table-bg:#f5f6f8;background:#f5f6f8;color:#596578;
+}
+.smn-member-edit-dialog .smn-absence-history .smn-absence-icon-action{
+ width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;padding:0;
+}

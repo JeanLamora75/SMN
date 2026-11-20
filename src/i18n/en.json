@@ -2522,6 +2522,7 @@
     "noneUpcoming": "No upcoming or ongoing absences.",
     "nonePast": "No past absences.",
     "capacityNotice": "Non-frozen availability and capacity are recalculated on the next read. Frozen initial references and closed period reports remain unchanged.",
+    "openManage": "Add/Manage Absences",
     "manageTab": "Manage absences",
     "manageHeading": "Manage absences",
     "manageEmpty": "No recorded absences in this team.",

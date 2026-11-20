@@ -195,10 +195,10 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     <p className="smn-member-role">{role||t("memberTeamScope.noRole")} — {identity.profession||t("memberTeamScope.noFunction")}</p>
    </div>
    <div className="smn-member-hero-actions">
-    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("profile")}>Profil</button>
-    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("location")}>Localisation</button>
-    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("calendar")}>Calendrier</button>
-    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>{setTargetRevision(null);setEditor("assignment");}}>Affectation</button>
+    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("profile")}>{locale==="fr"?"Profil":"Profile"}</button>
+    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("location")}>{locale==="fr"?"Localisation":"Location"}</button>
+    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("calendar")}>{locale==="fr"?"Calendrier":"Calendar"}</button>
+    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>{setTargetRevision(null);setEditor("assignment");}}>{locale==="fr"?"Affectation":"Assignment"}</button>
     <Link className="smn-member-readonly smn-member-back" href={backHref}>← {t("memberTeamScope.back")}</Link>
    </div>
   </header>
@@ -206,8 +206,8 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
    onCancel={()=>setEditor(null)}>
    <div className="modal-content smn-cockpit-modal">
     <div className="smn-cockpit-modal-header">
-     <h2 id="smn-member-edit-title" className="h5 mb-0">{editor==="profile"?"Modifier le profil":editor==="location"?"Modifier la localisation":editor==="calendar"?"Modifier le calendrier de travail":editor==="assignment"?"Modifier l’affectation et les rôles":t("members.absence.historyTitle")}</h2>
-     <button type="button" className="btn-close" aria-label="Fermer" onClick={()=>setEditor(null)}/>
+     <h2 id="smn-member-edit-title" className="h5 mb-0">{editor==="profile"?(locale==="fr"?"Modifier le profil":"Edit profile"):editor==="location"?(locale==="fr"?"Modifier la localisation":"Edit location"):editor==="calendar"?(locale==="fr"?"Modifier le calendrier de travail":"Edit work calendar"):editor==="assignment"?(locale==="fr"?"Modifier l’affectation et les rôles":"Edit assignment and roles"):t("members.absence.historyTitle")}</h2>
+     <button type="button" className="btn-close" aria-label={locale==="fr"?"Fermer":"Close"} onClick={()=>setEditor(null)}/>
     </div>
     <div className="smn-cockpit-modal-body smn-member-edit-body">
      {editor==="assignment"?<AssignmentEditor memberId={memberId} teamId={teamId} teamName={teamName} memberRevision={1} teamScoped targetRevision={targetRevision} onSaved={()=>{window.alert("Si cette modification affecte un sprint clôturé, repassez ce sprint au statut Terminé, puis clôturez-le à nouveau pour actualiser ses KPI. Les rapports déjà édités restent inchangés.");setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
@@ -282,7 +282,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     <input className="form-control smn-member-month-select" id="smn-member-team-month"
      aria-label={t("memberTeamScope.month")} type="month" min="1900-01" max="2200-12"
      value={month} onChange={event=>setMonth(event.target.value)}/>
-    <button type="button" className="smn-member-readonly smn-member-month-action" onClick={()=>setEditor("absence")}>Ajouter une absence</button>
+    <button type="button" className="smn-member-readonly smn-member-month-action" onClick={()=>setEditor("absence")}>{t("memberAbsences.openManage")}</button>
    </div>
    <p className="text-secondary">{t("memberTeamScope.privacy")}</p>
    {status==="loading"&&<p role="status">{t("memberTeamScope.loading")}</p>}
