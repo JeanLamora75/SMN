@@ -149,7 +149,8 @@ export function presenceFromSnapshot(value:unknown,version:number):SprintPresenc
    return {state:"unavailable",reason:"read-failed"};
   const hasMaxJh=Object.hasOwn(m,"maxJh");
   if(hasMaxJh&&(!validJh(m.maxJh)||
-   (m.maxJh!==null&&(m.presenceJh===null||m.maxJh<m.presenceJh))))
+   (typeof m.maxJh==="number"&&
+    (typeof m.presenceJh!=="number"||m.maxJh<m.presenceJh))))
    return {state:"unavailable",reason:"read-failed"};
   const hasAbsenceJh=Object.hasOwn(m,"absenceJh");
   const hasAbsences=Object.hasOwn(m,"absences");
