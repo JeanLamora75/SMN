@@ -1,7 +1,7 @@
 "use client";
 import {Fragment,useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
-import BootstrapIcon from "../bootstrap-icon";
+import BootstrapIcon from "../../bootstrap-icon";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 import type {AbsenceItem,AbsenceState,AbsenceSlot} from "@/server/members/absence";
 
@@ -164,7 +164,7 @@ export default function MemberAbsenceEditor({memberId,teamId,record,initialDate,
           aria-label={t("memberAbsences.delete")+" : "+item.startOn}
           title={t("memberAbsences.delete")}
           onClick={()=>void deleteExisting(item)}>
-          <BootstrapIcon name="trash"/>
+          <BootstrapIcon name="trash-fill"/>
          </button>
         </div></td>
        </tr>)}
