@@ -2824,7 +2824,7 @@
     "presenceRestricted": "Les présences individuelles sont réservées à l’administrateur. L’utilisateur conserve l’accès en lecture à la fiche Sprint sans données nominatives.",
     "presenceMethod": "Estimation en J/H fondée sur les demi-journées programmées pour chaque membre, déduction faite des absences, jours fériés et fermetures. 2 demi-journées disponibles = 1 J/H de présence ; les contributions et pourcentages de développement ne réduisent pas ce chiffre.",
     "presenceTotal": "Présence totale estimée",
-    "presenceDevelopmentTotal": "Capacité totale de développement estimée",
+    "presenceDevelopmentTotal": "Capacité Dev Planifiée",
     "presenceMembers": "Membres affectés durant le Sprint",
     "presenceMember": "Membre",
     "presenceJh": "Présence (J/H)",
@@ -2909,8 +2909,8 @@
     "presenceMissingIntro": "Les données suivantes empêchent de calculer certaines journées. Vérifie les affectations, le pays, la couverture des jours fériés et les calendriers effectifs aux dates du Sprint.",
     "presenceSeeDiagnosis": "Ouvrir le diagnostic de capacité de développement",
     "presenceRoleMethod": "La présence totale additionne les demi-journées disponibles de tous les membres affectés. Les capacités Développeur, Product Owner et Scrum Master utilisent les parts de rôle Agile effectives, pondérées par l’affectation et la contribution. Les calendriers doivent être effectifs aux dates du Sprint.",
-    "presenceProductOwnerTotal": "Capacité totale Product Owner",
-    "presenceScrumMasterTotal": "Capacité totale Scrum Master"
+    "presenceProductOwnerTotal": "Capacité PO Planifiée",
+    "presenceScrumMasterTotal": "Capacité SM planifiée"
   },
   "registrySummary": {
     "heading": "Synthèse de la fiche",
